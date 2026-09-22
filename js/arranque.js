@@ -1,14 +1,16 @@
-// Arranque: versión de los archivos y mapa de importación. Es un script
-// clásico y va ANTES del módulo de entrada, porque el mapa de importación
-// tiene que existir antes del primer `import`.
+// Arranque: hoja de estilo y módulo de entrada, versionados.
 //
-// Vive en un archivo aparte y no en línea para que la política de seguridad
-// (CSP) de index.html pueda prohibir scripts en línea del todo.
+// La versión vive en el mapa de importación de index.html, que es el único
+// lugar donde tiene que estar: de ahí salen los `?v=` de todos los módulos.
+// Acá se la lee para ponérsela a la hoja de estilo y al módulo de entrada, y
+// para mostrarla en la página. Se sube con `./bump.sh`.
+//
+// Es un script clásico aparte y no en línea porque la política de seguridad
+// (CSP) de index.html prohíbe scripts en línea; el mapa de importación, que
+// no puede ser externo, va autorizado por hash.
 {
-  // Versión de los archivos: se toca acá o con `./bump.sh`. Cada archivo se
-  // pide con `?v=…` para que alcance con recargar, sin recarga forzada.
-  const V = '2026-09-21.16';
-  const MODULOS = ['analysis', 'app', 'bienvenida', 'curve', 'geom', 'head', 'pipeline', 'plots', 'signal', 'tracker'];
+  const mapa = JSON.parse(document.querySelector('script[type="importmap"]').textContent);
+  const V = mapa.imports['./js/app.js'].split('?v=')[1];
   document.documentElement.dataset.v = V;
 
   const hoja = document.createElement('link');
@@ -16,13 +18,10 @@
   hoja.href = `css/estilo.css?v=${V}`;
   document.head.appendChild(hoja);
 
-  // El mapa de importación versiona también los `import` internos, que no
-  // heredan el `?v=` del script de entrada. Va con createElement: un
-  // <script> insertado como texto no se procesa.
-  const mapa = document.createElement('script');
-  mapa.type = 'importmap';
-  mapa.textContent = JSON.stringify({
-    imports: Object.fromEntries(MODULOS.map((m) => [`./js/${m}.js`, `./js/${m}.js?v=${V}`])),
-  });
-  document.head.appendChild(mapa);
+  // Un `<script type="module">` en línea lo prohíbe la CSP: se inserta desde
+  // acá, con su `?v=`. Sus imports internos pasan por el mapa.
+  const entrada = document.createElement('script');
+  entrada.type = 'module';
+  entrada.src = `js/app.js?v=${V}`;
+  document.head.appendChild(entrada);
 }

@@ -87,19 +87,19 @@ dos lleva datos.
 ### Versión y caché
 
 Cada archivo se pide con `?v=…`, así que al publicar alcanza con recargar: no
-hace falta recarga forzada. La versión se toca en el `const V` de
-`js/arranque.js`, o con `./bump.sh`, y se muestra en la bienvenida y en
-Herramientas.
-
-El mapa de importación del mismo archivo versiona los `import` internos, que
-no heredan el `?v=` del script de entrada. `index.html` y `js/arranque.js`
-quedan sujetos a la caché del servidor: GitHub Pages los sirve con
-`max-age=600`.
+hace falta recarga forzada. La versión vive en el mapa de importación de
+`index.html`, que versiona los `import` internos (no heredan el `?v=` del
+script de entrada); `js/arranque.js` la lee de ahí para la hoja de estilo y el
+módulo de entrada, y se muestra en la bienvenida y en Herramientas. Se sube
+con `./bump.sh`, que regenera el mapa con todos los módulos de `js/`.
+`index.html` y `js/arranque.js` quedan sujetos a la caché del servidor: GitHub
+Pages los sirve con `max-age=600`.
 
 `index.html` lleva una política de seguridad (CSP) que prohíbe scripts en
 línea y limita las conexiones a lo que la página usa: jsdelivr y Google
-Storage para MediaPipe, y Abacus para el contador. Por eso el arranque va en un
-archivo aparte.
+Storage para MediaPipe, y Abacus para el contador. El mapa de importación no
+puede ser externo, así que va autorizado por su hash sha256 en la CSP;
+`bump.sh` actualiza los dos y `npm test` comprueba que coincidan.
 
 ### Atajos
 
