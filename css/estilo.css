@@ -170,6 +170,10 @@ body {
   font: 12px ui-monospace, monospace;
   transform: scaleX(-1);
 }
+/* `display: grid` le gana a `[hidden]`, que solo trae `display: none` del
+   estilo del navegador: sin esta regla el cartel no se va al encender la
+   cámara. */
+.sin-video[hidden] { display: none; }
 
 .ojos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .ojos figure { margin: 0; }
