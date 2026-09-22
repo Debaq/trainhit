@@ -190,6 +190,10 @@ body {
   border-radius: var(--r-widget);
 }
 .ojos figcaption { color: var(--muted-fg); font-size: 11px; text-align: center; padding-top: 2px; }
+/* Con el video espejado el ojo derecho del paciente queda a la DERECHA de la
+   pantalla, como en un espejo: los recuadros siguen el mismo orden que el
+   video de arriba, si no parece que estuvieran cruzados. */
+.ojos.espejada figure:first-child { order: 2; }
 
 /* ── controles ───────────────────────────────────────────────────────────── */
 

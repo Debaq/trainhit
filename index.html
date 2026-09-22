@@ -8,7 +8,7 @@
          jsdelivr (MediaPipe), y conexiones solo a lo que la página usa. -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-0R1D3benctl6a7H1Yu0ghIQ45TBfDcMrK7xu+QM/CNo='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
+      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-mVqandv01HPv41eVSa8AmOCj18OgeBwhUapjgFF70+U='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
     />
     <meta
       name="description"
@@ -21,7 +21,7 @@
     />
     <!-- Mapa de importación: versiona los imports internos. Lo regenera
          bump.mjs junto con su hash en la CSP de arriba. Va antes del arranque. -->
-    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-22.2","./js/app.js":"./js/app.js?v=2026-09-22.2","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-22.2","./js/curve.js":"./js/curve.js?v=2026-09-22.2","./js/geom.js":"./js/geom.js?v=2026-09-22.2","./js/head.js":"./js/head.js?v=2026-09-22.2","./js/pipeline.js":"./js/pipeline.js?v=2026-09-22.2","./js/plots.js":"./js/plots.js?v=2026-09-22.2","./js/signal.js":"./js/signal.js?v=2026-09-22.2","./js/tracker.js":"./js/tracker.js?v=2026-09-22.2"}}</script>
+    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-22.3","./js/app.js":"./js/app.js?v=2026-09-22.3","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-22.3","./js/curve.js":"./js/curve.js?v=2026-09-22.3","./js/geom.js":"./js/geom.js?v=2026-09-22.3","./js/head.js":"./js/head.js?v=2026-09-22.3","./js/pipeline.js":"./js/pipeline.js?v=2026-09-22.3","./js/plots.js":"./js/plots.js?v=2026-09-22.3","./js/signal.js":"./js/signal.js?v=2026-09-22.3","./js/tracker.js":"./js/tracker.js?v=2026-09-22.3"}}</script>
     <script src="js/arranque.js"></script>
     <noscript><link rel="stylesheet" href="css/estilo.css" /></noscript>
   </head>
@@ -78,7 +78,7 @@
             <div id="sin-video" class="sin-video">cámara apagada</div>
           </div>
 
-          <div class="ojos">
+          <div id="ojos" class="ojos espejada">
             <figure><canvas id="ojo-der" role="img" aria-label="ojo derecho ampliado"></canvas><figcaption>ojo derecho</figcaption></figure>
             <figure><canvas id="ojo-izq" role="img" aria-label="ojo izquierdo ampliado"></canvas><figcaption>ojo izquierdo</figcaption></figure>
           </div>

@@ -780,6 +780,7 @@ window.addEventListener('resize', ensucia);
 $('espejo').addEventListener('change', (e) => {
   estado.espejo = e.target.checked;
   $('camara-caja').classList.toggle('espejada', estado.espejo);
+  $('ojos').classList.toggle('espejada', estado.espejo);
 });
 $('camara').addEventListener('change', () => {
   if (estado.corriendo) {
