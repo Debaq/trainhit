@@ -206,18 +206,23 @@ El análisis largo de todo esto está en `GANANCIAS.md` del repo principal.
 - [Zamaro et al., 2020](https://doi.org/10.3233/ves-200708) — los métodos de
   cálculo de ganancia en vHIT no son intercambiables entre sí. *J Vestib Res.*
 
-## Banco sintético
+## Tests y banco sintético
 
 ```
-node test/banco.mjs
+npm test          # tests con assert (node --test, sin dependencias)
+npm run banco     # imprime los números del banco sintético
 ```
 
-Corre el mismo pipeline sobre impulsos generados con ganancia conocida, sin
-cámara ni MediaPipe. Sirve para dos cosas: comprobar que el motor devuelve la
-ganancia que se le puso, y **ver el efecto del paralaje sin calibrar** — con
-`k = 0` un VOR perfecto se lee 1,95. También verifica que `fitParallax` recupera
-la `k` que se usó para generar los datos, y que el eje de cabeza no mezcla un
-cabeceo con el canal lateral.
+Los dos corren el mismo pipeline sobre impulsos generados con ganancia
+conocida (`test/sintetico.mjs`), sin cámara ni MediaPipe. Los tests afirman
+que el motor devuelve la ganancia que se le puso a 30, 60 y 120 fps, que los
+rechazos disparan cuando corresponde, que `fitParallax` recupera la `k` con la
+que se generaron los datos y rechaza una calibración mala, que el eje de cabeza
+no mezcla un cabeceo con el canal lateral, y que el suavizado no sobrepasa las
+muestras. Corren en CI con cada push.
+
+El banco sirve para **ver el efecto del paralaje sin calibrar**: con `k = 0` un
+VOR perfecto se lee 1,95.
 
 ## Las perillas
 
