@@ -242,15 +242,33 @@ kbd {
   min-height: 0;
 }
 
-.lado-head { display: flex; align-items: baseline; gap: 10px; flex: none; }
-.lado-head h2 { margin: 0; font-size: 14px; font-weight: 600; }
+/* El gráfico va primero y ocupa lo que haya: en la web es lo que se mira. La
+   ganancia queda debajo, de resumen. */
+.lado-titulo {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--muted-fg);
+  flex: none;
+}
+.lado-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex: none;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+  margin-top: 6px;
+}
 .gan { font: 700 22px ui-monospace, monospace; }
 .gan.ok { color: var(--c-ok); }
 .gan.bajo { color: var(--c-bad); }
 .gan.sin { color: var(--muted-fg); }
 .meta { color: var(--muted-fg); font-size: 12px; margin-left: auto; }
 
-.plot { width: 100%; flex: 1; min-height: 150px; display: block; }
+.plot { width: 100%; flex: 1; min-height: 180px; display: block; }
 .plot.chico { height: 140px; flex: none; }
 
 .lista { max-height: 160px; overflow-y: auto; flex: none; margin-top: 6px; }

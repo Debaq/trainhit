@@ -7,7 +7,7 @@
     <script>
       // Versión de los archivos: se toca acá o con `./bump.sh`. Cada archivo se
       // pide con `?v=…` para que alcance con recargar, sin recarga forzada.
-      const V = '2026-09-21.7';
+      const V = '2026-09-21.8';
       const MODULOS = [
         'analysis',
         'app',
@@ -119,22 +119,22 @@
       <!-- ─────────── centro: un panel por lado ─────────── -->
       <main class="col-lados">
         <section class="lado" data-lado="derecha">
+          <h2 class="lado-titulo">Impulsos derecha</h2>
+          <canvas id="plot-der" class="plot"></canvas>
           <div class="lado-head">
-            <h2>Impulsos derecha</h2>
             <span id="gan-der" class="gan">—</span>
             <span id="meta-der" class="meta">0 aceptados</span>
           </div>
-          <canvas id="plot-der" class="plot"></canvas>
           <div class="lista"><table><tbody id="lista-der"></tbody></table></div>
         </section>
 
         <section class="lado" data-lado="izquierda">
+          <h2 class="lado-titulo">Impulsos izquierda</h2>
+          <canvas id="plot-izq" class="plot"></canvas>
           <div class="lado-head">
-            <h2>Impulsos izquierda</h2>
             <span id="gan-izq" class="gan">—</span>
             <span id="meta-izq" class="meta">0 aceptados</span>
           </div>
-          <canvas id="plot-izq" class="plot"></canvas>
           <div class="lista"><table><tbody id="lista-izq"></tbody></table></div>
         </section>
       </main>
