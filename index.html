@@ -4,7 +4,39 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>trainHIT</title>
-    <link rel="stylesheet" href="css/estilo.css" />
+    <script>
+      // Versión de los archivos: se toca acá o con `./bump.sh`. Cada archivo se
+      // pide con `?v=…` para que alcance con recargar, sin recarga forzada.
+      const V = '2026-09-21.4';
+      const MODULOS = [
+        'analysis',
+        'app',
+        'bienvenida',
+        'curve',
+        'geom',
+        'head',
+        'plots',
+        'signal',
+        'tracker',
+      ];
+      document.documentElement.dataset.v = V;
+
+      const hoja = document.createElement('link');
+      hoja.rel = 'stylesheet';
+      hoja.href = `css/estilo.css?v=${V}`;
+      document.head.appendChild(hoja);
+
+      // El mapa de importación versiona también los `import` internos, que no
+      // heredan el `?v=` del script de entrada. Va con createElement: un
+      // <script> insertado como texto no se procesa.
+      const mapa = document.createElement('script');
+      mapa.type = 'importmap';
+      mapa.textContent = JSON.stringify({
+        imports: Object.fromEntries(MODULOS.map((m) => [`./js/${m}.js`, `./js/${m}.js?v=${V}`])),
+      });
+      document.head.appendChild(mapa);
+    </script>
+    <noscript><link rel="stylesheet" href="css/estilo.css" /></noscript>
   </head>
   <body>
     <header class="topbar">
@@ -29,20 +61,18 @@
           iris cuadro a cuadro y calcula la ganancia de cada impulso cefálico.
         </p>
         <p>
-          Trabaja con cámara remota y sin gafas, que es un método con precedente clínico propio
-          —así mide Synapsys Ulmer, a 100 fps y con el blanco a 1–1,3 m— y no un vHIT de gafas al
-          que le falten piezas: sin gafas tampoco existe el deslizamiento que infla las ganancias.
+          Usa cámara remota, sin gafas: el mismo enfoque que tiene normativos publicados a 100 fps
+          con el blanco a 1–1,3 m
+          (<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC5594068/" target="_blank" rel="noopener">Wiener-Vacher &amp; Wiener, 2017</a>).
         </p>
         <p>
-          Todo ocurre en el navegador —el video no sale del equipo— y cada paso del cálculo se
-          puede abrir, mirar y modificar desde <b>Herramientas</b>; lo que separa esto de un
-          informe clínico son los 30 fps y la distancia al objetivo sin fijar, no el método.
+          Todo se procesa en el navegador y cada paso del cálculo está a la vista en
+          <b>Herramientas</b>. A 30 fps y sin fijar la distancia al objetivo, los valores son
+          didácticos.
         </p>
-        <p class="ayuda">
-          Antes de creerle a la ganancia hay que calibrar el paralaje con <kbd>C</kbd>: sin eso, un
-          VOR perfecto se lee ~1,9.
-        </p>
+        <p class="ayuda">Calibrar el paralaje con <kbd>C</kbd> antes de medir.</p>
         <button id="btn-empezar" class="primario">Empezar</button>
+        <p class="pie">versión <span class="v-app"></span></p>
       </div>
     </div>
 
@@ -123,7 +153,7 @@
     <!-- ─────────── herramientas educativas (cajón lateral) ─────────── -->
     <aside id="herramientas" class="cajon" hidden>
       <div class="cajon-head">
-        <h2>Herramientas</h2>
+        <h2>Herramientas <small class="v-app"></small></h2>
         <button id="btn-cerrar" class="ghost">✕</button>
       </div>
 
@@ -133,8 +163,8 @@
           <canvas id="plot-calib" class="plot chico"></canvas>
           <p id="calib-info" class="meta">sin calibrar</p>
           <p class="ayuda">
-            El centro de rotación del ojo está detrás de las comisuras: girar la cabeza corre el iris
-            sin que el ojo se mueva, y el artefacto mide lo mismo que la señal.
+            El centro de rotación del ojo está detrás de las comisuras: al girar la cabeza el iris se
+            corre sin que el ojo se mueva, con la misma magnitud que la señal.
           </p>
           <pre>sin(φ) = offset/R + k·sin(H)</pre>
           <p class="ayuda">Fijar un punto y mover la cabeza lento 10 s, ±20°. Los puntos deben caer en una recta de pendiente −k.</p>
@@ -142,7 +172,7 @@
             <span>k a mano <b id="k-manual-val">0.90</b></span>
             <input type="range" id="k-manual" min="0" max="1.6" step="0.05" value="0.9" />
             <label class="check"><input type="checkbox" id="k-manual-on" /> usar este k</label>
-            <small>Con k = 0 un VOR perfecto se lee ~1,9.</small>
+            <small>Con k = 0 un VOR normal se lee ~1,9.</small>
           </label>
         </section>
 
@@ -155,9 +185,7 @@
         <section>
           <h3>Ganancia vs pico</h3>
           <canvas id="plot-ganancias" class="plot chico"></canvas>
-          <p class="ayuda">
-            Línea punteada: corte 0,80 — viene de estudios que desacadizan, y este motor no desacadiza.
-          </p>
+          <p class="ayuda">Punteada: corte 0,80, de estudios con señal desacadizada. Este motor no desacadiza.</p>
         </section>
 
         <section>
@@ -202,7 +230,7 @@
               <input type="range" id="blink" min="0.1" max="0.9" step="0.05" value="0.45" />
             </label>
           </div>
-          <p class="ayuda">Mover una perilla afecta a los pulsos siguientes, no a los ya medidos.</p>
+          <p class="ayuda">Los cambios valen para los pulsos siguientes.</p>
         </section>
 
         <section>
@@ -223,9 +251,57 @@
             <li>Solo canal lateral; los verticales necesitan la componente vertical del ojo.</li>
           </ul>
         </section>
+
+        <section>
+          <h3>De dónde salen los números</h3>
+          <ul class="refs">
+            <li>
+              <a href="https://pubmed.ncbi.nlm.nih.gov/3390028/" target="_blank" rel="noopener">Halmagyi &amp; Curthoys, 1988</a>
+              — el impulso cefálico como signo clínico. <i>Arch Neurol.</i>
+            </li>
+            <li>
+              <a href="https://pubmed.ncbi.nlm.nih.gov/19805730/" target="_blank" rel="noopener">MacDougall et al., 2009</a>
+              — el vHIT contra bobina escleral: de acá sale el corte de 0,80, con ganancia de área
+              desacadizada a ~250 Hz y blanco a ~1 m. <i>Neurology.</i>
+            </li>
+            <li>
+              <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC5594068/" target="_blank" rel="noopener">Wiener-Vacher &amp; Wiener, 2017</a>
+              — normativos con cámara remota a 100 fps, blanco a 1–1,3 m: el precedente del
+              enfoque sin gafas. <i>Front Neurol.</i>
+            </li>
+            <li>
+              <a href="https://pubmed.ncbi.nlm.nih.gov/29865935/" target="_blank" rel="noopener">Judge et al., 2018</a>
+              — la distancia y el tamaño del blanco cambian la ganancia medida.
+              <i>Otolaryngol Head Neck Surg.</i>
+            </li>
+            <li>
+              <a href="https://pubmed.ncbi.nlm.nih.gov/30537706/" target="_blank" rel="noopener">Castro et al., 2018</a>
+              — la distancia del objetivo y la ganancia del VOR. <i>Audiol Neurootol.</i>
+            </li>
+            <li>
+              <a href="https://pubmed.ncbi.nlm.nih.gov/34057110/" target="_blank" rel="noopener">Jacobsen et al., 2021</a>
+              — ganancia por regresión contra ganancia instantánea: cuál es más reproducible.
+              <i>J Vestib Res.</i>
+            </li>
+            <li>
+              <a href="https://pubmed.ncbi.nlm.nih.gov/36970532/" target="_blank" rel="noopener">Money-Nolan &amp; Devroede, 2023</a>
+              — revisión sistemática de qué hace variar la ganancia: la ganancia no es un número
+              fijo, hacen falta normativos por equipo y protocolo. <i>Front Neurol.</i>
+            </li>
+            <li>
+              <a href="https://pubmed.ncbi.nlm.nih.gov/32930021/" target="_blank" rel="noopener">Du et al., 2021</a>
+              — ganancia y PR score en trastornos vestibulares periféricos. <i>Acta Otolaryngol.</i>
+            </li>
+          </ul>
+          <p class="ayuda">Comparación completa contra la literatura: <code>GANANCIAS.md</code> del repo principal.</p>
+        </section>
       </div>
     </aside>
 
-    <script type="module" src="js/app.js"></script>
+    <!-- El especificador pasa por el mapa de importación de arriba, que le pone
+         la versión; de ahí en más todos los módulos quedan versionados. -->
+    <script type="module">
+      import './js/app.js';
+    </script>
   </body>
 </html>

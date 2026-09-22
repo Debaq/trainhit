@@ -1,8 +1,8 @@
 // Análisis de un pulso: delimitar el impulso, calcular ganancias y decidir si
 // el pulso sirve. Port didáctico de `rust/src/analysis.rs`.
 //
-// Qué NO hace esto y sí hace un ICS Impulse (ver GANANCIAS.md §3.1 del repo
-// principal): **no desacadiza**. Las sacadas correctivas quedan adentro de la
+// Qué NO hace esto y sí hacen los equipos de los que salieron los normativos
+// (ver GANANCIAS.md §3.1 del repo principal): **no desacadiza**. Las sacadas correctivas quedan adentro de la
 // ganancia, y el sesgo es direccional — infla la ganancia justo en el paciente
 // con déficit, que es el que tiene sacadas covert. Es un sesgo hacia el FALSO
 // NEGATIVO, y es la discrepancia más grave del motor.
@@ -104,7 +104,8 @@ export function sampleAt(samples, tMs, field) {
  *   posiciones no arrastran el ruido de derivar.
  * - `instant60ms`: 1 - v_mirada/v_cabeza a los 60 ms del onset. A 30 fps es
  *   prácticamente inmedible (dos frames), queda como referencia.
- * - `peak`: máximos independientes, que es lo que hace el equipo de Synapsys.
+ * - `peak`: máximos independientes, que es lo que hacen algunos equipos de
+ *   cámara remota. No es intercambiable con las otras dos.
  */
 export function computeGains(all, core, side, tOnsetMs) {
   const sign = sideSign(side);

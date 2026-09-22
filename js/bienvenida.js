@@ -43,6 +43,11 @@ async function pide(ruta) {
 }
 
 export function montaBienvenida() {
+  // La versión, a la vista: es la forma de saber si lo que está corriendo es lo
+  // último publicado sin tener que abrir las herramientas del navegador.
+  const v = document.documentElement.dataset.v || '—';
+  for (const el of document.querySelectorAll('.v-app')) el.textContent = v;
+
   const modal = document.getElementById('bienvenida');
   const boton = document.getElementById('btn-megusta');
   const cuenta = document.getElementById('megusta-cuenta');

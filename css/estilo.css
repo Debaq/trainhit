@@ -339,3 +339,9 @@ kbd {
   .col-lados { grid-template-columns: 1fr; }
   .cajon { width: 100%; }
 }
+.cajon-head small { color: var(--muted-fg); font: 400 11px ui-monospace, monospace; }
+.pie { margin: 12px 0 0; color: #52525b; font: 11px ui-monospace, monospace; }
+.refs { margin: 0; padding-left: 16px; color: var(--muted-fg); font-size: 12px; }
+.refs li { margin-bottom: 7px; }
+.refs a { color: var(--c-guide); }
+.refs i { color: #71717a; }

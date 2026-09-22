@@ -11,13 +11,13 @@ paso del cálculo **se vea**, se pueda tocar y se entienda por qué está hecho 
 > un vHIT de gafas usa cámara >250 Hz, y el remoto comercial más lento va a 100 fps.
 
 Medir con cámara remota y sin gafas **es otro método, no un vHIT incompleto**.
-Tiene precedente comercial validado —Synapsys Ulmer: cámara remota, 100 fps,
-blanco a 1–1,3 m, con normativos pediátricos publicados— y una ventaja propia:
-sin gafas no existe el deslizamiento, un artefacto documentado que con gafas
-flojas llega a dar ganancias instantáneas de 1,24, que no son fisiológicas. Lo
-que separa a esto de un equipo clínico son la tasa de cuadros, la distancia al
-objetivo sin fijar y la falta de validación propia, no la ausencia de
-giroscopio.
+Hay normativos publicados con cámara remota a 100 fps y blanco a 1–1,3 m
+([Wiener-Vacher & Wiener, 2017](https://pmc.ncbi.nlm.nih.gov/articles/PMC5594068/)),
+y el enfoque tiene una ventaja propia: sin gafas no existe el deslizamiento, un
+artefacto documentado que con gafas flojas llega a dar ganancias instantáneas de
+1,24, que no son fisiológicas. Lo que separa a esto de un equipo clínico son la
+tasa de cuadros, la distancia al objetivo sin fijar y la falta de validación
+propia, no la ausencia de giroscopio.
 
 ## Uso
 
@@ -65,6 +65,16 @@ la sesión. Un voto por navegador, recordado en `localStorage`.
 
 Aparte del modelo de MediaPipe, es la única petición que sale de la página, y
 solo si alguien aprieta el botón.
+
+### Versión y caché
+
+Cada archivo se pide con `?v=…`, así que al publicar alcanza con recargar: no
+hace falta recarga forzada. La versión se toca en el `const V` de `index.html`,
+o con `./bump.sh`, y se muestra en la bienvenida y en Herramientas.
+
+El mapa de importación del mismo bloque versiona los `import` internos, que no
+heredan el `?v=` del script de entrada. `index.html` queda sujeto a la caché del
+servidor: GitHub Pages lo sirve con `max-age=600`.
 
 ### Atajos
 
@@ -149,8 +159,32 @@ Las cinco decisiones que importan, resumidas:
 - **Solo canal lateral.** Los verticales necesitan la componente vertical del
   movimiento ocular, más ruidosa por el párpado.
 
-El análisis largo de todo esto, con las fuentes, está en `GANANCIAS.md` del repo
-principal.
+El análisis largo de todo esto está en `GANANCIAS.md` del repo principal.
+
+## De dónde salen los números
+
+- [Halmagyi & Curthoys, 1988](https://pubmed.ncbi.nlm.nih.gov/3390028/) — el
+  impulso cefálico como signo clínico. *Arch Neurol.*
+- [MacDougall et al., 2009](https://pubmed.ncbi.nlm.nih.gov/19805730/) — el vHIT
+  contra bobina escleral. De acá sale el corte de 0,80, medido con ganancia de
+  área **desacadizada**, ~250 Hz y blanco a ~1 m. *Neurology.*
+- [Wiener-Vacher & Wiener, 2017](https://pmc.ncbi.nlm.nih.gov/articles/PMC5594068/)
+  — normativos con cámara remota a 100 fps y blanco a 1–1,3 m: el precedente del
+  enfoque sin gafas. *Front Neurol.*
+- [Judge et al., 2018](https://pubmed.ncbi.nlm.nih.gov/29865935/) — la distancia
+  y el tamaño del blanco cambian la ganancia medida. *Otolaryngol Head Neck Surg.*
+- [Castro et al., 2018](https://pubmed.ncbi.nlm.nih.gov/30537706/) — la distancia
+  del objetivo y la ganancia del VOR. *Audiol Neurootol.*
+- [Jacobsen et al., 2021](https://pubmed.ncbi.nlm.nih.gov/34057110/) — ganancia
+  por regresión contra ganancia instantánea: cuál es más reproducible.
+  *J Vestib Res.*
+- [Money-Nolan & Devroede, 2023](https://pubmed.ncbi.nlm.nih.gov/36970532/) —
+  revisión sistemática de qué hace variar la ganancia: no es un número fijo, y
+  hacen falta normativos por equipo y protocolo. *Front Neurol.*
+- [Du et al., 2021](https://pubmed.ncbi.nlm.nih.gov/32930021/) — ganancia y PR
+  score en trastornos vestibulares periféricos. *Acta Otolaryngol.*
+- [Zamaro et al., 2020](https://doi.org/10.3233/ves-200708) — los métodos de
+  cálculo de ganancia en vHIT no son intercambiables entre sí. *J Vestib Res.*
 
 ## Banco sintético
 
