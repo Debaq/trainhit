@@ -443,6 +443,54 @@ kbd {
   .lecturas { font-size: 11px; }
 }
 
+/* Teléfono de costado: sobra ancho y falta alto, así que se vuelve a dos
+   columnas —cámara y controles a la izquierda, los dos paneles ocupando todo lo
+   demás— en vez de apilar. Sin scroll: lo que no entra se recoge, y lo que se
+   recoge es lo secundario. La lista de pulsos y las lecturas se van; el número
+   de cada pulso sigue en el gráfico y en el CSV. */
+@media (orientation: landscape) and (max-height: 560px) {
+  body {
+    display: grid;
+    grid-template-columns: clamp(150px, 22vw, 200px) minmax(0, 1fr);
+    grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+    height: 100dvh;
+    overflow: hidden;
+    gap: 6px;
+    padding: 0 6px 6px;
+  }
+
+  .topbar { grid-column: 1 / -1; grid-row: 1; flex-wrap: nowrap; padding: 4px 8px; margin: 0 -6px; }
+  .topbar .chip { display: none; }
+  .estado { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+  .visor,
+  .botonera { width: 100%; align-self: start; }
+  .visor { grid-column: 1; grid-row: 2; flex-direction: column; gap: 6px; }
+  .camara-caja { width: 100%; }
+  .botonera:not(.fina) { grid-column: 1; grid-row: 3; }
+  .botonera.fina { grid-column: 1; grid-row: 4; }
+  .botonera button { flex: 1 1 auto; padding: 4px 8px; }
+
+  .col-lados { grid-column: 2; grid-row: 2 / 5; margin: 0; gap: 6px; }
+  .lado { padding: 5px 6px; }
+  .plot { height: auto; flex: 1; min-height: 0; }
+  .lista,
+  .lecturas { display: none; }
+
+  .vivo { grid-column: 1 / -1; grid-row: 5; padding: 2px 6px 0; }
+  .vivo canvas { height: 64px; }
+}
+
+/* Apaisado muy bajo (360 px de alto y menos): la columna izquierda no entra
+   entera. Se recogen los ojos ampliados —la cara ya se ve en el video— y la
+   traza en vivo se acorta, antes que dejar los paneles sin alto. */
+@media (orientation: landscape) and (max-height: 420px) {
+  .ojos { display: none; }
+  .botonera button { padding: 3px 7px; font-size: 12px; }
+  .vivo canvas { height: 48px; }
+  .vivo-head { font-size: 11px; }
+}
+
 @media (max-width: 480px) {
   /* Los indicadores de la barra están también en las lecturas de la izquierda;
      acá el lugar lo necesitan el estado y los botones. */

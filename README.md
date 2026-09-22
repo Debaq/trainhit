@@ -43,6 +43,12 @@ Los paneles de cada lado se normalizan con el impulso **hacia arriba** y la
 traza ocular invertida, que es la convención clínica: con VOR normal las dos
 curvas se superponen y la separación entre ellas es el hallazgo.
 
+En pantallas chicas la cámara pasa a un cuadrito con los ojos al lado y los dos
+paneles quedan igual lado a lado. Con el teléfono de costado se vuelve a dos
+columnas —cámara y controles a la izquierda, los paneles ocupando el resto— y se
+recogen la lista de pulsos y las lecturas, que es lo que sobra cuando falta
+alto.
+
 El botón **Herramientas** abre el cajón didáctico: el ajuste del paralaje
 dibujado, el último pulso con su ventana, la nube de ganancia contra pico y las
 perillas. El **?** de la barra vuelve a abrir la bienvenida.
