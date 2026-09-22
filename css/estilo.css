@@ -380,11 +380,34 @@ kbd {
   body { height: auto; }
   body { display: block; overflow: auto; }
 
-  .app { display: block; padding: 8px; }
-  /* El video no puede comerse la primera pantalla: acotado, los paneles de
-     pulsos entran sin scroll o a un golpe de dedo. */
-  .col-video { overflow: visible; max-width: 420px; margin: 0 auto 10px; }
-  .col-lados { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  /* Orden vertical: video y controles, los gráficos, y al final las lecturas.
+     Los números en vivo son de apoyo; lo que se mira son los pulsos, y con las
+     lecturas en el medio quedaban empujando los gráficos hacia abajo.
+
+     `display: contents` disuelve los contenedores para que la barra, los
+     bloques del video, los paneles de pulsos y la traza en vivo queden todos
+     como hermanos y se puedan intercalar con `order`. */
+  body { display: flex; flex-direction: column; gap: 10px; }
+  .app,
+  .col-video { display: contents; }
+
+  .camara-caja,
+  .ojos,
+  .botonera,
+  .lecturas { width: min(100% - 16px, 420px); align-self: center; }
+  .topbar { order: 0; }
+  .camara-caja { order: 1; }
+  .ojos { order: 2; }
+  .botonera { order: 3; }
+  .col-lados {
+    order: 4;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 0 8px;
+  }
+  .vivo { order: 5; }
+  .lecturas { order: 6; margin-bottom: 12px; }
   .lado { min-height: 0; }
   .plot { flex: none; height: 240px; }
   .vivo { height: auto; }
