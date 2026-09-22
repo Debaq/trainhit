@@ -16,6 +16,20 @@ const fmt = (v, d = 2) => (v === null || v === undefined || Number.isNaN(v) ? '�
 
 const cfg = structuredClone(CONFIG);
 
+/**
+ * Qué hay que redibujar. Los paneles de pulsos, la dispersión y la
+ * calibración cambian con eventos —un pulso nuevo, una perilla, el tamaño de
+ * la ventana—, no con cada frame: redibujarlos a 60 Hz era layout y canvas
+ * tirados, y en el teléfono le competían el tiempo a la inferencia. La traza
+ * en vivo y el video sí van a frame rate mientras la cámara corre.
+ */
+const sucio = { pulsos: true, calib: true, vivo: true };
+const ensucia = () => {
+  sucio.pulsos = true;
+  sucio.calib = true;
+  sucio.vivo = true;
+};
+
 const estado = {
   landmarker: null,
   delegate: null,
@@ -95,6 +109,7 @@ function detener() {
   estado.stream = null;
   estado.bucle = null;
   reseteaTransitorio();
+  sucio.vivo = true; // una última pasada, para vaciar video y ojos
   $('sin-video').hidden = false;
   $('aviso-fps').hidden = true;
   $('btn-arrancar').textContent = 'Encender cámara';
@@ -311,6 +326,7 @@ function empiezaCalibracion() {
   }
   estado.calib = { t0: performance.now(), samples: [], descartadasRapido: 0, descartadasParpadeo: 0, rapidoAhora: false };
   estado.ultimoFit = null;
+  sucio.calib = true;
   abreHerramientas(true);
   marcaEstado('calibrando: fijar un punto y mover la cabeza LENTO, ±20°');
 }
@@ -318,6 +334,7 @@ function empiezaCalibracion() {
 function cierraCalibracion() {
   const c = estado.calib;
   estado.calib = null;
+  sucio.calib = true;
   const fit = geom.fitParallax(c.samples, estado.model.radiusMm);
   estado.ultimoFit = fit ? { ...fit, muestras: c.samples } : null;
   if (!fit) {
@@ -379,6 +396,7 @@ function marcaEstado(txt) {
 }
 
 function pintaListas() {
+  sucio.pulsos = true;
   for (const [lado, tbodyId] of [
     ['derecha', 'lista-der'],
     ['izquierda', 'lista-izq'],
@@ -453,15 +471,26 @@ function pintaTodo() {
   $('v-vojo').textContent = ultima ? fmt(ultima.headVel - ultima.gazeVel, 0) : '—';
   $('v-blink').textContent = estado.vivo.blink ? 'sí' : 'no';
 
-  dibujaVideo();
-  plots.trazaViva($('plot-vivo'), estado.rolling);
-  plots.overlayLado($('plot-der'), estado.trials, 'derecha', cfg, estado.seleccion);
-  plots.overlayLado($('plot-izq'), estado.trials, 'izquierda', cfg, estado.seleccion);
+  if (estado.corriendo || sucio.vivo) {
+    dibujaVideo();
+    plots.trazaViva($('plot-vivo'), estado.rolling);
+    sucio.vivo = false;
+  }
 
-  if (!$('herramientas').hidden) {
-    plots.dibujaPulso($('plot-pulso'), estado.seleccion || estado.trials[estado.trials.length - 1], cfg);
-    plots.dibujaDispersion($('plot-ganancias'), estado.trials, cfg);
+  // Con el cajón cerrado sus canvas miden cero; al abrirlo se ensucia todo.
+  const herramientas = !$('herramientas').hidden;
+  if (sucio.pulsos) {
+    plots.overlayLado($('plot-der'), estado.trials, 'derecha', cfg, estado.seleccion);
+    plots.overlayLado($('plot-izq'), estado.trials, 'izquierda', cfg, estado.seleccion);
+    if (herramientas) {
+      plots.dibujaPulso($('plot-pulso'), estado.seleccion || estado.trials[estado.trials.length - 1], cfg);
+      plots.dibujaDispersion($('plot-ganancias'), estado.trials, cfg);
+    }
+    sucio.pulsos = false;
+  }
+  if (herramientas && (estado.calib || sucio.calib)) {
     pintaCalibracion();
+    sucio.calib = false;
   }
 }
 
@@ -509,6 +538,7 @@ function dibujaVideo() {
 
 function abreHerramientas(abrir) {
   $('herramientas').hidden = !abrir;
+  if (abrir) ensucia();
 }
 
 // ------------------------------------------------------------- controles ---
@@ -535,6 +565,7 @@ function sliders() {
       const v = Number(el.value);
       set(v);
       if (out) out.textContent = v.toFixed(d);
+      sucio.pulsos = true; // las bandas de los gráficos salen de cfg
     };
     el.addEventListener('input', aplica);
     aplica();
@@ -628,7 +659,9 @@ $('pausa').addEventListener('change', (e) => {
 });
 $('suavizar').addEventListener('change', (e) => {
   plots.opciones.suavizado = e.target.checked;
+  ensucia();
 });
+window.addEventListener('resize', ensucia);
 $('espejo').addEventListener('change', (e) => {
   estado.espejo = e.target.checked;
   $('camara-caja').classList.toggle('espejada', estado.espejo);
