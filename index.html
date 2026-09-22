@@ -42,6 +42,7 @@
     <header class="topbar">
       <span class="marca">train<b>HIT</b></span>
       <span id="badge-calib" class="badge mal">SIN CALIBRAR</span>
+      <span id="aviso-fps" class="badge warn" hidden>TOPE 100 FPS</span>
       <span id="estado" class="estado">listo</span>
       <span class="sep"></span>
       <span class="chip"><i>fps</i><b id="v-fps">—</b></span>
@@ -69,6 +70,10 @@
           Todo se procesa en el navegador y cada paso del cálculo está a la vista en
           <b>Herramientas</b>. A 30 fps y sin fijar la distancia al objetivo, los valores son
           didácticos.
+        </p>
+        <p class="ayuda">
+          Se procesa como mucho a 100 fps aunque la cámara dé más. Es un tope puesto a propósito:
+          esto no es un equipo médico y no queremos que se use como tal.
         </p>
         <p class="ayuda">Calibrar el paralaje con <kbd>C</kbd> antes de medir.</p>
         <button id="btn-empezar" class="primario">Empezar</button>
@@ -248,7 +253,7 @@
           <ul class="pasos">
             <li>No desacadiza ⇒ sesgo al falso negativo.</li>
             <li>No fija la distancia al objetivo.</li>
-            <li>30 fps: el pico cae entre muestras.</li>
+            <li>30 fps: el pico cae entre muestras. Tope de 100 fps puesto a propósito: no es un equipo médico.</li>
             <li>Cabeza y ojo salen de la misma imagen: un error de seguimiento entra en las dos señales.</li>
             <li>Solo canal lateral; los verticales necesitan la componente vertical del ojo.</li>
           </ul>

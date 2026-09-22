@@ -8,7 +8,7 @@ import { HeadTracker, quatFromMatrix } from './head.js';
 import { Differentiator } from './signal.js';
 import { CONFIG, RECHAZO_TEXT, analyzeTrial, asimetria, resumenLado } from './analysis.js';
 import * as plots from './plots.js';
-import { IDX, abrirCamara, bucleDeFrames, crearLandmarker, listarCamaras } from './tracker.js';
+import { FPS_MAX, IDX, abrirCamara, bucleDeFrames, crearLandmarker, describeCamara, listarCamaras } from './tracker.js';
 import { montaBienvenida } from './bienvenida.js';
 
 const $ = (id) => document.getElementById(id);
@@ -69,6 +69,7 @@ async function arrancar() {
     ajustaAspecto();
     estado.bucle = bucleDeFrames($('video'), procesaFrame);
     $('btn-arrancar').textContent = 'Detener';
+    avisaTope(describeCamara(estado.stream));
     const notas = [];
     if (estado.delegate === 'CPU') notas.push('modelo en CPU: más lento');
     if (!estado.bucle.soportaRVFC) notas.push('sin rVFC: timestamps peores');
@@ -90,6 +91,7 @@ function detener() {
   estado.bucle = null;
   reseteaTransitorio();
   $('sin-video').hidden = false;
+  $('aviso-fps').hidden = true;
   $('btn-arrancar').textContent = 'Encender cámara';
   marcaEstado('detenido');
 }
@@ -115,6 +117,22 @@ function reseteaTransitorio() {
   if (estado.calib) {
     estado.calib = null;
     marcaEstado('calibración cancelada: se apagó la cámara');
+  }
+}
+
+/**
+ * Si la cámara puede dar más de `FPS_MAX`, se dice. El tope es a propósito:
+ * ver `FPS_MAX` en tracker.js.
+ */
+function avisaTope(cam) {
+  const rapida = (cam.fpsMax ?? 0) > FPS_MAX || (cam.fps ?? 0) > FPS_MAX;
+  const aviso = $('aviso-fps');
+  aviso.hidden = !rapida;
+  if (rapida) {
+    aviso.title =
+      `Esta cámara puede entregar ${Math.round(cam.fpsMax ?? cam.fps)} fps. trainHIT procesa como mucho ${FPS_MAX}: ` +
+      'es una herramienta didáctica, y el tope está puesto a propósito para que no se use como equipo médico.';
+    console.info(aviso.title);
   }
 }
 

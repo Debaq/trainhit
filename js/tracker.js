@@ -49,10 +49,22 @@ export async function crearLandmarker({ gpu = true } = {}) {
 }
 
 /**
+ * Tope de cuadros por segundo. Es un LÍMITE PUESTO A PROPÓSITO, no técnico.
+ *
+ * trainHIT es didáctico. Un vHIT de gafas corre a más de 250 Hz y el remoto
+ * comercial más lento a 100 fps: con una cámara rápida los números de acá
+ * empezarían a parecerse a los de un equipo clínico sin tener ni la
+ * validación ni el control de la distancia al objetivo que eso exige. Para que
+ * nadie lo use como si fuera un equipo médico, se procesa como mucho a 100
+ * fps aunque la cámara dé más, y se avisa cuando se está recortando.
+ */
+export const FPS_MAX = 100;
+
+/**
  * Pide la cámara. Se piden 60 fps a propósito: la mayoría de las webcams dan 30
  * y eso ya limita todo lo demás (a 30 fps el pico del impulso cae entre dos
  * muestras), pero algunas entregan 60 con luz suficiente y ahí la medición
- * mejora sola.
+ * mejora sola. El máximo es `FPS_MAX`.
  */
 export async function abrirCamara(video, { deviceId, width = 1280, height = 720, fps = 60 } = {}) {
   const constraints = {
@@ -60,7 +72,7 @@ export async function abrirCamara(video, { deviceId, width = 1280, height = 720,
     video: {
       width: { ideal: width },
       height: { ideal: height },
-      frameRate: { ideal: fps },
+      frameRate: { ideal: Math.min(fps, FPS_MAX), max: FPS_MAX },
       ...(deviceId ? { deviceId: { exact: deviceId } } : { facingMode: 'user' }),
     },
   };
@@ -68,6 +80,18 @@ export async function abrirCamara(video, { deviceId, width = 1280, height = 720,
   video.srcObject = stream;
   await video.play();
   return stream;
+}
+
+/**
+ * Qué da la cámara abierta: fps que entrega y fps máximo que podría entregar.
+ * `getCapabilities` no existe en todos los navegadores; ahí se devuelve null.
+ */
+export function describeCamara(stream) {
+  const track = stream?.getVideoTracks()[0];
+  if (!track) return { fps: null, fpsMax: null, ancho: null, alto: null };
+  const s = track.getSettings?.() ?? {};
+  const c = track.getCapabilities?.() ?? {};
+  return { fps: s.frameRate ?? null, fpsMax: c.frameRate?.max ?? null, ancho: s.width ?? null, alto: s.height ?? null };
 }
 
 export async function listarCamaras() {
@@ -79,31 +103,41 @@ export async function listarCamaras() {
  * Bucle de frames. Usa `requestVideoFrameCallback` cuando existe: da el
  * timestamp REAL de captura del frame (`mediaTime`), que es lo que el derivador
  * necesita — el reloj del bucle trae el jitter de captura y de inferencia.
+ *
+ * Los frames que llegan más seguido que `1/fpsMax` se saltan: es la segunda
+ * mitad del tope de `FPS_MAX`, para el caso en que el navegador ignore la
+ * restricción de `getUserMedia`. `saltados` cuenta cuántos se descartaron.
  */
-export function bucleDeFrames(video, onFrame) {
+export function bucleDeFrames(video, onFrame, { fpsMax = FPS_MAX } = {}) {
   let vivo = true;
+  let tUltimo = -Infinity;
+  const minDt = 1 / fpsMax - 1e-4;
   const soportaRVFC = typeof video.requestVideoFrameCallback === 'function';
+  const ctl = { soportaRVFC, saltados: 0, detener: () => (vivo = false) };
+
+  const entrega = (t, meta) => {
+    if (t - tUltimo < minDt) {
+      ctl.saltados++;
+      return;
+    }
+    tUltimo = t;
+    onFrame(t, meta);
+  };
 
   if (soportaRVFC) {
     const step = (_now, meta) => {
       if (!vivo) return;
-      onFrame(meta.mediaTime, meta);
+      entrega(meta.mediaTime, meta);
       video.requestVideoFrameCallback(step);
     };
     video.requestVideoFrameCallback(step);
   } else {
     const step = () => {
       if (!vivo) return;
-      onFrame(video.currentTime, null);
+      entrega(video.currentTime, null);
       requestAnimationFrame(step);
     };
     requestAnimationFrame(step);
   }
-
-  return {
-    detener() {
-      vivo = false;
-    },
-    soportaRVFC,
-  };
+  return ctl;
 }

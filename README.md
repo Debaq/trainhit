@@ -9,6 +9,8 @@ paso del cálculo **se vea**, se pueda tocar y se entienda por qué está hecho 
 
 > **No reemplaza a un equipo clínico.** Corre a los 30 fps de una webcam común;
 > un vHIT de gafas usa cámara >250 Hz, y el remoto comercial más lento va a 100 fps.
+> Por eso mismo **se procesa como mucho a 100 fps** aunque la cámara dé más
+> (ver [Tope de 100 fps](#tope-de-100-fps)).
 
 Medir con cámara remota y sin gafas **es otro método, no un vHIT incompleto**.
 Hay normativos publicados con cámara remota a 100 fps y blanco a 1–1,3 m
@@ -91,6 +93,18 @@ servidor: GitHub Pages lo sirve con `max-age=600`.
 | `D` | Descartar el último |
 | `H` | Abrir o cerrar las herramientas |
 | `Espacio` | Pausar el análisis (la cámara sigue) |
+
+## Tope de 100 fps
+
+Si la cámara puede entregar más de 100 cuadros por segundo, trainHIT la pide
+a 100 como máximo y, si igual llegan más, descarta los que sobran. En la barra
+aparece **TOPE 100 FPS** con la explicación al pasar el mouse.
+
+No es una limitación técnica: es una decisión. Con una cámara rápida los
+números de esta página empezarían a parecerse a los de un equipo clínico sin
+tener ni la validación ni el control de la distancia al objetivo que eso
+exige. El tope está para que nadie use esto como equipo médico. Está en
+`FPS_MAX` de `js/tracker.js`, y el aviso en `avisaTope` de `js/app.js`.
 
 ## Calibrar primero, y por qué
 
