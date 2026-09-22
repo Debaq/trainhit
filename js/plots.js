@@ -4,6 +4,7 @@
 // elegidos para leerse igual sobre fondo claro y oscuro, no una decoración.
 
 import { monotona } from './curve.js';
+import { sideSign } from './analysis.js';
 
 export const COLOR = {
   cabeza: '#2E7DD6',
@@ -209,7 +210,7 @@ export function overlayLado(canvas, trials, side, cfg, seleccion) {
   ctx.fillStyle = 'rgba(46,158,84,0.07)';
   ctx.fillRect(pad.l, py(cfg.accept.peakMaxDegS), w - pad.l - pad.r, py(cfg.accept.peakMinDegS) - py(cfg.accept.peakMaxDegS));
 
-  const flip = side === 'derecha' ? 1 : -1;
+  const flip = sideSign(side); // el impulso va hacia arriba sea cual sea el lado
   recorta(ctx, pad, w, h);
   for (const t of delLado) {
     const sel = seleccion === t;
@@ -236,7 +237,7 @@ export function dibujaPulso(canvas, trial, cfg) {
     vacio(ctx, w, h, 'sin pulsos todavía');
     return;
   }
-  const flip = trial.side === 'derecha' ? 1 : -1;
+  const flip = sideSign(trial.side);
   const escala = Math.max(250, Math.ceil(trial.peakHeadDegS / 50) * 50 + 50);
   const { px, py } = marco(ctx, w, h, pad, {
     x0: trial.samples[0].tMs,

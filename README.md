@@ -50,6 +50,11 @@ seguimiento, los dos ojos ampliados y los controles; al centro un panel por
 lado —ganancia media ± DE, todos los impulsos superpuestos y la lista de
 pulsos—; abajo, a lo ancho, la velocidad contra el tiempo.
 
+«Derecha» e «izquierda» son las del paciente: un impulso hacia su derecha cae
+en el panel derecho. El yaw del motor tiene el signo contrario (positivo es
+hacia la izquierda del paciente) y el lado se nombra en un solo lugar,
+`SIGNO_DERECHA` de `js/analysis.js`.
+
 Los paneles de cada lado se normalizan con el impulso **hacia arriba** y la
 traza ocular invertida, que es la convención clínica: con VOR normal las dos
 curvas se superponen y la separación entre ellas es el hallazgo.

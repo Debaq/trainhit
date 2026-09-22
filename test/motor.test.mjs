@@ -18,16 +18,16 @@ test('la ganancia de área recupera la nominal a 30, 60 y 120 fps', () => {
     for (const g of [1.0, 0.8, 0.4]) {
       const r = corre({ fps, pk: 200, ganancia: g });
       assert.equal(r.rejected, null, `fps=${fps} g=${g}: ${r.rejected}`);
-      assert.equal(r.side, 'derecha');
+      assert.equal(r.side, 'izquierda', 'yaw positivo = izquierda del paciente');
       cerca(r.gain, g, 0.01, `área fps=${fps}`);
       cerca(r.gains.peak, g, 0.02, `pico fps=${fps}`);
     }
   }
 });
 
-test('un impulso con pico negativo es del lado izquierdo', () => {
+test('un impulso con yaw negativo es hacia la derecha del paciente', () => {
   const r = corre({ fps: 60, pk: -200, ganancia: 0.9 });
-  assert.equal(r.side, 'izquierda');
+  assert.equal(r.side, 'derecha');
   assert.equal(r.rejected, null);
   cerca(r.gain, 0.9, 0.01);
 });
@@ -64,13 +64,15 @@ test('rechaza por lento, rápido y rebote', () => {
 test('findImpulse: un bache de una muestra no cierra el impulso', () => {
   const s = (tMs, headVel) => ({ tMs, headVel });
   const samples = [s(0, 0), s(10, 80), s(20, 150), s(30, 30), s(40, 140), s(50, 100), s(60, 20), s(70, 10), s(80, 5), s(90, 5)];
-  const win = findImpulse(samples, 'derecha', CONFIG);
+  // yaw positivo = izquierda del paciente
+  const win = findImpulse(samples, 'izquierda', CONFIG);
   assert.deepEqual(win, { onset: 1, offset: 6 });
+  assert.equal(findImpulse(samples, 'derecha', CONFIG), null);
 });
 
 test('findImpulse: sin final confirmado no hay impulso', () => {
   const s = (tMs, headVel) => ({ tMs, headVel });
-  assert.equal(findImpulse([s(0, 0), s(10, 100), s(20, 150), s(30, 120)], 'derecha', CONFIG), null);
+  assert.equal(findImpulse([s(0, 0), s(10, 100), s(20, 150), s(30, 120)], 'izquierda', CONFIG), null);
 });
 
 test('analyzeTrial con pocas muestras devuelve null y sin impulso lo dice', () => {

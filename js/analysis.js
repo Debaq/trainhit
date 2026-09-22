@@ -50,9 +50,21 @@ export const RECHAZO_TEXT = {
   'sin-ganancia': 'SIN GANANCIA MEDIBLE',
 };
 
-/** `+1` derecha, `-1` izquierda. */
+/**
+ * Signo de la velocidad de cabeza en un impulso hacia la DERECHA del paciente.
+ *
+ * El yaw del motor sale de la matriz de MediaPipe proyectada sobre el eje
+ * vertical de la cabeza, y en esa convención girar hacia la derecha del
+ * paciente da yaw NEGATIVO. Es la misma convención con la que el offset del
+ * iris (positivo hacia la izquierda del paciente en la imagen) hace que la
+ * paralaje `k` salga positiva, así que no se toca el yaw: se nombra el lado
+ * acá, y en ningún otro lugar. Verificado con cámara.
+ */
+export const SIGNO_DERECHA = -1;
+
+/** Signo de la velocidad de cabeza para cada lado: ver `SIGNO_DERECHA`. */
 export function sideSign(side) {
-  return side === 'derecha' ? 1 : -1;
+  return side === 'derecha' ? SIGNO_DERECHA : -SIGNO_DERECHA;
 }
 
 /**
@@ -176,7 +188,7 @@ export function analyzeTrial(samples, cfg = CONFIG) {
   // arranque puede tener ruido de cualquier signo.
   let peakSigned = 0;
   for (const s of samples) if (Math.abs(s.headVel) > Math.abs(peakSigned)) peakSigned = s.headVel;
-  const side = peakSigned >= 0 ? 'derecha' : 'izquierda';
+  const side = peakSigned * SIGNO_DERECHA >= 0 ? 'derecha' : 'izquierda';
   const sign = sideSign(side);
 
   const win = findImpulse(samples, side, cfg);

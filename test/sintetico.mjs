@@ -9,7 +9,11 @@ export const deg = (r) => (r * 180) / Math.PI;
 export const K = 0.95;
 export const R = geom.EYE_ROTATION_RADIUS_MM;
 
-/** Velocidad de cabeza gaussiana: pico `pk` °/s, sigma 40 ms, centrada en 150 ms. */
+/**
+ * Velocidad de cabeza gaussiana: pico `pk` °/s, sigma 40 ms, centrada en 150 ms.
+ * `pk` positivo es yaw positivo, o sea hacia la IZQUIERDA del paciente (ver
+ * `SIGNO_DERECHA` en analysis.js).
+ */
 export function headVel(t, pk) {
   return pk * Math.exp(-(((t - 0.15) / 0.04) ** 2) / 2);
 }
