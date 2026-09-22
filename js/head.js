@@ -99,34 +99,65 @@ export function quatRotate(q, v) {
   ];
 }
 
-/** Acumula la rotación de cabeza proyectada sobre el eje de un canal. */
+/**
+ * Acumula la rotación de cabeza proyectada sobre el eje de un canal.
+ *
+ * El cero es la orientación del PRIMER frame que se vio: se asume que ahí el
+ * paciente mira a la cámara. Ese cero importa para el paralaje —`k·sin(H)`
+ * necesita el yaw respecto de la cámara, no respecto de cualquier cosa— y
+ * tiene que ser el MISMO durante la calibración y durante los pulsos.
+ *
+ * Por eso, al recuperar la cara después de perderla, el acumulado no sigue de
+ * donde quedó: se re-ancla contra esa orientación de referencia. Si la cabeza
+ * giró 20° mientras no había cara, seguir sumando dejaba un yaw corrido 20°, y
+ * la corrección de paralaje —que es cos(H) veces k— quedaba un 6 % corta sin
+ * que nada lo delatara. La ganancia por diferencias no lo sufre; el paralaje
+ * sí.
+ */
 export class HeadTracker {
   constructor(canal = 'lateral') {
     this.canal = canal;
     this.previous = null;
+    this.reference = null;
     this.accumulatedDeg = 0;
+    this.reanclajes = 0;
   }
 
   /** Se llama al perder la cara: el incremento contra una orientación de hace
-   * segundos no es un incremento. */
+   * segundos no es un incremento. La referencia se conserva. */
   reset() {
     this.previous = null;
   }
 
+  /** Olvida también la referencia: cámara nueva, sesión nueva. */
+  reiniciar() {
+    this.previous = null;
+    this.reference = null;
+    this.accumulatedDeg = 0;
+  }
+
+  /** Eje del canal en coordenadas de cámara para la orientación dada, unitario. */
+  ejeCamara(rotation) {
+    const axis = quatRotate(rotation, CANAL_AXIS[this.canal]);
+    const n = Math.hypot(axis[0], axis[1], axis[2]);
+    return n > 1e-9 ? [axis[0] / n, axis[1] / n, axis[2] / n] : null;
+  }
+
   /** Incorpora una orientación y devuelve el ángulo acumulado, en grados. */
   push(rotation) {
-    if (this.previous) {
-      // El eje del canal viaja con la cabeza: se lo lleva a coordenadas de
-      // cámara con la orientación ACTUAL antes de proyectar.
-      const axis = quatRotate(rotation, CANAL_AXIS[this.canal]);
-      const n = Math.hypot(axis[0], axis[1], axis[2]);
-      if (n > 1e-9) {
-        this.accumulatedDeg += deltaDeg(this.previous, rotation, [
-          axis[0] / n,
-          axis[1] / n,
-          axis[2] / n,
-        ]);
-      }
+    // El eje del canal viaja con la cabeza: se lo lleva a coordenadas de
+    // cámara con la orientación ACTUAL antes de proyectar.
+    const axis = this.ejeCamara(rotation);
+    if (!this.reference) {
+      this.reference = rotation;
+      this.accumulatedDeg = 0;
+    } else if (!this.previous) {
+      // Cara recuperada: re-anclar contra la referencia en vez de seguir
+      // sumando desde donde quedó.
+      if (axis) this.accumulatedDeg = deltaDeg(this.reference, rotation, axis);
+      this.reanclajes += 1;
+    } else if (axis) {
+      this.accumulatedDeg += deltaDeg(this.previous, rotation, axis);
     }
     this.previous = rotation;
     return this.accumulatedDeg;

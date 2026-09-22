@@ -193,3 +193,17 @@ test('geom: observeEye mide offset sobre el eje de las comisuras y blinkScore sa
   assert.equal(geom.blinkScore(0), 1);
   assert.equal(geom.observeEye(centro, [], outer, inner), null);
 });
+
+test('HeadTracker re-ancla contra la referencia al recuperar la cara', () => {
+  const ht = new HeadTracker('lateral');
+  const q = (g) => quatFromMatrix(matDeQuat(axisAngle([0, 1, 0], rad(g))));
+  ht.push(q(0));
+  for (let g = 1; g <= 10; g++) ht.push(q(g));
+  cerca(ht.accumulatedDeg, 10, 1e-6);
+  ht.reset(); // se pierde la cara, y mientras tanto la cabeza gira a 30°
+  cerca(ht.push(q(30)), 30, 1e-6, 'reanclado');
+  assert.equal(ht.reanclajes, 1);
+  cerca(ht.push(q(31)), 31, 1e-6, 'sigue acumulando');
+  ht.reiniciar();
+  cerca(ht.push(q(31)), 0, 1e-12, 'referencia nueva');
+});
