@@ -37,6 +37,10 @@ const estado = {
   vivo: { offsetMm: null, pxPerMm: null, yaw: 0, azimut: null, blink: false },
   fps: 0,
   tUltimoFrame: null,
+  // MediaPipe exige timestamps estrictamente crecientes en el mismo
+  // landmarker, y `mediaTime` vuelve a cero con cada stream nuevo. Se le suma
+  // un corrimiento que se recalcula cuando el reloj retrocede.
+  tsMediaPipe: { ultimo: -1, corrimiento: 0 },
   caraOk: false,
   duracionCalibS: 10,
   maxVelCalibDegS: 60,
@@ -61,6 +65,9 @@ async function arrancar() {
     $('btn-arrancar').textContent = 'Detener';
     marcaEstado(estado.bucle.soportaRVFC ? 'midiendo' : 'midiendo (sin rVFC: timestamps peores)');
   } catch (e) {
+    // Si la cámara abrió pero el modelo no cargó, la cámara quedaría
+    // encendida y el botón diciendo «Encender»: se apaga todo.
+    detener();
     marcaEstado(`error: ${e.message}`);
     console.error(e);
   }
@@ -71,11 +78,35 @@ function detener() {
   estado.stream?.getTracks().forEach((t) => t.stop());
   estado.corriendo = false;
   estado.stream = null;
-  estado.landmarks = null;
-  estado.caraOk = false;
+  estado.bucle = null;
+  reseteaTransitorio();
   $('sin-video').hidden = false;
   $('btn-arrancar').textContent = 'Encender cámara';
   marcaEstado('detenido');
+}
+
+/**
+ * Borra todo lo que depende del stream actual. Sin esto, al re-arrancar la
+ * cámara el reloj del video vuelve a cero y las muestras viejas —con tiempos
+ * mayores— se quedaban en el buffer: el recorte por tiempo nunca las sacaba y
+ * el pre-trigger del pulso siguiente las arrastraba adentro.
+ */
+function reseteaTransitorio() {
+  estado.landmarks = null;
+  estado.caraOk = false;
+  estado.crops.derecho = null;
+  estado.crops.izquierdo = null;
+  estado.rolling = [];
+  estado.captura = null;
+  estado.head.reset();
+  estado.diff.reset();
+  estado.fps = 0;
+  estado.tUltimoFrame = null;
+  estado.vivo = { offsetMm: null, pxPerMm: null, yaw: 0, azimut: null, blink: false };
+  if (estado.calib) {
+    estado.calib = null;
+    marcaEstado('calibración cancelada: se apagó la cámara');
+  }
 }
 
 function ajustaAspecto() {
@@ -113,9 +144,11 @@ function procesaFrame(mediaTime) {
 
   let res;
   try {
-    // El timestamp va en ms y tiene que ser estrictamente creciente.
-    res = estado.landmarker.detectForVideo(video, Math.round(mediaTime * 1000));
-  } catch {
+    res = estado.landmarker.detectForVideo(video, timestampMediaPipe(mediaTime));
+  } catch (e) {
+    estado.caraOk = false;
+    estado.landmarks = null;
+    console.warn('detectForVideo', e);
     return;
   }
 
@@ -191,6 +224,19 @@ function procesaFrame(mediaTime) {
   while (estado.rolling.length && d.t - estado.rolling[0].t > 3) estado.rolling.shift();
 
   detectaPulso(muestra);
+}
+
+/**
+ * Timestamp en ms para MediaPipe, estrictamente creciente aunque el reloj del
+ * video haya vuelto a cero (stream nuevo). Se conserva el espaciado real entre
+ * frames: solo se corre el origen.
+ */
+function timestampMediaPipe(mediaTime) {
+  const ts = estado.tsMediaPipe;
+  const crudo = Math.round(mediaTime * 1000);
+  if (crudo + ts.corrimiento <= ts.ultimo) ts.corrimiento = ts.ultimo + 1 - crudo;
+  ts.ultimo = crudo + ts.corrimiento;
+  return ts.ultimo;
 }
 
 // ----------------------------------------------------------- calibración ---
