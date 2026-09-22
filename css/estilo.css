@@ -235,6 +235,7 @@ kbd {
 }
 .lecturas i { display: block; font-style: normal; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px; }
 .lecturas b { color: var(--foreground); font-size: 14px; }
+.lecturas b.mal { color: var(--c-bad); }
 
 /* ── paneles por lado ────────────────────────────────────────────────────── */
 

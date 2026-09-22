@@ -4,7 +4,7 @@
 // Cada paso está en su módulo; acá solo se los conecta y se los muestra.
 
 import * as geom from './geom.js';
-import { HeadTracker, quatFromMatrix } from './head.js';
+import { HeadTracker, quatFromMatrix, quatRotate } from './head.js';
 import { Differentiator } from './signal.js';
 import { CONFIG, RECHAZO_TEXT, analyzeTrial, asimetria, resumenLado } from './analysis.js';
 import * as plots from './plots.js';
@@ -36,7 +36,8 @@ const estado = {
   ultimoFit: null,
   landmarks: null,
   crops: { derecho: null, izquierdo: null },
-  vivo: { offsetMm: null, pxPerMm: null, yaw: 0, azimut: null, blink: false },
+  vivo: vivoVacio(),
+  refractarioHasta: -Infinity,
   fps: 0,
   tUltimoFrame: null,
   // MediaPipe exige timestamps estrictamente crecientes en el mismo
@@ -47,6 +48,10 @@ const estado = {
   duracionCalibS: 10,
   maxVelCalibDegS: 60,
 };
+
+function vivoVacio() {
+  return { offsetMm: null, pxPerMm: null, irisPx: null, yaw: 0, inclinacion: null, azimut: null, blink: false };
+}
 
 // ---------------------------------------------------------------- cámara ---
 
@@ -109,11 +114,12 @@ function reseteaTransitorio() {
   estado.crops.izquierdo = null;
   estado.rolling = [];
   estado.captura = null;
+  estado.refractarioHasta = -Infinity;
   estado.head.reset();
   estado.diff.reset();
   estado.fps = 0;
   estado.tUltimoFrame = null;
-  estado.vivo = { offsetMm: null, pxPerMm: null, yaw: 0, azimut: null, blink: false };
+  estado.vivo = vivoVacio();
   if (estado.calib) {
     estado.calib = null;
     marcaEstado('calibración cancelada: se apagó la cámara');
@@ -204,7 +210,13 @@ function procesaFrame(mediaTime) {
   // --- cabeza: incrementos proyectados sobre el eje del canal ---
   const tm = res.facialTransformationMatrixes?.[0];
   if (!tm) return;
-  const yaw = estado.head.push(quatFromMatrix(tm.data));
+  const q = quatFromMatrix(tm.data);
+  const yaw = estado.head.push(q);
+  // Inclinación de la cabeza: ángulo entre su eje vertical y el de la cámara.
+  // Sin signo, a propósito: mezcla flexión y ladeo, y sirve para ver si la
+  // cabeza está más o menos en los ~30° de flexión del vHIT lateral.
+  const arriba = quatRotate(q, [0, 1, 0]);
+  const inclinacion = (Math.acos(Math.min(1, Math.abs(arriba[1]))) * 180) / Math.PI;
 
   // --- parpadeo, desde la malla ---
   const apertura = (o) => geom.eyelidOpenness(P(o.lidUp), P(o.lidDown), P(o.outer), P(o.inner));
@@ -212,7 +224,7 @@ function procesaFrame(mediaTime) {
     Math.max(
       geom.blinkScore(apertura(IDX.derecho) ?? geom.EYE_OPEN_REF),
       geom.blinkScore(apertura(IDX.izquierdo) ?? geom.EYE_OPEN_REF),
-    ) > Number($('blink').value);
+    ) > cfg.blinkScore;
 
   // --- ojos ---
   const mide = (o) => geom.observeEye(P(o.iris), o.border.map(P), P(o.outer), P(o.inner));
@@ -222,13 +234,22 @@ function procesaFrame(mediaTime) {
   // conjugado, así que promediarlas baja el ruido.
   const obs =
     der && izq
-      ? { offsetMm: (der.offsetMm + izq.offsetMm) / 2, pxPerMm: (der.pxPerMm + izq.pxPerMm) / 2 }
+      ? {
+          offsetMm: (der.offsetMm + izq.offsetMm) / 2,
+          pxPerMm: (der.pxPerMm + izq.pxPerMm) / 2,
+          radiusPx: Math.min(der.radiusPx, izq.radiusPx),
+        }
       : der || izq;
   if (!obs) return;
+  // Diferencia entre ojos: con movimiento conjugado es constante. Su rango
+  // dentro de un pulso dice si un ojo se siguió mal.
+  const vergMm = der && izq ? der.offsetMm - izq.offsetMm : null;
 
   estado.vivo.offsetMm = obs.offsetMm;
   estado.vivo.pxPerMm = obs.pxPerMm;
+  estado.vivo.irisPx = obs.radiusPx;
   estado.vivo.yaw = yaw;
+  estado.vivo.inclinacion = inclinacion;
   estado.vivo.blink = blink;
 
   juntaCalibracion(obs, yaw, blink);
@@ -246,6 +267,8 @@ function procesaFrame(mediaTime) {
     headVel: d.headVel,
     gazeVel: d.gazeVel,
     blink,
+    irisPx: obs.radiusPx,
+    vergMm,
   };
   estado.rolling.push(muestra);
   while (estado.rolling.length && d.t - estado.rolling[0].t > plots.SEGUNDOS_VIVO) estado.rolling.shift();
@@ -307,7 +330,10 @@ function cierraCalibracion() {
   }
   estado.model.kParallax = fit.kParallax;
   estado.model.calibrated = true;
-  marcaEstado(`calibrado: k=${fmt(fit.kParallax)} · residuo ${fmt(fit.residualDeg, 1)}°`);
+  marcaEstado(
+    `calibrado: k=${fmt(fit.kParallax)} · residuo ${fmt(fit.residualDeg, 1)}°` +
+      (fit.kPlausible ? '' : ` · k fuera del rango anatómico (${geom.CALIB_K_PLAUSIBLE.join('–')}): repetir`),
+  );
 }
 
 // ---------------------------------------------------------------- pulsos ---
@@ -320,6 +346,7 @@ function detectaPulso(m) {
     if (m.t - estado.captura.tTrigger >= cfg.impulse.windowMs / 1000) cierraPulso();
     return;
   }
+  if (m.t < estado.refractarioHasta) return;
   if (Math.abs(m.headVel) > cfg.impulse.onDegS) {
     const desde = m.t - cfg.impulse.preTriggerMs / 1000;
     estado.captura = { tTrigger: m.t, samples: estado.rolling.filter((s) => s.t >= desde) };
@@ -329,6 +356,7 @@ function detectaPulso(m) {
 function cierraPulso() {
   const cap = estado.captura;
   estado.captura = null;
+  estado.refractarioHasta = cap.samples[cap.samples.length - 1].t + cfg.impulse.refractoryMs / 1000;
   const samples = cap.samples.map((s) => ({ ...s, tMs: (s.t - cap.tTrigger) * 1000 }));
   const pico = samples.reduce((m, s) => Math.max(m, Math.abs(s.headVel)), 0);
   // Acomodarse en la silla o mirar al costado alcanzan para disparar. Eso no
@@ -379,6 +407,8 @@ function pintaListas() {
       };
       tr.title =
         `área ${fmt(t.gain)} · 60 ms ${fmt(t.gains?.instant60ms)} · pico ${fmt(t.gains?.peak)}` +
+        `\niris ${fmt(t.irisPx, 1)} px · ojos ${fmt(t.disconjMm)} mm · hueco ${fmt(t.gapMs, 0)} ms` +
+        (t.rejected ? `\n${RECHAZO_TEXT[t.rejected]}` : '') +
         (t.calibrado ? '' : '\nmedido SIN calibrar');
       tbody.appendChild(tr);
     }
@@ -414,7 +444,11 @@ function pintaTodo() {
   $('v-vcab').textContent = ultima ? `${fmt(ultima.headVel, 0)} °/s` : '—';
   $('v-offset').textContent = fmt(estado.vivo.offsetMm);
   $('v-escala').textContent = fmt(estado.vivo.pxPerMm, 1);
+  const iris = $('v-iris');
+  iris.textContent = fmt(estado.vivo.irisPx, 1);
+  iris.className = estado.vivo.irisPx !== null && estado.vivo.irisPx < cfg.accept.irisMinPx ? 'mal' : '';
   $('v-yaw').textContent = fmt(estado.vivo.yaw, 1);
+  $('v-inclin').textContent = fmt(estado.vivo.inclinacion, 0);
   $('v-azimut').textContent = fmt(estado.vivo.azimut, 1);
   $('v-vojo').textContent = ultima ? fmt(ultima.headVel - ultima.gazeVel, 0) : '—';
   $('v-blink').textContent = estado.vivo.blink ? 'sí' : 'no';
@@ -516,7 +550,8 @@ function sliders() {
   bind('peak-max', (v) => (cfg.accept.peakMaxDegS = v));
   bind('dur-min', (v) => (cfg.accept.durationMinMs = v));
   bind('dur-max', (v) => (cfg.accept.durationMaxMs = v));
-  bind('blink', () => {}, 2);
+  bind('blink', (v) => (cfg.blinkScore = v), 2);
+  bind('iris-min', (v) => (cfg.accept.irisMinPx = v), 0);
   bind(
     'k-manual',
     (v) => {
@@ -601,6 +636,8 @@ $('espejo').addEventListener('change', (e) => {
 $('camara').addEventListener('change', () => {
   if (estado.corriendo) {
     detener();
+    // Otra cámara es otro sistema de ejes: el cero del yaw no vale.
+    estado.head.reiniciar();
     arrancar();
   }
 });

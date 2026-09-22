@@ -15,6 +15,9 @@ export const CONFIG = {
     preTriggerMs: 100, // cuánto se guarda ANTES del disparo
     windowMs: 800, // ventana total del pulso desde el disparo
     ignoreBelowDegS: 100, // por debajo de esto ni siquiera fue un intento
+    // Después de cerrar un pulso no se dispara otro durante este tiempo: el
+    // retorno de la cabeza, si es brusco, pasaba por impulso del otro lado.
+    refractoryMs: 300,
   },
   accept: {
     peakMinDegS: 120,
@@ -23,11 +26,20 @@ export const CONFIG = {
     durationMaxMs: 300,
     reboundMaxDegS: 100,
     reboundHoldMs: 15,
+    // Un hueco mayor entre dos muestras del pulso es cara perdida: lo que
+    // haya del otro lado del hueco no es la continuación de lo de antes.
+    gapMaxMs: 100,
+    // Radio del iris en píxeles por debajo del cual el landmark es demasiado
+    // grueso para la escala: paciente lejos o cámara chica.
+    irisMinPx: 5,
   },
+  blinkScore: 0.45, // puntuación de parpadeo (0 abierto, 1 cerrado) que marca la muestra
   gainNormalMin: 0.8, // el corte dibujado. NO es nuestro corte: ver README.
 };
 
 export const RECHAZO_TEXT = {
+  'cara-perdida': 'CARA PERDIDA — quedarse en el encuadre',
+  'iris-chico': 'IRIS MUY CHICO — acercarse a la cámara',
   lento: 'MUY LENTO — impulso más fuerte',
   rapido: 'MUY RÁPIDO',
   corto: 'MUY CORTO',
@@ -129,9 +141,33 @@ export function computeGains(all, core, side, tOnsetMs) {
   return { area, instant60ms, peak, dHead, dGaze, peakHead, peakEye };
 }
 
+/** Mayor separación entre dos muestras consecutivas, en ms. */
+export function huecoMaxMs(samples) {
+  let max = 0;
+  for (let i = 1; i < samples.length; i++) max = Math.max(max, samples[i].tMs - samples[i - 1].tMs);
+  return max;
+}
+
+/** Mínimo de un campo opcional; null si ninguna muestra lo trae. */
+function minimo(samples, campo) {
+  let m = null;
+  for (const s of samples) {
+    const v = s[campo];
+    if (v === null || v === undefined) continue;
+    m = m === null ? v : Math.min(m, v);
+  }
+  return m;
+}
+
 /**
  * Analiza un pulso completo.
- * @param {Array<{tMs:number,headPos:number,gazePos:number,headVel:number,gazeVel:number,blink:boolean}>} samples
+ *
+ * Campos opcionales por muestra: `irisPx` (radio del iris) y `vergMm`
+ * (offset ojo derecho − izquierdo). Si vienen, el pulso trae `irisPx` mínimo
+ * y `disconjMm` (rango de la diferencia entre ojos dentro del impulso: con
+ * movimiento conjugado es ~0, y crece si un ojo se siguió mal).
+ *
+ * @param {Array<{tMs:number,headPos:number,gazePos:number,headVel:number,gazeVel:number,blink:boolean,irisPx?:number,vergMm?:number}>} samples
  */
 export function analyzeTrial(samples, cfg = CONFIG) {
   if (samples.length < 4) return null;
@@ -152,6 +188,7 @@ export function analyzeTrial(samples, cfg = CONFIG) {
   const gains = computeGains(samples, core, side, tOnset);
   const peakHeadDegS = gains.peakHead;
 
+  const vergs = core.map((s) => s.vergMm).filter((v) => v !== null && v !== undefined);
   const trial = {
     side,
     samples,
@@ -163,12 +200,18 @@ export function analyzeTrial(samples, cfg = CONFIG) {
     gains,
     gain: gains.area,
     blink: core.some((s) => s.blink),
+    gapMs: huecoMaxMs(samples),
+    irisPx: minimo(core, 'irisPx'),
+    disconjMm: vergs.length ? Math.max(...vergs) - Math.min(...vergs) : null,
     rejected: null,
   };
 
-  // Orden de los rechazos: primero lo que le dice al operador qué hacer
-  // distinto, después la calidad de la señal.
-  if (peakHeadDegS < cfg.accept.peakMinDegS) trial.rejected = 'lento';
+  // Orden de los rechazos: primero lo que invalida la señal entera —con un
+  // hueco de cara el pico y la duración son inventados—, después lo que le
+  // dice al operador qué hacer distinto, y al final la calidad fina.
+  if (trial.gapMs > cfg.accept.gapMaxMs) trial.rejected = 'cara-perdida';
+  else if (trial.irisPx !== null && trial.irisPx < cfg.accept.irisMinPx) trial.rejected = 'iris-chico';
+  else if (peakHeadDegS < cfg.accept.peakMinDegS) trial.rejected = 'lento';
   else if (peakHeadDegS > cfg.accept.peakMaxDegS) trial.rejected = 'rapido';
   else if (durationMs < cfg.accept.durationMinMs) trial.rejected = 'corto';
   else if (durationMs > cfg.accept.durationMaxMs) trial.rejected = 'largo';
@@ -205,7 +248,7 @@ export function resumenLado(trials, side) {
   const g = trials
     .filter((t) => t.side === side && !t.rejected && t.gain !== null)
     .map((t) => t.gain);
-  if (!g.length) return { n: 0, media: null, de: null, asimetriaBase: null };
+  if (!g.length) return { n: 0, media: null, de: null };
   const media = g.reduce((a, b) => a + b, 0) / g.length;
   const de =
     g.length > 1

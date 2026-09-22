@@ -138,7 +138,6 @@ export class EyeModel {
   constructor() {
     this.radiusMm = EYE_ROTATION_RADIUS_MM;
     this.kParallax = 0;
-    this.offsetBiasMm = 0;
     this.calibrated = false;
   }
 
@@ -156,8 +155,7 @@ export class EyeModel {
    */
   gazeAzimuthDeg(obs, headYawDeg) {
     const h = rad(headYawDeg);
-    const sinPhi =
-      (obs.offsetMm - this.offsetBiasMm) / this.radiusMm + this.kParallax * Math.sin(h);
+    const sinPhi = obs.offsetMm / this.radiusMm + this.kParallax * Math.sin(h);
     return deg(Math.asin(clamp(sinPhi, -0.999, 0.999)));
   }
 }

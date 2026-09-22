@@ -207,3 +207,23 @@ test('HeadTracker re-ancla contra la referencia al recuperar la cara', () => {
   ht.reiniciar();
   cerca(ht.push(q(31)), 0, 1e-12, 'referencia nueva');
 });
+
+test('un hueco de cara dentro del pulso lo rechaza', () => {
+  const bueno = corre({ fps: 60, pk: 200, ganancia: 1 });
+  assert.equal(bueno.rejected, null);
+  const conHueco = analyzeTrial(bueno.samples.filter((s) => s.tMs < 120 || s.tMs > 260), CONFIG);
+  assert.equal(conHueco.rejected, 'cara-perdida');
+  assert.ok(conHueco.gapMs > 100);
+});
+
+test('iris chico y disconjugación se miden y el iris chico rechaza', () => {
+  const bueno = corre({ fps: 60, pk: 200, ganancia: 1 });
+  const s = bueno.samples.map((x, i) => ({ ...x, irisPx: i === 5 ? 3 : 9, vergMm: 0.2 + (i % 2) * 0.1 }));
+  const t = analyzeTrial(s, CONFIG);
+  assert.equal(t.irisPx, 3);
+  assert.equal(t.rejected, 'iris-chico');
+  cerca(t.disconjMm, 0.1, 1e-9);
+  const ok = analyzeTrial(s.map((x) => ({ ...x, irisPx: 9 })), CONFIG);
+  assert.equal(ok.rejected, null);
+  assert.equal(analyzeTrial(bueno.samples, CONFIG).irisPx, null);
+});

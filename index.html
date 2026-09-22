@@ -116,7 +116,9 @@
         <div class="lecturas">
           <div><i>offset iris</i><b id="v-offset">—</b> mm</div>
           <div><i>escala</i><b id="v-escala">—</b> px/mm</div>
+          <div title="radio del iris en píxeles: por debajo del mínimo el landmark es demasiado grueso para la escala"><i>iris</i><b id="v-iris">—</b> px</div>
           <div><i>yaw cabeza</i><b id="v-yaw">—</b>°</div>
+          <div title="ángulo entre el eje vertical de la cabeza y el de la cámara, sin signo; el vHIT lateral se hace con ~30° de flexión"><i>inclinación</i><b id="v-inclin">—</b>°</div>
           <div><i>azimut mirada</i><b id="v-azimut">—</b>°</div>
           <div><i>v ojo comp.</i><b id="v-vojo">—</b> °/s</div>
           <div><i>parpadeo</i><b id="v-blink">no</b></div>
@@ -235,6 +237,11 @@
             <label class="perilla">
               <span>Parpadeo <b id="blink-val">0.45</b></span>
               <input type="range" id="blink" min="0.1" max="0.9" step="0.05" value="0.45" />
+            </label>
+            <label class="perilla">
+              <span>Iris mín <b id="iris-min-val">5</b> px</span>
+              <input type="range" id="iris-min" min="2" max="15" step="1" value="5" />
+              <small>Radio del iris por debajo del cual se rechaza el pulso.</small>
             </label>
           </div>
           <p class="ayuda">Los cambios valen para los pulsos siguientes.</p>
