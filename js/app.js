@@ -453,6 +453,8 @@ function abreHerramientas(abrir) {
 // ------------------------------------------------------------- controles ---
 
 function borraTodos() {
+  // Una tecla apretada sin querer no puede tirar la sesión entera.
+  if (estado.trials.length && !confirm(`¿Borrar los ${estado.trials.length} pulsos?`)) return;
   estado.trials = [];
   estado.seleccion = null;
   pintaListas();
@@ -510,6 +512,9 @@ function sliders() {
 function atajos() {
   document.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+    // Ctrl+C es copiar, Ctrl+D marcador, Ctrl+R recargar: no son atajos de acá.
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (!$('bienvenida').hidden) return;
     const k = e.key.toLowerCase();
     if (k === 'c') empiezaCalibracion();
     else if (k === 'r') borraTodos();
