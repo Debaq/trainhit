@@ -175,6 +175,7 @@ body {
    cámara. */
 .sin-video[hidden] { display: none; }
 
+.visor { display: flex; flex-direction: column; gap: 8px; }
 .ojos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .ojos figure { margin: 0; }
 .ojos canvas {
@@ -391,13 +392,16 @@ kbd {
   .app,
   .col-video { display: contents; }
 
-  .camara-caja,
-  .ojos,
+  .visor,
   .botonera,
-  .lecturas { width: min(100% - 16px, 420px); align-self: center; }
+  .lecturas { width: min(100% - 16px, 560px); align-self: center; }
+  /* La cámara deja de ser el bloque grande de arriba: cuadrito a la izquierda
+     con los ojos al lado, para que los paneles de impulsos entren en pantalla. */
+  .visor { flex-direction: row; align-items: flex-start; gap: 8px; }
+  .camara-caja { width: 45%; flex: none; }
+  .ojos { flex: 1; }
   .topbar { order: 0; }
-  .camara-caja { order: 1; }
-  .ojos { order: 2; }
+  .visor { order: 1; }
   .botonera { order: 3; }
   .col-lados {
     order: 4;
@@ -415,14 +419,28 @@ kbd {
   .cajon { width: min(420px, 100%); }
 }
 
+/* En el teléfono la cámara es un cuadrito y los ojos van al lado: lo que tiene
+   que entrar en la pantalla son los DOS paneles de impulsos a la vez, que es
+   para lo que se mira esto. Por eso tampoco se apilan. */
 @media (max-width: 780px) {
-  .col-lados { grid-template-columns: 1fr; }
+  .visor { gap: 6px; }
+  .camara-caja { width: 38%; }
+  .ojos { gap: 6px; }
+  .ojos figcaption { font-size: 10px; padding-top: 0; }
+
   .topbar { flex-wrap: wrap; row-gap: 6px; }
   .sep { flex-basis: 100%; }
-  .plot { height: 200px; }
-  .vivo canvas { height: 150px; }
-  .lista { max-height: 130px; }
   .botonera button { flex: 1 1 auto; }
+
+  .lado { padding: 6px; }
+  .lado-titulo { font-size: 10px; margin-bottom: 2px; }
+  .gan { font-size: 17px; }
+  .meta { font-size: 10px; }
+  .plot { height: clamp(140px, 30dvh, 280px); }
+  .lista { max-height: 84px; }
+  .vivo { padding: 4px 8px 6px; }
+  .vivo canvas { height: 96px; }
+  .lecturas { font-size: 11px; }
 }
 
 @media (max-width: 480px) {

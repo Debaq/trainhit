@@ -7,7 +7,7 @@
     <script>
       // Versión de los archivos: se toca acá o con `./bump.sh`. Cada archivo se
       // pide con `?v=…` para que alcance con recargar, sin recarga forzada.
-      const V = '2026-09-21.11';
+      const V = '2026-09-21.13';
       const MODULOS = [
         'analysis',
         'app',
@@ -79,15 +79,17 @@
     <div class="app">
       <!-- ─────────── columna izquierda: video, ojos y botonera ─────────── -->
       <aside class="col-video">
-        <div id="camara-caja" class="camara-caja espejada">
-          <video id="video" playsinline muted></video>
-          <canvas id="overlay"></canvas>
-          <div id="sin-video" class="sin-video">cámara apagada</div>
-        </div>
+        <div class="visor">
+          <div id="camara-caja" class="camara-caja espejada">
+            <video id="video" playsinline muted></video>
+            <canvas id="overlay"></canvas>
+            <div id="sin-video" class="sin-video">cámara apagada</div>
+          </div>
 
-        <div class="ojos">
-          <figure><canvas id="ojo-der"></canvas><figcaption>ojo derecho</figcaption></figure>
-          <figure><canvas id="ojo-izq"></canvas><figcaption>ojo izquierdo</figcaption></figure>
+          <div class="ojos">
+            <figure><canvas id="ojo-der"></canvas><figcaption>ojo derecho</figcaption></figure>
+            <figure><canvas id="ojo-izq"></canvas><figcaption>ojo izquierdo</figcaption></figure>
+          </div>
         </div>
 
         <div class="botonera">
