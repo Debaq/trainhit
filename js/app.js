@@ -28,6 +28,7 @@ const estado = {
   diff: new Differentiator(50, 2),
   rolling: [],
   trials: [],
+  proximoId: 1, // el largo de la lista no sirve: al borrar uno se repetía el número
   seleccion: null,
   captura: null,
   calib: null,
@@ -310,7 +311,7 @@ function cierraPulso() {
 
   const trial = analyzeTrial(samples, cfg);
   if (!trial) return;
-  trial.id = estado.trials.length + 1;
+  trial.id = estado.proximoId++;
   trial.calibrado = estado.model.calibrated;
   estado.trials.push(trial);
   estado.seleccion = trial;
