@@ -333,15 +333,59 @@ kbd {
 .pasos li { margin-bottom: 5px; }
 .pasos b { color: var(--foreground); }
 
-@media (max-width: 1100px) {
-  body { overflow: auto; }
-  .app { grid-template-columns: 1fr; }
-  .col-lados { grid-template-columns: 1fr; }
-  .cajon { width: 100%; }
-}
 .cajon-head small { color: var(--muted-fg); font: 400 11px ui-monospace, monospace; }
 .pie { margin: 12px 0 0; color: #52525b; font: 11px ui-monospace, monospace; }
+
 .refs { margin: 0; padding-left: 16px; color: var(--muted-fg); font-size: 12px; }
 .refs li { margin-bottom: 7px; }
 .refs a { color: var(--c-guide); }
 .refs i { color: #71717a; }
+
+/* ── anchos chicos ───────────────────────────────────────────────────────── */
+
+/* En portátiles la columna del video cede antes que los paneles de pulsos, que
+   son lo que se está mirando. */
+@media (max-width: 1400px) {
+  .app { grid-template-columns: 300px 1fr; }
+}
+
+/* Acá se abandona el alto fijo de ventana: la página pasa a scroll normal y
+   cada bloque toma el alto que necesita. Con el alto fijo los gráficos quedaban
+   de 60 px y las listas cortadas. La condición de alto es por la ventana baja y
+   ancha, donde pasa lo mismo sin que el ancho lo delate. */
+@media (max-width: 1100px), (max-height: 700px) {
+  html,
+  body { height: auto; }
+  body { display: block; overflow: auto; }
+
+  .app { display: block; padding: 8px; }
+  /* El video no puede comerse la primera pantalla: acotado, los paneles de
+     pulsos entran sin scroll o a un golpe de dedo. */
+  .col-video { overflow: visible; max-width: 420px; margin: 0 auto 10px; }
+  .col-lados { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .lado { min-height: 0; }
+  .plot { flex: none; height: 240px; }
+  .vivo { height: auto; }
+  .vivo canvas { flex: none; height: 180px; }
+  .cajon { width: min(420px, 100%); }
+}
+
+@media (max-width: 780px) {
+  .col-lados { grid-template-columns: 1fr; }
+  .topbar { flex-wrap: wrap; row-gap: 6px; }
+  .sep { flex-basis: 100%; }
+  .plot { height: 200px; }
+  .vivo canvas { height: 150px; }
+  .lista { max-height: 130px; }
+  .botonera button { flex: 1 1 auto; }
+}
+
+@media (max-width: 480px) {
+  /* Los indicadores de la barra están también en las lecturas de la izquierda;
+     acá el lugar lo necesitan el estado y los botones. */
+  .topbar .chip { display: none; }
+  .estado { flex: 1 1 100%; }
+  .lado-head { flex-wrap: wrap; row-gap: 2px; }
+  .meta { margin-left: 0; }
+  .ojos canvas { aspect-ratio: 1.6; }
+}
