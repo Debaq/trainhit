@@ -8,7 +8,16 @@ que es el motor nativo en Rust. Acá el objetivo no es medir mejor: es que cada
 paso del cálculo **se vea**, se pueda tocar y se entienda por qué está hecho así.
 
 > **No reemplaza a un equipo clínico.** Corre a los 30 fps de una webcam común;
-> un vHIT real usa cámara >250 Hz y giroscopio solidario a la cabeza.
+> un vHIT de gafas usa cámara >250 Hz, y el remoto comercial más lento va a 100 fps.
+
+Medir con cámara remota y sin gafas **es otro método, no un vHIT incompleto**.
+Tiene precedente comercial validado —Synapsys Ulmer: cámara remota, 100 fps,
+blanco a 1–1,3 m, con normativos pediátricos publicados— y una ventaja propia:
+sin gafas no existe el deslizamiento, un artefacto documentado que con gafas
+flojas llega a dar ganancias instantáneas de 1,24, que no son fisiológicas. Lo
+que separa a esto de un equipo clínico son la tasa de cuadros, la distancia al
+objetivo sin fijar y la falta de validación propia, no la ausencia de
+giroscopio.
 
 ## Uso
 
@@ -134,8 +143,9 @@ Las cinco decisiones que importan, resumidas:
 - **30 fps.** El pico del impulso cae entre dos muestras, y la ganancia
   instantánea a 60 ms queda con dos frames de soporte: se calcula pero no se
   reporta.
-- **Sin giroscopio**: cabeza y ojo salen de la misma imagen, así que un error de
-  seguimiento entra en las dos señales a la vez.
+- **Cabeza y ojo salen de la misma imagen**, así que un error de seguimiento
+  entra en las dos señales a la vez. No es el precio de no tener giroscopio: es
+  la contrapartida de medir la cabeza donde está el ojo.
 - **Solo canal lateral.** Los verticales necesitan la componente vertical del
   movimiento ocular, más ruidosa por el párpado.
 

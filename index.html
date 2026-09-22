@@ -29,12 +29,14 @@
           iris cuadro a cuadro y calcula la ganancia de cada impulso cefálico.
         </p>
         <p>
-          Sirve para enseñar el método, no para decidir sobre un paciente: a 30 fps y sin
-          giroscopio los números alcanzan para entender cómo se mide, no para un informe clínico.
+          Trabaja con cámara remota y sin gafas, que es un método con precedente clínico propio
+          —así mide Synapsys Ulmer, a 100 fps y con el blanco a 1–1,3 m— y no un vHIT de gafas al
+          que le falten piezas: sin gafas tampoco existe el deslizamiento que infla las ganancias.
         </p>
         <p>
           Todo ocurre en el navegador —el video no sale del equipo— y cada paso del cálculo se
-          puede abrir, mirar y modificar desde <b>Herramientas</b>.
+          puede abrir, mirar y modificar desde <b>Herramientas</b>; lo que separa esto de un
+          informe clínico son los 30 fps y la distancia al objetivo sin fijar, no el método.
         </p>
         <p class="ayuda">
           Antes de creerle a la ganancia hay que calibrar el paralaje con <kbd>C</kbd>: sin eso, un
@@ -217,7 +219,8 @@
             <li>No desacadiza ⇒ sesgo al falso negativo.</li>
             <li>No fija la distancia al objetivo.</li>
             <li>30 fps: el pico cae entre muestras.</li>
-            <li>Sin giroscopio; solo canal lateral.</li>
+            <li>Cabeza y ojo salen de la misma imagen: un error de seguimiento entra en las dos señales.</li>
+            <li>Solo canal lateral; los verticales necesitan la componente vertical del ojo.</li>
           </ul>
         </section>
       </div>
