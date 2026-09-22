@@ -87,7 +87,8 @@
           <button id="btn-calibrar">Calibrar <kbd>C</kbd></button>
           <button id="btn-descartar">Descartar <kbd>D</kbd></button>
           <button id="btn-borrar" class="peligro">Borrar todos <kbd>R</kbd></button>
-          <button id="btn-csv">CSV</button>
+          <button id="btn-csv" title="un pulso por fila">CSV pulsos</button>
+          <button id="btn-csv-muestras" title="una muestra por fila, de todos los pulsos">CSV muestras</button>
         </div>
         <div class="botonera fina">
           <select id="camara" title="cámara"></select>
@@ -229,7 +230,12 @@
               <small>Radio del iris por debajo del cual se rechaza el pulso.</small>
             </label>
           </div>
-          <p class="ayuda">Los cambios valen para los pulsos siguientes.</p>
+          <p class="ayuda">
+            Los cambios valen para los pulsos siguientes. Cada pulso guarda sus muestras crudas:
+            con el botón se vuelven a calcular todos con las perillas, los umbrales y el <b>k</b> de
+            ahora, que es la forma de ver qué hace cada perilla sobre un pulso ya medido.
+          </p>
+          <button id="btn-recalcular">Recalcular los pulsos con esta configuración</button>
         </section>
 
         <section>

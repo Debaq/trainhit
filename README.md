@@ -145,6 +145,7 @@ js/geom.js      iris como regla, ángulo de mirada, ajuste del paralaje
 js/head.js      rotación de cabeza: incrementos proyectados sobre el eje del canal
 js/signal.js    derivada por ajuste polinómico sobre ventana temporal
 js/analysis.js  ventana del impulso, ganancias, criterios de aceptación
+js/pipeline.js  de muestras crudas a pulso analizado: lo que corre al medir y al recalcular
 js/tracker.js   MediaPipe Face Landmarker + cámara + bucle de frames
 js/plots.js     los cuatro gráficos, en canvas y sin librerías
 js/app.js       el cableado y la interfaz
@@ -239,9 +240,20 @@ ventana y grado del derivador, umbrales de inicio y fin del impulso, rango de
 pico y de duración aceptados, umbral de parpadeo, y un `k` que se puede poner a
 mano para **ver** cómo el paralaje mueve la ganancia entera.
 
-Mover una perilla no recalcula los pulsos viejos: afecta a los siguientes. Es a
-propósito — los números de la tabla son los que se midieron con la configuración
-que había en ese momento.
+Mover una perilla no recalcula los pulsos viejos: afecta a los siguientes, y
+los números de la tabla son los que se midieron con la configuración que había
+en ese momento. Pero cada pulso guarda sus muestras crudas —yaw y offset del
+iris por frame—, y el botón **Recalcular** de Herramientas vuelve a correr el
+motor entero sobre todos con las perillas, los umbrales y el `k` de ahora. Es
+la forma de ver qué hace cada perilla sobre un pulso ya medido: subir la
+ventana del derivador y ver cómo baja el pico, o poner `k = 0` y ver la
+ganancia irse a 1,9, sin tener que hacer otro impulso. El motor que corre al
+medir y al recalcular es el mismo (`js/pipeline.js`), así que con la misma
+configuración da lo mismo.
+
+Los dos botones de CSV bajan un pulso por fila (con la configuración con la
+que se calculó cada uno) o una muestra por fila de todos los pulsos, con lo
+derivado y lo crudo al lado, para rehacer el cálculo en una planilla.
 
 ## Licencia
 

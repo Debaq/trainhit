@@ -10,6 +10,7 @@ import { CONFIG, RECHAZO_TEXT, analyzeTrial, asimetria, resumenLado } from './an
 import * as plots from './plots.js';
 import { FPS_MAX, IDX, abrirCamara, bucleDeFrames, crearLandmarker, describeCamara, listarCamaras } from './tracker.js';
 import { montaBienvenida } from './bienvenida.js';
+import { MARGEN_CRUDO_MS, procesaCrudo } from './pipeline.js';
 
 const $ = (id) => document.getElementById(id);
 const fmt = (v, d = 2) => (v === null || v === undefined || Number.isNaN(v) ? '—' : v.toFixed(d));
@@ -42,6 +43,7 @@ const estado = {
   head: new HeadTracker('lateral'),
   diff: new Differentiator(50, 2),
   rolling: [],
+  crudo: [], // una muestra por frame, antes del derivador: con esto se recalcula
   trials: [],
   proximoId: 1, // el largo de la lista no sirve: al borrar uno se repetía el número
   seleccion: null,
@@ -128,6 +130,7 @@ function reseteaTransitorio() {
   estado.crops.derecho = null;
   estado.crops.izquierdo = null;
   estado.rolling = [];
+  estado.crudo = [];
   estado.captura = null;
   estado.refractarioHasta = -Infinity;
   estado.head.reset();
@@ -272,6 +275,9 @@ function procesaFrame(mediaTime) {
   const gaze = estado.model.gazeAzimuthDeg(obs, yaw);
   estado.vivo.azimut = gaze;
 
+  estado.crudo.push({ t: mediaTime, yaw, offsetMm: obs.offsetMm, blink, irisPx: obs.radiusPx, vergMm });
+  while (estado.crudo.length && mediaTime - estado.crudo[0].t > plots.SEGUNDOS_VIVO) estado.crudo.shift();
+
   const d = estado.diff.push({ t: mediaTime, headDeg: yaw, gazeDeg: gaze });
   if (!d) return;
 
@@ -370,23 +376,67 @@ function detectaPulso(m) {
   }
 }
 
+/** Perillas del derivador, como las quiere `procesaCrudo`. */
+function derivActual() {
+  return { windowMs: Number($('deriv-win').value), degree: Number($('deriv-deg').value) };
+}
+
+/**
+ * Cierra la captura y analiza el pulso. El análisis NO usa las muestras que
+ * disparaban el detector: se vuelve a correr el motor entero sobre las
+ * muestras crudas de la ventana, que es exactamente lo que hace «Recalcular».
+ * Así lo que se ve al medir y lo que se ve al recalcular con la misma
+ * configuración es lo mismo.
+ */
 function cierraPulso() {
   const cap = estado.captura;
   estado.captura = null;
-  estado.refractarioHasta = cap.samples[cap.samples.length - 1].t + cfg.impulse.refractoryMs / 1000;
-  const samples = cap.samples.map((s) => ({ ...s, tMs: (s.t - cap.tTrigger) * 1000 }));
-  const pico = samples.reduce((m, s) => Math.max(m, Math.abs(s.headVel)), 0);
+  const tFin = cap.samples[cap.samples.length - 1].t;
+  estado.refractarioHasta = tFin + cfg.impulse.refractoryMs / 1000;
+
+  const pico = cap.samples.reduce((m, s) => Math.max(m, Math.abs(s.headVel)), 0);
   // Acomodarse en la silla o mirar al costado alcanzan para disparar. Eso no
   // fue un intento de impulso: no ensucia la lista.
   if (pico < cfg.impulse.ignoreBelowDegS) return;
 
-  const trial = analyzeTrial(samples, cfg);
+  const desde = cap.tTrigger - (cfg.impulse.preTriggerMs + MARGEN_CRUDO_MS) / 1000;
+  const crudo = estado.crudo.filter((c) => c.t >= desde && c.t <= tFin);
+  const trial = procesaCrudo(crudo, cap.tTrigger, estado.model, derivActual(), cfg);
   if (!trial) return;
   trial.id = estado.proximoId++;
-  trial.calibrado = estado.model.calibrated;
+  trial.crudo = crudo;
+  anotaConfig(trial);
   estado.trials.push(trial);
   estado.seleccion = trial;
   pintaListas();
+}
+
+/** Con qué configuración se calculó el pulso: va al tooltip y al CSV. */
+function anotaConfig(trial) {
+  trial.calibrado = estado.model.calibrated;
+  trial.k = estado.model.kParallax;
+  trial.deriv = derivActual();
+}
+
+/**
+ * Vuelve a correr el motor sobre las muestras crudas de cada pulso con la
+ * configuración de AHORA: perillas, umbrales y `k`. Los números de la lista
+ * pasan a ser los de esta configuración, no los de cuando se midió.
+ */
+function recalculaTodos() {
+  const idSel = estado.seleccion?.id;
+  estado.trials = estado.trials.map((t) => {
+    if (!t.crudo) return t;
+    const nuevo = procesaCrudo(t.crudo, t.tTrigger, estado.model, derivActual(), cfg);
+    if (!nuevo) return t;
+    nuevo.id = t.id;
+    nuevo.crudo = t.crudo;
+    anotaConfig(nuevo);
+    return nuevo;
+  });
+  estado.seleccion = estado.trials.find((t) => t.id === idSel) ?? null;
+  pintaListas();
+  marcaEstado(`${estado.trials.length} pulsos recalculados con la configuración actual`);
 }
 
 // ------------------------------------------------------------------- UI ----
@@ -441,6 +491,7 @@ function pintaListas() {
       tr.title =
         `área ${fmt(t.gain)} · 60 ms ${fmt(t.gains?.instant60ms)} · pico ${fmt(t.gains?.peak)}` +
         `\niris ${fmt(t.irisPx, 1)} px · ojos ${fmt(t.disconjMm)} mm · hueco ${fmt(t.gapMs, 0)} ms` +
+        `\nk ${fmt(t.k)} · derivador ${t.deriv?.windowMs} ms grado ${t.deriv?.degree}` +
         (t.rejected ? `\n${RECHAZO_TEXT[t.rejected]}` : '') +
         (t.calibrado ? '' : '\nmedido SIN calibrar');
       tbody.appendChild(tr);
@@ -636,27 +687,74 @@ function atajos() {
   });
 }
 
-function exporta() {
-  const filas = [
-    ['id', 'lado', 'pico_cabeza_deg_s', 'duracion_ms', 'ganancia_area', 'ganancia_60ms', 'ganancia_pico', 'rechazo', 'calibrado'],
-    ...estado.trials.map((t) => [
-      t.id,
-      t.side,
-      fmt(t.peakHeadDegS, 1),
-      fmt(t.durationMs, 1),
-      fmt(t.gain, 3),
-      fmt(t.gains?.instant60ms, 3),
-      fmt(t.gains?.peak, 3),
-      t.rejected ?? '',
-      t.calibrado ? 'si' : 'no',
-    ]),
-  ];
+// ------------------------------------------------------------------ CSV ----
+
+/** Número para CSV: punto decimal, y vacío —no un guion— cuando no hay valor. */
+const num = (v, d = 3) => (v === null || v === undefined || Number.isNaN(v) ? '' : v.toFixed(d));
+
+function bajaCsv(filas, sufijo) {
   const url = URL.createObjectURL(new Blob([filas.map((f) => f.join(',')).join('\n')], { type: 'text/csv' }));
   const a = document.createElement('a');
   a.href = url;
-  a.download = `trainhit-${new Date().toISOString().slice(0, 19).replace(/[:T-]/g, '')}.csv`;
+  a.download = `trainhit-${sufijo}-${new Date().toISOString().slice(0, 19).replace(/[:T-]/g, '')}.csv`;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+/** Un pulso por fila, con la configuración con la que se calculó. */
+function exporta() {
+  const version = document.documentElement.dataset.v ?? '';
+  const filas = [
+    [
+      'id', 'lado', 'pico_cabeza_deg_s', 'duracion_ms', 'ganancia_area', 'ganancia_60ms', 'ganancia_pico',
+      'rechazo', 'calibrado', 'k', 'iris_min_px', 'disconj_mm', 'hueco_max_ms', 'deriv_ventana_ms', 'deriv_grado', 'version',
+    ],
+    ...estado.trials.map((t) => [
+      t.id,
+      t.side,
+      num(t.peakHeadDegS, 1),
+      num(t.durationMs, 1),
+      num(t.gain),
+      num(t.gains?.instant60ms),
+      num(t.gains?.peak),
+      t.rejected ?? '',
+      t.calibrado ? 'si' : 'no',
+      num(t.k),
+      num(t.irisPx, 1),
+      num(t.disconjMm),
+      num(t.gapMs, 0),
+      t.deriv?.windowMs ?? '',
+      t.deriv?.degree ?? '',
+      version,
+    ]),
+  ];
+  bajaCsv(filas, 'pulsos');
+}
+
+/**
+ * Una muestra por fila, de todos los pulsos: lo derivado (lo que se grafica y
+ * de donde sale la ganancia) y, al lado, lo crudo del frame que cerró esa
+ * ventana del derivador. Es lo que hace falta para rehacer el cálculo en una
+ * planilla.
+ */
+function exportaMuestras() {
+  const filas = [
+    [
+      'id', 'lado', 't_ms', 'cabeza_deg', 'mirada_deg', 'v_cabeza_deg_s', 'v_mirada_deg_s', 'en_impulso', 'parpadeo',
+      'iris_px', 'verg_mm', 'crudo_t_ms', 'crudo_yaw_deg', 'crudo_offset_mm',
+    ],
+  ];
+  for (const t of estado.trials) {
+    for (const s of t.samples) {
+      const dentro = t.core && s.tMs >= t.tOnsetMs && s.tMs <= t.tOffsetMs;
+      filas.push([
+        t.id, t.side, num(s.tMs, 1), num(s.headPos), num(s.gazePos), num(s.headVel, 1), num(s.gazeVel, 1),
+        dentro ? 1 : 0, s.blink ? 1 : 0, num(s.irisPx, 1), num(s.vergMm),
+        num(s.crudo?.tMs, 1), num(s.crudo?.yaw), num(s.crudo?.offsetMm),
+      ]);
+    }
+  }
+  bajaCsv(filas, 'muestras');
 }
 
 // ------------------------------------------------------------------ init ---
@@ -666,6 +764,8 @@ $('btn-calibrar').addEventListener('click', empiezaCalibracion);
 $('btn-borrar').addEventListener('click', borraTodos);
 $('btn-descartar').addEventListener('click', descartaUltimo);
 $('btn-csv').addEventListener('click', exporta);
+$('btn-csv-muestras').addEventListener('click', exportaMuestras);
+$('btn-recalcular').addEventListener('click', recalculaTodos);
 $('btn-herramientas').addEventListener('click', () => abreHerramientas($('herramientas').hidden));
 $('btn-cerrar').addEventListener('click', () => abreHerramientas(false));
 $('pausa').addEventListener('change', (e) => {
@@ -699,4 +799,4 @@ marcaEstado('encender la cámara');
 
 // Enganche de consola: `trainhit.estado`, `trainhit.cfg`. Es un repo para
 // enseñar — poder revolver el estado desde la consola es parte del punto.
-window.trainhit = { estado, cfg, pintaListas, analyzeTrial };
+window.trainhit = { estado, cfg, pintaListas, analyzeTrial, procesaCrudo, recalculaTodos };

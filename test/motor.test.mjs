@@ -227,3 +227,34 @@ test('iris chico y disconjugación se miden y el iris chico rechaza', () => {
   assert.equal(ok.rejected, null);
   assert.equal(analyzeTrial(bueno.samples, CONFIG).irisPx, null);
 });
+
+test('procesaCrudo da lo mismo que el pipeline en vivo y permite recalcular con otro k', async () => {
+  const { procesaCrudo } = await import('../js/pipeline.js');
+  const fps = 60;
+  const crudo = [];
+  for (let i = 0; i < Math.round(0.9 * fps); i++) {
+    const t = i / fps - 0.3;
+    const H = t < 0 ? 0 : headPos(t, 200);
+    crudo.push({ t, yaw: H, offsetMm: R * (Math.sin(rad(0)) - K * Math.sin(rad(H))), blink: false, irisPx: 9, vergMm: 0 });
+  }
+  const model = new geom.EyeModel();
+  model.kParallax = K;
+  const tTrigger = 0.1;
+  const a = procesaCrudo(crudo, tTrigger, model, { windowMs: 50, degree: 2 }, CONFIG);
+  assert.equal(a.rejected, null);
+  cerca(a.gain, 1, 0.01);
+  assert.equal(a.tTrigger, tTrigger);
+  assert.ok(a.samples[0].tMs >= -CONFIG.impulse.preTriggerMs - 1);
+  assert.ok(a.samples[a.samples.length - 1].tMs <= CONFIG.impulse.windowMs + 1000 / fps);
+  assert.ok(a.samples.every((s) => s.crudo && Number.isFinite(s.crudo.yaw)));
+
+  const b = procesaCrudo(crudo, tTrigger, model, { windowMs: 50, degree: 2 }, CONFIG);
+  assert.deepEqual(b.gain, a.gain, 'determinista');
+
+  model.kParallax = 0;
+  const c = procesaCrudo(crudo, tTrigger, model, { windowMs: 50, degree: 2 }, CONFIG);
+  assert.ok(c.gain > 1.7, `sin paralaje se infla: ${c.gain}`);
+
+  const d = procesaCrudo(crudo, tTrigger, model, { windowMs: 200, degree: 1 }, CONFIG);
+  assert.ok(d.peakHeadDegS < a.peakHeadDegS, 'ventana ancha y grado 1 aplanan el pico');
+});
