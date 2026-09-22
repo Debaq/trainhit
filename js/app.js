@@ -18,6 +18,7 @@ const cfg = structuredClone(CONFIG);
 
 const estado = {
   landmarker: null,
+  delegate: null,
   bucle: null,
   stream: null,
   corriendo: false,
@@ -54,7 +55,11 @@ async function arrancar() {
     marcaEstado('pidiendo cámara…');
     estado.stream = await abrirCamara($('video'), { deviceId: $('camara').value || undefined });
     marcaEstado('cargando modelo…');
-    if (!estado.landmarker) estado.landmarker = await crearLandmarker({ gpu: true });
+    if (!estado.landmarker) {
+      const l = await crearLandmarker({ gpu: true });
+      estado.landmarker = l.landmarker;
+      estado.delegate = l.delegate;
+    }
     await poblarCamaras();
     estado.corriendo = true;
     $('sin-video').hidden = true;
@@ -64,7 +69,10 @@ async function arrancar() {
     ajustaAspecto();
     estado.bucle = bucleDeFrames($('video'), procesaFrame);
     $('btn-arrancar').textContent = 'Detener';
-    marcaEstado(estado.bucle.soportaRVFC ? 'midiendo' : 'midiendo (sin rVFC: timestamps peores)');
+    const notas = [];
+    if (estado.delegate === 'CPU') notas.push('modelo en CPU: más lento');
+    if (!estado.bucle.soportaRVFC) notas.push('sin rVFC: timestamps peores');
+    marcaEstado(notas.length ? `midiendo (${notas.join(' · ')})` : 'midiendo');
   } catch (e) {
     // Si la cámara abrió pero el modelo no cargó, la cámara quedaría
     // encendida y el botón diciendo «Encender»: se apaga todo.

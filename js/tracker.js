@@ -19,18 +19,33 @@ export const IDX = {
   izquierdo: { iris: 473, border: [474, 475, 476, 477], outer: 362, inner: 263, lidUp: 386, lidDown: 374 },
 };
 
+/**
+ * Crea el landmarker. Se intenta primero en GPU; si no hay WebGL2 (máquinas
+ * virtuales, drivers viejos, algunos Android) se cae a CPU en vez de no
+ * arrancar. Devuelve `{ landmarker, delegate }` para que la interfaz diga
+ * cuál quedó.
+ */
 export async function crearLandmarker({ gpu = true } = {}) {
   const fileset = await FilesetResolver.forVisionTasks(WASM_BASE);
-  return FaceLandmarker.createFromOptions(fileset, {
-    baseOptions: { modelAssetPath: MODEL_URL, delegate: gpu ? 'GPU' : 'CPU' },
-    runningMode: 'VIDEO',
-    numFaces: 1,
-    // El transform 4x4 cara->cámara es de donde sale la rotación de cabeza.
-    outputFacialTransformationMatrixes: true,
-    // Los blendshapes obligan a correr un modelo entero más por frame; el
-    // parpadeo se saca de la malla con dos restas (ver geom.eyelidOpenness).
-    outputFaceBlendshapes: false,
-  });
+  const crea = (delegate) =>
+    FaceLandmarker.createFromOptions(fileset, {
+      baseOptions: { modelAssetPath: MODEL_URL, delegate },
+      runningMode: 'VIDEO',
+      numFaces: 1,
+      // El transform 4x4 cara->cámara es de donde sale la rotación de cabeza.
+      outputFacialTransformationMatrixes: true,
+      // Los blendshapes obligan a correr un modelo entero más por frame; el
+      // parpadeo se saca de la malla con dos restas (ver geom.eyelidOpenness).
+      outputFaceBlendshapes: false,
+    });
+  if (gpu) {
+    try {
+      return { landmarker: await crea('GPU'), delegate: 'GPU' };
+    } catch (e) {
+      console.warn('landmarker en GPU falló, se usa CPU:', e);
+    }
+  }
+  return { landmarker: await crea('CPU'), delegate: 'CPU' };
 }
 
 /**
