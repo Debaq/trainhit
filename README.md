@@ -36,7 +36,26 @@ curvas se superponen y la separación entre ellas es el hallazgo.
 
 El botón **Herramientas** abre el cajón didáctico: el ajuste del paralaje
 dibujado, el último pulso con su ventana, la nube de ganancia contra pico y las
-perillas.
+perillas. El **?** de la barra vuelve a abrir la bienvenida.
+
+**Suavizar** interpola entre muestras con Hermite monótona (Fritsch-Carlson,
+`js/curve.js`). Se eligió monótona y no una spline cualquiera porque
+Catmull-Rom o la cúbica natural **sobrepasan** los datos: dibujarían un pico de
+velocidad que nunca se midió, y el pico es uno de los números que se reportan.
+Aun así suavizar hace parecer más precisa una señal de 30 fps, así que mientras
+está encendido las trazas de cada pulso muestran los puntos de las muestras
+reales —y el interruptor lo apaga—.
+
+### El «me gusta»
+
+El corazón de la barra suma en un contador público y anónimo
+([Abacus](https://abacus.jasoncameron.dev)), justamente para que no haga falta
+cuenta de GitHub ni de nada para dejar constancia de que la página sirvió. Se
+manda una petición sin datos: no viaja el video, ni las mediciones, ni nada de
+la sesión. Un voto por navegador, recordado en `localStorage`.
+
+Aparte del modelo de MediaPipe, es la única petición que sale de la página, y
+solo si alguien aprieta el botón.
 
 ### Atajos
 

@@ -76,6 +76,37 @@ body {
 }
 .chip i { color: var(--muted-fg); font-style: normal; font-size: 10px; text-transform: uppercase; }
 
+.megusta { display: inline-flex; gap: 5px; align-items: center; font-size: 13px; }
+.megusta:not(:disabled):hover { color: var(--c-bad); border-color: var(--c-bad); }
+.megusta.votado { color: var(--c-bad); border-color: var(--c-bad); opacity: 1; cursor: default; }
+.megusta:disabled { opacity: 0.9; }
+
+/* ── bienvenida ──────────────────────────────────────────────────────────── */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: rgba(9, 9, 11, 0.75);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+.modal[hidden] { display: none; }
+.tarjeta {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-window);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  padding: 22px 24px;
+  max-width: 540px;
+}
+.tarjeta h1 { margin: 0 0 10px; font-size: 26px; letter-spacing: -0.4px; }
+.tarjeta h1 b { color: var(--c-head); }
+.tarjeta p { margin: 0 0 10px; color: #d4d4d8; font-size: 14px; }
+.tarjeta .ayuda { color: var(--muted-fg); font-size: 13px; }
+.tarjeta button { margin-top: 6px; }
+
 /* ── estructura ──────────────────────────────────────────────────────────── */
 
 .app {

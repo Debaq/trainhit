@@ -3,6 +3,8 @@
 // La paleta es la del motor nativo (`rust/src/gui/theme.rs`): son tonos medios
 // elegidos para leerse igual sobre fondo claro y oscuro, no una decoración.
 
+import { monotona } from './curve.js';
+
 export const COLOR = {
   cabeza: '#2E7DD6',
   ojo: '#E8721C',
@@ -101,6 +103,17 @@ function tick(v) {
   return v.toFixed(2);
 }
 
+/**
+ * Opciones de dibujo. `suavizado` interpola entre muestras con Hermite
+ * monótona (ver `curve.js`): más legible y sin inventar picos.
+ *
+ * Se puede apagar, y con razón: suavizar una señal de 30 fps la hace PARECER
+ * más precisa de lo que es. Mientras está encendido, las trazas dibujan además
+ * los puntos de las muestras reales —la densidad de los marcadores es lo que
+ * dice cuántos datos hay de verdad—.
+ */
+export const opciones = { suavizado: true };
+
 function linea(ctx, pts, color, ancho = 1.4, alpha = 1) {
   if (pts.length < 2) return;
   ctx.globalAlpha = alpha;
@@ -108,8 +121,21 @@ function linea(ctx, pts, color, ancho = 1.4, alpha = 1) {
   ctx.lineWidth = ancho;
   ctx.lineJoin = 'round';
   ctx.beginPath();
-  pts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+  const curva = opciones.suavizado ? monotona(pts) : pts;
+  curva.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
   ctx.stroke();
+  // Las muestras reales, encima de la curva interpolada. Solo en las trazas
+  // cortas —un pulso son ~25 muestras—: sobre los ocho segundos de la traza en
+  // vivo serían un puntillado sin información.
+  if (opciones.suavizado && pts.length <= 60) {
+    ctx.fillStyle = color;
+    const r = Math.max(1.5, Math.min(2.4, ancho * 1.3));
+    for (const [x, y] of pts) {
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
   ctx.globalAlpha = 1;
 }
 

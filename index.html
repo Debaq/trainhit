@@ -15,8 +15,34 @@
       <span class="chip"><i>fps</i><b id="v-fps">—</b></span>
       <span class="chip"><i>cara</i><b id="v-cara">no</b></span>
       <span class="chip"><i>v cabeza</i><b id="v-vcab">—</b></span>
+      <button id="btn-megusta" class="megusta" title="me gusta">♥ <span id="megusta-cuenta">…</span></button>
+      <button id="btn-ayuda" class="ghost" title="qué es esto">?</button>
       <button id="btn-herramientas" class="ghost">Herramientas</button>
     </header>
+
+    <!-- ─────────── bienvenida ─────────── -->
+    <div id="bienvenida" class="modal" hidden>
+      <div class="tarjeta">
+        <h1>train<b>HIT</b></h1>
+        <p>
+          trainHIT mide el reflejo vestíbulo-ocular con la cámara del equipo: sigue la cabeza y el
+          iris cuadro a cuadro y calcula la ganancia de cada impulso cefálico.
+        </p>
+        <p>
+          Sirve para enseñar el método, no para decidir sobre un paciente: a 30 fps y sin
+          giroscopio los números alcanzan para entender cómo se mide, no para un informe clínico.
+        </p>
+        <p>
+          Todo ocurre en el navegador —el video no sale del equipo— y cada paso del cálculo se
+          puede abrir, mirar y modificar desde <b>Herramientas</b>.
+        </p>
+        <p class="ayuda">
+          Antes de creerle a la ganancia hay que calibrar el paralaje con <kbd>C</kbd>: sin eso, un
+          VOR perfecto se lee ~1,9.
+        </p>
+        <button id="btn-empezar" class="primario">Empezar</button>
+      </div>
+    </div>
 
     <div class="app">
       <!-- ─────────── columna izquierda: video, ojos y botonera ─────────── -->
@@ -43,6 +69,9 @@
           <select id="camara" title="cámara"></select>
           <label class="check"><input type="checkbox" id="espejo" checked /> espejar</label>
           <label class="check"><input type="checkbox" id="pausa" /> pausa</label>
+          <label class="check" title="interpolación monótona entre muestras; los puntos son las muestras reales">
+            <input type="checkbox" id="suavizar" checked /> suavizar
+          </label>
         </div>
 
         <div class="lecturas">

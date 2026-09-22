@@ -9,6 +9,7 @@ import { Differentiator } from './signal.js';
 import { CONFIG, RECHAZO_TEXT, analyzeTrial, asimetria, resumenLado } from './analysis.js';
 import * as plots from './plots.js';
 import { IDX, abrirCamara, bucleDeFrames, crearLandmarker, listarCamaras } from './tracker.js';
+import { montaBienvenida } from './bienvenida.js';
 
 const $ = (id) => document.getElementById(id);
 const fmt = (v, d = 2) => (v === null || v === undefined || Number.isNaN(v) ? '—' : v.toFixed(d));
@@ -512,6 +513,9 @@ $('pausa').addEventListener('change', (e) => {
   estado.pausado = e.target.checked;
   marcaEstado(estado.pausado ? 'pausado' : 'midiendo');
 });
+$('suavizar').addEventListener('change', (e) => {
+  plots.opciones.suavizado = e.target.checked;
+});
 $('espejo').addEventListener('change', (e) => {
   estado.espejo = e.target.checked;
   $('camara-caja').classList.toggle('espejada', estado.espejo);
@@ -525,6 +529,7 @@ $('camara').addEventListener('change', () => {
 
 sliders();
 atajos();
+montaBienvenida();
 pintaListas();
 pintaTodo();
 marcaEstado('encender la cámara');
