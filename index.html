@@ -4,38 +4,23 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>trainHIT</title>
-    <script>
-      // Versión de los archivos: se toca acá o con `./bump.sh`. Cada archivo se
-      // pide con `?v=…` para que alcance con recargar, sin recarga forzada.
-      const V = '2026-09-21.16';
-      const MODULOS = [
-        'analysis',
-        'app',
-        'bienvenida',
-        'curve',
-        'geom',
-        'head',
-        'plots',
-        'signal',
-        'tracker',
-      ];
-      document.documentElement.dataset.v = V;
-
-      const hoja = document.createElement('link');
-      hoja.rel = 'stylesheet';
-      hoja.href = `css/estilo.css?v=${V}`;
-      document.head.appendChild(hoja);
-
-      // El mapa de importación versiona también los `import` internos, que no
-      // heredan el `?v=` del script de entrada. Va con createElement: un
-      // <script> insertado como texto no se procesa.
-      const mapa = document.createElement('script');
-      mapa.type = 'importmap';
-      mapa.textContent = JSON.stringify({
-        imports: Object.fromEntries(MODULOS.map((m) => [`./js/${m}.js`, `./js/${m}.js?v=${V}`])),
-      });
-      document.head.appendChild(mapa);
-    </script>
+    <!-- Política de seguridad: nada en línea, scripts solo propios y de
+         jsdelivr (MediaPipe), y conexiones solo a lo que la página usa. -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
+    />
+    <meta
+      name="description"
+      content="vHIT didáctico en el navegador: mide la ganancia del reflejo vestíbulo-ocular con la webcam, con cada paso del cálculo a la vista. No es un equipo médico."
+    />
+    <meta name="theme-color" content="#09090b" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2309090b'/%3E%3Cpath d='M5 21 L11 8 L17 21 L23 8 L27 17' fill='none' stroke='%232e7dd6' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"
+    />
+    <!-- Versión y mapa de importación: tiene que correr antes del primer import. -->
+    <script src="js/arranque.js"></script>
     <noscript><link rel="stylesheet" href="css/estilo.css" /></noscript>
   </head>
   <body>
@@ -43,20 +28,20 @@
       <span class="marca">train<b>HIT</b></span>
       <span id="badge-calib" class="badge mal">SIN CALIBRAR</span>
       <span id="aviso-fps" class="badge warn" hidden>TOPE 100 FPS</span>
-      <span id="estado" class="estado">listo</span>
+      <span id="estado" class="estado" aria-live="polite">listo</span>
       <span class="sep"></span>
       <span class="chip"><i>fps</i><b id="v-fps">—</b></span>
       <span class="chip"><i>cara</i><b id="v-cara">no</b></span>
       <span class="chip"><i>v cabeza</i><b id="v-vcab">—</b></span>
-      <button id="btn-megusta" class="megusta" title="me gusta">♥ <span id="megusta-cuenta">…</span></button>
-      <button id="btn-ayuda" class="ghost" title="qué es esto">?</button>
+      <button id="btn-megusta" class="megusta" title="me gusta" aria-label="me gusta">♥ <span id="megusta-cuenta">…</span></button>
+      <button id="btn-ayuda" class="ghost" title="qué es esto" aria-label="qué es esto">?</button>
       <button id="btn-herramientas" class="ghost">Herramientas</button>
     </header>
 
     <!-- ─────────── bienvenida ─────────── -->
     <div id="bienvenida" class="modal" hidden>
-      <div class="tarjeta">
-        <h1>train<b>HIT</b></h1>
+      <div class="tarjeta" role="dialog" aria-modal="true" aria-labelledby="bienvenida-titulo">
+        <h1 id="bienvenida-titulo">train<b>HIT</b></h1>
         <p>
           trainHIT mide el reflejo vestíbulo-ocular con la cámara del equipo: sigue la cabeza y el
           iris cuadro a cuadro y calcula la ganancia de cada impulso cefálico.
@@ -87,13 +72,13 @@
         <div class="visor">
           <div id="camara-caja" class="camara-caja espejada">
             <video id="video" playsinline muted></video>
-            <canvas id="overlay"></canvas>
+            <canvas id="overlay" aria-hidden="true"></canvas>
             <div id="sin-video" class="sin-video">cámara apagada</div>
           </div>
 
           <div class="ojos">
-            <figure><canvas id="ojo-der"></canvas><figcaption>ojo derecho</figcaption></figure>
-            <figure><canvas id="ojo-izq"></canvas><figcaption>ojo izquierdo</figcaption></figure>
+            <figure><canvas id="ojo-der" role="img" aria-label="ojo derecho ampliado"></canvas><figcaption>ojo derecho</figcaption></figure>
+            <figure><canvas id="ojo-izq" role="img" aria-label="ojo izquierdo ampliado"></canvas><figcaption>ojo izquierdo</figcaption></figure>
           </div>
         </div>
 
@@ -129,7 +114,7 @@
       <main class="col-lados">
         <section class="lado" data-lado="derecha">
           <h2 class="lado-titulo">Impulsos derecha</h2>
-          <canvas id="plot-der" class="plot"></canvas>
+          <canvas id="plot-der" class="plot" role="img" aria-label="impulsos hacia la derecha: velocidad de cabeza y de ojo superpuestas"></canvas>
           <div class="lado-head">
             <span id="gan-der" class="gan">—</span>
             <span id="meta-der" class="meta">0 aceptados</span>
@@ -139,7 +124,7 @@
 
         <section class="lado" data-lado="izquierda">
           <h2 class="lado-titulo">Impulsos izquierda</h2>
-          <canvas id="plot-izq" class="plot"></canvas>
+          <canvas id="plot-izq" class="plot" role="img" aria-label="impulsos hacia la izquierda: velocidad de cabeza y de ojo superpuestas"></canvas>
           <div class="lado-head">
             <span id="gan-izq" class="gan">—</span>
             <span id="meta-izq" class="meta">0 aceptados</span>
@@ -156,20 +141,20 @@
         <span class="leyenda"><i class="c-cabeza"></i>cabeza <i class="c-ojo"></i>ojo (invertido)</span>
         <span id="asim" class="meta">asimetría —</span>
       </div>
-      <canvas id="plot-vivo"></canvas>
+      <canvas id="plot-vivo" role="img" aria-label="velocidad de cabeza y de ojo en vivo"></canvas>
     </section>
 
     <!-- ─────────── herramientas educativas (cajón lateral) ─────────── -->
-    <aside id="herramientas" class="cajon" hidden>
+    <aside id="herramientas" class="cajon" aria-label="herramientas" hidden>
       <div class="cajon-head">
         <h2>Herramientas <small class="v-app"></small></h2>
-        <button id="btn-cerrar" class="ghost">✕</button>
+        <button id="btn-cerrar" class="ghost" aria-label="cerrar herramientas">✕</button>
       </div>
 
       <div class="cajon-cuerpo">
         <section>
           <h3>Calibración del paralaje</h3>
-          <canvas id="plot-calib" class="plot chico"></canvas>
+          <canvas id="plot-calib" class="plot chico" role="img" aria-label="ajuste del paralaje: offset del iris contra seno del yaw"></canvas>
           <p id="calib-info" class="meta">sin calibrar</p>
           <p class="ayuda">
             El centro de rotación del ojo está detrás de las comisuras: al girar la cabeza el iris se
@@ -187,13 +172,13 @@
 
         <section>
           <h3>Último pulso</h3>
-          <canvas id="plot-pulso" class="plot chico"></canvas>
+          <canvas id="plot-pulso" class="plot chico" role="img" aria-label="último pulso con la ventana del impulso"></canvas>
           <p class="ayuda">Sombreado: la ventana del impulso. Punteado: los umbrales de inicio y fin.</p>
         </section>
 
         <section>
           <h3>Ganancia vs pico</h3>
-          <canvas id="plot-ganancias" class="plot chico"></canvas>
+          <canvas id="plot-ganancias" class="plot chico" role="img" aria-label="ganancia de cada pulso contra su pico de velocidad"></canvas>
           <p class="ayuda">Punteada: corte 0,80, de estudios con señal desacadizada. Este motor no desacadiza.</p>
         </section>
 

@@ -55,7 +55,11 @@ export function montaBienvenida() {
 
   const abrir = (v) => {
     modal.hidden = !v;
-    if (!v) escribeLS(LS_VISTA, '1');
+    if (v) document.getElementById('btn-empezar').focus();
+    else {
+      escribeLS(LS_VISTA, '1');
+      document.getElementById('btn-ayuda').focus();
+    }
   };
 
   document.getElementById('btn-empezar').addEventListener('click', () => abrir(false));
@@ -71,8 +75,9 @@ export function montaBienvenida() {
   if (leeLS(LS_VISTA) !== '1') abrir(true);
 
   if (yaVoto) marcaVotado(boton);
-  // El número se lee al abrir; si el contador no contesta, el botón se queda
-  // sin número en vez de romper nada.
+  // El número se lee al abrir —es la petición a Abacus que sale en cada
+  // carga, y está dicho en el README—; si el contador no contesta, el botón
+  // se queda sin número en vez de romper nada.
   pide('get')
     .then((v) => (cuenta.textContent = v))
     .catch(() => (cuenta.textContent = '—'));

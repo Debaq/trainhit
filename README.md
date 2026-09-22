@@ -71,18 +71,26 @@ cuenta de GitHub ni de nada para dejar constancia de que la página sirvió. Se
 manda una petición sin datos: no viaja el video, ni las mediciones, ni nada de
 la sesión. Un voto por navegador, recordado en `localStorage`.
 
-Aparte del modelo de MediaPipe, es la única petición que sale de la página, y
-solo si alguien aprieta el botón.
+Aparte del modelo de MediaPipe, es lo único que sale de la página: una lectura
+del número al cargar y, si alguien aprieta el botón, el voto. Ninguna de las
+dos lleva datos.
 
 ### Versión y caché
 
 Cada archivo se pide con `?v=…`, así que al publicar alcanza con recargar: no
-hace falta recarga forzada. La versión se toca en el `const V` de `index.html`,
-o con `./bump.sh`, y se muestra en la bienvenida y en Herramientas.
+hace falta recarga forzada. La versión se toca en el `const V` de
+`js/arranque.js`, o con `./bump.sh`, y se muestra en la bienvenida y en
+Herramientas.
 
-El mapa de importación del mismo bloque versiona los `import` internos, que no
-heredan el `?v=` del script de entrada. `index.html` queda sujeto a la caché del
-servidor: GitHub Pages lo sirve con `max-age=600`.
+El mapa de importación del mismo archivo versiona los `import` internos, que
+no heredan el `?v=` del script de entrada. `index.html` y `js/arranque.js`
+quedan sujetos a la caché del servidor: GitHub Pages los sirve con
+`max-age=600`.
+
+`index.html` lleva una política de seguridad (CSP) que prohíbe scripts en
+línea y limita las conexiones a lo que la página usa: jsdelivr y Google
+Storage para MediaPipe, y Abacus para el contador. Por eso el arranque va en un
+archivo aparte.
 
 ### Atajos
 

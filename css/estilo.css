@@ -26,6 +26,8 @@
 
 * { box-sizing: border-box; }
 
+:focus-visible { outline: 2px solid var(--c-guide); outline-offset: 2px; }
+
 html, body { height: 100%; }
 
 body {
@@ -289,8 +291,10 @@ kbd {
 .lista .est { text-align: right; }
 .lista .est.ok { color: var(--c-ok); }
 .lista .est.mal { color: var(--c-bad); }
-.lista .x { color: var(--muted-fg); text-align: right; width: 18px; }
+.lista .acc { text-align: right; width: 22px; padding: 0 4px; }
+.lista .x { background: none; border: 0; padding: 0 2px; color: var(--muted-fg); font: inherit; cursor: pointer; }
 .lista .x:hover { color: var(--c-bad); }
+.lista tr:focus-visible { outline: 2px solid var(--c-guide); outline-offset: -2px; }
 
 /* ── franja de velocidad en vivo ─────────────────────────────────────────── */
 

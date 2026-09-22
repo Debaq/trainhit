@@ -405,7 +405,8 @@ function pintaListas() {
     tbody.innerHTML = '';
     for (const t of estado.trials.filter((x) => x.side === lado)) {
       const tr = document.createElement('tr');
-      if (t === estado.seleccion) tr.className = 'sel';
+      tr.className = t === estado.seleccion ? 'sel' : '';
+      tr.tabIndex = 0;
       const estadoTxt = t.rejected ? RECHAZO_TEXT[t.rejected].split(' —')[0] : 'OK';
       tr.innerHTML = `
         <td class="num">#${t.id}</td>
@@ -413,16 +414,30 @@ function pintaListas() {
         <td>${fmt(t.durationMs, 0)} ms</td>
         <td class="g">${fmt(t.gain)}</td>
         <td class="est ${t.rejected ? 'mal' : 'ok'}">${estadoTxt}</td>
-        <td class="x" title="descartar">✕</td>`;
-      tr.onclick = (e) => {
-        if (e.target.classList.contains('x')) {
-          estado.trials = estado.trials.filter((x) => x !== t);
-          if (estado.seleccion === t) estado.seleccion = null;
-        } else {
-          estado.seleccion = t;
-        }
+        <td class="acc"><button class="x" title="descartar" aria-label="descartar el pulso ${t.id}">✕</button></td>`;
+      const descarta = () => {
+        estado.trials = estado.trials.filter((x) => x !== t);
+        if (estado.seleccion === t) estado.seleccion = null;
         pintaListas();
       };
+      tr.querySelector('.x').addEventListener('click', (e) => {
+        e.stopPropagation();
+        descarta();
+      });
+      tr.addEventListener('click', () => {
+        estado.seleccion = t;
+        pintaListas();
+      });
+      tr.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          estado.seleccion = t;
+          pintaListas();
+        } else if (e.key === 'Delete' || e.key === 'Backspace') {
+          e.preventDefault();
+          descarta();
+        }
+      });
       tr.title =
         `área ${fmt(t.gain)} · 60 ms ${fmt(t.gains?.instant60ms)} · pico ${fmt(t.gains?.peak)}` +
         `\niris ${fmt(t.irisPx, 1)} px · ojos ${fmt(t.disconjMm)} mm · hueco ${fmt(t.gapMs, 0)} ms` +
