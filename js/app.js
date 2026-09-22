@@ -222,7 +222,7 @@ function procesaFrame(mediaTime) {
     blink,
   };
   estado.rolling.push(muestra);
-  while (estado.rolling.length && d.t - estado.rolling[0].t > 3) estado.rolling.shift();
+  while (estado.rolling.length && d.t - estado.rolling[0].t > plots.SEGUNDOS_VIVO) estado.rolling.shift();
 
   detectaPulso(muestra);
 }

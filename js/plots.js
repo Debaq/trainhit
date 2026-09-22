@@ -114,6 +114,9 @@ function tick(v) {
  */
 export const opciones = { suavizado: true };
 
+/** Segundos que muestra la traza en vivo. El buffer de muestras guarda lo mismo. */
+export const SEGUNDOS_VIVO = 8;
+
 function linea(ctx, pts, color, ancho = 1.4, alpha = 1) {
   if (pts.length < 2) return;
   ctx.globalAlpha = alpha;
@@ -162,7 +165,7 @@ function vacio(ctx, w, h, txt) {
  * La ocular va invertida, que es la convención clínica: con VOR normal las dos
  * curvas se superponen y la SEPARACIÓN entre ellas es el hallazgo.
  */
-export function trazaViva(canvas, muestras, { segundos = 8, escala = 300 } = {}) {
+export function trazaViva(canvas, muestras, { segundos = SEGUNDOS_VIVO, escala = 300 } = {}) {
   const { ctx, w, h } = prepara(canvas);
   const pad = { l: 36, r: 6, t: 12, b: 16 };
   // El eje va en segundos HASTA AHORA (…, −4, −2, 0): la hora absoluta de la
