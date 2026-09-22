@@ -85,6 +85,34 @@ export function observeEye(irisCenter, border, outer, inner) {
   return { offsetMm: offsetPx / pxPerMm, pxPerMm, radiusPx };
 }
 
+/** Cuánto más ancho que el ojo es el recorte. */
+export const EYE_CROP_MARGIN = 1.7;
+/** Relación ancho/alto del recorte, fija para que los dos ojos se vean iguales. */
+export const EYE_CROP_ASPECT = 1.8;
+
+/**
+ * Caja alrededor de un ojo, en coordenadas normalizadas de la imagen.
+ *
+ * El tamaño sale de la distancia entre comisuras, así que el ojo se ve del
+ * mismo tamaño esté el paciente cerca o lejos: es un zoom que se ajusta solo.
+ * Se calcula en PÍXELES y recién al final se normaliza, porque en una imagen
+ * 16:9 una caja cuadrada en normalizadas no es cuadrada en pantalla.
+ */
+export function eyeCrop(outer, inner, imgW, imgH) {
+  if (imgW < 1 || imgH < 1) return null;
+  const anchoPx = dist(outer, inner) * EYE_CROP_MARGIN;
+  if (anchoPx < 1) return null;
+  const altoPx = anchoPx / EYE_CROP_ASPECT;
+  const cx = (outer.x + inner.x) * 0.5;
+  const cy = (outer.y + inner.y) * 0.5;
+  return {
+    x0: clamp((cx - anchoPx * 0.5) / imgW, 0, 1),
+    y0: clamp((cy - altoPx * 0.5) / imgH, 0, 1),
+    x1: clamp((cx + anchoPx * 0.5) / imgW, 0, 1),
+    y1: clamp((cy + altoPx * 0.5) / imgH, 0, 1),
+  };
+}
+
 /**
  * Apertura del párpado como fracción del ancho del ojo ("eye aspect ratio").
  * Cociente entre dos medidas de la misma cara: no depende de la distancia.
@@ -213,8 +241,8 @@ export function parallaxIssue(fit) {
 }
 
 export const CALIB_ISSUE_TEXT = {
-  'pocas-muestras': 'Casi no se vio la cara. Mejorá la luz y quedate en el encuadre.',
-  'rango-corto': 'La cabeza se movió poco. Hacen falta ±20° a cada lado.',
-  'residuo-alto': 'La mirada no se quedó quieta. Fijá un punto y movete MÁS LENTO.',
+  'pocas-muestras': 'Casi no se vio la cara. Mejorar la luz y permanecer en el encuadre.',
+  'rango-corto': 'La cabeza se movió poco. Se necesitan ±20° a cada lado.',
+  'residuo-alto': 'La mirada no se quedó quieta. Fijar un punto y mover la cabeza MÁS LENTO.',
   'k-absurdo': 'El ajuste cerró pero k da un disparate: no es paralaje lo que se midió.',
 };

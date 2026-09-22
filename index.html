@@ -3,247 +3,196 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>trainHIT — vHIT didáctico en el navegador</title>
+    <title>trainHIT</title>
     <link rel="stylesheet" href="css/estilo.css" />
   </head>
   <body>
-    <header>
-      <h1>train<span>HIT</span></h1>
-      <p class="sub">
-        Impulso cefálico medido con la webcam, paso por paso. Versión educativa de
-        <a href="https://github.com/Debaq/vhit-wout-google">vhit-wout-google</a>.
-      </p>
-      <p class="aviso">
-        No es un equipo clínico. Corre a los 30 fps de una webcam común; un vHIT real usa
-        cámara &gt;250 Hz y giroscopio.
-      </p>
+    <header class="topbar">
+      <span class="marca">train<b>HIT</b></span>
+      <span id="badge-calib" class="badge mal">SIN CALIBRAR</span>
+      <span id="estado" class="estado">listo</span>
+      <span class="sep"></span>
+      <span class="chip"><i>fps</i><b id="v-fps">—</b></span>
+      <span class="chip"><i>cara</i><b id="v-cara">no</b></span>
+      <span class="chip"><i>v cabeza</i><b id="v-vcab">—</b></span>
+      <button id="btn-herramientas" class="ghost">Herramientas</button>
     </header>
 
-    <main>
-      <section class="panel camara">
-        <div class="barra">
-          <button id="btn-arrancar" class="primario">Encender cámara</button>
-          <button id="btn-calibrar">Calibrar <kbd>C</kbd></button>
-          <button id="btn-borrar">Borrar <kbd>R</kbd></button>
-          <button id="btn-csv">CSV</button>
-          <select id="camara" title="cámara"></select>
-          <label class="check"><input type="checkbox" id="espejo" checked /> espejar</label>
-          <span id="badge-calib" class="badge mal">SIN CALIBRAR</span>
-        </div>
-
+    <div class="app">
+      <!-- ─────────── columna izquierda: video, ojos y botonera ─────────── -->
+      <aside class="col-video">
         <div id="camara-caja" class="camara-caja espejada">
           <video id="video" playsinline muted></video>
           <canvas id="overlay"></canvas>
+          <div id="sin-video" class="sin-video">cámara apagada</div>
         </div>
 
-        <p id="estado" class="estado">listo</p>
+        <div class="ojos">
+          <figure><canvas id="ojo-der"></canvas><figcaption>ojo derecho</figcaption></figure>
+          <figure><canvas id="ojo-izq"></canvas><figcaption>ojo izquierdo</figcaption></figure>
+        </div>
+
+        <div class="botonera">
+          <button id="btn-arrancar" class="primario">Encender cámara</button>
+          <button id="btn-calibrar">Calibrar <kbd>C</kbd></button>
+          <button id="btn-descartar">Descartar <kbd>D</kbd></button>
+          <button id="btn-borrar" class="peligro">Borrar todos <kbd>R</kbd></button>
+          <button id="btn-csv">CSV</button>
+        </div>
+        <div class="botonera fina">
+          <select id="camara" title="cámara"></select>
+          <label class="check"><input type="checkbox" id="espejo" checked /> espejar</label>
+          <label class="check"><input type="checkbox" id="pausa" /> pausa</label>
+        </div>
 
         <div class="lecturas">
-          <div><span>fps</span><b id="v-fps">—</b></div>
-          <div><span>cara</span><b id="v-cara">—</b></div>
-          <div><span>offset iris</span><b id="v-offset">—</b> mm</div>
-          <div><span>escala</span><b id="v-escala">—</b> px/mm</div>
-          <div><span>yaw cabeza</span><b id="v-yaw">—</b>°</div>
-          <div><span>azimut mirada</span><b id="v-azimut">—</b>°</div>
-          <div><span>v cabeza</span><b id="v-vcab">—</b> °/s</div>
-          <div><span>v ojo comp.</span><b id="v-vojo">—</b> °/s</div>
-          <div><span>residuo ajuste</span><b id="v-resid">—</b>°</div>
-          <div><span>parpadeo</span><b id="v-blink">—</b></div>
+          <div><i>offset iris</i><b id="v-offset">—</b> mm</div>
+          <div><i>escala</i><b id="v-escala">—</b> px/mm</div>
+          <div><i>yaw cabeza</i><b id="v-yaw">—</b>°</div>
+          <div><i>azimut mirada</i><b id="v-azimut">—</b>°</div>
+          <div><i>v ojo comp.</i><b id="v-vojo">—</b> °/s</div>
+          <div><i>parpadeo</i><b id="v-blink">no</b></div>
         </div>
-      </section>
+      </aside>
 
-      <section class="panel">
-        <h2>Señal en vivo</h2>
-        <p class="nota">
-          Naranja: velocidad de la cabeza. Turquesa: velocidad ocular compensatoria
-          (<code>v_cabeza − v_mirada</code>). Con un VOR perfecto las dos curvas se superponen.
-        </p>
-        <canvas id="plot-vivo" class="plot alto"></canvas>
-      </section>
+      <!-- ─────────── centro: un panel por lado ─────────── -->
+      <main class="col-lados">
+        <section class="lado" data-lado="derecha">
+          <div class="lado-head">
+            <h2>Impulsos derecha</h2>
+            <span id="gan-der" class="gan">—</span>
+            <span id="meta-der" class="meta">0 aceptados</span>
+          </div>
+          <canvas id="plot-der" class="plot"></canvas>
+          <div class="lista"><table><tbody id="lista-der"></tbody></table></div>
+        </section>
 
-      <section class="panel">
-        <h2>Calibración del paralaje <kbd>C</kbd></h2>
-        <p class="nota">
-          El centro de rotación del ojo está unos milímetros <b>detrás</b> del plano de las
-          comisuras. Al girar la cabeza aparece un desplazamiento del iris que no viene de ningún
-          movimiento ocular, y tiene <b>la misma magnitud que la señal</b>: ignorarlo hace que un
-          VOR perfecto se lea como ganancia ~1,9.
-        </p>
-        <pre class="formula">offset_medido = R·sin(φ) − t·sin(H)
-⇒  sin(φ) = offset/R + k·sin(H),   k = t/R ≈ 0,9–1,0</pre>
-        <p class="nota">
-          Fijá un punto quieto y movéte <b>lento</b> 10 s, ±20° a cada lado. A baja velocidad el VOR
-          es casi perfecto ⇒ φ constante ⇒ los puntos caen en una recta de pendiente −k. Que se vea
-          la recta <b>es</b> la prueba de que lo medido es paralaje.
-        </p>
-        <canvas id="plot-calib" class="plot"></canvas>
-        <p id="calib-info" class="estado">sin calibrar</p>
-      </section>
+        <section class="lado" data-lado="izquierda">
+          <div class="lado-head">
+            <h2>Impulsos izquierda</h2>
+            <span id="gan-izq" class="gan">—</span>
+            <span id="meta-izq" class="meta">0 aceptados</span>
+          </div>
+          <canvas id="plot-izq" class="plot"></canvas>
+          <div class="lista"><table><tbody id="lista-izq"></tbody></table></div>
+        </section>
+      </main>
+    </div>
 
-      <section class="panel">
-        <h2>Último pulso</h2>
-        <p class="nota">
-          Sombreado: la ventana del impulso (onset al cruzar <code>on</code>, offset cuando baja de
-          <code>off</code> y <b>se queda abajo</b> 15 ms). Esa permanencia es lo que evita que un
-          frame ruidoso cierre el impulso antes de tiempo.
-        </p>
-        <canvas id="plot-pulso" class="plot alto"></canvas>
-      </section>
+    <!-- ─────────── franja inferior: velocidad en vivo ─────────── -->
+    <section class="vivo">
+      <div class="vivo-head">
+        <span>Velocidad en vivo</span>
+        <span class="leyenda"><i class="c-cabeza"></i>cabeza <i class="c-ojo"></i>ojo (invertido)</span>
+        <span id="asim" class="meta">asimetría —</span>
+      </div>
+      <canvas id="plot-vivo"></canvas>
+    </section>
 
-      <section class="panel">
-        <h2>Ganancias</h2>
-        <p class="nota">
-          Cada punto es un pulso; los apagados están rechazados. La franja clara es el rango de pico
-          aceptado y la línea punteada, el corte de 0,80.
-          <b>Ese corte no es el corte de este método</b>: sale de estudios que desacadizan la señal,
-          y acá no se desacadiza.
-        </p>
-        <canvas id="plot-ganancias" class="plot alto"></canvas>
-        <div class="resumen">
-          <div><span>derecha</span><b id="res-der">—</b></div>
-          <div><span>izquierda</span><b id="res-izq">—</b></div>
-          <div><span>asimetría</span><b id="res-asim">—</b></div>
-        </div>
-        <table class="tabla">
-          <thead>
-            <tr><th>#</th><th>lado</th><th>pico °/s</th><th>dur ms</th><th>ganancia</th><th>estado</th></tr>
-          </thead>
-          <tbody id="tabla-pulsos"></tbody>
-        </table>
-      </section>
+    <!-- ─────────── herramientas educativas (cajón lateral) ─────────── -->
+    <aside id="herramientas" class="cajon" hidden>
+      <div class="cajon-head">
+        <h2>Herramientas</h2>
+        <button id="btn-cerrar" class="ghost">✕</button>
+      </div>
 
-      <section class="panel">
-        <h2>Perillas para experimentar</h2>
-        <p class="nota">
-          Todo lo que acá es un slider, en un equipo comercial es una constante que no se ve. Moverlas
-          y ver qué pasa con la misma señal es el punto de este repo.
-        </p>
-
-        <div class="perillas">
-          <label>
-            Ventana del derivador <b><span id="deriv-win-val">50</span> ms</b>
-            <input type="range" id="deriv-win" min="20" max="200" step="5" value="50" />
-            <small>Más ancha suaviza más y <b>aplana el pico</b>. A 30 fps manda el mínimo de grado+1 muestras.</small>
-          </label>
-          <label>
-            Grado del ajuste
-            <select id="deriv-deg">
-              <option value="1">1 (recta)</option>
-              <option value="2" selected>2 (parábola)</option>
-              <option value="3">3</option>
-            </select>
-            <small>Grado 1 aplana el pico del impulso, que es justo el valor que se quiere medir.</small>
-          </label>
-          <label>
-            Umbral de inicio <b><span id="on-deg-val">60</span> °/s</b>
-            <input type="range" id="on-deg" min="20" max="150" step="5" value="60" />
-            <small>Bajo para no perder la rampa inicial; por eso también dispara con cualquier movimiento.</small>
-          </label>
-          <label>
-            Umbral de fin <b><span id="off-deg-val">40</span> °/s</b>
-            <input type="range" id="off-deg" min="10" max="120" step="5" value="40" />
-            <small>El impulso termina en 40 °/s, no en cero: la ganancia de área se mide en esa ventana.</small>
-          </label>
-          <label>
-            Pico mínimo aceptado <b><span id="peak-min-val">120</span> °/s</b>
-            <input type="range" id="peak-min" min="60" max="200" step="10" value="120" />
-          </label>
-          <label>
-            Pico máximo aceptado <b><span id="peak-max-val">300</span> °/s</b>
-            <input type="range" id="peak-max" min="200" max="500" step="10" value="300" />
-          </label>
-          <label>
-            Duración mínima <b><span id="dur-min-val">80</span> ms</b>
-            <input type="range" id="dur-min" min="30" max="150" step="5" value="80" />
-          </label>
-          <label>
-            Duración máxima <b><span id="dur-max-val">300</span> ms</b>
-            <input type="range" id="dur-max" min="150" max="500" step="10" value="300" />
-          </label>
-          <label>
-            Umbral de parpadeo <b><span id="blink-val">0.45</span></b>
-            <input type="range" id="blink" min="0.1" max="0.9" step="0.05" value="0.45" />
-            <small>Puntuación desde la apertura del párpado: 0 abierto, 1 cerrado.</small>
-          </label>
-          <label>
-            k a mano <b><span id="k-manual-val">0.90</span></b>
+      <div class="cajon-cuerpo">
+        <section>
+          <h3>Calibración del paralaje</h3>
+          <canvas id="plot-calib" class="plot chico"></canvas>
+          <p id="calib-info" class="meta">sin calibrar</p>
+          <p class="ayuda">
+            El centro de rotación del ojo está detrás de las comisuras: girar la cabeza corre el iris
+            sin que el ojo se mueva, y el artefacto mide lo mismo que la señal.
+          </p>
+          <pre>sin(φ) = offset/R + k·sin(H)</pre>
+          <p class="ayuda">Fijar un punto y mover la cabeza lento 10 s, ±20°. Los puntos deben caer en una recta de pendiente −k.</p>
+          <label class="perilla">
+            <span>k a mano <b id="k-manual-val">0.90</b></span>
             <input type="range" id="k-manual" min="0" max="1.6" step="0.05" value="0.9" />
             <label class="check"><input type="checkbox" id="k-manual-on" /> usar este k</label>
-            <small>Para <b>ver</b> el efecto del paralaje: con k=0 la ganancia se dispara a ~1,9.</small>
+            <small>Con k = 0 un VOR perfecto se lee ~1,9.</small>
           </label>
-        </div>
-      </section>
+        </section>
 
-      <section class="panel">
-        <h2>Qué se mide, en orden</h2>
-        <ol class="pasos">
-          <li>
-            <b>El iris como regla.</b> Su diámetro es ~11,7 mm con poca varianza poblacional, y al
-            proyectarse el <b>semieje mayor</b> de la elipse sigue midiendo el radio real. De ahí sale
-            una escala px/mm que no depende ni de la distancia a la cámara ni del giro de la cabeza.
-            El prototipo viejo usaba el ancho del ojo, que se acorta con cos(yaw) <b>correlacionado en
-            el tiempo con el impulso</b>: eso no es ruido que se promedie, es sesgo dentro de la
-            ventana medida.
-          </li>
-          <li>
-            <b>El ángulo, de un modelo esférico.</b> <code>sin(azimut) = offset_mm / R</code>, con
-            R ≈ 10,5 mm. No una regla de tres con una constante inventada.
-          </li>
-          <li>
-            <b>La cabeza, por incrementos proyectados.</b> El canal semicircular está fijo en la
-            cabeza, no en el mundo, y en un vHIT la cabeza está flexionada ~30°. Ahí el yaw de Euler
-            sobreestima +15 % y proyectar sobre el eje del mundo subestima −13 %. Se proyecta sobre el
-            <b>eje de la cabeza</b>, y se acumulan incrementos para no tener que desenrollar ±180°.
-          </li>
-          <li>
-            <b>Derivar sin amplificar el ruido.</b> Ajuste polinómico por mínimos cuadrados sobre una
-            ventana temporal con los timestamps reales del frame (Savitzky-Golay para muestreo no
-            uniforme). Así el jitter de captura deja de ser ruido y pasa a ser información sobre dónde
-            cae cada punto.
-          </li>
-          <li>
-            <b>La ganancia.</b> <code>1 − Δmirada/Δcabeza</code> con <b>posiciones</b> entre onset y
-            offset. Con los mismos extremos de integración es idéntica a integrar velocidades, y las
-            posiciones no arrastran el ruido de derivar.
-          </li>
-        </ol>
-      </section>
+        <section>
+          <h3>Último pulso</h3>
+          <canvas id="plot-pulso" class="plot chico"></canvas>
+          <p class="ayuda">Sombreado: la ventana del impulso. Punteado: los umbrales de inicio y fin.</p>
+        </section>
 
-      <section class="panel">
-        <h2>Lo que este método <em>no</em> hace</h2>
-        <ul class="limites">
-          <li>
-            <b>No desacadiza.</b> Las sacadas correctivas quedan dentro de la ganancia. El sesgo es
-            direccional: infla la ganancia justo en el paciente con déficit, que es el que tiene
-            sacadas covert. Es un sesgo hacia el <b>falso negativo</b>.
-          </li>
-          <li>
-            <b>La distancia al objetivo cambia la ganancia</b> (convergencia) y acá no se fija ni se
-            registra. El modelo de paralaje asume implícitamente un objetivo pegado a la cámara.
-          </li>
-          <li>
-            <b>30 fps.</b> El pico del impulso cae entre dos muestras y la ganancia instantánea a
-            60 ms queda con dos frames de soporte: es inmedible. Por eso se reporta la de área.
-          </li>
-          <li>
-            <b>Sin giroscopio.</b> La cabeza se mide de la misma imagen que el ojo, así que un error
-            de seguimiento entra en las dos señales a la vez.
-          </li>
-          <li>
-            <b>Solo canal lateral.</b> Los verticales (RALP/LARP) necesitan la componente vertical del
-            movimiento ocular, más ruidosa por el párpado.
-          </li>
-        </ul>
-      </section>
-    </main>
+        <section>
+          <h3>Ganancia vs pico</h3>
+          <canvas id="plot-ganancias" class="plot chico"></canvas>
+          <p class="ayuda">
+            Línea punteada: corte 0,80 — viene de estudios que desacadizan, y este motor no desacadiza.
+          </p>
+        </section>
 
-    <footer>
-      <p>
-        Atajos: <kbd>C</kbd> calibrar · <kbd>R</kbd> borrar · <kbd>D</kbd> descartar último ·
-        <kbd>Espacio</kbd> pausar. Todo el procesamiento ocurre en tu máquina; el video no sale del
-        navegador.
-      </p>
-    </footer>
+        <section>
+          <h3>Perillas</h3>
+          <div class="perillas">
+            <label class="perilla">
+              <span>Ventana derivador <b id="deriv-win-val">50</b> ms</span>
+              <input type="range" id="deriv-win" min="20" max="200" step="5" value="50" />
+              <small>Más ancha aplana el pico.</small>
+            </label>
+            <label class="perilla">
+              <span>Grado del ajuste</span>
+              <select id="deriv-deg"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select>
+              <small>Grado 1 aplana el pico del impulso.</small>
+            </label>
+            <label class="perilla">
+              <span>Umbral inicio <b id="on-deg-val">60</b> °/s</span>
+              <input type="range" id="on-deg" min="20" max="150" step="5" value="60" />
+            </label>
+            <label class="perilla">
+              <span>Umbral fin <b id="off-deg-val">40</b> °/s</span>
+              <input type="range" id="off-deg" min="10" max="120" step="5" value="40" />
+            </label>
+            <label class="perilla">
+              <span>Pico mín <b id="peak-min-val">120</b> °/s</span>
+              <input type="range" id="peak-min" min="60" max="200" step="10" value="120" />
+            </label>
+            <label class="perilla">
+              <span>Pico máx <b id="peak-max-val">300</b> °/s</span>
+              <input type="range" id="peak-max" min="200" max="500" step="10" value="300" />
+            </label>
+            <label class="perilla">
+              <span>Duración mín <b id="dur-min-val">80</b> ms</span>
+              <input type="range" id="dur-min" min="30" max="150" step="5" value="80" />
+            </label>
+            <label class="perilla">
+              <span>Duración máx <b id="dur-max-val">300</b> ms</span>
+              <input type="range" id="dur-max" min="150" max="500" step="10" value="300" />
+            </label>
+            <label class="perilla">
+              <span>Parpadeo <b id="blink-val">0.45</b></span>
+              <input type="range" id="blink" min="0.1" max="0.9" step="0.05" value="0.45" />
+            </label>
+          </div>
+          <p class="ayuda">Mover una perilla afecta a los pulsos siguientes, no a los ya medidos.</p>
+        </section>
+
+        <section>
+          <h3>Cómo se mide</h3>
+          <ol class="pasos">
+            <li><b>Iris como regla.</b> 11,7 mm de diámetro; el semieje mayor no cambia con el giro ⇒ escala px/mm.</li>
+            <li><b>Ángulo esférico.</b> sin(azimut) = offset/R, R ≈ 10,5 mm.</li>
+            <li><b>Cabeza por incrementos</b> proyectados sobre el eje del canal, que viaja con la cabeza.</li>
+            <li><b>Derivada</b> por ajuste polinómico sobre los timestamps reales del frame.</li>
+            <li><b>Ganancia</b> = 1 − Δmirada/Δcabeza, con posiciones, entre onset y offset.</li>
+          </ol>
+          <h3>Lo que no hace</h3>
+          <ul class="pasos">
+            <li>No desacadiza ⇒ sesgo al falso negativo.</li>
+            <li>No fija la distancia al objetivo.</li>
+            <li>30 fps: el pico cae entre muestras.</li>
+            <li>Sin giroscopio; solo canal lateral.</li>
+          </ul>
+        </section>
+      </div>
+    </aside>
 
     <script type="module" src="js/app.js"></script>
   </body>

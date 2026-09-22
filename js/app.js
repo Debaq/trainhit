@@ -1,18 +1,12 @@
-// trainHIT — motor y interfaz.
+// trainHIT — motor e interfaz.
 //
 // El hilo es: landmarks -> ángulos -> velocidades -> pulsos -> ganancia.
-// Cada paso está en su módulo y acá solo se los conecta y se los muestra.
+// Cada paso está en su módulo; acá solo se los conecta y se los muestra.
 
 import * as geom from './geom.js';
 import { HeadTracker, quatFromMatrix } from './head.js';
 import { Differentiator } from './signal.js';
-import {
-  CONFIG,
-  RECHAZO_TEXT,
-  analyzeTrial,
-  asimetria,
-  resumenLado,
-} from './analysis.js';
+import { CONFIG, RECHAZO_TEXT, analyzeTrial, asimetria, resumenLado } from './analysis.js';
 import * as plots from './plots.js';
 import { IDX, abrirCamara, bucleDeFrames, crearLandmarker, listarCamaras } from './tracker.js';
 
@@ -31,12 +25,15 @@ const estado = {
   model: new geom.EyeModel(),
   head: new HeadTracker('lateral'),
   diff: new Differentiator(50, 2),
-  rolling: [], // últimas muestras derivadas, para el pre-trigger y la traza
+  rolling: [],
   trials: [],
-  captura: null, // pulso en curso
-  calib: null, // {t0, samples, descartadasRapido, descartadasParpadeo, rapidoAhora}
+  seleccion: null,
+  captura: null,
+  calib: null,
   ultimoFit: null,
-  vivo: { offsetMm: null, pxPerMm: null, yaw: 0, azimut: null, blink: false, resid: null },
+  landmarks: null,
+  crops: { derecho: null, izquierdo: null },
+  vivo: { offsetMm: null, pxPerMm: null, yaw: 0, azimut: null, blink: false },
   fps: 0,
   tUltimoFrame: null,
   caraOk: false,
@@ -54,6 +51,11 @@ async function arrancar() {
     if (!estado.landmarker) estado.landmarker = await crearLandmarker({ gpu: true });
     await poblarCamaras();
     estado.corriendo = true;
+    $('sin-video').hidden = true;
+    // La caja toma la relación de aspecto REAL de la cámara. Sin esto, con una
+    // cámara 4:3 en una caja 16:9 el video se recorta y el overlay no: los
+    // puntos quedan corridos respecto de los ojos.
+    ajustaAspecto();
     estado.bucle = bucleDeFrames($('video'), procesaFrame);
     $('btn-arrancar').textContent = 'Detener';
     marcaEstado(estado.bucle.soportaRVFC ? 'midiendo' : 'midiendo (sin rVFC: timestamps peores)');
@@ -68,8 +70,17 @@ function detener() {
   estado.stream?.getTracks().forEach((t) => t.stop());
   estado.corriendo = false;
   estado.stream = null;
+  estado.landmarks = null;
+  estado.caraOk = false;
+  $('sin-video').hidden = false;
   $('btn-arrancar').textContent = 'Encender cámara';
   marcaEstado('detenido');
+}
+
+function ajustaAspecto() {
+  const v = $('video');
+  if (v.videoWidth) $('camara-caja').style.aspectRatio = `${v.videoWidth} / ${v.videoHeight}`;
+  else v.addEventListener('loadedmetadata', ajustaAspecto, { once: true });
 }
 
 async function poblarCamaras() {
@@ -108,26 +119,26 @@ function procesaFrame(mediaTime) {
   }
 
   const lms = res.faceLandmarks?.[0];
-  const overlay = $('overlay');
-  overlay.width = video.videoWidth;
-  overlay.height = video.videoHeight;
-  const octx = overlay.getContext('2d');
-  octx.clearRect(0, 0, overlay.width, overlay.height);
-
   if (!lms || lms.length < 478) {
     estado.caraOk = false;
+    estado.landmarks = null;
     estado.head.reset();
     estado.diff.reset();
     return;
   }
   estado.caraOk = true;
-  plots.dibujaPuntos(octx, lms, IDX, overlay.width, overlay.height, estado.espejo);
-
-  if (estado.pausado) return;
+  estado.landmarks = lms;
 
   const w = video.videoWidth;
   const h = video.videoHeight;
   const P = (i) => geom.px(lms[i], w, h);
+
+  // Los recortes de ojo salen SOLO de los landmarks, así que se calculan antes
+  // de tocar nada del motor: se pueden mirar aunque el análisis esté pausado.
+  estado.crops.derecho = geom.eyeCrop(P(IDX.derecho.outer), P(IDX.derecho.inner), w, h);
+  estado.crops.izquierdo = geom.eyeCrop(P(IDX.izquierdo.outer), P(IDX.izquierdo.inner), w, h);
+
+  if (estado.pausado) return;
 
   // --- cabeza: incrementos proyectados sobre el eje del canal ---
   const tm = res.facialTransformationMatrixes?.[0];
@@ -135,8 +146,7 @@ function procesaFrame(mediaTime) {
   const yaw = estado.head.push(quatFromMatrix(tm.data));
 
   // --- parpadeo, desde la malla ---
-  const apertura = (o) =>
-    geom.eyelidOpenness(P(o.lidUp), P(o.lidDown), P(o.outer), P(o.inner));
+  const apertura = (o) => geom.eyelidOpenness(P(o.lidUp), P(o.lidDown), P(o.outer), P(o.inner));
   const blink =
     Math.max(
       geom.blinkScore(apertura(IDX.derecho) ?? geom.EYE_OPEN_REF),
@@ -167,7 +177,6 @@ function procesaFrame(mediaTime) {
 
   const d = estado.diff.push({ t: mediaTime, headDeg: yaw, gazeDeg: gaze });
   if (!d) return;
-  estado.vivo.resid = d.residDeg;
 
   const muestra = {
     t: d.t,
@@ -199,9 +208,14 @@ function juntaCalibracion(obs, yaw, blink) {
 }
 
 function empiezaCalibracion() {
+  if (!estado.corriendo) {
+    marcaEstado('encender la cámara antes de calibrar');
+    return;
+  }
   estado.calib = { t0: performance.now(), samples: [], descartadasRapido: 0, descartadasParpadeo: 0, rapidoAhora: false };
   estado.ultimoFit = null;
-  marcaEstado('calibrando: fijá un punto y movéte LENTO, ±20° a cada lado');
+  abreHerramientas(true);
+  marcaEstado('calibrando: fijar un punto y mover la cabeza LENTO, ±20°');
 }
 
 function cierraCalibracion() {
@@ -219,10 +233,7 @@ function cierraCalibracion() {
   }
   estado.model.kParallax = fit.kParallax;
   estado.model.calibrated = true;
-  marcaEstado(
-    `calibrado: k = ${fmt(fit.kParallax)} · residuo ${fmt(fit.residualDeg, 1)}° · rango ${fmt(fit.headRangeDeg, 0)}°` +
-      (fit.kPlausible ? '' : ' — k fuera del rango anatómico, mirá el ajuste'),
-  );
+  marcaEstado(`calibrado: k=${fmt(fit.kParallax)} · residuo ${fmt(fit.residualDeg, 1)}°`);
 }
 
 // ---------------------------------------------------------------- pulsos ---
@@ -237,10 +248,7 @@ function detectaPulso(m) {
   }
   if (Math.abs(m.headVel) > cfg.impulse.onDegS) {
     const desde = m.t - cfg.impulse.preTriggerMs / 1000;
-    estado.captura = {
-      tTrigger: m.t,
-      samples: estado.rolling.filter((s) => s.t >= desde),
-    };
+    estado.captura = { tTrigger: m.t, samples: estado.rolling.filter((s) => s.t >= desde) };
   }
 }
 
@@ -250,7 +258,7 @@ function cierraPulso() {
   const samples = cap.samples.map((s) => ({ ...s, tMs: (s.t - cap.tTrigger) * 1000 }));
   const pico = samples.reduce((m, s) => Math.max(m, Math.abs(s.headVel)), 0);
   // Acomodarse en la silla o mirar al costado alcanzan para disparar. Eso no
-  // fue un intento de impulso: no ensucia la tabla.
+  // fue un intento de impulso: no ensucia la lista.
   if (pico < cfg.impulse.ignoreBelowDegS) return;
 
   const trial = analyzeTrial(samples, cfg);
@@ -258,7 +266,8 @@ function cierraPulso() {
   trial.id = estado.trials.length + 1;
   trial.calibrado = estado.model.calibrated;
   estado.trials.push(trial);
-  pintaTabla();
+  estado.seleccion = trial;
+  pintaListas();
 }
 
 // ------------------------------------------------------------------- UI ----
@@ -267,29 +276,54 @@ function marcaEstado(txt) {
   $('estado').textContent = txt;
 }
 
-function pintaTabla() {
-  const tbody = $('tabla-pulsos');
-  tbody.innerHTML = '';
-  for (const t of [...estado.trials].reverse().slice(0, 40)) {
-    const tr = document.createElement('tr');
-    tr.className = t.rejected ? 'rechazado' : '';
-    tr.innerHTML = `
-      <td>${t.id}</td>
-      <td class="lado-${t.side}">${t.side === 'derecha' ? 'DER' : 'IZQ'}</td>
-      <td>${fmt(t.peakHeadDegS, 0)}</td>
-      <td>${fmt(t.durationMs, 0)}</td>
-      <td class="gan">${fmt(t.gain)}</td>
-      <td class="motivo">${t.rejected ? RECHAZO_TEXT[t.rejected] : '✓'}</td>`;
-    tr.onclick = () => (estado.seleccion = t);
-    tbody.appendChild(tr);
+function pintaListas() {
+  for (const [lado, tbodyId] of [
+    ['derecha', 'lista-der'],
+    ['izquierda', 'lista-izq'],
+  ]) {
+    const tbody = $(tbodyId);
+    tbody.innerHTML = '';
+    for (const t of estado.trials.filter((x) => x.side === lado)) {
+      const tr = document.createElement('tr');
+      if (t === estado.seleccion) tr.className = 'sel';
+      const estadoTxt = t.rejected ? RECHAZO_TEXT[t.rejected].split(' —')[0] : 'OK';
+      tr.innerHTML = `
+        <td class="num">#${t.id}</td>
+        <td>${fmt(t.peakHeadDegS, 0)} °/s</td>
+        <td>${fmt(t.durationMs, 0)} ms</td>
+        <td class="g">${fmt(t.gain)}</td>
+        <td class="est ${t.rejected ? 'mal' : 'ok'}">${estadoTxt}</td>
+        <td class="x" title="descartar">✕</td>`;
+      tr.onclick = (e) => {
+        if (e.target.classList.contains('x')) {
+          estado.trials = estado.trials.filter((x) => x !== t);
+          if (estado.seleccion === t) estado.seleccion = null;
+        } else {
+          estado.seleccion = t;
+        }
+        pintaListas();
+      };
+      tr.title =
+        `área ${fmt(t.gain)} · 60 ms ${fmt(t.gains?.instant60ms)} · pico ${fmt(t.gains?.peak)}` +
+        (t.calibrado ? '' : '\nmedido SIN calibrar');
+      tbody.appendChild(tr);
+    }
   }
 
   const der = resumenLado(estado.trials, 'derecha');
   const izq = resumenLado(estado.trials, 'izquierda');
-  $('res-der').textContent = der.n ? `${fmt(der.media)} ± ${fmt(der.de)}  (n=${der.n})` : '—';
-  $('res-izq').textContent = izq.n ? `${fmt(izq.media)} ± ${fmt(izq.de)}  (n=${izq.n})` : '—';
+  for (const [r, lado, ganId, metaId] of [
+    [der, 'derecha', 'gan-der', 'meta-der'],
+    [izq, 'izquierda', 'gan-izq', 'meta-izq'],
+  ]) {
+    const g = $(ganId);
+    g.textContent = r.n ? (r.n > 1 ? `${fmt(r.media)} ± ${fmt(r.de)}` : fmt(r.media)) : '—';
+    g.className = `gan ${!r.n || !estado.model.calibrated ? 'sin' : r.media >= cfg.gainNormalMin ? 'ok' : 'bajo'}`;
+    const total = estado.trials.filter((t) => t.side === lado).length;
+    $(metaId).textContent = `${r.n} aceptados · ${total - r.n} rechazados`;
+  }
   const a = asimetria(der.media, izq.media);
-  $('res-asim').textContent = a === null ? '—' : `${fmt(a, 1)} %`;
+  $('asim').textContent = a === null ? 'asimetría —' : `asimetría ${fmt(a, 1)} %`;
 }
 
 function pintaTodo() {
@@ -300,40 +334,88 @@ function pintaTodo() {
   badge.textContent = cal ? `CALIBRADO k=${fmt(estado.model.kParallax)}` : 'SIN CALIBRAR';
   badge.className = `badge ${cal ? 'ok' : 'mal'}`;
 
+  const ultima = estado.rolling[estado.rolling.length - 1];
   $('v-fps').textContent = fmt(estado.fps, 0);
   $('v-cara').textContent = estado.caraOk ? 'sí' : 'no';
+  $('v-vcab').textContent = ultima ? `${fmt(ultima.headVel, 0)} °/s` : '—';
   $('v-offset').textContent = fmt(estado.vivo.offsetMm);
   $('v-escala').textContent = fmt(estado.vivo.pxPerMm, 1);
   $('v-yaw').textContent = fmt(estado.vivo.yaw, 1);
   $('v-azimut').textContent = fmt(estado.vivo.azimut, 1);
-  $('v-resid').textContent = fmt(estado.vivo.resid, 2);
-  $('v-blink').textContent = estado.vivo.blink ? 'sí' : 'no';
-  const ultima = estado.rolling[estado.rolling.length - 1];
-  $('v-vcab').textContent = fmt(ultima?.headVel, 0);
   $('v-vojo').textContent = ultima ? fmt(ultima.headVel - ultima.gazeVel, 0) : '—';
+  $('v-blink').textContent = estado.vivo.blink ? 'sí' : 'no';
 
+  dibujaVideo();
+  plots.trazaViva($('plot-vivo'), estado.rolling);
+  plots.overlayLado($('plot-der'), estado.trials, 'derecha', cfg, estado.seleccion);
+  plots.overlayLado($('plot-izq'), estado.trials, 'izquierda', cfg, estado.seleccion);
+
+  if (!$('herramientas').hidden) {
+    plots.dibujaPulso($('plot-pulso'), estado.seleccion || estado.trials[estado.trials.length - 1], cfg);
+    plots.dibujaDispersion($('plot-ganancias'), estado.trials, cfg);
+    pintaCalibracion();
+  }
+}
+
+function pintaCalibracion() {
   if (estado.calib) {
     const c = estado.calib;
     const t = (performance.now() - c.t0) / 1000;
     const yaws = c.samples.map((s) => s[1]);
     const rango = yaws.length ? Math.max(...yaws) - Math.min(...yaws) : 0;
     $('calib-info').textContent =
-      `${t.toFixed(1)}/${estado.duracionCalibS}s · ${c.samples.length} muestras · rango ${rango.toFixed(0)}°` +
-      `/${geom.CALIB_MIN_HEAD_RANGE_DEG}°${c.rapidoAhora ? ' · ¡MÁS LENTO!' : ''}`;
+      `${t.toFixed(1)}/${estado.duracionCalibS}s · ${c.samples.length} muestras · rango ${rango.toFixed(0)}°/${geom.CALIB_MIN_HEAD_RANGE_DEG}°` +
+      (c.rapidoAhora ? ' · ¡MÁS LENTO!' : '');
     plots.dibujaParalaje($('plot-calib'), c.samples, null, estado.model.radiusMm);
   } else if (estado.ultimoFit) {
     const f = estado.ultimoFit;
-    $('calib-info').textContent =
-      `k=${fmt(f.kParallax)} · residuo ${fmt(f.residualDeg, 2)}° · objetivo a ${fmt(f.targetAzimuthDeg, 1)}° · n=${f.samples}`;
+    $('calib-info').textContent = `k=${fmt(f.kParallax)} · residuo ${fmt(f.residualDeg, 2)}° · n=${f.samples}`;
     plots.dibujaParalaje($('plot-calib'), f.muestras, f, estado.model.radiusMm);
+  } else {
+    plots.dibujaParalaje($('plot-calib'), null, null, estado.model.radiusMm);
   }
+}
 
-  plots.trazaViva($('plot-vivo'), estado.rolling);
-  plots.dibujaPulso($('plot-pulso'), estado.seleccion || estado.trials[estado.trials.length - 1], cfg);
-  plots.dibujaDispersion($('plot-ganancias'), estado.trials, cfg);
+/**
+ * Overlay del video y los dos ojos ampliados.
+ *
+ * El overlay se dibuja en coordenadas de la IMAGEN, sin espejar: el espejo lo
+ * aplica el CSS al contenedor, así que video y puntos se invierten juntos. Los
+ * recortes de ojo sí se espejan acá, porque son canvas sueltos.
+ */
+function dibujaVideo() {
+  const video = $('video');
+  const overlay = $('overlay');
+  if (video.videoWidth && overlay.width !== video.videoWidth) {
+    overlay.width = video.videoWidth;
+    overlay.height = video.videoHeight;
+  }
+  const ctx = overlay.getContext('2d');
+  ctx.clearRect(0, 0, overlay.width, overlay.height);
+  if (estado.landmarks) {
+    plots.dibujaPuntos(ctx, estado.landmarks, IDX, overlay.width, overlay.height);
+  }
+  plots.dibujaOjo($('ojo-der'), video, estado.crops.derecho, estado.landmarks, IDX.derecho, estado.espejo);
+  plots.dibujaOjo($('ojo-izq'), video, estado.crops.izquierdo, estado.landmarks, IDX.izquierdo, estado.espejo);
+}
+
+function abreHerramientas(abrir) {
+  $('herramientas').hidden = !abrir;
 }
 
 // ------------------------------------------------------------- controles ---
+
+function borraTodos() {
+  estado.trials = [];
+  estado.seleccion = null;
+  pintaListas();
+}
+
+function descartaUltimo() {
+  estado.trials.pop();
+  estado.seleccion = null;
+  pintaListas();
+}
 
 function sliders() {
   const bind = (id, set, d = 0) => {
@@ -342,34 +424,38 @@ function sliders() {
     const aplica = () => {
       const v = Number(el.value);
       set(v);
-      out.textContent = v.toFixed(d);
+      if (out) out.textContent = v.toFixed(d);
     };
     el.addEventListener('input', aplica);
     aplica();
   };
 
-  bind('deriv-win', (v) => estado.diff.setWindow(v, Number($('deriv-deg').value)), 0);
+  bind('deriv-win', (v) => estado.diff.setWindow(v, Number($('deriv-deg').value)));
   $('deriv-deg').addEventListener('change', () =>
     estado.diff.setWindow(Number($('deriv-win').value), Number($('deriv-deg').value)),
   );
-  bind('on-deg', (v) => (cfg.impulse.onDegS = v), 0);
-  bind('off-deg', (v) => (cfg.impulse.offDegS = v), 0);
-  bind('peak-min', (v) => (cfg.accept.peakMinDegS = v), 0);
-  bind('peak-max', (v) => (cfg.accept.peakMaxDegS = v), 0);
-  bind('dur-min', (v) => (cfg.accept.durationMinMs = v), 0);
-  bind('dur-max', (v) => (cfg.accept.durationMaxMs = v), 0);
+  bind('on-deg', (v) => (cfg.impulse.onDegS = v));
+  bind('off-deg', (v) => (cfg.impulse.offDegS = v));
+  bind('peak-min', (v) => (cfg.accept.peakMinDegS = v));
+  bind('peak-max', (v) => (cfg.accept.peakMaxDegS = v));
+  bind('dur-min', (v) => (cfg.accept.durationMinMs = v));
+  bind('dur-max', (v) => (cfg.accept.durationMaxMs = v));
   bind('blink', () => {}, 2);
-  bind('k-manual', (v) => {
-    if ($('k-manual-on').checked) {
-      estado.model.kParallax = v;
-      estado.model.calibrated = false;
-    }
-  }, 2);
+  bind(
+    'k-manual',
+    (v) => {
+      if ($('k-manual-on').checked) {
+        estado.model.kParallax = v;
+        estado.model.calibrated = false;
+      }
+    },
+    2,
+  );
   $('k-manual-on').addEventListener('change', (e) => {
     if (e.target.checked) {
       estado.model.kParallax = Number($('k-manual').value);
       estado.model.calibrated = false;
-      marcaEstado('k puesto a mano: la ganancia NO está calibrada, es para experimentar');
+      marcaEstado('k puesto a mano: la ganancia NO está calibrada');
     }
   });
 }
@@ -379,17 +465,12 @@ function atajos() {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
     const k = e.key.toLowerCase();
     if (k === 'c') empiezaCalibracion();
-    else if (k === 'r') {
-      estado.trials = [];
-      estado.seleccion = null;
-      pintaTabla();
-    } else if (k === 'd') {
-      estado.trials.pop();
-      estado.seleccion = null;
-      pintaTabla();
-    } else if (k === ' ') {
+    else if (k === 'r') borraTodos();
+    else if (k === 'd') descartaUltimo();
+    else if (k === 'h') abreHerramientas($('herramientas').hidden);
+    else if (k === ' ') {
       e.preventDefault();
-      estado.pausado = !estado.pausado;
+      $('pausa').checked = estado.pausado = !estado.pausado;
       marcaEstado(estado.pausado ? 'pausado' : 'midiendo');
     }
   });
@@ -410,11 +491,10 @@ function exporta() {
       t.calibrado ? 'si' : 'no',
     ]),
   ];
-  const csv = filas.map((f) => f.join(',')).join('\n');
-  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  const url = URL.createObjectURL(new Blob([filas.map((f) => f.join(',')).join('\n')], { type: 'text/csv' }));
   const a = document.createElement('a');
   a.href = url;
-  a.download = `trainhit-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '')}.csv`;
+  a.download = `trainhit-${new Date().toISOString().slice(0, 19).replace(/[:T-]/g, '')}.csv`;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -423,12 +503,15 @@ function exporta() {
 
 $('btn-arrancar').addEventListener('click', () => (estado.corriendo ? detener() : arrancar()));
 $('btn-calibrar').addEventListener('click', empiezaCalibracion);
-$('btn-borrar').addEventListener('click', () => {
-  estado.trials = [];
-  estado.seleccion = null;
-  pintaTabla();
-});
+$('btn-borrar').addEventListener('click', borraTodos);
+$('btn-descartar').addEventListener('click', descartaUltimo);
 $('btn-csv').addEventListener('click', exporta);
+$('btn-herramientas').addEventListener('click', () => abreHerramientas($('herramientas').hidden));
+$('btn-cerrar').addEventListener('click', () => abreHerramientas(false));
+$('pausa').addEventListener('change', (e) => {
+  estado.pausado = e.target.checked;
+  marcaEstado(estado.pausado ? 'pausado' : 'midiendo');
+});
 $('espejo').addEventListener('change', (e) => {
   estado.espejo = e.target.checked;
   $('camara-caja').classList.toggle('espejada', estado.espejo);
@@ -442,6 +525,10 @@ $('camara').addEventListener('change', () => {
 
 sliders();
 atajos();
-pintaTabla();
+pintaListas();
 pintaTodo();
-marcaEstado('listo — encendé la cámara');
+marcaEstado('encender la cámara');
+
+// Enganche de consola: `trainhit.estado`, `trainhit.cfg`. Es un repo para
+// enseñar — poder revolver el estado desde la consola es parte del punto.
+window.trainhit = { estado, cfg, pintaListas, analyzeTrial };

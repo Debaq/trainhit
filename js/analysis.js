@@ -28,7 +28,7 @@ export const CONFIG = {
 };
 
 export const RECHAZO_TEXT = {
-  lento: 'MUY LENTO — empujá más fuerte',
+  lento: 'MUY LENTO — impulso más fuerte',
   rapido: 'MUY RÁPIDO',
   corto: 'MUY CORTO',
   largo: 'MUY LARGO',

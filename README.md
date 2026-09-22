@@ -23,6 +23,21 @@ La primera carga baja de CDN el runtime de MediaPipe Tasks Vision y el modelo
 `face_landmarker.task`; después el navegador los cachea. Todo el procesamiento
 —y el video— se queda en la máquina.
 
+### La pantalla
+
+Sigue el reparto del motor nativo: a la izquierda el video con los puntos de
+seguimiento, los dos ojos ampliados y los controles; al centro un panel por
+lado —ganancia media ± DE, todos los impulsos superpuestos y la lista de
+pulsos—; abajo, a lo ancho, la velocidad contra el tiempo.
+
+Los paneles de cada lado se normalizan con el impulso **hacia arriba** y la
+traza ocular invertida, que es la convención clínica: con VOR normal las dos
+curvas se superponen y la separación entre ellas es el hallazgo.
+
+El botón **Herramientas** abre el cajón didáctico: el ajuste del paralaje
+dibujado, el último pulso con su ventana, la nube de ganancia contra pico y las
+perillas.
+
 ### Atajos
 
 | Tecla | Qué hace |
@@ -30,6 +45,7 @@ La primera carga baja de CDN el runtime de MediaPipe Tasks Vision y el modelo
 | `C` | Calibrar el paralaje (10 s). **Obligatorio antes de creerle a la ganancia.** |
 | `R` | Borrar todos los pulsos |
 | `D` | Descartar el último |
+| `H` | Abrir o cerrar las herramientas |
 | `Espacio` | Pausar el análisis (la cámara sigue) |
 
 ## Calibrar primero, y por qué
