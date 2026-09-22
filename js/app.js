@@ -793,6 +793,11 @@ $('camara').addEventListener('change', () => {
 sliders();
 atajos();
 montaBienvenida();
+// Modo sin red: ver sw.js. Si el navegador no lo soporta o falla, la página
+// funciona igual; solo no queda guardada.
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch((e) => console.warn('service worker:', e));
+}
 pintaListas();
 pintaTodo();
 marcaEstado('encender la cámara');

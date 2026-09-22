@@ -31,8 +31,17 @@ y abrir <http://localhost:8080>. Hace falta servidor (no `file://`): los módulo
 ES y `getUserMedia` lo exigen. En red hace falta HTTPS; en `localhost` no.
 
 La primera carga baja de CDN el runtime de MediaPipe Tasks Vision y el modelo
-`face_landmarker.task`; después el navegador los cachea. Todo el procesamiento
-—y el video— se queda en la máquina.
+`face_landmarker.task`; después quedan guardados. Todo el procesamiento —y el
+video— se queda en la máquina.
+
+### Sin red
+
+Un service worker (`sw.js`) guarda lo pesado —runtime y modelo, unos 10 MB— la
+primera vez, y los archivos propios cada vez que se cargan. Después la página
+abre y mide sin conexión. Es para el aula, donde el wifi falla. Los archivos
+propios se piden con red primero, así que una versión nueva se baja sola; sin
+red se sirve la última copia que haya. Sin service worker (navegador viejo,
+`file://`) la página funciona igual, solo que necesita red.
 
 ### La pantalla
 
