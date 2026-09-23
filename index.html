@@ -8,7 +8,7 @@
          jsdelivr (MediaPipe), y conexiones solo a lo que la página usa. -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-UXvYBdmXU06Qqbq6Sq6U67getBZ2yGVx3HW0MXfyJns='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
+      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-6fL/EazF9Yv9iWIjWfmgGkM3vvMrwPLSXNGF8qoDeIg='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
     />
     <meta
       name="description"
@@ -52,7 +52,7 @@
     />
     <!-- Mapa de importación: versiona los imports internos. Lo regenera
          bump.mjs junto con su hash en la CSP de arriba. Va antes del arranque. -->
-    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-23.7","./js/app.js":"./js/app.js?v=2026-09-23.7","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-23.7","./js/curve.js":"./js/curve.js?v=2026-09-23.7","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-23.7","./js/geom.js":"./js/geom.js?v=2026-09-23.7","./js/head.js":"./js/head.js?v=2026-09-23.7","./js/pipeline.js":"./js/pipeline.js?v=2026-09-23.7","./js/plots.js":"./js/plots.js?v=2026-09-23.7","./js/signal.js":"./js/signal.js?v=2026-09-23.7","./js/tracker.js":"./js/tracker.js?v=2026-09-23.7","./js/tutorial.js":"./js/tutorial.js?v=2026-09-23.7","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-23.7"}}</script>
+    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-23.8","./js/app.js":"./js/app.js?v=2026-09-23.8","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-23.8","./js/curve.js":"./js/curve.js?v=2026-09-23.8","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-23.8","./js/geom.js":"./js/geom.js?v=2026-09-23.8","./js/head.js":"./js/head.js?v=2026-09-23.8","./js/pipeline.js":"./js/pipeline.js?v=2026-09-23.8","./js/plots.js":"./js/plots.js?v=2026-09-23.8","./js/signal.js":"./js/signal.js?v=2026-09-23.8","./js/tracker.js":"./js/tracker.js?v=2026-09-23.8","./js/tutorial.js":"./js/tutorial.js?v=2026-09-23.8","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-23.8"}}</script>
     <script src="js/arranque.js"></script>
     <noscript><link rel="stylesheet" href="css/estilo.css" /></noscript>
   </head>
@@ -67,9 +67,9 @@
       <span id="aviso-perillas" class="badge warn" hidden>PERILLAS CAMBIADAS</span>
       <span id="estado" class="estado" aria-live="polite">listo</span>
       <span class="sep"></span>
-      <span class="chip"><i>fps</i><b id="v-fps">—</b></span>
-      <span class="chip"><i>cara</i><b id="v-cara">no</b></span>
-      <span class="chip"><i>v cabeza</i><b id="v-vcab">—</b></span>
+      <span class="chip" title="cuadros por segundo PROCESADOS, no los que da la cámara"><i>fps</i><b id="v-fps">—</b></span>
+      <span class="chip" title="si el modelo encuentra una cara en el cuadro"><i>cara</i><b id="v-cara">no</b></span>
+      <span class="chip" title="velocidad de giro de la cabeza ahora, en °/s"><i>v cabeza</i><b id="v-vcab">—</b></span>
       <button id="btn-megusta" class="megusta" title="me gusta" aria-label="me gusta">♥ <span id="megusta-cuenta">…</span></button>
       <button id="btn-aprender" class="ghost" title="paseos guiados por la página (T)">Aprender</button>
       <button id="btn-ayuda" class="ghost" title="qué es esto" aria-label="qué es esto">?</button>
@@ -202,14 +202,29 @@
         </div>
 
         <div class="lecturas">
-          <div><i>offset iris</i><b id="v-offset">—</b> mm</div>
-          <div><i>escala</i><b id="v-escala">—</b> px/mm</div>
+          <div title="cuánto está corrido el centro del iris respecto del medio entre las comisuras, en mm: mezcla el giro del ojo con el paralaje"><i>offset iris</i><b id="v-offset">—</b> mm</div>
+          <div title="píxeles por milímetro en la imagen, sacados del iris (11,7 mm de diámetro)"><i>escala</i><b id="v-escala">—</b> px/mm</div>
           <div title="radio del iris en píxeles: por debajo del mínimo el landmark es demasiado grueso para la escala"><i>iris</i><b id="v-iris">—</b> px</div>
-          <div><i>yaw cabeza</i><b id="v-yaw">—</b>°</div>
+          <div title="giro de la cabeza alrededor de su eje vertical; positivo hacia la izquierda del paciente"><i>yaw cabeza</i><b id="v-yaw">—</b>°</div>
           <div title="ángulo entre el eje vertical de la cabeza y el de la cámara, sin signo; el vHIT lateral se hace con ~30° de flexión"><i>inclinación</i><b id="v-inclin">—</b>°</div>
-          <div><i>azimut mirada</i><b id="v-azimut">—</b>°</div>
-          <div><i>v ojo comp.</i><b id="v-vojo">—</b> °/s</div>
-          <div><i>parpadeo</i><b id="v-blink">no</b></div>
+          <div title="hacia dónde apunta la mirada en el espacio, ya corregido el paralaje: con VOR perfecto no se mueve"><i>azimut mirada</i><b id="v-azimut">—</b>°</div>
+          <div title="velocidad del ojo dentro de la órbita: la que compensa el giro de la cabeza"><i>v ojo comp.</i><b id="v-vojo">—</b> °/s</div>
+          <div title="si el párpado está lo bastante cerrado como para tapar el iris"><i>parpadeo</i><b id="v-blink">no</b></div>
+          <!-- El mismo texto de los title, a la vista: en una pantalla táctil
+               no hay mouse que pase por encima para leerlos. -->
+          <details class="glosario">
+            <summary>Qué es cada número</summary>
+            <dl>
+              <dt>offset iris</dt><dd>Cuánto está corrido el centro del iris respecto del punto medio entre las comisuras, en mm. Mezcla el giro del ojo con el paralaje: por eso hay que calibrar.</dd>
+              <dt>escala</dt><dd>Píxeles por milímetro en la imagen. Sale del iris, que mide ~11,7 mm en casi todo el mundo: es la regla.</dd>
+              <dt>iris</dt><dd>Radio del iris en píxeles. Por debajo del mínimo un píxel de error son muchos grados y el pulso se rechaza.</dd>
+              <dt>yaw cabeza</dt><dd>Giro de la cabeza alrededor de su propio eje vertical, en grados. Positivo hacia la izquierda del paciente.</dd>
+              <dt>inclinación</dt><dd>Cuánto está inclinada la cabeza respecto de la cámara. Para el canal lateral se buscan ~30° de flexión.</dd>
+              <dt>azimut mirada</dt><dd>Hacia dónde apunta la mirada en el espacio, ya corregido el paralaje. Con un reflejo perfecto se queda quieto aunque la cabeza gire.</dd>
+              <dt>v ojo comp.</dt><dd>Velocidad del ojo dentro de la órbita, en °/s: la que compensa la cabeza. Con ganancia 1 es igual a la de la cabeza, al revés.</dd>
+              <dt>parpadeo</dt><dd>Si el párpado tapa el iris. Un parpadeo dentro del impulso rechaza el pulso.</dd>
+            </dl>
+          </details>
         </div>
       </aside>
 
@@ -320,8 +335,27 @@
 
         <section id="h-ganancias">
           <h3>Ganancia vs pico</h3>
+          <label class="campo">
+            <span>Método</span>
+            <select id="metodo-gan" title="con qué cuenta se calcula la ganancia de cada pulso">
+              <option value="area">área (posiciones, onset→offset)</option>
+              <option value="instant60ms">instantánea a 60 ms</option>
+              <option value="peak">cociente de picos</option>
+            </select>
+          </label>
           <canvas id="plot-ganancias" class="plot chico" role="img" aria-label="ganancia de cada pulso contra su pico de velocidad"></canvas>
           <p class="ayuda">Punteada: corte 0,80, de estudios con señal desacadizada. Este motor no desacadiza.</p>
+          <!-- Los tres métodos lado a lado, sobre los mismos pulsos: que no son
+               intercambiables se ve mejor en una tabla que en una frase. -->
+          <table id="tabla-metodos" class="tabla-metodos">
+            <thead><tr><th>método</th><th>derecha</th><th>izquierda</th><th>asim.</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <p class="ayuda">
+            Mismos pulsos, tres cuentas. <b>Área</b> es la que se reporta. <b>60 ms</b> mira un solo
+            instante: a 30 fps son dos cuadros de soporte. <b>Picos</b> divide máximos que no ocurren
+            al mismo tiempo. No son intercambiables.
+          </p>
         </section>
 
         <section id="h-perillas">

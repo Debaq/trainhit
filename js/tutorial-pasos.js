@@ -93,6 +93,19 @@ export const PASEOS = [
           derecha del paciente prueba el canal derecho.</p>`,
       },
       {
+        id: 'canales',
+        titulo: 'Seis canales, tres planos',
+        cuerpo: `
+          <p>Cada oído tiene tres canales semicirculares —lateral, anterior y posterior—, y trabajan
+          en pares que comparten plano: los dos laterales; el anterior izquierdo con el posterior
+          derecho (LARP); el anterior derecho con el posterior izquierdo (RALP).</p>
+          <p>Un giro en un plano excita un canal del par e inhibe al otro. El impulso hacia la derecha
+          prueba sobre todo el <b>lateral derecho</b>.</p>
+          <p class="ayuda">trainHIT solo mide el plano <b>lateral</b>. Los verticales se prueban
+          girando la cabeza en diagonal y necesitan el movimiento vertical del ojo, que el párpado
+          tapa y la webcam mide mal.</p>`,
+      },
+      {
         id: 'ganancia',
         titulo: 'La ganancia',
         img: 'ganancia.svg',
@@ -117,6 +130,23 @@ export const PASEOS = [
           <p>Un vHIT clínico las separa del reflejo antes de calcular la ganancia (desacadizar).
           <b>trainHIT no desacadiza</b>: una sacada encubierta queda dentro de la ganancia y la sube
           justo en el paciente con déficit. El sesgo es hacia el <b>falso negativo</b>.</p>`,
+      },
+      {
+        id: 'interpretar',
+        titulo: 'Qué patrones se buscan',
+        cuerpo: `
+          <p>El resultado se lee con los dos lados juntos, la ganancia <b>y</b> las sacadas:</p>
+          <ul>
+            <li><b>Normal</b>: ganancias cerca de 1 en los dos lados, sin sacadas.</li>
+            <li><b>Déficit unilateral</b>: un lado bajo, con sacadas de ese lado; el otro normal. Es
+            el patrón de una neuritis vestibular.</li>
+            <li><b>Déficit bilateral</b>: los dos lados bajos, con sacadas en los dos.</li>
+            <li><b>Sacadas con ganancia normal</b>: pueden ser encubiertas que tapan el déficit
+            —el sesgo de este motor— o ruido: se miran pulso por pulso.</li>
+          </ul>
+          <p class="ayuda">En un vértigo agudo, un impulso <b>normal</b> no tranquiliza: es uno de los
+          signos que hacen sospechar una causa central (protocolo HINTS). Estos patrones son para
+          aprender a leer, no para diagnosticar con esta página.</p>`,
       },
       {
         id: 'limites',
@@ -217,7 +247,9 @@ export const PASEOS = [
             <li><b>iris</b>: el radio en píxeles. Por debajo del mínimo el pulso se rechaza.</li>
             <li><b>inclinación</b>: la flexión de la cabeza; buscá unos 30°.</li>
             <li><b>parpadeo</b>: un parpadeo dentro del impulso lo invalida.</li>
-          </ul>`,
+          </ul>
+          <p class="ayuda">El resto se explica al pasar el mouse por cada número, o en <b>Qué es cada
+          número</b>, abajo de las lecturas.</p>`,
       },
       {
         id: 'calibrar',
@@ -438,6 +470,22 @@ export const PASEOS = [
           aceptado y la punteada, el corte de 0,80.</p>
           <p>Un reflejo sano da una nube <b>chata y apretada</b>: la ganancia no depende de qué tan
           fuerte fue el impulso. Una nube desparramada es para desconfiar del lado.</p>`,
+      },
+      {
+        id: 'metodos',
+        titulo: 'Tres formas de calcular la ganancia',
+        objetivo: '#h-ganancias',
+        antes: 'abreHerramientas',
+        lugar: 'izquierda',
+        cuerpo: `
+          <p>El mismo pulso admite varias cuentas. <b>Área</b>: cuánto giró el ojo sobre cuánto giró
+          la cabeza en todo el impulso; es la que se reporta. <b>60 ms</b>: el cociente de velocidades
+          en un solo instante. <b>Picos</b>: el máximo del ojo sobre el máximo de la cabeza, aunque
+          no ocurran a la vez.</p>
+          <p>Cambiá el <b>método</b> y mirá la tabla: con los mismos pulsos, las medias y la asimetría
+          cambian. Por eso una ganancia sin su método no se compara con otra.</p>
+          <p class="ayuda">Zamaro et al., 2020: los métodos de cálculo no son intercambiables entre
+          sí. Y a 30 fps la de 60 ms se apoya en dos cuadros.</p>`,
       },
       {
         id: 'como',

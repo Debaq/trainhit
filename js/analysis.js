@@ -297,11 +297,18 @@ function hayRebote(samples, offsetIdx, sign, cfg) {
   return false;
 }
 
-/** Media, DE y n de las ganancias reportables de un lado. */
-export function resumenLado(trials, side) {
+/**
+ * Media, DE y n de las ganancias reportables de un lado.
+ *
+ * `valor` elige qué ganancia se resume: por defecto la de área, que es la que
+ * se reporta; Herramientas la usa también con las otras dos para compararlas
+ * sobre los mismos pulsos.
+ */
+export function resumenLado(trials, side, valor = (t) => t.gain) {
   const g = trials
-    .filter((t) => t.side === side && !t.rejected && t.gain !== null)
-    .map((t) => t.gain);
+    .filter((t) => t.side === side && !t.rejected)
+    .map(valor)
+    .filter((v) => v !== null && v !== undefined && Number.isFinite(v));
   if (!g.length) return { n: 0, media: null, de: null };
   const media = g.reduce((a, b) => a + b, 0) / g.length;
   const de =

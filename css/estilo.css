@@ -473,6 +473,18 @@ kbd {
 .lecturas i { display: block; font-style: normal; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px; }
 .lecturas b { color: var(--foreground); font-size: 14px; }
 .lecturas b.mal { color: var(--c-bad); }
+.lecturas > div[title] { cursor: help; }
+.glosario { grid-column: 1 / -1; font-size: 12px; color: var(--muted-fg); }
+.glosario summary { cursor: pointer; padding: 2px 0; }
+.glosario dl { margin: 6px 0 0; display: grid; grid-template-columns: max-content 1fr; gap: 4px 10px; }
+.glosario dt { color: var(--foreground); font-weight: 600; }
+.glosario dd { margin: 0; }
+
+.tabla-metodos { width: 100%; border-collapse: collapse; font: 12px ui-monospace, monospace; margin-top: 6px; }
+.tabla-metodos th { text-align: right; color: var(--muted-fg); font-weight: 400; padding: 2px 4px; border-bottom: 1px solid var(--border); }
+.tabla-metodos td { text-align: right; padding: 2px 4px; }
+.tabla-metodos th:first-child, .tabla-metodos td:first-child { text-align: left; }
+.tabla-metodos tr.reportada td { color: var(--foreground); font-weight: 700; }
 
 /* ── paneles por lado ────────────────────────────────────────────────────── */
 

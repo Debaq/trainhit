@@ -771,8 +771,16 @@ export function dibujaPulso(canvas, trial, cfg, { medicion = null } = {}) {
   if (trial.noValidado) marcaNoValidado(ctx, w, h, pad);
 }
 
+/** Qué ganancia de un pulso usa cada método. */
+export const METODOS_GANANCIA = {
+  area: { nombre: 'área', de: (t) => t.gain },
+  instant60ms: { nombre: '60 ms', de: (t) => t.gains?.instant60ms ?? null },
+  peak: { nombre: 'picos', de: (t) => t.gains?.peak ?? null },
+};
+
 /** Ganancia contra pico de velocidad, con el corte y la franja aceptada. */
-export function dibujaDispersion(canvas, trials, cfg) {
+export function dibujaDispersion(canvas, trials, cfg, { metodo = 'area' } = {}) {
+  const de = METODOS_GANANCIA[metodo]?.de ?? METODOS_GANANCIA.area.de;
   const { ctx, w, h } = prepara(canvas);
   const pad = { l: 36, r: 6, t: 12, b: 16 };
   const { px, py } = marco(ctx, w, h, pad, { x0: 0, x1: 350, y0: 0, y1: 1.6, unidad: 'ganancia / °/s' });
@@ -789,11 +797,12 @@ export function dibujaDispersion(canvas, trials, cfg) {
 
   recorta(ctx, pad, w, h);
   for (const t of trials) {
-    if (t.gain === null || t.gain === undefined) continue;
+    const g = de(t);
+    if (g === null || g === undefined || !Number.isFinite(g)) continue;
     ctx.fillStyle = t.side === 'derecha' ? COLOR.cabeza : COLOR.covert;
     ctx.globalAlpha = t.rejected ? 0.25 : 1;
     ctx.beginPath();
-    ctx.arc(px(t.peakHeadDegS), py(t.gain), 3.5, 0, Math.PI * 2);
+    ctx.arc(px(t.peakHeadDegS), py(g), 3.5, 0, Math.PI * 2);
     ctx.fill();
   }
   ctx.globalAlpha = 1;

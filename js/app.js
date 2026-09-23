@@ -623,8 +623,30 @@ function pintaListas() {
     $(metaId).textContent = `${r.n} aceptados · ${total - r.n} rechazados`;
   }
   $('btn-deshacer').hidden = !estado.papelera.length;
+  pintaMetodos();
   const a = asimetria(der.media, izq.media);
   $('asim').textContent = a === null ? 'asimetría —' : `asimetría ${fmt(a, 1)} %`;
+}
+
+/** Las tres ganancias, resumidas por lado sobre los mismos pulsos aceptados. */
+function pintaMetodos() {
+  const tbody = $('tabla-metodos').querySelector('tbody');
+  tbody.innerHTML = '';
+  for (const [id, m] of Object.entries(plots.METODOS_GANANCIA)) {
+    const d = resumenLado(estado.trials, 'derecha', m.de);
+    const i = resumenLado(estado.trials, 'izquierda', m.de);
+    const tr = document.createElement('tr');
+    if (id === 'area') tr.className = 'reportada';
+    const celda = (r) => (r.n ? `${fmt(r.media)} (${r.n})` : '—');
+    const a = asimetria(d.media, i.media);
+    tr.innerHTML = '<td></td><td></td><td></td><td></td>';
+    const tds = tr.querySelectorAll('td');
+    tds[0].textContent = m.nombre;
+    tds[1].textContent = celda(d);
+    tds[2].textContent = celda(i);
+    tds[3].textContent = a === null ? '—' : `${fmt(a, 0)} %`;
+    tbody.appendChild(tr);
+  }
 }
 
 function pintaTodo() {
@@ -706,7 +728,7 @@ function pintaTodo() {
       plots.dibujaPulso($('plot-pulso'), estado.seleccion || estado.trials[estado.trials.length - 1], cfg, {
         medicion: conMedicion('plot-pulso'),
       });
-      plots.dibujaDispersion($('plot-ganancias'), estado.trials, cfg);
+      plots.dibujaDispersion($('plot-ganancias'), estado.trials, cfg, { metodo: $('metodo-gan').value });
     }
     sucio.pulsos = false;
   }
@@ -1216,6 +1238,7 @@ $('btn-defecto').addEventListener('click', () => perillasPorDefecto());
 $('btn-herramientas').addEventListener('click', () => abreHerramientas($('herramientas').hidden));
 $('btn-cerrar').addEventListener('click', () => abreHerramientas(false));
 $('btn-pausa').addEventListener('click', () => ponPausa(!estado.pausado));
+$('metodo-gan').addEventListener('change', () => (sucio.pulsos = true));
 $('promedio').addEventListener('change', (e) => {
   estado.promedio = e.target.checked;
   sucio.pulsos = true;

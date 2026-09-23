@@ -127,11 +127,11 @@ paseos cortos, cada uno sobre un tema y en cualquier orden:
 
 | Paseo | De qué trata |
 |---|---|
-| Qué mide un vHIT | el reflejo, el impulso, la ganancia, las sacadas, los límites |
+| Qué mide un vHIT | el reflejo, el impulso, los seis canales, la ganancia, las sacadas, qué patrones se buscan, los límites |
 | Preparar la sesión | cámara, luz, postura, manos del examinador |
 | La primera medición | con la cámara: calibrar, impulsos, paneles, lista, CSV |
 | Leer los gráficos | la regla, los rechazados, la asimetría, promedio, suavizar, orientación, pausa |
-| Herramientas por dentro | la recta del paralaje, k a mano, el último pulso, ganancia contra pico |
+| Herramientas por dentro | la recta del paralaje, el último pulso, ganancia contra pico, los tres métodos de ganancia, k a mano |
 | Las perillas del motor | cada perilla, probada con «Recalcular» sobre pulsos ya medidos |
 
 Las tarjetas de leer van al centro con el fondo tapado. Las demás iluminan la
@@ -213,6 +213,21 @@ vivos en paneles distintos se leen como si midieran lo mismo, y no es así.
 
 Sin esto solo se podía estimar a ojo contra la grilla, y la separación entre
 cabeza y ojo —que es el hallazgo— es justo lo que hay que poder medir.
+
+## Tres métodos de ganancia
+
+**Ganancia vs pico**, en Herramientas, tiene un selector de **método** —área,
+instantánea a 60 ms y cociente de picos— y una tabla con la media por lado y
+la asimetría de cada uno, sobre los mismos pulsos aceptados. El motor siempre
+calculó las tres, pero las otras dos vivían en un tooltip; lado a lado se ve
+lo que dice la literatura (Zamaro et al., 2020): no son intercambiables, y una
+ganancia sin su método no se compara con otra.
+
+## Qué es cada número
+
+Cada lectura y cada chip de la barra explica qué es al pasar el mouse, y
+**Qué es cada número**, abajo de las lecturas, dice lo mismo a la vista para
+las pantallas táctiles, donde no hay mouse que pase por encima.
 
 ## Curva promedio
 
