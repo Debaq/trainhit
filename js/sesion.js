@@ -16,6 +16,8 @@
 // para seguir otro día una sesión propia. Se importa del CRUDO, no de los
 // resultados: los números los vuelve a sacar el motor.
 
+import { tx } from './idioma.js';
+
 /** Número para CSV: punto decimal, y vacío —no un guion— cuando no hay valor. */
 const num = (v, d = 3) => (v === null || v === undefined || Number.isNaN(v) ? '' : v.toFixed(d));
 
@@ -185,8 +187,8 @@ export function leeSesion(texto) {
   if (!t.crudo?.length) {
     throw new Error(
       t.pulsos
-        ? 'el archivo no trae la tabla de crudo (se exportó con una versión anterior): no se puede volver a calcular'
-        : 'no parece un CSV de trainHIT',
+        ? tx('el archivo no trae la tabla de crudo (se exportó con una versión anterior): no se puede volver a calcular')
+        : tx('no parece un CSV de trainHIT'),
     );
   }
   const porId = new Map();

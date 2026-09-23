@@ -11,6 +11,8 @@
 // que sale de la página: una lectura del número en cada carga y, solo si
 // alguien aprieta el botón, el voto.
 
+import { alCambiarIdioma, tx } from './idioma.js';
+
 const BASE = 'https://abacus.jasoncameron.dev';
 const ESPACIO = 'trainhit';
 const CLAVE = 'megusta';
@@ -78,6 +80,8 @@ export function montaBienvenida() {
   montaAcerca({ cierraBienvenida: () => abrir(false, { foco: false }) });
 
   if (yaVoto) marcaVotado(boton);
+  // El title del botón lo pisa la traducción del HTML: votado, se vuelve a poner.
+  alCambiarIdioma(() => leeLS(LS_VOTO) === '1' && marcaVotado(boton));
   // El número se lee al abrir —es la petición a Abacus que sale en cada
   // carga, y está dicho en el README—; si el contador no contesta, el botón
   // se queda sin número en vez de romper nada.
@@ -98,7 +102,7 @@ export function montaBienvenida() {
       marcaVotado(boton);
     } catch {
       boton.disabled = false;
-      boton.title = 'el contador no responde';
+      boton.title = tx('el contador no responde');
     }
   });
 
@@ -139,5 +143,5 @@ function montaAcerca({ cierraBienvenida }) {
 function marcaVotado(boton) {
   boton.classList.add('votado');
   boton.disabled = true;
-  boton.title = 'voto registrado en este navegador';
+  boton.title = tx('voto registrado en este navegador');
 }

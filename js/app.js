@@ -16,6 +16,7 @@ import { MARGEN_CRUDO_MS, procesaCrudo } from './pipeline.js';
 import { leeSesion, textoSesion } from './sesion.js';
 import { textoGift } from './preguntas.js';
 import { PERFILES, arrastre, offsetConMirada, parametrosPulso, simulaCrudo } from './simulacion.js';
+import { IDIOMAS, alCambiarIdioma, idioma, idiomaInicial, ponIdioma, tx } from './idioma.js';
 
 const $ = (id) => document.getElementById(id);
 const fmt = (v, d = 2) => (v === null || v === undefined || Number.isNaN(v) ? '—' : v.toFixed(d));
@@ -110,9 +111,9 @@ const DEMORA_MODAL_MS = 350;
 const MB = (b) => (b / 1048576).toFixed(1);
 
 const FASE_TEXTO = {
-  motor: 'Cargando el motor de visión…',
-  modelo: 'Descargando el modelo…',
-  iniciando: 'Iniciando el modelo…',
+  motor: () => tx('Cargando el motor de visión…'),
+  modelo: () => tx('Descargando el modelo…'),
+  iniciando: () => tx('Iniciando el modelo…'),
 };
 
 /**
@@ -136,10 +137,10 @@ function modalCarga() {
     progreso({ fase, recibido, total }) {
       $('carga-fase').textContent =
         fase === 'modelo' && total
-          ? `${FASE_TEXTO.modelo} ${MB(recibido)} de ${MB(total)} MB`
+          ? `${FASE_TEXTO.modelo()} ${tx('{a} de {b} MB', { a: MB(recibido), b: MB(total) })}`
           : fase === 'modelo' && recibido
-            ? `${FASE_TEXTO.modelo} ${MB(recibido)} MB`
-            : FASE_TEXTO[fase];
+            ? `${FASE_TEXTO.modelo()} ${MB(recibido)} MB`
+            : FASE_TEXTO[fase]();
       const frac = total ? recibido / total : null;
       barra.classList.toggle('indet', frac === null);
       if (frac === null) {
@@ -184,19 +185,19 @@ async function arrancar() {
     // puntos quedan corridos respecto de los ojos.
     ajustaAspecto();
     estado.bucle = bucleDeFrames($('video'), procesaFrame);
-    $('btn-arrancar').textContent = 'Detener';
+    pintaArrancar();
     avisaTope(cam);
     const notas = [];
-    if (estado.delegate === 'CPU') notas.push('modelo en CPU: más lento');
-    if (!estado.bucle.soportaRVFC) notas.push('sin rVFC: timestamps peores');
-    marcaEstado(notas.length ? `midiendo (${notas.join(' · ')})` : 'midiendo');
+    if (estado.delegate === 'CPU') notas.push(tx('modelo en CPU: más lento'));
+    if (!estado.bucle.soportaRVFC) notas.push(tx('sin rVFC: timestamps peores'));
+    marcaEstado(notas.length ? 'midiendo ({notas})' : 'midiendo', { notas: notas.join(' · ') });
   } catch (e) {
     // Si la cámara abrió pero el modelo no cargó, la cámara quedaría
     // encendida y el botón diciendo «Encender»: se apaga todo. El modal de
     // carga también, o el error queda tapado por una barra que no avanza.
     carga?.cierra();
     detener();
-    marcaEstado(`error: ${e.message}`);
+    marcaEstado('error: {msg}', { msg: e.message });
     console.error(e);
   }
 }
@@ -212,7 +213,7 @@ function detener() {
   sucio.vivo = true; // una última pasada, para vaciar video y ojos
   $('sin-video').hidden = false;
   $('aviso-fps').hidden = true;
-  $('btn-arrancar').textContent = 'Encender cámara';
+  pintaArrancar();
   marcaEstado('detenido');
 }
 
@@ -251,9 +252,10 @@ function avisaTope(cam) {
   const aviso = $('aviso-fps');
   aviso.hidden = !rapida;
   if (rapida) {
-    aviso.title =
-      `Esta cámara puede entregar ${Math.round(cam.fpsMax ?? cam.fps)} fps. trainHIT procesa como mucho ${FPS_MAX}: ` +
-      'es una herramienta didáctica, y el tope está puesto a propósito para que no se use como equipo médico.';
+    aviso.title = tx(
+      'Esta cámara puede entregar {fps} fps. trainHIT procesa como mucho {max}: es una herramienta didáctica, y el tope está puesto a propósito para que no se use como equipo médico.',
+      { fps: Math.round(cam.fpsMax ?? cam.fps), max: FPS_MAX },
+    );
     console.info(aviso.title);
   }
 }
@@ -285,7 +287,7 @@ async function poblarCamaras(abierta) {
   cams.forEach((c, i) => {
     const o = document.createElement('option');
     o.value = c.deviceId;
-    o.textContent = c.label || `cámara ${i + 1}`;
+    o.textContent = c.label || tx('cámara {n}', { n: i + 1 });
     sel.appendChild(o);
   });
 
@@ -473,7 +475,7 @@ function cierraCalibracion() {
     return;
   }
   if (!fit.acceptable) {
-    marcaEstado(`calibración RECHAZADA — ${geom.CALIB_ISSUE_TEXT[fit.issue]}`);
+    marcaEstado('calibración RECHAZADA — {motivo}', { motivo: tx(geom.CALIB_ISSUE_TEXT[fit.issue]) });
     return;
   }
   estado.model.kParallax = fit.kParallax;
@@ -481,10 +483,11 @@ function cierraCalibracion() {
   // Una calibración nueva manda sobre el k a mano que hubiera.
   estado.kAntesManual = null;
   $('k-manual-on').checked = false;
-  marcaEstado(
-    `calibrado: k=${fmt(fit.kParallax)} · residuo ${fmt(fit.residualDeg, 1)}°` +
-      (fit.kPlausible ? '' : ` · k fuera del rango anatómico (${geom.CALIB_K_PLAUSIBLE.join('–')}): repetir`),
-  );
+  marcaEstado(fit.kPlausible ? 'calibrado: k={k} · residuo {res}°' : 'calibrado: k={k} · residuo {res}° · k fuera del rango anatómico ({rango}): repetir', {
+    k: fmt(fit.kParallax),
+    res: fmt(fit.residualDeg, 1),
+    rango: geom.CALIB_K_PLAUSIBLE.join('–'),
+  });
 }
 
 // ---------------------------------------------------------------- pulsos ---
@@ -625,7 +628,7 @@ function recalculaTodos() {
   estado.seleccion = estado.trials.find((t) => t.id === idSel) ?? null;
   estado.recalculados++;
   pintaListas();
-  marcaEstado(`${estado.trials.length} pulsos recalculados con la configuración actual: tachado, lo de antes`);
+  marcaEstado('{n} pulsos recalculados con la configuración actual: tachado, lo de antes', { n: estado.trials.length });
 }
 
 /**
@@ -653,9 +656,18 @@ function olvidaAntes() {
 
 // ------------------------------------------------------------------- UI ----
 
-function marcaEstado(txt) {
-  $('estado').textContent = txt;
+/**
+ * La barra de estado. Recibe la frase en español y sus `vars`, no el texto
+ * ya traducido: así al cambiar de idioma se vuelve a escribir la última.
+ */
+let ultimoEstado = ['encender la cámara'];
+function marcaEstado(frase, vars) {
+  ultimoEstado = [frase, vars];
+  $('estado').textContent = tx(frase, vars);
 }
+
+/** Qué hacer con el rechazo de un pulso: la parte corta, antes de « —». */
+const motivoCorto = (rechazo) => tx(RECHAZO_TEXT[rechazo]).split(' —')[0];
 
 function pintaListas() {
   sucio.pulsos = true;
@@ -669,27 +681,27 @@ function pintaListas() {
       const tr = document.createElement('tr');
       tr.className = t === estado.seleccion ? 'sel' : '';
       tr.tabIndex = 0;
-      const estadoTxt = t.rejected ? RECHAZO_TEXT[t.rejected].split(' —')[0] : 'OK';
+      const estadoTxt = t.rejected ? motivoCorto(t.rejected) : 'OK';
       tr.innerHTML = `
         <td class="num">#${t.id}${
-          t.simulado ? '<i class="ej simtag" title="paciente simulado: patología agregada a un pulso real">sim</i>' : ''
+          t.simulado ? `<i class="ej simtag" title="${tx('paciente simulado: patología agregada a un pulso real')}">${tx('sim')}</i>` : ''
         }${
           t.importado
-            ? '<i class="ej" title="pulso importado de un CSV">imp</i>'
+            ? `<i class="ej" title="${tx('pulso importado de un CSV')}">${tx('imp')}</i>`
             : t.ejemplo
-              ? '<i class="ej" title="pulso de ejemplo: paciente sintético">ej</i>'
+              ? `<i class="ej" title="${tx('pulso de ejemplo: paciente sintético')}">${tx('ej')}</i>`
               : ''
         }${
-          t.calibrado ? '' : '<i class="sc" title="medido sin calibrar: la ganancia incluye el paralaje">s/c</i>'
+          t.calibrado ? '' : `<i class="sc" title="${tx('medido sin calibrar: la ganancia incluye el paralaje')}">${tx('s/c')}</i>`
         }</td>
         <td>${fmt(t.peakHeadDegS, 0)} °/s</td>
         <td>${fmt(t.durationMs, 0)} ms</td>
         <td class="g${t.calibrado ? '' : ' sin'}">${antesDe(t)}${fmt(t.gain)}</td>
         <td class="sac">${(t.sacadas ?? [])
-          .map((s) => `<i class="${s.tipo === 'encubierta' ? 'c-covert' : 'c-overt'}" title="sacada ${s.tipo}">▼</i>`)
+          .map((s) => `<i class="${s.tipo === 'encubierta' ? 'c-covert' : 'c-overt'}" title="${tx(s.tipo === 'encubierta' ? 'sacada encubierta' : 'sacada manifiesta')}">▼</i>`)
           .join('')}</td>
         <td class="est ${t.rejected ? 'mal' : 'ok'}">${estadoTxt}</td>
-        <td class="acc"><button class="x" title="descartar" aria-label="descartar el pulso ${t.id}">✕</button></td>`;
+        <td class="acc"><button class="x" title="${tx('descartar')}" aria-label="${tx('descartar el pulso {id}', { id: t.id })}">✕</button></td>`;
       const descarta = () => tiraAPapelera(t);
       tr.querySelector('.x').addEventListener('click', (e) => {
         e.stopPropagation();
@@ -710,15 +722,23 @@ function pintaListas() {
         }
       });
       const nSac = (tipo) => (t.sacadas ?? []).filter((s) => s.tipo === tipo).length;
-      tr.title =
-        `área ${fmt(t.gain)} · 60 ms ${fmt(t.gains?.instant60ms)} · pico ${fmt(t.gains?.peak)}` +
-        `\nsacadas: ${nSac('encubierta')} encubiertas, ${nSac('manifiesta')} manifiestas · hasta la sacada ≈ ${fmt(t.gains?.desacadizada)}` +
-        `\niris ${fmt(t.irisPx, 1)} px · ojos ${fmt(t.disconjMm)} mm · hueco ${fmt(t.gapMs, 0)} ms` +
-        `\nk ${fmt(t.k)} · derivador ${t.deriv?.windowMs} ms grado ${t.deriv?.degree}` +
-        (t.rejected ? `\n${RECHAZO_TEXT[t.rejected]}` : '') +
-        (t.calibrado ? '' : '\nmedido SIN calibrar') +
-        (t.ejemplo ? '\npulso de EJEMPLO: paciente sintético' : '') +
-        (cambio(t) ? `\nantes de recalcular: ${fmt(cambio(t).gain)} ${cambio(t).rejected ? RECHAZO_TEXT[cambio(t).rejected].split(' —')[0] : 'OK'}` : '');
+      const a = cambio(t);
+      tr.title = [
+        tx('área {area} · 60 ms {i60} · pico {pico}', { area: fmt(t.gain), i60: fmt(t.gains?.instant60ms), pico: fmt(t.gains?.peak) }),
+        tx('sacadas: {enc} encubiertas, {man} manifiestas · hasta la sacada ≈ {desac}', {
+          enc: nSac('encubierta'),
+          man: nSac('manifiesta'),
+          desac: fmt(t.gains?.desacadizada),
+        }),
+        tx('iris {iris} px · ojos {ojos} mm · hueco {hueco} ms', { iris: fmt(t.irisPx, 1), ojos: fmt(t.disconjMm), hueco: fmt(t.gapMs, 0) }),
+        tx('k {k} · derivador {win} ms grado {grado}', { k: fmt(t.k), win: t.deriv?.windowMs, grado: t.deriv?.degree }),
+        t.rejected && tx(RECHAZO_TEXT[t.rejected]),
+        !t.calibrado && tx('medido SIN calibrar'),
+        t.ejemplo && tx('pulso de EJEMPLO: paciente sintético'),
+        a && tx('antes de recalcular: {g} {est}', { g: fmt(a.gain), est: a.rejected ? motivoCorto(a.rejected) : 'OK' }),
+      ]
+        .filter(Boolean)
+        .join('\n');
       tbody.appendChild(tr);
     }
   }
@@ -735,16 +755,16 @@ function pintaListas() {
     const total = estado.trials.filter((t) => t.side === lado).length;
     const a = estado.antes?.[lado];
     $(metaId).textContent =
-      `${r.n} aceptados · ${total - r.n} rechazados` +
-      (a ? ` · antes ${a.n ? (a.n > 1 ? `${fmt(a.media)} ± ${fmt(a.de)}` : fmt(a.media)) : '—'}` : '');
+      tx('{n} aceptados · {m} rechazados', { n: r.n, m: total - r.n }) +
+      (a ? ` · ${tx('antes')} ${a.n ? (a.n > 1 ? `${fmt(a.media)} ± ${fmt(a.de)}` : fmt(a.media)) : '—'}` : '');
   }
   $('btn-deshacer').hidden = !estado.papelera.length;
   pintaMetodos();
   pintaSimulacion();
   const a = asimetria(der.media, izq.media);
   $('asim').textContent =
-    (a === null ? 'asimetría —' : `asimetría ${fmt(a, 1)} %`) +
-    (estado.antes ? ` (antes ${estado.antes.asim === null ? '—' : `${fmt(estado.antes.asim, 1)} %`})` : '');
+    `${tx('asimetría')} ${a === null ? '—' : `${fmt(a, 1)} %`}` +
+    (estado.antes ? ` (${tx('antes')} ${estado.antes.asim === null ? '—' : `${fmt(estado.antes.asim, 1)} %`})` : '');
   $('btn-sin-antes').hidden = !estado.antes;
 }
 
@@ -775,12 +795,29 @@ function pintaMetodos() {
     const a = asimetria(d.media, i.media);
     tr.innerHTML = '<td></td><td></td><td></td><td></td>';
     const tds = tr.querySelectorAll('td');
-    tds[0].textContent = m.nombre;
+    tds[0].textContent = tx(m.nombre);
     tds[1].textContent = celda(d);
     tds[2].textContent = celda(i);
     tds[3].textContent = a === null ? '—' : `${fmt(a, 0)} %`;
     tbody.appendChild(tr);
   }
+}
+
+/** Los botones y rótulos que cambian con el estado: los escribe el código, no el HTML. */
+function pintaArrancar() {
+  $('btn-arrancar').textContent = estado.corriendo ? tx('Detener') : tx('Encender cámara');
+}
+
+function pintaPausa() {
+  $('btn-pausa').innerHTML = `${estado.pausado ? tx('Reanudar') : tx('Pausar')} <kbd>${tx('Espacio')}</kbd>`;
+}
+
+/**
+ * La leyenda tiene que decir la verdad: en «real» la traza ocular va cruda,
+ * o sea para el lado contrario que la cabeza.
+ */
+function pintaLeyendaOjo() {
+  $('leyenda-ojo').textContent = $('orientacion').value === 'real' ? tx('ojo (crudo)') : tx('ojo (invertido)');
 }
 
 function pintaTodo() {
@@ -799,17 +836,17 @@ function pintaTodo() {
   // Con los ejemplos la calibración es la del paciente sintético, no la de
   // quien está frente a la cámara: el rótulo no puede decir CALIBRADO a secas.
   if (estado.kAntesManual) {
-    badge.textContent = `k A MANO=${fmt(estado.model.kParallax)}`;
+    badge.textContent = tx('k A MANO={k}', { k: fmt(estado.model.kParallax) });
     badge.className = 'badge mal';
   } else if (estado.ejemplo?.importado) {
-    badge.textContent = `IMPORTADO k=${fmt(estado.model.kParallax)}`;
+    badge.textContent = tx('IMPORTADO k={k}', { k: fmt(estado.model.kParallax) });
     badge.className = 'badge warn';
-    badge.title = `sesión de ${estado.ejemplo.importado}: la calibración es la del archivo`;
+    badge.title = tx('sesión de {archivo}: la calibración es la del archivo', { archivo: estado.ejemplo.importado });
   } else if (estado.ejemplo) {
-    badge.textContent = `EJEMPLO k=${fmt(estado.model.kParallax)}`;
+    badge.textContent = tx('EJEMPLO k={k}', { k: fmt(estado.model.kParallax) });
     badge.className = 'badge warn';
   } else {
-    badge.textContent = cal ? `CALIBRADO k=${fmt(estado.model.kParallax)}` : 'SIN CALIBRAR';
+    badge.textContent = cal ? tx('CALIBRADO k={k}', { k: fmt(estado.model.kParallax) }) : tx('SIN CALIBRAR');
     badge.className = `badge ${cal ? 'ok' : 'mal'}`;
   }
 
@@ -823,11 +860,12 @@ function pintaTodo() {
   chipFps.className = fpsFuera ? 'mal' : '';
   if (fpsFuera && $('aviso-fps').hidden) {
     $('aviso-fps').hidden = false;
-    $('aviso-fps').title =
-      `Se están procesando ${fmt(estado.fps, 0)} fps con el tope puesto en ${FPS_MAX}: ` +
-      'el tope no está funcionando en este dispositivo. Los pulsos salen marcados NO VALIDADO.';
+    $('aviso-fps').title = tx(
+      'Se están procesando {fps} fps con el tope puesto en {max}: el tope no está funcionando en este dispositivo. Los pulsos salen marcados NO VALIDADO.',
+      { fps: fmt(estado.fps, 0), max: FPS_MAX },
+    );
   }
-  $('v-cara').textContent = estado.caraOk ? 'sí' : 'no';
+  $('v-cara').textContent = estado.caraOk ? tx('sí') : tx('no');
   $('v-vcab').textContent = ultima ? `${fmt(ultima.headVel, 0)} °/s` : '—';
   $('v-offset').textContent = fmt(estado.vivo.offsetMm);
   $('v-escala').textContent = fmt(estado.vivo.pxPerMm, 1);
@@ -838,7 +876,7 @@ function pintaTodo() {
   $('v-inclin').textContent = fmt(estado.vivo.inclinacion, 0);
   $('v-azimut').textContent = fmt(estado.vivo.azimut, 1);
   $('v-vojo').textContent = ultima ? fmt(ultima.headVel - ultima.gazeVel, 0) : '—';
-  $('v-blink').textContent = estado.vivo.blink ? 'sí' : 'no';
+  $('v-blink').textContent = estado.vivo.blink ? tx('sí') : tx('no');
 
   if (estado.corriendo || sucio.vivo) {
     dibujaVideo();
@@ -887,19 +925,29 @@ function pintaCalibracion() {
     const yaws = c.samples.map((s) => s[1]);
     const rango = yaws.length ? Math.max(...yaws) - Math.min(...yaws) : 0;
     $('calib-info').textContent =
-      `${t.toFixed(1)}/${estado.duracionCalibS}s · ${c.samples.length} muestras · rango ${rango.toFixed(0)}°/${geom.CALIB_MIN_HEAD_RANGE_DEG}°` +
-      (c.rapidoAhora ? ' · ¡MÁS LENTO!' : '');
+      tx('{t}/{dur}s · {n} muestras · rango {rango}°/{min}°', {
+        t: t.toFixed(1),
+        dur: estado.duracionCalibS,
+        n: c.samples.length,
+        rango: rango.toFixed(0),
+        min: geom.CALIB_MIN_HEAD_RANGE_DEG,
+      }) + (c.rapidoAhora ? ` · ${tx('¡MÁS LENTO!')}` : '');
     // Junto al punto va lo único que el paciente necesita saber mientras fija:
     // cuánto falta, y si se está moviendo demasiado rápido.
     $('fijacion-cuenta').textContent = c.rapidoAhora
-      ? '¡MÁS LENTO!'
-      : `faltan ${Math.max(0, estado.duracionCalibS - t).toFixed(0)} s · rango ${rango.toFixed(0)}° de ${geom.CALIB_MIN_HEAD_RANGE_DEG}°`;
+      ? tx('¡MÁS LENTO!')
+      : tx('faltan {s} s · rango {rango}° de {min}°', {
+          s: Math.max(0, estado.duracionCalibS - t).toFixed(0),
+          rango: rango.toFixed(0),
+          min: geom.CALIB_MIN_HEAD_RANGE_DEG,
+        });
     plots.dibujaParalaje($('plot-calib'), c.samples, null, estado.model.radiusMm);
   } else if (estado.ultimoFit) {
     const f = estado.ultimoFit;
-    $('calib-info').textContent = `k=${fmt(f.kParallax)} · residuo ${fmt(f.residualDeg, 2)}° · n=${f.samples}`;
+    $('calib-info').textContent = tx('k={k} · residuo {res}° · n={n}', { k: fmt(f.kParallax), res: fmt(f.residualDeg, 2), n: f.samples });
     plots.dibujaParalaje($('plot-calib'), f.muestras, f, estado.model.radiusMm);
   } else {
+    $('calib-info').textContent = tx('sin calibrar');
     plots.dibujaParalaje($('plot-calib'), null, null, estado.model.radiusMm);
   }
 }
@@ -949,7 +997,7 @@ function abreSimulador(abrir) {
 
 function borraTodos() {
   // Una tecla apretada sin querer no puede tirar la sesión entera.
-  if (estado.trials.length && !estado.ejemplo && !confirm(`¿Borrar los ${estado.trials.length} pulsos?`)) return;
+  if (estado.trials.length && !estado.ejemplo && !confirm(tx('¿Borrar los {n} pulsos?', { n: estado.trials.length }))) return;
   estado.trials = [];
   estado.seleccion = null;
   vaciaPapelera();
@@ -969,7 +1017,7 @@ function borraTodos() {
  */
 function cargaEjemplos(caso = null) {
   const reales = estado.trials.filter((t) => !t.ejemplo).length;
-  if (reales && !confirm(`Los ejemplos reemplazan los ${reales} pulsos medidos. ¿Seguir?`)) return;
+  if (reales && !confirm(tx('Los ejemplos reemplazan los {n} pulsos medidos. ¿Seguir?', { n: reales }))) return;
   if (estado.corriendo) detener();
   // El k a mano no es la calibración de nadie: se devuelve la de verdad antes
   // de guardarla para cuando se salga de los ejemplos.
@@ -1007,8 +1055,9 @@ function cargaEjemplos(caso = null) {
   pintaListas();
   marcaEstado(
     caso
-      ? `caso ${caso}: ${estado.trials.length} pulsos de un paciente sintético. ¿Qué patrón muestra?`
-      : `${estado.trials.length} pulsos de ejemplo: paciente sintético, canal izquierdo con déficit`,
+      ? 'caso {caso}: {n} pulsos de un paciente sintético. ¿Qué patrón muestra?'
+      : '{n} pulsos de ejemplo: paciente sintético, canal izquierdo con déficit',
+    { caso, n: estado.trials.length },
   );
 }
 
@@ -1042,7 +1091,7 @@ function tiraAPapelera(t) {
   if (estado.seleccion === t) estado.seleccion = null;
   estado.papelera.push(t);
   pintaListas();
-  marcaEstado(`pulso #${t.id} descartado · Z para deshacer`);
+  marcaEstado('pulso #{id} descartado · Z para deshacer', { id: t.id });
 }
 
 function deshaceDescarte() {
@@ -1051,7 +1100,7 @@ function deshaceDescarte() {
   estado.trials = [...estado.trials, t].sort((a, b) => a.id - b.id);
   estado.seleccion = t;
   pintaListas();
-  marcaEstado(`pulso #${t.id} de vuelta`);
+  marcaEstado('pulso #{id} de vuelta', { id: t.id });
 }
 
 /** La papelera es de la sesión que se está mirando: otra sesión la vacía. */
@@ -1125,8 +1174,10 @@ function restauraK({ recalcula = false } = {}) {
   estado.model.calibrated = antes.calibrado;
   if (recalcula && estado.trials.length) recalculaTodos();
   marcaEstado(
-    `volvió el k de antes (k=${fmt(antes.k)})` +
-      (recalcula || !estado.trials.length ? '' : ': «Recalcular» para verlo en los pulsos'),
+    recalcula || !estado.trials.length
+      ? 'volvió el k de antes (k={k})'
+      : 'volvió el k de antes (k={k}): «Recalcular» para verlo en los pulsos',
+    { k: fmt(antes.k) },
   );
 }
 
@@ -1149,7 +1200,9 @@ function avisaPerillas() {
   const aviso = $('aviso-perillas');
   aviso.hidden = !cambiadas.length;
   aviso.title = cambiadas.length
-    ? `No están en su valor de fábrica: ${cambiadas.map((p) => p.nombre).join(', ')}. «Valores por defecto» en Herramientas.`
+    ? tx('No están en su valor de fábrica: {lista}. «Valores por defecto» en Herramientas.', {
+        lista: cambiadas.map((p) => p.nombre).join(', '),
+      })
     : '';
 }
 
@@ -1161,7 +1214,9 @@ function perillasPorDefecto({ recalcula = false } = {}) {
   }
   avisaPerillas();
   if (recalcula && estado.trials.length) recalculaTodos();
-  marcaEstado('perillas en sus valores por defecto' + (recalcula ? '' : ': «Recalcular» para aplicarlas a los pulsos'));
+  marcaEstado(
+    recalcula ? 'perillas en sus valores por defecto' : 'perillas en sus valores por defecto: «Recalcular» para aplicarlas a los pulsos',
+  );
 }
 
 /**
@@ -1173,9 +1228,8 @@ function perillasPorDefecto({ recalcula = false } = {}) {
  */
 function ponPausa(v) {
   estado.pausado = v;
-  const b = $('btn-pausa');
-  b.setAttribute('aria-pressed', String(v));
-  b.innerHTML = v ? 'Reanudar <kbd>Espacio</kbd>' : 'Pausar <kbd>Espacio</kbd>';
+  $('btn-pausa').setAttribute('aria-pressed', String(v));
+  pintaPausa();
   if (!v) estado.medicion = null; // al reanudar no queda un cursor viejo colgado
   $('plot-vivo').classList.toggle('medible', v);
   sucio.vivo = true; // redibuja: al pausar aparece el cursor de medición
@@ -1311,7 +1365,7 @@ function montaSimulacion() {
   for (const [id, p] of Object.entries(PERFILES)) {
     const o = document.createElement('option');
     o.value = id;
-    o.textContent = p.nombre;
+    o.textContent = tx(p.nombre);
     sel.insertBefore(o, sel.querySelector('option[value="azar"]'));
   }
   sel.addEventListener('change', (e) => cambiaPerfil(e.target.value));
@@ -1342,7 +1396,7 @@ function montaSimulacion() {
  */
 function cambiaPerfil(eleccion) {
   const medidos = estado.trials.filter((t) => !t.ejemplo).length;
-  if (medidos && !confirm(`Cambiar el paciente borra los ${medidos} pulsos medidos. ¿Seguir?`)) {
+  if (medidos && !confirm(tx('Cambiar el paciente borra los {n} pulsos medidos. ¿Seguir?', { n: medidos }))) {
     $('sim-perfil').value = estado.sim.eleccion;
     return;
   }
@@ -1371,7 +1425,8 @@ function cambiaPerfil(eleccion) {
       ? 'paciente simulado apagado: se mide lo real'
       : estado.sim.ciego
         ? 'paciente simulado a ciegas: examinar y decidir qué tiene'
-        : `paciente simulado: ${PERFILES[estado.sim.perfil].nombre}`,
+        : 'paciente simulado: {nombre}',
+    { nombre: estado.sim.perfil && tx(PERFILES[estado.sim.perfil].nombre) },
   );
 }
 
@@ -1384,7 +1439,7 @@ function revelaSimulacion() {
   estado.sim.eleccion = estado.sim.perfil;
   $('sim-perfil').value = estado.sim.perfil;
   pintaSimulacion();
-  marcaEstado(`el paciente simulado era: ${PERFILES[estado.sim.perfil].nombre}`);
+  marcaEstado('el paciente simulado era: {nombre}', { nombre: tx(PERFILES[estado.sim.perfil].nombre) });
 }
 
 /** Lo que muestra la sección y la barra según el estado de la simulación. */
@@ -1395,22 +1450,22 @@ function pintaSimulacion() {
   // A ciegas el selector no se ve: diría qué perfil es.
   $('sim-campo').hidden = oculto;
   $('sim-info').textContent = !perfil
-    ? 'Apagado: se mide lo real.'
+    ? tx('Apagado: se mide lo real.')
     : oculto
-      ? 'Perfil oculto. Examiná, decidí qué tiene el paciente y después apretá Revelar.'
-      : `${p.nombre}. ${p.descripcion}`;
+      ? tx('Perfil oculto. Examiná, decidí qué tiene el paciente y después apretá Revelar.')
+      : `${tx(p.nombre)}. ${tx(p.descripcion)}`;
   $('sim-revelar').hidden = !oculto;
   const haySimulados = estado.trials.some((t) => t.simulado && t.crudoReal);
   $('sim-real').hidden = !perfil || oculto || !haySimulados;
   $('sim-real').setAttribute('aria-pressed', String(mostrarReal));
-  $('sim-real').textContent = mostrarReal ? 'Ver lo simulado' : 'Ver lo real';
+  $('sim-real').textContent = mostrarReal ? tx('Ver lo simulado') : tx('Ver lo real');
   $('btn-simulador').classList.toggle('activo', Boolean(perfil));
   const aviso = $('aviso-sim');
   aviso.hidden = !perfil;
   aviso.title = oculto
-    ? 'Paciente simulado, a ciegas: los pulsos llevan una patología agregada por el motor.'
+    ? tx('Paciente simulado, a ciegas: los pulsos llevan una patología agregada por el motor.')
     : p
-      ? `Paciente simulado: ${p.nombre}. Los pulsos llevan una patología agregada por el motor.`
+      ? tx('Paciente simulado: {nombre}. Los pulsos llevan una patología agregada por el motor.', { nombre: tx(p.nombre) })
       : '';
 }
 
@@ -1459,11 +1514,11 @@ function importaSesion(texto, nombre) {
   try {
     sesion = leeSesion(texto);
   } catch (e) {
-    marcaEstado(`no se pudo importar ${nombre}: ${e.message}`);
+    marcaEstado('no se pudo importar {archivo}: {msg}', { archivo: nombre, msg: e.message });
     return;
   }
   const reales = estado.trials.filter((t) => !t.ejemplo).length;
-  if (reales && !confirm(`La sesión importada reemplaza los ${reales} pulsos medidos. ¿Seguir?`)) return;
+  if (reales && !confirm(tx('La sesión importada reemplaza los {n} pulsos medidos. ¿Seguir?', { n: reales }))) return;
   if (estado.corriendo) detener();
   restauraK();
   if (!estado.ejemplo) {
@@ -1507,9 +1562,10 @@ function importaSesion(texto, nombre) {
   estado.seleccion = estado.trials[estado.trials.length - 1] ?? null;
   pintaListas();
   marcaEstado(
-    `${estado.trials.length} pulsos importados de ${nombre}` +
-      (fallidos ? ` (${fallidos} sin muestras suficientes)` : '') +
-      ': se van al encender la cámara o con «Borrar todos»',
+    fallidos
+      ? '{n} pulsos importados de {archivo} ({fallidos} sin muestras suficientes): se van al encender la cámara o con «Borrar todos»'
+      : '{n} pulsos importados de {archivo}: se van al encender la cámara o con «Borrar todos»',
+    { n: estado.trials.length, archivo: nombre, fallidos },
   );
 }
 
@@ -1546,9 +1602,7 @@ $('promedio').addEventListener('change', (e) => {
 });
 $('orientacion').addEventListener('change', (e) => {
   plots.ORIENTACION.modo = e.target.value;
-  // La leyenda tiene que decir la verdad: en «real» la traza ocular va cruda,
-  // o sea para el lado contrario que la cabeza.
-  $('leyenda-ojo').textContent = e.target.value === 'real' ? 'ojo (crudo)' : 'ojo (invertido)';
+  pintaLeyendaOjo();
   sucio.pulsos = true;
   sucio.vivo = true;
 });
@@ -1575,6 +1629,35 @@ $('camara').addEventListener('change', () => {
   }
 });
 
+/**
+ * Idioma: ver idioma.js. Va antes que todo lo demás, porque `sliders` lee los
+ * nombres de las perillas del HTML y `montaSimulacion` escribe los perfiles.
+ * Al cambiarlo, lo que arma el código se vuelve a pintar; la sesión queda.
+ */
+function montaIdioma() {
+  const boton = $('btn-idioma');
+  const otro = () => (idioma() === 'es' ? 'en' : 'es');
+  const pinta = () => {
+    boton.textContent = otro().toUpperCase();
+    boton.title = IDIOMAS[otro()];
+    boton.lang = otro();
+  };
+  boton.addEventListener('click', () => ponIdioma(otro()));
+  alCambiarIdioma(() => {
+    pinta();
+    pintaArrancar();
+    pintaPausa();
+    pintaLeyendaOjo();
+    for (const o of $('sim-perfil').options) if (PERFILES[o.value]) o.textContent = tx(PERFILES[o.value].nombre);
+    avisaPerillas();
+    pintaListas();
+    marcaEstado(...ultimoEstado);
+    ensucia();
+  });
+  ponIdioma(idiomaInicial(), { guarda: false });
+}
+
+montaIdioma();
 sliders();
 montaSimulacion();
 atajos();
@@ -1593,8 +1676,8 @@ const tutorial = montaTutorial({
       if (!p) return null;
       return {
         correcta: p.patron,
-        explica: `${p.nombre}. ${p.descripcion}`,
-        pista: 'Mirá las dos medias por separado, la asimetría y los triángulos de sacadas: ¿de qué lado y cuándo corrigen?',
+        explica: `${tx(p.nombre)}. ${tx(p.descripcion)}`,
+        pista: tx('Mirá las dos medias por separado, la asimetría y los triángulos de sacadas: ¿de qué lado y cuándo corrigen?'),
       };
     },
   },

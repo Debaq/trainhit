@@ -5,6 +5,7 @@
 
 import { monotona } from './curve.js';
 import { RECHAZO_TEXT, SIGNO_DERECHA, sideSign } from './analysis.js';
+import { tx } from './idioma.js';
 
 export const COLOR = {
   cabeza: '#2E7DD6',
@@ -148,7 +149,7 @@ function marcaSacadas(ctx, { px, py }, trial, flip, { grande = false, rotulo = f
     ctx.fill();
     if (rotulo) {
       ctx.textBaseline = dir < 0 ? 'bottom' : 'top';
-      ctx.fillText(sac.tipo, x, y + dir * (lado * 1.6 + 2));
+      ctx.fillText(sac.tipo === 'encubierta' ? tx('encubierta') : tx('manifiesta'), x, y + dir * (lado * 1.6 + 2));
     }
   }
   ctx.restore();
@@ -288,14 +289,14 @@ export function promedioLado(trials, side, { pasoMs = 5 } = {}) {
 function seriesDePulso(samples, flip) {
   return [
     {
-      nombre: 'cabeza',
+      nombre: tx('cabeza'),
       color: COLOR.cabeza,
       ganancia: 'cabeza',
       en: (t) => enMuestras(samples, t, (s) => s.headVel * flip),
       pts: samples.map((s) => [s.tMs, s.headVel * flip]),
     },
     {
-      nombre: 'ojo   ',
+      nombre: tx('ojo'),
       color: COLOR.ojo,
       ganancia: 'ojo',
       en: (t) => enMuestras(samples, t, (s) => velOjo(s) * flip),
@@ -406,11 +407,13 @@ function cursorMedicion(ctx, w, h, pad, { px, py, x0, x1 }, med, series, unidadX
 
   const filas = [`${fmtX(t, unidadX)}${a !== null ? `  Δ${fmtX(Math.abs(t - a), unidadX, true)}` : ''}`];
   const colores = [];
+  // Los nombres alineados en columna: el cartel va en monoespaciada.
+  const ancho = Math.max(...vals.map((s) => s.nombre.length));
   for (const s of vals) {
     const d = s.vAncla !== null && Number.isFinite(s.vAncla) ? `  Δ${(s.v - s.vAncla).toFixed(0)}` : '';
     // El área va en grados: es velocidad por tiempo, o sea desplazamiento.
     const ar = s.area !== null ? `  ${areaEnGrados(s.area, unidadX).toFixed(1)}°` : '';
-    filas.push(`${s.nombre} ${s.v.toFixed(0)}${d}${ar}`);
+    filas.push(`${s.nombre.padEnd(ancho)} ${s.v.toFixed(0)}${d}${ar}`);
     colores.push(s.color);
   }
   // Ganancia del tramo: cociente de las áreas, la misma cuenta que hace el
@@ -418,7 +421,7 @@ function cursorMedicion(ctx, w, h, pad, { px, py, x0, x1 }, med, series, unidadX
   const cab = vals.find((s) => s.ganancia === 'cabeza');
   const ojo = vals.find((s) => s.ganancia === 'ojo');
   if (cab?.area && ojo?.area && Math.abs(cab.area) > 1e-9) {
-    filas.push(`ganancia ${Math.abs(ojo.area / cab.area).toFixed(2)}`);
+    filas.push(`${tx('ganancia')} ${Math.abs(ojo.area / cab.area).toFixed(2)}`);
     colores.push(COLOR.texto);
   }
   etiqueta(ctx, w, h, pad, x, filas, colores);
@@ -494,14 +497,14 @@ export function trazaViva(canvas, muestras, { segundos = SEGUNDOS_VIVO, escala =
     };
     cursorMedicion(ctx, w, h, pad, { px, py, x0: -segundos, x1: 0 }, medicion, [
       {
-        nombre: 'cabeza',
+        nombre: tx('cabeza'),
         color: COLOR.cabeza,
         ganancia: 'cabeza',
         en: (t) => cerca(t)?.headVel ?? null,
         pts: vis.map((s) => [s.t - tNow, s.headVel]),
       },
       {
-        nombre: 'ojo   ',
+        nombre: tx('ojo'),
         color: COLOR.ojo,
         ganancia: 'ojo',
         en: (t) => { const s = cerca(t); return s ? velOjo(s) : null; },
@@ -537,7 +540,7 @@ export function tiempoEnVivo(canvas, clientX, { segundos = SEGUNDOS_VIVO } = {})
  * marca puesta—.
  */
 function marcaNoValidado(ctx, w, h, pad) {
-  marcaAgua(ctx, w, h, pad, 'NO VALIDADO', COLOR.bad);
+  marcaAgua(ctx, w, h, pad, tx('NO VALIDADO'), COLOR.bad);
 }
 
 /**
@@ -548,7 +551,7 @@ function marcaNoValidado(ctx, w, h, pad) {
  */
 function marcaSimulado(ctx, w, h, pad, trials) {
   const t = trials.find((x) => x.simulado);
-  if (t) marcaAgua(ctx, w, h, pad, t.muestraReal ? 'SIN SIMULAR' : 'SIMULADO', COLOR.covert, 26);
+  if (t) marcaAgua(ctx, w, h, pad, t.muestraReal ? tx('SIN SIMULAR') : tx('SIMULADO'), COLOR.covert, 26);
 }
 
 function marcaAgua(ctx, w, h, pad, texto, color, dy = 0) {
@@ -679,7 +682,7 @@ function cajaRechazo(ctx, w, h, pad, { px, py }, trial, ventana) {
 
   // Solo la parte corta del motivo: «CARA PERDIDA», no la recomendación que
   // la acompaña en la tabla.
-  const motivo = (RECHAZO_TEXT[trial.rejected] ?? String(trial.rejected)).split(' —')[0];
+  const motivo = (RECHAZO_TEXT[trial.rejected] ? tx(RECHAZO_TEXT[trial.rejected]) : String(trial.rejected)).split(' —')[0];
   ctx.font = '600 10px ui-monospace, SFMono-Regular, monospace';
   const ancho = ctx.measureText(motivo).width + 10;
   const cx = Math.min(w - pad.r - ancho, Math.max(pad.l, izq));
@@ -719,7 +722,7 @@ export function overlayLado(canvas, trials, side, cfg, seleccion, { promedio = f
     unidad: '°/s',
   });
   if (!delLado.length) {
-    vacio(ctx, w, h, 'sin pulsos');
+    vacio(ctx, w, h, tx('sin pulsos'));
     return;
   }
 
@@ -758,7 +761,7 @@ export function overlayLado(canvas, trials, side, cfg, seleccion, { promedio = f
     ctx.font = '10px ui-monospace, SFMono-Regular, monospace';
     ctx.textAlign = 'right';
     ctx.textBaseline = 'top';
-    ctx.fillText(`promedio de ${media.n}`, w - pad.r - 2, pad.t + 1);
+    ctx.fillText(tx('promedio de {n}', { n: media.n }), w - pad.r - 2, pad.t + 1);
   }
 
   if (medicion) {
@@ -785,7 +788,7 @@ export function dibujaPulso(canvas, trial, cfg, { medicion = null } = {}) {
   const pad = { l: 36, r: 6, t: 12, b: 16 };
   if (!trial) {
     marco(ctx, w, h, pad, { x0: -cfg.impulse.preTriggerMs, x1: cfg.impulse.windowMs, y0: -100, y1: 300, unidad: '°/s' });
-    vacio(ctx, w, h, 'sin pulsos todavía');
+    vacio(ctx, w, h, tx('sin pulsos todavía'));
     return;
   }
   const flip = flipDe(trial.side);
@@ -847,7 +850,7 @@ export function dibujaDispersion(canvas, trials, cfg, { metodo = 'area', antes =
   const de = METODOS_GANANCIA[metodo]?.de ?? METODOS_GANANCIA.area.de;
   const { ctx, w, h } = prepara(canvas);
   const pad = { l: 36, r: 6, t: 12, b: 16 };
-  const { px, py } = marco(ctx, w, h, pad, { x0: 0, x1: 350, y0: 0, y1: 1.6, unidad: 'ganancia / °/s' });
+  const { px, py } = marco(ctx, w, h, pad, { x0: 0, x1: 350, y0: 0, y1: 1.6, unidad: tx('ganancia / °/s') });
 
   ctx.fillStyle = 'rgba(46,158,84,0.07)';
   ctx.fillRect(px(cfg.accept.peakMinDegS), pad.t, px(cfg.accept.peakMaxDegS) - px(cfg.accept.peakMinDegS), h - pad.t - pad.b);
@@ -906,7 +909,7 @@ export function dibujaParalaje(canvas, muestras, fit, radiusMm) {
   const pad = { l: 40, r: 6, t: 12, b: 16 };
   const { px, py } = marco(ctx, w, h, pad, { x0: -0.6, x1: 0.6, y0: -0.6, y1: 0.6, unidad: 'offset/R · sin(yaw)' });
   if (!muestras?.length) {
-    vacio(ctx, w, h, 'sin calibrar');
+    vacio(ctx, w, h, tx('sin calibrar'));
     return;
   }
   recorta(ctx, pad, w, h);
