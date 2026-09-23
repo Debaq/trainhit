@@ -1569,6 +1569,19 @@ const bienvenida = montaBienvenida();
 // monta acá, con acceso al estado, y no en su módulo.
 const tutorial = montaTutorial({
   instantanea: () => ({ recalculados: estado.recalculados }),
+  respuestas: {
+    // La respuesta es el perfil elegido. Contestar no lo revela en la barra:
+    // eso lo decide quien apriete Revelar.
+    simulacion: () => {
+      const p = estado.sim.perfil && PERFILES[estado.sim.perfil];
+      if (!p) return null;
+      return {
+        correcta: p.patron,
+        explica: `${p.nombre}. ${p.descripcion}`,
+        pista: 'Mirá las dos medias por separado, la asimetría y los triángulos de sacadas: ¿de qué lado y cuándo corrigen?',
+      };
+    },
+  },
   condiciones: {
     cara: () => estado.corriendo && estado.caraOk,
     // La calibración del paciente de ejemplo no es la de quien está frente a
@@ -1584,6 +1597,7 @@ const tutorial = montaTutorial({
     cargaEjemplos: () => cargaEjemplos(),
     cargaCaso: (caso) => cargaEjemplos(caso),
     exportaGift,
+    revelaSimulacion,
     restauraK: () => restauraK({ recalcula: true }),
     restauraPerillas: () => perillasPorDefecto({ recalcula: true }),
   },

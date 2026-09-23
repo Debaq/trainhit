@@ -26,6 +26,8 @@
 //             sobre PATRONES. `correcta` es un patrón; `explica` se muestra al
 //             acertar y `pista` al errar. Con `caso`, test/tutorial.test.mjs
 //             comprueba que ese caso de ejemplo.js muestre de verdad ese patrón.
+//             Con `dinamica` (una de RESPUESTAS) la respuesta sale del estado
+//             al contestar, y `sinRespuesta` es lo que se dice si no hay.
 //
 // Un paseo puede tener `alSalir`: una acción que corre cuando se lo deja por
 // cualquier camino —terminado, al menú o cerrando—. Es para lo que el paseo
@@ -40,7 +42,10 @@ export const CONDICIONES = {
 };
 
 /** Lo que un paso (o un botón de su cuerpo) puede pedirle a la interfaz. */
-export const ACCIONES = ['abreHerramientas', 'cierraHerramientas', 'cargaEjemplos', 'cargaCaso', 'exportaGift', 'restauraK', 'restauraPerillas'];
+export const ACCIONES = ['abreHerramientas', 'cierraHerramientas', 'cargaEjemplos', 'cargaCaso', 'exportaGift', 'restauraK', 'restauraPerillas', 'revelaSimulacion'];
+
+/** Preguntas cuya respuesta la da el estado y no el paso: el paciente simulado. */
+export const RESPUESTAS = ['simulacion'];
 
 /**
  * Las respuestas posibles de «Casos a ciegas», las mismas en todos: si cada
@@ -575,6 +580,76 @@ export const PASEOS = [
           <p class="ayuda">Los casos se pueden volver a cargar desde acá cuando se quiera. Para
           docentes: <button type="button" data-accion="exportaGift">preguntas para Moodle (GIFT)</button>,
           con estos casos y las ideas de los paseos.</p>`,
+      },
+    ],
+  },
+
+  // ──────────────────────────────────────────────────── paciente simulado ──
+  {
+    id: 'simulado',
+    titulo: 'Paciente simulado',
+    resumen: 'En parejas: un compañero sano, una patología agregada por el motor, y descubrir cuál es.',
+    pasos: [
+      {
+        id: 'que-es',
+        titulo: 'Examinar un paciente que no existe',
+        cuerpo: `
+          <p>Un compañero sano se sienta frente a la cámara. El motor le agrega una patología a cada
+          pulso: la mirada se arrastra con la cabeza en lo que el reflejo no compensa, y sacadas la
+          traen de vuelta.</p>
+          <p>Los impulsos son de verdad —la velocidad, los rebotes y las manos en la cara son los
+          tuyos—, así que se practica <b>examinar y leer a la vez</b>.</p>
+          <p class="ayuda">Nunca pasa por una medición real: la barra dice <b>SIMULADO</b>, los pulsos
+          salen con <b>sim</b> y los gráficos llevan la marca de agua.</p>`,
+      },
+      {
+        id: 'elegir',
+        titulo: 'Elegir el paciente',
+        objetivo: '#h-simulacion',
+        antes: 'abreHerramientas',
+        lugar: 'izquierda',
+        cuerpo: `
+          <p>Quien hace de docente elige el perfil, o <b>uno al azar</b>, y marca <b>a ciegas</b>:
+          el selector se esconde y la pantalla no dice cuál es.</p>
+          <p class="ayuda">Cambiar de paciente borra los pulsos que había: mezclar dos pacientes daría
+          una media que no es de nadie.</p>`,
+      },
+      {
+        id: 'examinar',
+        titulo: 'Examinar',
+        objetivo: '.vivo',
+        antes: 'cierraHerramientas',
+        espera: 'pulso',
+        cuerpo: `
+          <p>Encendé la cámara, calibrá y dá impulsos como siempre. La traza de abajo ya muestra la
+          patología mientras examinás.</p>
+          <p>En los ojos ampliados, el <b>anillo violeta</b> es dónde estaría el iris simulado: el video
+          es el real y no se mueve.</p>
+          <p class="ayuda">Hacen falta al menos tres pulsos aceptados por lado para decir algo.</p>`,
+      },
+      {
+        id: 'decidir',
+        titulo: '¿Qué tiene?',
+        objetivo: '.col-lados',
+        cuerpo: `<p>Con los paneles, las medias, la asimetría y las sacadas: ¿qué patrón muestra tu
+          paciente?</p>`,
+        pregunta: {
+          dinamica: 'simulacion',
+          sinRespuesta: 'No hay paciente simulado: elegí uno en Herramientas › Paciente simulado.',
+        },
+      },
+      {
+        id: 'revelar',
+        titulo: 'Revelar y comparar',
+        objetivo: '#h-simulacion',
+        antes: 'abreHerramientas',
+        lugar: 'izquierda',
+        cuerpo: `
+          <p><button type="button" data-accion="revelaSimulacion">Revelar</button> dice qué perfil
+          era. Después, <b>Ver lo real</b> recalcula cada pulso sin la patología: lo que tu compañero
+          dio de verdad, con lo simulado tachado al lado.</p>
+          <p class="ayuda">Si un pulso real salió rechazado, el simulado también: la técnica es la
+          misma. Eso también se evalúa.</p>`,
       },
     ],
   },

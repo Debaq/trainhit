@@ -6,7 +6,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
-import { ACCIONES, CONDICIONES, LUGARES, PASEOS, PATRONES, PORTADA } from '../js/tutorial-pasos.js';
+import { ACCIONES, CONDICIONES, LUGARES, PASEOS, PATRONES, PORTADA, RESPUESTAS } from '../js/tutorial-pasos.js';
 import { CASOS, K_EJEMPLO, PULSOS_EJEMPLO, calibracionDeEjemplo, crudoDeEjemplo } from '../js/ejemplo.js';
 import { procesaCrudo } from '../js/pipeline.js';
 import { CONFIG, resumenLado } from '../js/analysis.js';
@@ -159,6 +159,11 @@ test('las preguntas del tutorial apuntan a la respuesta de su caso', () => {
   assert.ok(preguntas.length >= Object.keys(CASOS).length);
   for (const p of preguntas) {
     const q = p.pregunta;
+    if (q.dinamica) {
+      assert.ok(RESPUESTAS.includes(q.dinamica), `${p.id}: ${q.dinamica}`);
+      assert.ok(q.sinRespuesta, `${p.id}: falta sinRespuesta`);
+      continue;
+    }
     assert.ok(q.correcta in PATRONES, `${p.id}: ${q.correcta}`);
     assert.ok(q.explica && q.pista, `${p.id}: falta explica o pista`);
     if (q.caso) {

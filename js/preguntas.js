@@ -139,6 +139,12 @@ const CONCEPTOS = [
       { texto: 'así se miden las sacadas', porque: 'En la calibración no se buscan sacadas.' },
     ]),
   () =>
+    multiple('Sacadas encubiertas agrupadas', 'En un lado, la ganancia de área da 0,95 pero en todos los impulsos aparece una sacada encubierta, siempre a la misma latencia. Lo más probable es:', [
+      { texto: 'un déficit compensado: el cerebro aprendió a corregir durante el giro', ok: true, porque: 'La sacada entra en la ventana e infla la ganancia; que salgan agrupadas es signo de compensación.' },
+      { texto: 'un reflejo normal', porque: 'Un reflejo normal no necesita sacadas correctivas.' },
+      { texto: 'un error de la cámara', porque: 'Un error de seguimiento no aparece a la misma latencia en todos los impulsos.' },
+    ]),
+  () =>
     multiple('Pulso muy lento', 'Un pulso sale rechazado como MUY LENTO. Lo que corresponde es:', [
       { texto: 'repetir con un impulso más rápido', ok: true, porque: 'El pico de la cabeza no llegó al mínimo aceptado.' },
       { texto: 'bajar el pico mínimo hasta que se acepte', porque: 'Aflojar el criterio acepta un impulso que no estimula bien el canal.' },

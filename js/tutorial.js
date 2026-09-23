@@ -14,7 +14,7 @@
 // «Siguiente». Quien ya sabe calibrar no tiene por qué hacerlo para ver el
 // resto.
 
-import { ACCIONES, CONDICIONES, PASEOS, PATRONES, PORTADA } from './tutorial-pasos.js';
+import { ACCIONES, CONDICIONES, PASEOS, PATRONES, PORTADA, RESPUESTAS } from './tutorial-pasos.js';
 
 /** Cada cuánto se mira la condición del paso y se reubica la tarjeta. */
 const TIC_MS = 250;
@@ -53,10 +53,13 @@ function anotaVisto(id) {
  *   al paso, para las que piden que algo pase DURANTE el paso.
  * @param {Record<string, () => void>} p.acciones  una por nombre de ACCIONES
  * @param {() => object} [p.instantanea]  lo que las condiciones comparan
+ * @param {Record<string, () => ({correcta:string, explica:string, pista:string}|null)>} [p.respuestas]
+ *   una por clave de RESPUESTAS: las preguntas cuya respuesta sale del estado
  */
-export function montaTutorial({ condiciones, acciones, instantanea = () => ({}) }) {
+export function montaTutorial({ condiciones, acciones, instantanea = () => ({}), respuestas = {} }) {
   for (const k of Object.keys(CONDICIONES)) if (!condiciones[k]) throw new Error(`tutorial: falta la condición ${k}`);
   for (const k of ACCIONES) if (!acciones[k]) throw new Error(`tutorial: falta la acción ${k}`);
+  for (const k of RESPUESTAS) if (!respuestas[k]) throw new Error(`tutorial: falta la respuesta ${k}`);
 
   const raiz = $('tutorial');
   const foco = raiz.querySelector('.tuto-foco');
@@ -162,7 +165,7 @@ export function montaTutorial({ condiciones, acciones, instantanea = () => ({}) 
     nombrePaseo.textContent = paseo.titulo;
     titulo.textContent = p.titulo;
     cuerpo.innerHTML = p.cuerpo;
-    if (p.pregunta) pintaPregunta(cuerpo, p.pregunta);
+    if (p.pregunta) pintaPregunta(cuerpo, p.pregunta, respuestas);
     pintaFigura(fig, p);
     cuenta.textContent = `${i + 1} / ${paseo.pasos.length}`;
     bAnterior.disabled = i === 0;
@@ -311,7 +314,7 @@ export function montaTutorial({ condiciones, acciones, instantanea = () => ({}) 
  * Contestar antes de que se cuente es el punto: leer un gráfico sabiendo lo
  * que tiene que mostrar no es leerlo.
  */
-function pintaPregunta(cuerpo, q) {
+function pintaPregunta(cuerpo, q, respuestas) {
   const caja = document.createElement('div');
   caja.className = 'tuto-pregunta';
   const lista = document.createElement('div');
@@ -327,11 +330,19 @@ function pintaPregunta(cuerpo, q) {
     b.type = 'button';
     b.textContent = texto;
     b.addEventListener('click', () => {
-      const ok = id === q.correcta;
-      b.classList.add(ok ? 'bien' : 'mal');
+      // Una pregunta `dinamica` se resuelve al contestar: el perfil pudo
+      // cambiar desde que se abrió el paso.
+      const r = q.dinamica ? respuestas[q.dinamica]() : q;
       devolucion.hidden = false;
+      if (!r) {
+        devolucion.className = 'tuto-respuesta no';
+        devolucion.textContent = q.sinRespuesta;
+        return;
+      }
+      const ok = id === r.correcta;
+      b.classList.add(ok ? 'bien' : 'mal');
       devolucion.className = `tuto-respuesta ${ok ? 'ok' : 'no'}`;
-      devolucion.innerHTML = ok ? `<b>Sí.</b> ${q.explica}` : `<b>No.</b> ${q.pista}`;
+      devolucion.innerHTML = ok ? `<b>Sí.</b> ${r.explica}` : `<b>No.</b> ${r.pista}`;
       if (ok) for (const o of lista.children) o.disabled = true;
     });
     lista.appendChild(b);

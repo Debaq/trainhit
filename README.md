@@ -132,6 +132,7 @@ paseos cortos, cada uno sobre un tema y en cualquier orden:
 | La primera medición | con la cámara: calibrar, impulsos, paneles, lista, CSV |
 | Leer los gráficos | la regla, los rechazados, la asimetría, promedio, suavizar, orientación, pausa |
 | Casos a ciegas | cinco pacientes sintéticos sin diagnóstico: el alumno responde qué patrón ve |
+| Paciente simulado | en parejas: un compañero sano, una patología agregada por el motor, y decir cuál es antes de revelarla |
 | Herramientas por dentro | la recta del paralaje, el último pulso, ganancia contra pico, los tres métodos de ganancia, k a mano |
 | Las perillas del motor | cada perilla, probada con «Recalcular» sobre pulsos ya medidos |
 
