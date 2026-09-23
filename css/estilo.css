@@ -133,8 +133,8 @@ button.enlace:hover { background: none; color: var(--foreground); }
 .acerca-equipo { list-style: none; margin: 0 0 16px; padding: 0; display: grid; gap: 8px; }
 .acerca-equipo li { display: flex; align-items: center; gap: 12px; font-size: 15px; color: var(--foreground); }
 .inicial {
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   display: grid;
   place-items: center;
@@ -146,6 +146,11 @@ button.enlace:hover { background: none; color: var(--foreground); }
 .inicial.c1 { background: var(--c-head); }
 .inicial.c2 { background: var(--c-eye); }
 .inicial.c3 { background: var(--c-covert); }
+/* Con foto: el anillo del color de cada uno queda alrededor. */
+img.inicial { object-fit: cover; box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--c-head); }
+img.inicial.c2 { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--c-eye); }
+.acerca-equipo .gh { display: block; font: 12px ui-monospace, SFMono-Regular, monospace; color: var(--muted-fg); text-decoration: none; }
+.acerca-equipo .gh:hover { color: var(--c-guide); text-decoration: underline; }
 .acerca-lugar {
   display: flex;
   flex-direction: column;

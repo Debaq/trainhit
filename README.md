@@ -87,6 +87,12 @@ Baier-Quezada, Vanessa Uribe-Hernández y Fernanda López-Moncada, del
 Laboratorio TecMedHub de la Universidad Austral de Chile, Sede Puerto Montt,
 para los estudiantes que visitan el laboratorio con hambre de conocimiento.
 
+Las fotos son las de sus perfiles de GitHub ([@Debaq](https://github.com/Debaq),
+[@vanne11](https://github.com/vanne11)), guardadas en `img/equipo/` a 96 px:
+así la tarjeta anda sin red, la CSP no tiene que abrirse a otro dominio y la
+página no le pide nada a GitHub al abrir. Si alguien cambia su foto, hay que
+volver a bajarla.
+
 ### El «me gusta»
 
 El corazón de la barra suma en un contador público y anónimo
