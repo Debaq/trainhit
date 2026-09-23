@@ -575,12 +575,25 @@ experimento no puede pasar desapercibida al medir de verdad. El `k` a mano
 es aparte: mientras está puesto la barra dice **k A MANO**, y desmarcar la
 casilla —o calibrar de nuevo— devuelve el `k` que había.
 
-**Exportar CSV** baja un solo archivo con las dos tablas, una abajo de la
-otra y separadas por una línea `# TABLA: …`: un pulso por fila —con la
-configuración con la que se calculó cada uno— y una muestra por fila de todos
-los pulsos, con lo derivado y lo crudo al lado para rehacer el cálculo en una
-planilla. Eran dos descargas distintas y había que acordarse de bajar las dos;
-el resumen y las muestras que lo producen terminaban en carpetas separadas.
+**Exportar CSV** baja un solo archivo con las tablas una abajo de la otra,
+separadas por una línea `# TABLA: …` (`js/sesion.js`): un pulso por fila —con
+la configuración con la que se calculó cada uno—, una muestra por fila de
+todos los pulsos, con lo derivado y lo crudo al lado para rehacer el cálculo
+en una planilla, los cuadros **crudos** de cada pulso (con el margen que el
+derivador necesita para arrancar) y las muestras de la última calibración.
+Eran dos descargas distintas y había que acordarse de bajar las dos; el
+resumen y las muestras que lo producen terminaban en carpetas separadas.
+
+**Importar CSV** abre un archivo exportado y vuelve a calcular cada pulso
+desde el crudo, con **su** `k` y **su** derivador; los umbrales y criterios
+son las perillas de ahora. Es para que un docente reparta una sesión medida y
+cada alumno la abra, la recalcule y la mida, o para seguir otro día. La
+sesión importada toma el lugar de la actual, igual que los ejemplos: sale
+marcada **imp**, la barra dice **IMPORTADO k=…** y se va al encender la
+cámara o con **Borrar todos**. Acepta el CSV que devuelve una planilla en
+configuración regional latina (punto y coma y coma decimal). Los archivos
+exportados antes de la tabla de crudo no se pueden importar, y el mensaje lo
+dice. `test/sesion.test.mjs` hace la ida y la vuelta.
 
 ## Licencia
 

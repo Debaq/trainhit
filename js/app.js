@@ -13,6 +13,7 @@ import { montaBienvenida } from './bienvenida.js';
 import { montaTutorial } from './tutorial.js';
 import { K_EJEMPLO, calibracionDeEjemplo, crudoDeEjemplo, pulsosDe } from './ejemplo.js';
 import { MARGEN_CRUDO_MS, procesaCrudo } from './pipeline.js';
+import { leeSesion, textoSesion } from './sesion.js';
 
 const $ = (id) => document.getElementById(id);
 const fmt = (v, d = 2) => (v === null || v === undefined || Number.isNaN(v) ? '—' : v.toFixed(d));
@@ -545,8 +546,9 @@ function recalculaTodos() {
     if (!nuevo) return t;
     nuevo.id = t.id;
     nuevo.crudo = t.crudo;
-    // Recalcular no convierte un ejemplo en un pulso medido.
+    // Recalcular no convierte un ejemplo (ni uno importado) en un pulso medido.
     if (t.ejemplo) nuevo.ejemplo = true;
+    if (t.importado) Object.assign(nuevo, { importado: true, ejemploEnArchivo: t.ejemploEnArchivo });
     anotaConfig(nuevo);
     return nuevo;
   });
@@ -599,7 +601,13 @@ function pintaListas() {
       tr.tabIndex = 0;
       const estadoTxt = t.rejected ? RECHAZO_TEXT[t.rejected].split(' —')[0] : 'OK';
       tr.innerHTML = `
-        <td class="num">#${t.id}${t.ejemplo ? '<i class="ej" title="pulso de ejemplo: paciente sintético">ej</i>' : ''}${
+        <td class="num">#${t.id}${
+          t.importado
+            ? '<i class="ej" title="pulso importado de un CSV">imp</i>'
+            : t.ejemplo
+              ? '<i class="ej" title="pulso de ejemplo: paciente sintético">ej</i>'
+              : ''
+        }${
           t.calibrado ? '' : '<i class="sc" title="medido sin calibrar: la ganancia incluye el paralaje">s/c</i>'
         }</td>
         <td>${fmt(t.peakHeadDegS, 0)} °/s</td>
@@ -720,6 +728,10 @@ function pintaTodo() {
   if (estado.kAntesManual) {
     badge.textContent = `k A MANO=${fmt(estado.model.kParallax)}`;
     badge.className = 'badge mal';
+  } else if (estado.ejemplo?.importado) {
+    badge.textContent = `IMPORTADO k=${fmt(estado.model.kParallax)}`;
+    badge.className = 'badge warn';
+    badge.title = `sesión de ${estado.ejemplo.importado}: la calibración es la del archivo`;
   } else if (estado.ejemplo) {
     badge.textContent = `EJEMPLO k=${fmt(estado.model.kParallax)}`;
     badge.className = 'badge warn';
@@ -905,6 +917,7 @@ function cargaEjemplos(caso = null) {
   });
   estado.seleccion = estado.trials[estado.trials.length - 1] ?? null;
   estado.ejemplo.caso = caso;
+  estado.ejemplo.importado = null;
   pintaListas();
   marcaEstado(
     caso
@@ -1205,11 +1218,8 @@ function atajos() {
 
 // ------------------------------------------------------------------ CSV ----
 
-/** Número para CSV: punto decimal, y vacío —no un guion— cuando no hay valor. */
-const num = (v, d = 3) => (v === null || v === undefined || Number.isNaN(v) ? '' : v.toFixed(d));
-
-function bajaCsv(filas, sufijo) {
-  const url = URL.createObjectURL(new Blob([filas.map((f) => f.join(',')).join('\n')], { type: 'text/csv' }));
+function bajaCsv(texto, sufijo) {
+  const url = URL.createObjectURL(new Blob([texto], { type: 'text/csv' }));
   const a = document.createElement('a');
   a.href = url;
   a.download = `trainhit-${sufijo}-${new Date().toISOString().slice(0, 19).replace(/[:T-]/g, '')}.csv`;
@@ -1217,87 +1227,84 @@ function bajaCsv(filas, sufijo) {
   URL.revokeObjectURL(url);
 }
 
-/**
- * Las dos tablas en un archivo, una abajo de la otra y con su título.
- *
- * Eran dos descargas y había que acordarse de bajar las dos; separadas, el
- * resumen y las muestras que lo producen terminaban en carpetas distintas.
- * Van con una línea `# TABLA: …` adelante y una vacía en medio, que es como
- * las planillas cortan un CSV en bloques.
- */
+/** Todas las tablas en un archivo: ver sesion.js. */
 function exportaTodo() {
-  const filas = [
-    ['# TABLA: pulsos'],
-    ...filasPulsos(),
-    [],
-    ['# TABLA: muestras'],
-    ...filasMuestras(),
-  ];
-  bajaCsv(filas, 'sesion');
-}
-
-/** Un pulso por fila, con la configuración con la que se calculó. */
-function filasPulsos() {
-  const version = document.documentElement.dataset.v ?? '';
-  const filas = [
-    [
-      'id', 'lado', 'pico_cabeza_deg_s', 'duracion_ms', 'ganancia_area', 'ganancia_60ms', 'ganancia_pico',
-      'rechazo', 'calibrado', 'k', 'iris_min_px', 'disconj_mm', 'hueco_max_ms', 'deriv_ventana_ms', 'deriv_grado',
-      'fps_muestreo', 'no_validado', 'ejemplo', 'version',
-      'sacadas_encubiertas', 'sacadas_manifiestas', 'ganancia_hasta_sacada',
-    ],
-    ...estado.trials.map((t) => [
-      t.id,
-      t.side,
-      num(t.peakHeadDegS, 1),
-      num(t.durationMs, 1),
-      num(t.gain),
-      num(t.gains?.instant60ms),
-      num(t.gains?.peak),
-      t.rejected ?? '',
-      t.calibrado ? 'si' : 'no',
-      num(t.k),
-      num(t.irisPx, 1),
-      num(t.disconjMm),
-      num(t.gapMs, 0),
-      t.deriv?.windowMs ?? '',
-      t.deriv?.degree ?? '',
-      num(t.fpsMuestreo, 1),
-      t.noValidado ? 'si' : 'no',
-      t.ejemplo ? 'si' : 'no',
-      version,
-      (t.sacadas ?? []).filter((s) => s.tipo === 'encubierta').length,
-      (t.sacadas ?? []).filter((s) => s.tipo === 'manifiesta').length,
-      num(t.gains?.desacadizada),
-    ]),
-  ];
-  return filas;
+  bajaCsv(
+    textoSesion({
+      trials: estado.trials,
+      version: document.documentElement.dataset.v ?? '',
+      calibracion: estado.ultimoFit?.muestras ?? null,
+    }),
+    'sesion',
+  );
 }
 
 /**
- * Una muestra por fila, de todos los pulsos: lo derivado (lo que se grafica y
- * de donde sale la ganancia) y, al lado, lo crudo del frame que cerró esa
- * ventana del derivador. Es lo que hace falta para rehacer el cálculo en una
- * planilla.
+ * Abre una sesión exportada. Toma el lugar de la sesión, como los ejemplos:
+ * son pulsos de otra persona —o de otro día—, con su propia calibración, y
+ * mezclarlos con los de ahora daría una media que no es de nadie. Se usa el
+ * mismo mecanismo que los ejemplos: la calibración de antes se guarda y
+ * vuelve al encender la cámara o con «Borrar todos».
+ *
+ * Cada pulso se vuelve a calcular desde su crudo con SU k y SU derivador; los
+ * umbrales y criterios son las perillas de ahora.
  */
-function filasMuestras() {
-  const filas = [
-    [
-      'id', 'lado', 't_ms', 'cabeza_deg', 'mirada_deg', 'v_cabeza_deg_s', 'v_mirada_deg_s', 'en_impulso', 'parpadeo',
-      'iris_px', 'verg_mm', 'crudo_t_ms', 'crudo_yaw_deg', 'crudo_offset_mm',
-    ],
-  ];
-  for (const t of estado.trials) {
-    for (const s of t.samples) {
-      const dentro = t.core && s.tMs >= t.tOnsetMs && s.tMs <= t.tOffsetMs;
-      filas.push([
-        t.id, t.side, num(s.tMs, 1), num(s.headPos), num(s.gazePos), num(s.headVel, 1), num(s.gazeVel, 1),
-        dentro ? 1 : 0, s.blink ? 1 : 0, num(s.irisPx, 1), num(s.vergMm),
-        num(s.crudo?.tMs, 1), num(s.crudo?.yaw), num(s.crudo?.offsetMm),
-      ]);
-    }
+function importaSesion(texto, nombre) {
+  let sesion;
+  try {
+    sesion = leeSesion(texto);
+  } catch (e) {
+    marcaEstado(`no se pudo importar ${nombre}: ${e.message}`);
+    return;
   }
-  return filas;
+  const reales = estado.trials.filter((t) => !t.ejemplo).length;
+  if (reales && !confirm(`La sesión importada reemplaza los ${reales} pulsos medidos. ¿Seguir?`)) return;
+  if (estado.corriendo) detener();
+  restauraK();
+  if (!estado.ejemplo) {
+    estado.ejemplo = { k: estado.model.kParallax, calibrado: estado.model.calibrated, fit: estado.ultimoFit };
+  }
+  estado.ejemplo.caso = null;
+  estado.ejemplo.importado = nombre;
+
+  const conK = sesion.pulsos.find((p) => p.k !== null);
+  estado.model.kParallax = conK?.k ?? 0;
+  estado.model.calibrated = sesion.pulsos.some((p) => p.calibrado);
+  const fit = sesion.calibracion ? geom.fitParallax(sesion.calibracion, estado.model.radiusMm) : null;
+  estado.ultimoFit = fit ? { ...fit, muestras: sesion.calibracion } : null;
+  sucio.calib = true;
+
+  estado.trials = [];
+  vaciaPapelera();
+  olvidaAntes();
+  let fallidos = 0;
+  for (const p of sesion.pulsos) {
+    const model = new geom.EyeModel();
+    model.kParallax = p.k ?? estado.model.kParallax;
+    model.calibrated = p.calibrado;
+    const deriv = p.deriv ?? derivActual();
+    const trial = procesaCrudo(p.crudo, 0, model, deriv, cfg);
+    if (!trial) {
+      fallidos++;
+      continue;
+    }
+    trial.id = estado.proximoId++;
+    trial.crudo = p.crudo;
+    trial.ejemplo = true;
+    trial.importado = true;
+    trial.ejemploEnArchivo = p.ejemplo;
+    trial.calibrado = p.calibrado;
+    trial.k = model.kParallax;
+    trial.deriv = deriv;
+    estado.trials.push(trial);
+  }
+  estado.seleccion = estado.trials[estado.trials.length - 1] ?? null;
+  pintaListas();
+  marcaEstado(
+    `${estado.trials.length} pulsos importados de ${nombre}` +
+      (fallidos ? ` (${fallidos} sin muestras suficientes)` : '') +
+      ': se van al encender la cámara o con «Borrar todos»',
+  );
 }
 
 // ------------------------------------------------------------------ init ---
@@ -1308,6 +1315,12 @@ $('btn-borrar').addEventListener('click', borraTodos);
 $('btn-descartar').addEventListener('click', descartaUltimo);
 $('btn-deshacer').addEventListener('click', deshaceDescarte);
 $('btn-csv').addEventListener('click', exportaTodo);
+$('btn-importar').addEventListener('click', () => $('archivo-csv').click());
+$('archivo-csv').addEventListener('change', async (e) => {
+  const f = e.target.files?.[0];
+  e.target.value = ''; // el mismo archivo otra vez también tiene que disparar `change`
+  if (f) importaSesion(await f.text(), f.name);
+});
 $('btn-recalcular').addEventListener('click', recalculaTodos);
 $('btn-defecto').addEventListener('click', () => perillasPorDefecto());
 $('btn-sin-antes').addEventListener('click', () => {
@@ -1396,4 +1409,4 @@ marcaEstado('encender la cámara');
 
 // Enganche de consola: `trainhit.estado`, `trainhit.cfg`. Es un repo para
 // enseñar — poder revolver el estado desde la consola es parte del punto.
-window.trainhit = { estado, cfg, pintaListas, analyzeTrial, procesaCrudo, recalculaTodos };
+window.trainhit = { estado, cfg, pintaListas, analyzeTrial, procesaCrudo, recalculaTodos, importaSesion };

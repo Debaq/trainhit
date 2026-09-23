@@ -329,9 +329,12 @@ export const PASEOS = [
         titulo: 'Llevarse los datos',
         objetivo: '#btn-csv',
         cuerpo: `
-          <p><b>Exportar CSV</b> baja un archivo con dos tablas: un pulso por fila, con su ganancia y
-          la configuración con que se calculó, y una muestra por fila, para rehacer las cuentas en
-          una planilla.</p>
+          <p><b>Exportar CSV</b> baja un archivo con las tablas de la sesión: un pulso por fila, con su
+          ganancia y la configuración con que se calculó; una muestra por fila, para rehacer las
+          cuentas en una planilla; y los cuadros crudos.</p>
+          <p><b>Importar CSV</b> abre ese archivo en otra computadora u otro día y vuelve a calcular
+          cada pulso desde el crudo: sirve para repartir un caso medido y que cada uno lo mire con
+          sus perillas.</p>
           <p class="ayuda">Para seguir: <b>Leer los gráficos</b> y <b>Herramientas por dentro</b>, en
           el menú de paseos.</p>`,
       },
