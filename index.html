@@ -8,7 +8,7 @@
          jsdelivr (MediaPipe), y conexiones solo a lo que la página usa. -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-wRtuSwZO/GHOnfvJoHml2vi4b0rAD0nhh8ns+Ow8YLQ='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
+      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-Ybv0t7cFx2O3WUtaFuV8KVzHqrLdtTWdhRoHZ4uE3mc='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
     />
     <meta
       name="description"
@@ -52,7 +52,7 @@
     />
     <!-- Mapa de importación: versiona los imports internos. Lo regenera
          bump.mjs junto con su hash en la CSP de arriba. Va antes del arranque. -->
-    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-23.25","./js/app.js":"./js/app.js?v=2026-09-23.25","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-23.25","./js/curve.js":"./js/curve.js?v=2026-09-23.25","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-23.25","./js/geom.js":"./js/geom.js?v=2026-09-23.25","./js/head.js":"./js/head.js?v=2026-09-23.25","./js/pipeline.js":"./js/pipeline.js?v=2026-09-23.25","./js/plots.js":"./js/plots.js?v=2026-09-23.25","./js/preguntas.js":"./js/preguntas.js?v=2026-09-23.25","./js/sesion.js":"./js/sesion.js?v=2026-09-23.25","./js/signal.js":"./js/signal.js?v=2026-09-23.25","./js/simulacion.js":"./js/simulacion.js?v=2026-09-23.25","./js/tracker.js":"./js/tracker.js?v=2026-09-23.25","./js/tutorial.js":"./js/tutorial.js?v=2026-09-23.25","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-23.25"}}</script>
+    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-23.26","./js/app.js":"./js/app.js?v=2026-09-23.26","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-23.26","./js/curve.js":"./js/curve.js?v=2026-09-23.26","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-23.26","./js/geom.js":"./js/geom.js?v=2026-09-23.26","./js/head.js":"./js/head.js?v=2026-09-23.26","./js/pipeline.js":"./js/pipeline.js?v=2026-09-23.26","./js/plots.js":"./js/plots.js?v=2026-09-23.26","./js/preguntas.js":"./js/preguntas.js?v=2026-09-23.26","./js/sesion.js":"./js/sesion.js?v=2026-09-23.26","./js/signal.js":"./js/signal.js?v=2026-09-23.26","./js/simulacion.js":"./js/simulacion.js?v=2026-09-23.26","./js/tracker.js":"./js/tracker.js?v=2026-09-23.26","./js/tutorial.js":"./js/tutorial.js?v=2026-09-23.26","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-23.26"}}</script>
     <script src="js/arranque.js"></script>
     <noscript><link rel="stylesheet" href="css/estilo.css" /></noscript>
   </head>
@@ -74,6 +74,7 @@
       <button id="btn-megusta" class="megusta" title="me gusta" aria-label="me gusta">♥ <span id="megusta-cuenta">…</span></button>
       <button id="btn-aprender" class="ghost" title="paseos guiados por la página (T)">Aprender</button>
       <button id="btn-ayuda" class="ghost" title="qué es esto" aria-label="qué es esto">?</button>
+      <button id="btn-simulador" class="ghost" title="paciente simulado: una patología sobre pulsos reales (S)">Simulador</button>
       <button id="btn-herramientas" class="ghost">Herramientas</button>
     </header>
 
@@ -508,34 +509,6 @@
           </ul>
         </section>
 
-        <!-- Paciente simulado: ver js/simulacion.js. Un compañero sano frente a
-             la cámara y el motor le agrega una patología al crudo de cada pulso. -->
-        <section id="h-simulacion">
-          <h3>Paciente simulado</h3>
-          <p class="ayuda">
-            Un compañero sano frente a la cámara y el motor le agrega una patología: la mirada se
-            arrastra con la cabeza y vuelve con sacadas. Los impulsos, el ruido y los rechazos son
-            los del examen real. Calibrar primero.
-          </p>
-          <label id="sim-campo" class="campo">
-            <span>Paciente</span>
-            <select id="sim-perfil" title="qué patología se le agrega a los pulsos">
-              <option value="">sano: medir lo real</option>
-              <option value="azar">uno al azar (a ciegas)</option>
-            </select>
-          </label>
-          <label class="check"><input type="checkbox" id="sim-ciego" /> a ciegas: la pantalla no dice cuál es</label>
-          <p id="sim-info" class="meta"></p>
-          <div class="acciones-perillas">
-            <button id="sim-revelar" hidden>Revelar</button>
-            <button id="sim-real" aria-pressed="false" hidden>Ver lo real</button>
-          </div>
-          <p class="ayuda">
-            En los ojos ampliados, el anillo violeta es dónde estaría el iris simulado: el video es el
-            real y no se mueve con la patología.
-          </p>
-        </section>
-
         <section id="h-docentes">
           <h3>Para docentes</h3>
           <p class="ayuda">
@@ -589,6 +562,56 @@
             </li>
           </ul>
           <p class="ayuda">Comparación completa contra la literatura: <code>GANANCIAS.md</code> del repo principal.</p>
+        </section>
+      </div>
+    </aside>
+
+    <!-- ─────────── paciente simulado (cajón propio) ─────────── -->
+    <!-- Ver js/simulacion.js. Un compañero sano frente a la cámara y el motor
+         le agrega una patología al crudo de cada pulso. Tiene cajón propio y
+         botón en la barra: dentro de Herramientas quedaba escondido, y es lo
+         que se usa para practicar en parejas. -->
+    <aside id="simulador" class="cajon" aria-label="paciente simulado" hidden>
+      <div class="cajon-head">
+        <h2>Paciente simulado</h2>
+        <button id="btn-cerrar-sim" class="ghost" aria-label="cerrar el simulador">✕</button>
+      </div>
+      <div class="cajon-cuerpo">
+        <section id="h-simulacion">
+          <p class="ayuda">
+            Un compañero sano frente a la cámara y el motor le agrega una patología: la mirada se
+            arrastra con la cabeza y vuelve con sacadas. Los impulsos, el ruido y los rechazos son
+            los del examen real.
+          </p>
+          <label id="sim-campo" class="campo">
+            <span>Paciente</span>
+            <select id="sim-perfil" title="qué patología se le agrega a los pulsos">
+              <option value="">sano: medir lo real</option>
+              <option value="azar">uno al azar (a ciegas)</option>
+            </select>
+          </label>
+          <label class="check"><input type="checkbox" id="sim-ciego" /> a ciegas: la pantalla no dice cuál es</label>
+          <p id="sim-info" class="sim-info"></p>
+          <div class="acciones-perillas">
+            <button id="sim-revelar" class="primario" hidden>Revelar</button>
+            <button id="sim-real" aria-pressed="false" hidden>Ver lo real</button>
+          </div>
+        </section>
+
+        <section>
+          <h3>Cómo se usa</h3>
+          <ol class="pasos">
+            <li><b>Elegir el paciente</b> —o uno al azar— y marcar <b>a ciegas</b> si quien examina no
+              tiene que saberlo.</li>
+            <li><b>Encender la cámara y calibrar</b> con el compañero, como siempre.</li>
+            <li><b>Dar impulsos.</b> La traza de abajo ya muestra la patología mientras se examina.</li>
+            <li><b>Decidir qué tiene</b> con los paneles, las medias, la asimetría y las sacadas.</li>
+            <li><b>Revelar</b> y, con <b>Ver lo real</b>, comparar con lo que el compañero dio de verdad.</li>
+          </ol>
+          <p class="ayuda">
+            En los ojos ampliados, el anillo violeta es dónde estaría el iris simulado: el video es el
+            real y no se mueve con la patología. Cambiar de paciente borra los pulsos que había.
+          </p>
         </section>
       </div>
     </aside>

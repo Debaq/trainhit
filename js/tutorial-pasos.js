@@ -42,7 +42,7 @@ export const CONDICIONES = {
 };
 
 /** Lo que un paso (o un botón de su cuerpo) puede pedirle a la interfaz. */
-export const ACCIONES = ['abreHerramientas', 'cierraHerramientas', 'cargaEjemplos', 'cargaCaso', 'exportaGift', 'restauraK', 'restauraPerillas', 'revelaSimulacion'];
+export const ACCIONES = ['abreHerramientas', 'cierraHerramientas', 'cargaEjemplos', 'cargaCaso', 'exportaGift', 'restauraK', 'restauraPerillas', 'revelaSimulacion', 'abreSimulador'];
 
 /** Preguntas cuya respuesta la da el estado y no el paso: el paciente simulado. */
 export const RESPUESTAS = ['simulacion'];
@@ -614,16 +614,18 @@ export const PASEOS = [
           <p>Los impulsos son de verdad —la velocidad, los rebotes y las manos en la cara son los
           tuyos—, así que se practica <b>examinar y leer a la vez</b>.</p>
           <p class="ayuda">Nunca pasa por una medición real: la barra dice <b>SIMULADO</b>, los pulsos
-          salen con <b>sim</b> y los gráficos llevan la marca de agua.</p>`,
+          salen con <b>sim</b> y los gráficos llevan la marca de agua. Todo se maneja desde el botón
+          <b>Simulador</b> de la barra.</p>`,
       },
       {
         id: 'elegir',
         titulo: 'Elegir el paciente',
         objetivo: '#h-simulacion',
-        antes: 'abreHerramientas',
+        antes: 'abreSimulador',
         lugar: 'izquierda',
         cuerpo: `
-          <p>Quien hace de docente elige el perfil, o <b>uno al azar</b>, y marca <b>a ciegas</b>:
+          <p>El botón <b>Simulador</b> de la barra (o <kbd>S</kbd>) abre este cajón. Quien hace de
+          docente elige el perfil, o <b>uno al azar</b>, y marca <b>a ciegas</b>:
           el selector se esconde y la pantalla no dice cuál es.</p>
           <p class="ayuda">Cambiar de paciente borra los pulsos que había: mezclar dos pacientes daría
           una media que no es de nadie.</p>`,
@@ -649,14 +651,14 @@ export const PASEOS = [
           paciente?</p>`,
         pregunta: {
           dinamica: 'simulacion',
-          sinRespuesta: 'No hay paciente simulado: elegí uno en Herramientas › Paciente simulado.',
+          sinRespuesta: 'No hay paciente simulado: elegí uno con el botón Simulador de la barra.',
         },
       },
       {
         id: 'revelar',
         titulo: 'Revelar y comparar',
         objetivo: '#h-simulacion',
-        antes: 'abreHerramientas',
+        antes: 'abreSimulador',
         lugar: 'izquierda',
         cuerpo: `
           <p><button type="button" data-accion="revelaSimulacion">Revelar</button> dice qué perfil

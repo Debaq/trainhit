@@ -928,9 +928,21 @@ function dibujaVideo() {
   plots.dibujaOjo($('ojo-izq'), video, estado.crops.izquierdo, estado.landmarks, IDX.izquierdo, estado.espejo, fantasma);
 }
 
+/**
+ * Los dos cajones —Herramientas y Simulador— ocupan el mismo lugar: abrir
+ * uno cierra el otro.
+ */
 function abreHerramientas(abrir) {
   $('herramientas').hidden = !abrir;
-  if (abrir) ensucia();
+  if (abrir) {
+    $('simulador').hidden = true;
+    ensucia();
+  }
+}
+
+function abreSimulador(abrir) {
+  $('simulador').hidden = !abrir;
+  if (abrir) $('herramientas').hidden = true;
 }
 
 // ------------------------------------------------------------- controles ---
@@ -1278,6 +1290,7 @@ function atajos() {
     else if (k === 'd') descartaUltimo();
     else if (k === 'z') deshaceDescarte();
     else if (k === 'h') abreHerramientas($('herramientas').hidden);
+    else if (k === 's') abreSimulador($('simulador').hidden);
     else if (k === ' ' || k === 'p') {
       // `preventDefault` acá no es solo para que la página no haga scroll: si
       // el foco quedó en un botón —y queda, apenas se aprieta «Encender
@@ -1391,6 +1404,7 @@ function pintaSimulacion() {
   $('sim-real').hidden = !perfil || oculto || !haySimulados;
   $('sim-real').setAttribute('aria-pressed', String(mostrarReal));
   $('sim-real').textContent = mostrarReal ? 'Ver lo simulado' : 'Ver lo real';
+  $('btn-simulador').classList.toggle('activo', Boolean(perfil));
   const aviso = $('aviso-sim');
   aviso.hidden = !perfil;
   aviso.title = oculto
@@ -1522,6 +1536,8 @@ $('btn-sin-antes').addEventListener('click', () => {
 });
 $('btn-herramientas').addEventListener('click', () => abreHerramientas($('herramientas').hidden));
 $('btn-cerrar').addEventListener('click', () => abreHerramientas(false));
+$('btn-simulador').addEventListener('click', () => abreSimulador($('simulador').hidden));
+$('btn-cerrar-sim').addEventListener('click', () => abreSimulador(false));
 $('btn-pausa').addEventListener('click', () => ponPausa(!estado.pausado));
 $('metodo-gan').addEventListener('change', () => (sucio.pulsos = true));
 $('promedio').addEventListener('change', (e) => {
@@ -1593,7 +1609,12 @@ const tutorial = montaTutorial({
   },
   acciones: {
     abreHerramientas: () => abreHerramientas(true),
-    cierraHerramientas: () => abreHerramientas(false),
+    // Cerrar deja la pantalla despejada: los dos cajones.
+    cierraHerramientas: () => {
+      abreHerramientas(false);
+      abreSimulador(false);
+    },
+    abreSimulador: () => abreSimulador(true),
     cargaEjemplos: () => cargaEjemplos(),
     cargaCaso: (caso) => cargaEjemplos(caso),
     exportaGift,

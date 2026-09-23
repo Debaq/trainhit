@@ -131,6 +131,7 @@ puede ser externo, así que va autorizado por su hash sha256 en la CSP;
 | `D` | Descartar el último |
 | `Z` | Devolver el último descartado |
 | `H` | Abrir o cerrar las herramientas |
+| `S` | Abrir o cerrar el simulador (paciente simulado) |
 | `T` | Abrir o cerrar «Aprender a usar» |
 | `Espacio` o `P` | Pausar y congelar la traza de abajo para medirla (la cámara sigue) |
 
@@ -296,7 +297,8 @@ mirar.
 
 ## Paciente simulado
 
-**Paciente simulado**, en Herramientas, pone una patología sobre pulsos
+**Simulador**, en la barra (o `S`), abre su propio cajón —como el de
+Herramientas, y abrir uno cierra el otro— y pone una patología sobre pulsos
 **reales**: un compañero sano hace de paciente, el alumno le da impulsos de
 verdad —con su técnica, sus rebotes y sus manos en la cara— y el motor le
 agrega el déficit. Examinar y leer a la vez, que es lo que ni la cámara sola
