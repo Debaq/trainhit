@@ -149,6 +149,7 @@ button.enlace:hover { background: none; color: var(--foreground); }
 /* Con foto: el anillo del color de cada uno queda alrededor. */
 img.inicial { object-fit: cover; box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--c-head); }
 img.inicial.c2 { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--c-eye); }
+img.inicial.c3 { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--c-covert); }
 .acerca-equipo .gh { display: block; font: 12px ui-monospace, SFMono-Regular, monospace; color: var(--muted-fg); text-decoration: none; }
 .acerca-equipo .gh:hover { color: var(--c-guide); text-decoration: underline; }
 .acerca-lugar {

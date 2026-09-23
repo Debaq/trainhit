@@ -88,7 +88,7 @@ Laboratorio TecMedHub de la Universidad Austral de Chile, Sede Puerto Montt,
 para los estudiantes que visitan el laboratorio con hambre de conocimiento.
 
 Las fotos son las de sus perfiles de GitHub ([@Debaq](https://github.com/Debaq),
-[@vanne11](https://github.com/vanne11)), guardadas en `img/equipo/` a 96 px:
+[@vanne11](https://github.com/vanne11), [@FernandandreaTM](https://github.com/FernandandreaTM)), guardadas en `img/equipo/` a 96 px:
 así la tarjeta anda sin red, la CSP no tiene que abrirse a otro dominio y la
 página no le pide nada a GitHub al abrir. Si alguien cambia su foto, hay que
 volver a bajarla.
