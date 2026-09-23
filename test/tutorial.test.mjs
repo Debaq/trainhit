@@ -167,3 +167,17 @@ test('las preguntas del tutorial apuntan a la respuesta de su caso', () => {
     }
   }
 });
+
+test('las sacadas que se marcan son las que se le pusieron al paciente', () => {
+  const tipos = (letra) => caso(letra).map((t) => (t.sacadas ?? []).map((s) => s.tipo).join(','));
+  // A y E: sin sacadas. B y C: una manifiesta en cada pulso con déficit.
+  for (const l of ['A', 'E']) assert.ok(tipos(l).every((x) => x === ''), `caso ${l}: ${tipos(l)}`);
+  CASOS.B.pulsos.forEach((p, i) => assert.equal(tipos('B')[i], p.sacada ? 'manifiesta' : ''));
+  // D: todas las del lado izquierdo, encubiertas.
+  CASOS.D.pulsos.forEach((p, i) => assert.equal(tipos('D')[i], p.sacada ? 'encubierta' : ''));
+  // Y cortar antes de la sacada devuelve el déficit que la de área escondía.
+  const izq = caso('D').filter((t) => t.side === 'izquierda');
+  const media = (xs) => xs.reduce((a, b) => a + b, 0) / xs.length;
+  assert.ok(media(izq.map((t) => t.gain)) > 0.95);
+  assert.ok(Math.abs(media(izq.map((t) => t.gains.desacadizada)) - 0.46) < 0.08);
+});

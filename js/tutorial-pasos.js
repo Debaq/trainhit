@@ -145,9 +145,11 @@ export const PASEOS = [
           <p>Cuando el reflejo no alcanza, el ojo corrige con un salto rápido hacia el blanco. Si el
           salto ocurre <b>durante</b> el giro es <b>encubierta</b>: a simple vista no se ve. Si ocurre
           <b>después</b> es <b>manifiesta</b>.</p>
-          <p>Un vHIT clínico las separa del reflejo antes de calcular la ganancia (desacadizar).
-          <b>trainHIT no desacadiza</b>: una sacada encubierta queda dentro de la ganancia y la sube
-          justo en el paciente con déficit. El sesgo es hacia el <b>falso negativo</b>.</p>`,
+          <p>Un vHIT clínico las separa del reflejo antes de calcular la ganancia (desacadizar). La
+          ganancia que <b>reporta trainHIT no desacadiza</b>: una sacada encubierta queda dentro y la
+          sube justo en el paciente con déficit. El sesgo es hacia el <b>falso negativo</b>.</p>
+          <p class="ayuda">En los paneles cada sacada lleva un triángulo: <b class="c-covert">violeta</b>
+          la encubierta, <b class="c-overt">rojo</b> la manifiesta.</p>`,
       },
       {
         id: 'interpretar',
@@ -370,6 +372,21 @@ export const PASEOS = [
           el motivo. Con los ejemplos, en el lado derecho hay uno lento y uno con parpadeo.</p>`,
       },
       {
+        id: 'marcas-sacadas',
+        titulo: 'Las sacadas, marcadas',
+        objetivo: '.col-lados',
+        antes: 'cierraHerramientas',
+        cuerpo: `
+          <p>Cada sacada lleva un triángulo sobre su pico: <b class="c-covert">violeta</b> si arrancó
+          mientras la cabeza todavía giraba (encubierta), <b class="c-overt">rojo</b> si fue después
+          (manifiesta). En la lista, la columna de triángulos dice lo mismo por pulso.</p>
+          <p>Con los ejemplos, el lado izquierdo tiene de las dos. Elegí un pulso con una violeta y
+          pasá el mouse por su fila: <b>hasta la sacada ≈</b> es la ganancia cortada antes de la
+          sacada, y suele ser bastante más baja que la reportada.</p>
+          <p class="ayuda">La marca confirma lo que se ve en la curva, no lo reemplaza. A 30 fps una
+          sacada son uno o dos cuadros; se apaga en Herramientas, «Marcar sacadas».</p>`,
+      },
+      {
         id: 'asimetria',
         titulo: 'La asimetría',
         objetivo: '#asim',
@@ -517,11 +534,12 @@ export const PASEOS = [
           caso: 'D',
           correcta: 'encubierto-izq',
           explica: `Las dos medias dan normales —la izquierda hasta pasa de 1—, pero en cada impulso a
-            la izquierda la curva naranja se despega con un pico angosto <b>durante</b> el giro. El
-            reflejo izquierdo no alcanza y una sacada encubierta lo corrige a tiempo. Como este motor
-            no desacadiza, la sacada entra en la ganancia y la infla: es el <b>falso negativo</b>. Un
-            equipo clínico lo separa; acá hay que verlo en la forma.`,
-          pista: 'Las medias no alcanzan. Seleccioná un pulso del lado izquierdo en la lista y mirá la curva naranja durante el impulso.',
+            la izquierda la curva naranja se despega con un pico angosto <b>durante</b> el giro, con su
+            triángulo violeta. El reflejo izquierdo no alcanza y una sacada encubierta lo corrige a
+            tiempo. Como la ganancia reportada no desacadiza, la sacada entra y la infla: es el
+            <b>falso negativo</b>. En Herramientas, la fila <b>hasta la sacada ≈</b> de la tabla de
+            métodos baja la izquierda a ~0,5.`,
+          pista: 'Las medias no alcanzan. Seleccioná un pulso del lado izquierdo y mirá la curva naranja durante el impulso: ¿hay triángulos violetas?',
         },
       },
       {

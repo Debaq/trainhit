@@ -33,6 +33,14 @@ export const CONFIG = {
     // grueso para la escala: paciente lejos o cámara chica.
     irisMinPx: 5,
   },
+  saccade: {
+    // Velocidad de la mirada EN EL ESPACIO, hacia el blanco, por encima de la
+    // cual una muestra es de sacada. Con VOR normal la mirada queda quieta
+    // (±10 °/s de ruido con los ejemplos); con déficit se arrastra con la
+    // cabeza, y la sacada es el salto de vuelta. A 30 fps y con el derivador
+    // de 50 ms una encubierta temprana se ve de ~90 °/s: por eso no más alto.
+    minDegS: 80,
+  },
   blinkScore: 0.45, // puntuación de parpadeo (0 abierto, 1 cerrado) que marca la muestra
   gainNormalMin: 0.8, // el corte dibujado. NO es nuestro corte: ver README.
 };
@@ -239,6 +247,8 @@ export function analyzeTrial(samples, cfg = CONFIG) {
   const durationMs = core[core.length - 1].tMs - tOnset;
   const gains = computeGains(samples, core, side, tOnset);
   const peakHeadDegS = gains.peakHead;
+  const sacadas = detectaSacadas(samples, win.onset, core[core.length - 1].tMs, sign, cfg);
+  gains.desacadizada = gananciaHastaSacada(samples, win.onset, sacadas, gains.area);
 
   const vergs = core.map((s) => s.vergMm).filter((v) => v !== null && v !== undefined);
   const trial = {
@@ -251,6 +261,7 @@ export function analyzeTrial(samples, cfg = CONFIG) {
     peakHeadDegS,
     gains,
     gain: gains.area,
+    sacadas,
     blink: core.some((s) => s.blink),
     gapMs: huecoMaxMs(samples),
     irisPx: minimo(core, 'irisPx'),
@@ -274,6 +285,62 @@ export function analyzeTrial(samples, cfg = CONFIG) {
   else if (trial.gain === null) trial.rejected = 'sin-ganancia';
 
   return trial;
+}
+
+/**
+ * Sacadas correctivas: tramos donde la mirada, en el espacio, salta HACIA el
+ * blanco más rápido que `saccade.minDegS`.
+ *
+ * Con VOR perfecto la mirada queda quieta; con déficit se arrastra con la
+ * cabeza (velocidad de mirada del mismo signo que la cabeza) y la sacada la
+ * trae de vuelta, con el signo contrario. Se busca desde el inicio del impulso
+ * hasta el final de la ventana. Una sacada que ARRANCA antes del fin del
+ * impulso es encubierta —pasa mientras la cabeza gira y a simple vista no se
+ * ve—; si arranca después, manifiesta.
+ *
+ * Esto es para MOSTRARLAS. A 30 fps una sacada de 40 ms son uno o dos
+ * cuadros: se detecta la que es grande y se marca dónde, no se la mide bien.
+ *
+ * @returns {Array<{i:number, tMs:number, tPicoMs:number, picoDegS:number, tipo:'encubierta'|'manifiesta'}>}
+ */
+export function detectaSacadas(samples, onsetIdx, tOffsetMs, sign, cfg = CONFIG) {
+  const hacia = (s) => -s.gazeVel * sign; // positiva = hacia el blanco
+  const out = [];
+  for (let k = onsetIdx; k < samples.length; k++) {
+    if (hacia(samples[k]) <= cfg.saccade.minDegS) continue;
+    let fin = k;
+    while (fin + 1 < samples.length && hacia(samples[fin + 1]) > cfg.saccade.minDegS) fin++;
+    let pico = k;
+    for (let j = k; j <= fin; j++) if (hacia(samples[j]) > hacia(samples[pico])) pico = j;
+    out.push({
+      i: k,
+      tMs: samples[k].tMs,
+      tPicoMs: samples[pico].tMs,
+      picoDegS: hacia(samples[pico]),
+      tipo: samples[k].tMs <= tOffsetMs ? 'encubierta' : 'manifiesta',
+    });
+    k = fin;
+  }
+  return out;
+}
+
+/**
+ * Ganancia desacadizada, APROXIMADA: la de área, pero cortada justo antes de
+ * la primera sacada encubierta. Lo que pasa después ya no es el reflejo sino
+ * la corrección, así que no entra.
+ *
+ * Los equipos clínicos desacadizan con otra resolución (250 Hz): acá, con dos
+ * o tres cuadros antes de la sacada, es una estimación para COMPARAR con la
+ * reportada y ver cuánto la infló la sacada, no un número para informar. Sin
+ * sacada encubierta no hay nada que sacar y vale lo mismo que la de área.
+ */
+export function gananciaHastaSacada(samples, onsetIdx, sacadas, area) {
+  const enc = sacadas.find((s) => s.tipo === 'encubierta');
+  if (!enc) return area;
+  const hasta = Math.max(onsetIdx, enc.i - 1);
+  const dHead = samples[hasta].headPos - samples[onsetIdx].headPos;
+  const dGaze = samples[hasta].gazePos - samples[onsetIdx].gazePos;
+  return Math.abs(dHead) >= 3 ? 1 - dGaze / dHead : null;
 }
 
 /**

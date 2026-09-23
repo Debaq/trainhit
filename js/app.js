@@ -578,6 +578,9 @@ function pintaListas() {
         <td>${fmt(t.peakHeadDegS, 0)} °/s</td>
         <td>${fmt(t.durationMs, 0)} ms</td>
         <td class="g${t.calibrado ? '' : ' sin'}">${fmt(t.gain)}</td>
+        <td class="sac">${(t.sacadas ?? [])
+          .map((s) => `<i class="${s.tipo === 'encubierta' ? 'c-covert' : 'c-overt'}" title="sacada ${s.tipo}">▼</i>`)
+          .join('')}</td>
         <td class="est ${t.rejected ? 'mal' : 'ok'}">${estadoTxt}</td>
         <td class="acc"><button class="x" title="descartar" aria-label="descartar el pulso ${t.id}">✕</button></td>`;
       const descarta = () => tiraAPapelera(t);
@@ -599,8 +602,10 @@ function pintaListas() {
           descarta();
         }
       });
+      const nSac = (tipo) => (t.sacadas ?? []).filter((s) => s.tipo === tipo).length;
       tr.title =
         `área ${fmt(t.gain)} · 60 ms ${fmt(t.gains?.instant60ms)} · pico ${fmt(t.gains?.peak)}` +
+        `\nsacadas: ${nSac('encubierta')} encubiertas, ${nSac('manifiesta')} manifiestas · hasta la sacada ≈ ${fmt(t.gains?.desacadizada)}` +
         `\niris ${fmt(t.irisPx, 1)} px · ojos ${fmt(t.disconjMm)} mm · hueco ${fmt(t.gapMs, 0)} ms` +
         `\nk ${fmt(t.k)} · derivador ${t.deriv?.windowMs} ms grado ${t.deriv?.degree}` +
         (t.rejected ? `\n${RECHAZO_TEXT[t.rejected]}` : '') +
@@ -1184,6 +1189,7 @@ function filasPulsos() {
       'id', 'lado', 'pico_cabeza_deg_s', 'duracion_ms', 'ganancia_area', 'ganancia_60ms', 'ganancia_pico',
       'rechazo', 'calibrado', 'k', 'iris_min_px', 'disconj_mm', 'hueco_max_ms', 'deriv_ventana_ms', 'deriv_grado',
       'fps_muestreo', 'no_validado', 'ejemplo', 'version',
+      'sacadas_encubiertas', 'sacadas_manifiestas', 'ganancia_hasta_sacada',
     ],
     ...estado.trials.map((t) => [
       t.id,
@@ -1205,6 +1211,9 @@ function filasPulsos() {
       t.noValidado ? 'si' : 'no',
       t.ejemplo ? 'si' : 'no',
       version,
+      (t.sacadas ?? []).filter((s) => s.tipo === 'encubierta').length,
+      (t.sacadas ?? []).filter((s) => s.tipo === 'manifiesta').length,
+      num(t.gains?.desacadizada),
     ]),
   ];
   return filas;
@@ -1261,6 +1270,10 @@ $('orientacion').addEventListener('change', (e) => {
   $('leyenda-ojo').textContent = e.target.value === 'real' ? 'ojo (crudo)' : 'ojo (invertido)';
   sucio.pulsos = true;
   sucio.vivo = true;
+});
+$('marca-sacadas').addEventListener('change', (e) => {
+  plots.opciones.sacadas = e.target.checked;
+  sucio.pulsos = true;
 });
 $('suavizar').addEventListener('change', (e) => {
   plots.opciones.suavizado = e.target.checked;

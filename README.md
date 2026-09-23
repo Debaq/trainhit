@@ -236,6 +236,30 @@ vivos en paneles distintos se leen como si midieran lo mismo, y no es así.
 Sin esto solo se podía estimar a ojo contra la grilla, y la separación entre
 cabeza y ojo —que es el hallazgo— es justo lo que hay que poder medir.
 
+## Sacadas
+
+`detectaSacadas` (`js/analysis.js`) busca, desde el inicio del impulso hasta
+el final de la ventana, los tramos donde la mirada salta **hacia el blanco**
+más rápido que 80 °/s. Con VOR normal la mirada queda quieta; con déficit se
+arrastra con la cabeza, y la sacada es el salto de vuelta, con el signo
+contrario. Si arranca antes del fin del impulso es **encubierta**; si no,
+**manifiesta**. En los paneles cada una lleva un triángulo sobre su pico
+—violeta encubierta, rojo manifiesta, los colores del motor nativo— y en la
+lista una columna con los mismos triángulos. «Marcar sacadas», en
+Presentación, lo apaga.
+
+La **ganancia hasta la sacada** es la de área cortada justo antes de la primera
+sacada encubierta: lo que viene después ya es corrección, no reflejo. Es una
+desacadización aproximada —a 30 fps quedan dos o tres cuadros antes de la
+sacada— y está para comparar con la reportada y ver cuánto la infló la
+sacada. Con el caso D, la de área da ~1,04 a la izquierda y esta ~0,49.
+
+El umbral es bajo a propósito: a 30 fps y con el derivador de 50 ms, una
+encubierta temprana se ve de ~90 °/s porque se superpone con el arrastre. Con
+los pacientes sintéticos el ruido de la mirada no pasa de 10 °/s; con una
+webcam real puede haber falsas sacadas, y es parte de lo que se aprende a
+mirar.
+
 ## Tres métodos de ganancia
 
 **Ganancia vs pico**, en Herramientas, tiene un selector de **método** —área,
@@ -450,10 +474,12 @@ Las cinco decisiones que importan, resumidas:
 
 ## Lo que este método no hace
 
-- **No desacadiza.** Las sacadas correctivas quedan dentro de la ganancia, y el
-  sesgo es direccional: infla la ganancia justo en el paciente con déficit. Es
-  un sesgo hacia el **falso negativo**. El corte de 0,80 que dibuja el gráfico
-  viene de estudios que sí desacadizan: no es el corte de este número.
+- **La ganancia que reporta no desacadiza.** Las sacadas correctivas quedan
+  dentro, y el sesgo es direccional: infla la ganancia justo en el paciente con
+  déficit. Es un sesgo hacia el **falso negativo**. El corte de 0,80 que dibuja
+  el gráfico viene de estudios que sí desacadizan: no es el corte de este
+  número. Las sacadas se marcan y hay una desacadizada aproximada para
+  comparar (ver [Sacadas](#sacadas)), pero no es la que se informa.
 - **No fija la distancia al objetivo**, de la que la ganancia VOR depende por
   convergencia. El modelo de paralaje asume un objetivo pegado a la cámara.
 - **30 fps.** El pico del impulso cae entre dos muestras, y la ganancia

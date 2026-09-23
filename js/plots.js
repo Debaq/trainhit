@@ -113,7 +113,46 @@ function tick(v) {
  * los puntos de las muestras reales —la densidad de los marcadores es lo que
  * dice cuántos datos hay de verdad—.
  */
-export const opciones = { suavizado: true };
+export const opciones = { suavizado: true, sacadas: true };
+
+/**
+ * Marca las sacadas de un pulso sobre la traza ocular: un triángulo encima del
+ * pico, violeta la encubierta y rojo la manifiesta (los colores del motor
+ * nativo). Con `rotulo` escribe además cuál es, para el gráfico del pulso solo.
+ *
+ * Es lo que el alumno tiene que aprender a ver en la forma de la curva: la
+ * marca no reemplaza la lectura, la confirma.
+ */
+function marcaSacadas(ctx, { px, py }, trial, flip, { grande = false, rotulo = false, alpha = 1 } = {}) {
+  if (!opciones.sacadas || !trial.sacadas?.length) return;
+  const lado = grande ? 6 : 4.5;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.font = '600 10px ui-monospace, SFMono-Regular, monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'bottom';
+  for (const sac of trial.sacadas) {
+    const s = trial.samples.find((x) => x.tMs === sac.tPicoMs);
+    if (!s) continue;
+    const x = px(sac.tPicoMs);
+    const v = velOjo(s) * flip;
+    // Del lado de afuera de la curva: arriba si el pico sube, abajo si baja.
+    const dir = v >= 0 ? -1 : 1;
+    const y = py(v) + dir * 5;
+    ctx.fillStyle = sac.tipo === 'encubierta' ? COLOR.covert : COLOR.overt;
+    ctx.beginPath();
+    ctx.moveTo(x - lado, y + dir * lado * 1.6);
+    ctx.lineTo(x + lado, y + dir * lado * 1.6);
+    ctx.lineTo(x, y);
+    ctx.closePath();
+    ctx.fill();
+    if (rotulo) {
+      ctx.textBaseline = dir < 0 ? 'bottom' : 'top';
+      ctx.fillText(sac.tipo, x, y + dir * (lado * 1.6 + 2));
+    }
+  }
+  ctx.restore();
+}
 
 /** Segundos que muestra la traza en vivo. El buffer de muestras guarda lo mismo. */
 export const SEGUNDOS_VIVO = 8;
@@ -685,6 +724,12 @@ export function overlayLado(canvas, trials, side, cfg, seleccion, { promedio = f
     linea(ctx, t.samples.map((s) => [px(s.tMs), py(s.headVel * flip)]), COLOR.cabeza, ancho, alpha);
     linea(ctx, t.samples.map((s) => [px(s.tMs), py(velOjo(s) * flip)]), COLOR.ojo, ancho, alpha);
   }
+  // Las sacadas de los aceptados; la del elegido, más grande. Los rechazados
+  // no: están pálidos a propósito y una marca plena los haría protagonistas.
+  for (const t of delLado) {
+    if (t.rejected && seleccion !== t) continue;
+    marcaSacadas(ctx, { px, py }, t, flip, { grande: seleccion === t, alpha: seleccion === t ? 1 : 0.7 });
+  }
   const media = promedio ? promedioLado(trials, side) : null;
   if (media) {
     // Más gruesa y opaca que los pulsos sueltos: es el resumen, no uno más.
@@ -754,6 +799,7 @@ export function dibujaPulso(canvas, trial, cfg, { medicion = null } = {}) {
   recorta(ctx, pad, w, h);
   linea(ctx, trial.samples.map((s) => [px(s.tMs), py(s.headVel * flip)]), COLOR.cabeza, 1.8);
   linea(ctx, trial.samples.map((s) => [px(s.tMs), py(velOjo(s) * flip)]), COLOR.ojo, 1.8);
+  marcaSacadas(ctx, { px, py }, trial, flip, { grande: true, rotulo: true });
   ctx.restore();
   if (medicion) {
     cursorMedicion(
@@ -776,6 +822,7 @@ export const METODOS_GANANCIA = {
   area: { nombre: 'área', de: (t) => t.gain },
   instant60ms: { nombre: '60 ms', de: (t) => t.gains?.instant60ms ?? null },
   peak: { nombre: 'picos', de: (t) => t.gains?.peak ?? null },
+  desacadizada: { nombre: 'hasta la sacada ≈', de: (t) => t.gains?.desacadizada ?? null },
 };
 
 /** Ganancia contra pico de velocidad, con el corte y la franja aceptada. */
