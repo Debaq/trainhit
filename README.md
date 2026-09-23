@@ -135,6 +135,23 @@ puede ser externo, así que va autorizado por su hash sha256 en la CSP;
 | `T` | Abrir o cerrar «Aprender a usar» |
 | `Espacio` o `P` | Pausar y congelar la traza de abajo para medirla (la cámara sigue) |
 
+### Idiomas
+
+Español e inglés. Arranca en el idioma del navegador —o el de `?lang=en` en la
+dirección, útil para un enlace de curso— y el botón **EN**/**ES** de la barra
+lo cambia en vivo, sin recargar: la sesión medida queda.
+
+El español es la fuente y se escribe como siempre, en `index.html` y en el
+código. Lo que se traduce va marcado: en el HTML con `data-i18n="clave"` (o
+`data-i18n-title`, `-aria-label`…), y en el código pasando la frase por
+`tx('frase en español', { vars })`. El inglés vive aparte: `js/idioma-en.js`
+para la interfaz y `js/tutorial-pasos-en.js` para los paseos, por id de paseo y
+de paso. `test/idioma.test.mjs` falla si una frase, una clave o un paso no
+tienen traducción, si sobra una traducción vieja o si un paso en inglés no trae
+los mismos botones que en español. Lo que falte se ve en español, no rompe.
+
+El CSV exportado queda siempre en español: es un formato de datos, no texto.
+
 ## Aprender a usar
 
 **Aprender**, en la barra (o `T`, o el botón de la bienvenida), abre un menú de
@@ -217,6 +234,8 @@ sacadas, asimetría—, así que si el motor cambia las preguntas cambian con é
 `test/preguntas.test.mjs` revisa que cada una tenga su título, un solo bloque
 de respuestas, una sola correcta y la sintaxis de GIFT escapada: un `=`
 suelto en un enunciado rompe la pregunta y el error aparece recién al subirla.
+Sale en el idioma de la interfaz; el banco en inglés tiene las mismas
+preguntas con la misma respuesta correcta, y el test lo comprueba.
 
 ### Dónde está cada cosa
 
@@ -231,7 +250,8 @@ motor cambia y eso deja de ser cierto, el test lo dice antes que un alumno.
 Mientras una imagen falta se ve un recuadro con su nombre. Los dos gráficos de
 curvas no se generan con IA —inventaría la forma de las curvas, que es lo que se
 enseña—: los dibuja `node img/tutorial/diagramas.mjs`, que también dibuja
-`patrones.svg`, los cuatro patrones que se buscan. Las catorce ilustraciones
+`patrones.svg`, los cuatro patrones que se buscan. Como llevan texto adentro,
+salen también en inglés (`ganancia.en.svg`, …). Las catorce ilustraciones
 —todas las tarjetas grandes de los paseos y los dos pasos flotantes de
 calibrar e impulsos— son esquemas SVG que dibuja `node img/tutorial/ilustraciones.mjs` con la guía
 de estilo de `PROMPTS.md`; los prompts siguen ahí para reemplazarlas por

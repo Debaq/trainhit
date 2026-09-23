@@ -14,7 +14,16 @@
 // «Siguiente». Quien ya sabe calibrar no tiene por qué hacerlo para ver el
 // resto.
 
-import { ACCIONES, CONDICIONES, PASEOS, PATRONES, PORTADA, RESPUESTAS } from './tutorial-pasos.js';
+import { ACCIONES, CONDICIONES, PASEOS, RESPUESTAS, tutorialEn } from './tutorial-pasos.js';
+import { alCambiarIdioma, idioma, tx } from './idioma.js';
+
+/**
+ * Los paseos con los textos del idioma de ahora: se piden al pintar, no al
+ * cargar. Guardados por idioma, porque la espera los mira cuatro veces por
+ * segundo.
+ */
+const porIdioma = {};
+const textos = () => (porIdioma[idioma()] ??= tutorialEn(idioma()));
 
 /** Cada cuánto se mira la condición del paso y se reubica la tarjeta. */
 const TIC_MS = 250;
@@ -75,7 +84,11 @@ export function montaTutorial({ condiciones, acciones, instantanea = () => ({}),
   const bAnterior = $('tuto-anterior');
   const bSiguiente = $('tuto-siguiente');
 
-  /** El paseo en curso, o null en el menú. */
+  /**
+   * El paseo en curso, o null en el menú. Es el de PASEOS, en español: los
+   * textos de cada paso se buscan por id al pintar (`enIdioma`), así que
+   * cambiar de idioma a mitad de un paseo no lo interrumpe.
+   */
   let paseo = null;
   let i = 0;
   let tic = null;
@@ -104,8 +117,12 @@ export function montaTutorial({ condiciones, acciones, instantanea = () => ({}),
     paseo = null;
   }
 
+  /** El paseo en curso con los textos del idioma de ahora. */
+  const enIdioma = () => textos().PASEOS.find((p) => p.id === paseo.id);
+
   function menu() {
     dejaPaseo();
+    const { PASEOS: paseos, PORTADA } = textos();
     raiz.dataset.modo = 'modal';
     tarjeta.setAttribute('aria-modal', 'true');
     tarjeta.classList.add('menu');
@@ -115,26 +132,28 @@ export function montaTutorial({ condiciones, acciones, instantanea = () => ({}),
     bSiguiente.hidden = true;
     cuenta.textContent = '';
     espera.hidden = true;
-    titulo.textContent = 'Aprender a usar trainHIT';
+    titulo.textContent = tx('Aprender a usar trainHIT');
     pintaFigura(fig, PORTADA);
-    cuerpo.innerHTML =
-      '<p>Paseos cortos, cada uno sobre un tema. Se hacen en cualquier orden; si es la primera vez, ' +
-      'de arriba hacia abajo.</p>';
+    cuerpo.innerHTML = `<p>${tx(
+      'Paseos cortos, cada uno sobre un tema. Se hacen en cualquier orden; si es la primera vez, de arriba hacia abajo.',
+    )}</p>`;
     const vistos = leeVistos();
     lista.innerHTML = '';
-    for (const p of PASEOS) {
+    paseos.forEach((p, n) => {
       const li = document.createElement('li');
       const b = document.createElement('button');
       b.type = 'button';
       b.innerHTML = '<b></b><span></span><i></i>';
       b.querySelector('b').textContent = p.titulo;
       b.querySelector('span').textContent = p.resumen;
-      b.querySelector('i').textContent = vistos.has(p.id) ? `✓ visto · ${p.pasos.length} pasos` : `${p.pasos.length} pasos`;
+      b.querySelector('i').textContent = vistos.has(p.id)
+        ? tx('✓ visto · {n} pasos', { n: p.pasos.length })
+        : tx('{n} pasos', { n: p.pasos.length });
       if (vistos.has(p.id)) b.classList.add('visto');
-      b.addEventListener('click', () => empieza(p));
+      b.addEventListener('click', () => empieza(PASEOS[n]));
       li.appendChild(b);
       lista.appendChild(li);
-    }
+    });
     lista.hidden = false;
     ubica(null);
     tarjeta.scrollTop = 0;
@@ -149,11 +168,17 @@ export function montaTutorial({ condiciones, acciones, instantanea = () => ({}),
     muestra(0);
   }
 
-  function muestra(n) {
+  /**
+   * Pinta el paso `n`. Con `entra` falso solo lo vuelve a escribir —al cambiar
+   * de idioma—, sin correr su acción de entrada ni reiniciar lo que espera.
+   */
+  function muestra(n, { entra = true } = {}) {
     i = Math.max(0, Math.min(paseo.pasos.length - 1, n));
-    const p = paseo.pasos[i];
-    if (p.antes) acciones[p.antes]();
-    desde = instantanea();
+    const p = enIdioma().pasos[i];
+    if (entra) {
+      if (p.antes) acciones[p.antes]();
+      desde = instantanea();
+    }
 
     raiz.dataset.modo = p.objetivo ? 'guia' : 'modal';
     tarjeta.setAttribute('aria-modal', p.objetivo ? 'false' : 'true');
@@ -162,10 +187,10 @@ export function montaTutorial({ condiciones, acciones, instantanea = () => ({}),
     bAnterior.hidden = false;
     bSiguiente.hidden = false;
     lista.hidden = true;
-    nombrePaseo.textContent = paseo.titulo;
+    nombrePaseo.textContent = enIdioma().titulo;
     titulo.textContent = p.titulo;
     cuerpo.innerHTML = p.cuerpo;
-    if (p.pregunta) pintaPregunta(cuerpo, p.pregunta, respuestas);
+    if (p.pregunta) pintaPregunta(cuerpo, p.pregunta, respuestas, textos().PATRONES);
     pintaFigura(fig, p);
     cuenta.textContent = `${i + 1} / ${paseo.pasos.length}`;
     bAnterior.disabled = i === 0;
@@ -173,6 +198,7 @@ export function montaTutorial({ condiciones, acciones, instantanea = () => ({}),
     // El scroll de la tarjeta vuelve arriba: si no, el paso nuevo arranca por
     // la mitad cuando el anterior era largo.
     tarjeta.scrollTop = 0;
+    if (!entra) return actualiza();
     objetivo(p)?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     actualiza();
     bSiguiente.focus({ preventScroll: true });
@@ -202,10 +228,10 @@ export function montaTutorial({ condiciones, acciones, instantanea = () => ({}),
     const cumplida = !p.espera || condiciones[p.espera](desde);
     espera.hidden = !p.espera;
     if (p.espera) {
-      espera.textContent = cumplida ? 'listo ✓' : CONDICIONES[p.espera];
+      espera.textContent = cumplida ? tx('listo ✓') : textos().CONDICIONES[p.espera];
       espera.classList.toggle('ok', cumplida);
     }
-    bSiguiente.textContent = ultimo ? 'Terminar' : cumplida ? 'Siguiente' : 'Saltar';
+    bSiguiente.textContent = ultimo ? tx('Terminar') : cumplida ? tx('Siguiente') : tx('Saltar');
     bSiguiente.classList.toggle('primario', cumplida);
     ubica(objetivo(p), p.lugar);
   }
@@ -288,6 +314,13 @@ export function montaTutorial({ condiciones, acciones, instantanea = () => ({}),
   // El scroll de la página mueve el objetivo; `capture` agarra también el de
   // los contenedores con scroll propio (el cajón, las listas).
   document.addEventListener('scroll', () => !raiz.hidden && actualiza(), { capture: true, passive: true });
+  // Abierto, se reescribe en el idioma nuevo sin moverse del paso. Una
+  // pregunta ya contestada vuelve sin contestar: es la misma pregunta.
+  alCambiarIdioma(() => {
+    if (raiz.hidden) return;
+    if (paseo) muestra(i, { entra: false });
+    else menu();
+  });
 
   document.addEventListener('keydown', (e) => {
     if (raiz.hidden) return;
@@ -314,13 +347,13 @@ export function montaTutorial({ condiciones, acciones, instantanea = () => ({}),
  * Contestar antes de que se cuente es el punto: leer un gráfico sabiendo lo
  * que tiene que mostrar no es leerlo.
  */
-function pintaPregunta(cuerpo, q, respuestas) {
+function pintaPregunta(cuerpo, q, respuestas, PATRONES) {
   const caja = document.createElement('div');
   caja.className = 'tuto-pregunta';
   const lista = document.createElement('div');
   lista.className = 'opciones';
   lista.setAttribute('role', 'group');
-  lista.setAttribute('aria-label', 'respuestas');
+  lista.setAttribute('aria-label', tx('respuestas'));
   const devolucion = document.createElement('p');
   devolucion.className = 'tuto-respuesta';
   devolucion.setAttribute('aria-live', 'polite');
@@ -342,7 +375,7 @@ function pintaPregunta(cuerpo, q, respuestas) {
       const ok = id === r.correcta;
       b.classList.add(ok ? 'bien' : 'mal');
       devolucion.className = `tuto-respuesta ${ok ? 'ok' : 'no'}`;
-      devolucion.innerHTML = ok ? `<b>Sí.</b> ${r.explica}` : `<b>No.</b> ${r.pista}`;
+      devolucion.innerHTML = ok ? `<b>${tx('Sí.')}</b> ${r.explica}` : `<b>${tx('No.')}</b> ${r.pista}`;
       if (ok) for (const o of lista.children) o.disabled = true;
     });
     lista.appendChild(b);
@@ -366,7 +399,7 @@ function pintaFigura(fig, p) {
     const falta = document.createElement('div');
     falta.className = 'tuto-falta';
     falta.innerHTML = '<b></b><span></span>';
-    falta.querySelector('b').textContent = `imagen pendiente · ${p.img}`;
+    falta.querySelector('b').textContent = tx('imagen pendiente · {img}', { img: p.img });
     falta.querySelector('span').textContent = p.alt ?? '';
     img.replaceWith(falta);
   });

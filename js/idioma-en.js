@@ -422,6 +422,21 @@ export const TEXTO = {
   'sin pulsos todavía': 'no impulses yet',
   'promedio de {n}': 'mean of {n}',
 
+  // ── tutorial (el marco; los paseos van en tutorial-pasos-en.js) ──
+  'Aprender a usar trainHIT': 'Learn to use trainHIT',
+  'Paseos cortos, cada uno sobre un tema. Se hacen en cualquier orden; si es la primera vez, de arriba hacia abajo.':
+    'Short tours, each on one topic. They can be taken in any order; if it is your first time, from top to bottom.',
+  '✓ visto · {n} pasos': '✓ seen · {n} steps',
+  '{n} pasos': '{n} steps',
+  'listo ✓': 'done ✓',
+  Terminar: 'Finish',
+  Siguiente: 'Next',
+  Saltar: 'Skip',
+  respuestas: 'answers',
+  'Sí.': 'Yes.',
+  'No.': 'No.',
+  'imagen pendiente · {img}': 'image pending · {img}',
+
   // ── importar ──
   'el archivo no trae la tabla de crudo (se exportó con una versión anterior): no se puede volver a calcular':
     'the file has no raw table (it was exported with an earlier version): it cannot be recomputed',

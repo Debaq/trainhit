@@ -1480,9 +1480,9 @@ function baja(texto, sufijo, { ext = 'csv', tipo = 'text/csv' } = {}) {
   URL.revokeObjectURL(url);
 }
 
-/** Preguntas para Moodle en GIFT: ver preguntas.js. */
+/** Preguntas para Moodle en GIFT, en el idioma de la interfaz: ver preguntas.js. */
 function exportaGift() {
-  baja(textoGift(), 'preguntas-gift', { ext: 'txt', tipo: 'text/plain' });
+  baja(textoGift(idioma()), idioma() === 'es' ? 'preguntas-gift' : `preguntas-gift-${idioma()}`, { ext: 'txt', tipo: 'text/plain' });
   marcaEstado('preguntas bajadas: en Moodle, Banco de preguntas › Importar › formato GIFT');
 }
 

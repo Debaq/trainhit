@@ -4,13 +4,15 @@
 // cambia en español y no en idioma-en.js aparece acá, no en el aula.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { HTML, TEXTO } from '../js/idioma-en.js';
 import { tx } from '../js/idioma.js';
 import { RECHAZO_TEXT } from '../js/analysis.js';
 import { CALIB_ISSUE_TEXT } from '../js/geom.js';
 import { METODOS_GANANCIA } from '../js/plots.js';
 import { PERFILES } from '../js/simulacion.js';
+import { CONDICIONES, PASEOS, PATRONES, PORTADA } from '../js/tutorial-pasos.js';
+import * as tutoEn from '../js/tutorial-pasos-en.js';
 
 const raiz = new URL('../', import.meta.url);
 const lee = (ruta) => readFileSync(new URL(ruta, raiz), 'utf8');
@@ -107,3 +109,40 @@ test('tx: en node es español, y reemplaza los huecos', () => {
   assert.equal(tx('frase que no está en ningún lado'), 'frase que no está en ningún lado');
   assert.equal(tx('{a} y {b}', { a: 1 }), '1 y {b}');
 });
+
+// ── tutorial: la capa inglesa sobre los paseos (tutorial-pasos-en.js) ──
+
+const claves = (o) => Object.keys(o).sort();
+/** Los botones de un cuerpo, con su argumento: tienen que ser los mismos en los dos idiomas. */
+const botones = (html) => [...html.matchAll(/data-accion="([^"]+)"(?:\s+data-arg="([^"]+)")?/g)].map((m) => `${m[1]}(${m[2] ?? ''})`);
+
+test('el tutorial en inglés tiene los mismos paseos y pasos, ni más ni menos', () => {
+  assert.deepEqual(claves(tutoEn.PASEOS), claves(Object.fromEntries(PASEOS.map((p) => [p.id]))));
+  for (const p of PASEOS) {
+    const t = tutoEn.PASEOS[p.id];
+    assert.ok(t.titulo && t.resumen, p.id);
+    assert.deepEqual(claves(t.pasos), p.pasos.map((x) => x.id).sort(), p.id);
+  }
+  assert.deepEqual(claves(tutoEn.PATRONES), claves(PATRONES));
+  assert.deepEqual(claves(tutoEn.CONDICIONES), claves(CONDICIONES));
+  assert.ok(tutoEn.PORTADA.alt && PORTADA.alt);
+});
+
+test('cada paso en inglés trae lo mismo que en español', () => {
+  for (const p of PASEOS) {
+    for (const x of p.pasos) {
+      const t = tutoEn.PASEOS[p.id].pasos[x.id];
+      const donde = `${p.id}/${x.id}`;
+      assert.ok(t.titulo && t.cuerpo, donde);
+      assert.equal(Boolean(t.alt), Boolean(x.alt), `${donde}: alt`);
+      assert.deepEqual(botones(t.cuerpo), botones(x.cuerpo), `${donde}: botones del cuerpo`);
+      for (const k of ['explica', 'pista', 'sinRespuesta']) {
+        assert.equal(Boolean(t.pregunta?.[k]), Boolean(x.pregunta?.[k]), `${donde}: pregunta.${k}`);
+      }
+      // Solo textos: la estructura la manda el español.
+      assert.deepEqual(Object.keys(t).filter((k) => !['titulo', 'cuerpo', 'alt', 'img', 'pregunta'].includes(k)), [], donde);
+      if (t.img) assert.ok(existsSync(new URL(`img/tutorial/${t.img}`, raiz)), `${donde}: falta ${t.img}`);
+    }
+  }
+});
+

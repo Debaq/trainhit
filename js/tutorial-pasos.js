@@ -32,6 +32,11 @@
 // Un paseo puede tener `alSalir`: una acción que corre cuando se lo deja por
 // cualquier camino —terminado, al menú o cerrando—. Es para lo que el paseo
 // rompe a propósito y no puede quedar roto después (el k a mano en 0).
+//
+// Los textos en otros idiomas van aparte (tutorial-pasos-en.js), por id de
+// paseo y de paso; `tutorialEn` los pone encima de estos.
+
+import * as en from './tutorial-pasos-en.js';
 
 /** Lo que un paso puede esperar, con el texto de mientras tanto. */
 export const CONDICIONES = {
@@ -893,3 +898,29 @@ export const PORTADA = {
   img: 'portada.svg',
   alt: 'Un examinador de pie detrás de un paciente sentado frente a una laptop, con las manos sobre la cabeza del paciente.',
 };
+
+const TRADUCCIONES = { en };
+
+/**
+ * Los paseos en un idioma: la estructura de acá con los textos de la capa de
+ * ese idioma encima. Lo que la capa no trae queda en español, así que un paso
+ * nuevo sin traducir se ve en español en vez de romper el tutorial.
+ */
+export function tutorialEn(idioma) {
+  const t = TRADUCCIONES[idioma];
+  if (!t) return { PASEOS, PATRONES, CONDICIONES, PORTADA };
+  const paso = (x, tp = {}) => ({
+    ...x,
+    ...tp,
+    pregunta: x.pregunta && { ...x.pregunta, ...tp.pregunta },
+  });
+  return {
+    PASEOS: PASEOS.map((p) => {
+      const tp = t.PASEOS[p.id] ?? { pasos: {} };
+      return { ...p, ...tp, pasos: p.pasos.map((x) => paso(x, tp.pasos[x.id])) };
+    }),
+    PATRONES: { ...PATRONES, ...t.PATRONES },
+    CONDICIONES: { ...CONDICIONES, ...t.CONDICIONES },
+    PORTADA: { ...PORTADA, ...t.PORTADA },
+  };
+}
