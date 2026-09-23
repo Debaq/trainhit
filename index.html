@@ -8,7 +8,7 @@
          jsdelivr (MediaPipe), y conexiones solo a lo que la página usa. -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-FsjmOsnldoGKUl1DW56Z8pxgUqdHVo8EMy/Js5ghVvs='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
+      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-CtBWq0+ACDkfPJnB8+1n8OLEJKjObbAG0an+mfDit+c='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
     />
     <meta
       name="description"
@@ -52,7 +52,7 @@
     />
     <!-- Mapa de importación: versiona los imports internos. Lo regenera
          bump.mjs junto con su hash en la CSP de arriba. Va antes del arranque. -->
-    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-23.28","./js/app.js":"./js/app.js?v=2026-09-23.28","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-23.28","./js/curve.js":"./js/curve.js?v=2026-09-23.28","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-23.28","./js/geom.js":"./js/geom.js?v=2026-09-23.28","./js/head.js":"./js/head.js?v=2026-09-23.28","./js/idioma.js":"./js/idioma.js?v=2026-09-23.28","./js/idioma-en.js":"./js/idioma-en.js?v=2026-09-23.28","./js/pipeline.js":"./js/pipeline.js?v=2026-09-23.28","./js/plots.js":"./js/plots.js?v=2026-09-23.28","./js/preguntas.js":"./js/preguntas.js?v=2026-09-23.28","./js/sesion.js":"./js/sesion.js?v=2026-09-23.28","./js/signal.js":"./js/signal.js?v=2026-09-23.28","./js/simulacion.js":"./js/simulacion.js?v=2026-09-23.28","./js/tracker.js":"./js/tracker.js?v=2026-09-23.28","./js/tutorial.js":"./js/tutorial.js?v=2026-09-23.28","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-23.28","./js/tutorial-pasos-en.js":"./js/tutorial-pasos-en.js?v=2026-09-23.28"}}</script>
+    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-23.29","./js/app.js":"./js/app.js?v=2026-09-23.29","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-23.29","./js/curve.js":"./js/curve.js?v=2026-09-23.29","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-23.29","./js/geom.js":"./js/geom.js?v=2026-09-23.29","./js/head.js":"./js/head.js?v=2026-09-23.29","./js/idioma.js":"./js/idioma.js?v=2026-09-23.29","./js/idioma-en.js":"./js/idioma-en.js?v=2026-09-23.29","./js/pipeline.js":"./js/pipeline.js?v=2026-09-23.29","./js/plots.js":"./js/plots.js?v=2026-09-23.29","./js/practica.js":"./js/practica.js?v=2026-09-23.29","./js/preguntas.js":"./js/preguntas.js?v=2026-09-23.29","./js/sesion.js":"./js/sesion.js?v=2026-09-23.29","./js/signal.js":"./js/signal.js?v=2026-09-23.29","./js/simulacion.js":"./js/simulacion.js?v=2026-09-23.29","./js/tracker.js":"./js/tracker.js?v=2026-09-23.29","./js/tutorial.js":"./js/tutorial.js?v=2026-09-23.29","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-23.29","./js/tutorial-pasos-en.js":"./js/tutorial-pasos-en.js?v=2026-09-23.29"}}</script>
     <script src="js/arranque.js"></script>
     <noscript><link rel="stylesheet" href="css/estilo.css" /></noscript>
   </head>
@@ -61,7 +61,7 @@
          `data-i18n` (contenido) o `data-i18n-title`, `-aria-label`… (ese
          atributo) lo traduce js/idioma.js con idioma-en.js. Lo que el código
          reescribe —estado, rótulos, botones que cambian— no lleva clave: lo
-         traduce el código con `t()`, o la clave lo pisaría al cambiar de idioma. -->
+         traduce el código con `tx()`, o la clave lo pisaría al cambiar de idioma. -->
     <header class="topbar">
       <span class="marca">train<b>HIT</b></span>
       <!-- Quién lo hace. Se esconde en pantallas angostas: en la barra mandan
@@ -593,6 +593,18 @@
             arrastra con la cabeza y vuelve con sacadas. Los impulsos, el ruido y los rechazos son
             los del examen real.
           </p>
+          <!-- Práctica: ver js/practica.js. Un paciente al azar, a ciegas, y
+               tres preguntas antes de revelar. Lo de adentro de
+               #practica-cuerpo lo pinta app.js según la fase. -->
+          <div class="practica">
+            <button id="btn-suerte" class="primario">Voy a tener suerte</button>
+            <p class="ayuda" data-i18n="sim.suerte.ayuda">
+              Un paciente al azar, a ciegas —puede salir sano—. Examiná y, con tres pulsos por
+              lado, contestá tres preguntas antes de revelar.
+            </p>
+            <div id="practica-cuerpo" class="practica-cuerpo" aria-live="polite" hidden></div>
+          </div>
+          <p id="sim-o" class="sim-o" data-i18n="sim.o">o elegí el paciente:</p>
           <label id="sim-campo" class="campo">
             <span data-i18n="sim.paciente">Paciente</span>
             <!-- Los perfiles los agrega app.js desde simulacion.js. -->

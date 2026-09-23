@@ -17,6 +17,7 @@ import { leeSesion, textoSesion } from './sesion.js';
 import { textoGift } from './preguntas.js';
 import { PERFILES, arrastre, offsetConMirada, parametrosPulso, simulaCrudo } from './simulacion.js';
 import { IDIOMAS, alCambiarIdioma, idioma, idiomaInicial, ponIdioma, tx } from './idioma.js';
+import { MIN_POR_LADO, corrige, preguntasPractica } from './practica.js';
 
 const $ = (id) => document.getElementById(id);
 const fmt = (v, d = 2) => (v === null || v === undefined || Number.isNaN(v) ? '—' : v.toFixed(d));
@@ -93,8 +94,10 @@ const estado = {
   /**
    * Paciente simulado (ver simulacion.js). `eleccion` es lo que dice el
    * selector —puede ser «azar»—; `perfil`, el que se aplica de verdad.
+   * `practica`, con «Voy a tener suerte» (ver practica.js): `{ fase, respuestas }`,
+   * con `fase` 'examinar', 'responder' o 'revelado'. null fuera de la práctica.
    */
-  sim: { eleccion: '', perfil: null, ciego: false, revelado: false, mostrarReal: false, semilla: 1 },
+  sim: { eleccion: '', perfil: null, ciego: false, revelado: false, mostrarReal: false, semilla: 1, practica: null },
   /** El pulso simulado en curso, para la traza en vivo: ver `simulaEnVivo`. */
   simVivo: null,
 };
@@ -1375,7 +1378,19 @@ function montaSimulacion() {
     estado.sim.ciego = e.target.checked;
     pintaSimulacion();
   });
-  $('sim-revelar').addEventListener('click', revelaSimulacion);
+  $('sim-revelar').addEventListener('click', () => revelaSimulacion());
+  $('btn-suerte').addEventListener('click', empiezaPractica);
+  // Las opciones y los botones de la práctica se pintan de nuevo en cada
+  // pulso: un solo oyente en la caja, por delegación.
+  $('practica-cuerpo').addEventListener('click', (e) => {
+    const pr = estado.sim.practica;
+    const b = e.target.closest('button');
+    if (!pr || !b) return;
+    if (b.dataset.pregunta && pr.fase === 'responder') pr.respuestas[b.dataset.pregunta] = b.dataset.opcion;
+    else if (b.id === 'practica-listo') pr.fase = 'responder';
+    else if (b.id === 'practica-revelar') return terminaPractica();
+    pintaSimulacion();
+  });
   $('sim-real').addEventListener('click', () => {
     estado.sim.mostrarReal = !estado.sim.mostrarReal;
     recalculaTodos();
@@ -1394,11 +1409,11 @@ function montaSimulacion() {
  * pacientes —uno sano y uno simulado, o dos perfiles— daría una media que no
  * es de nadie, igual que con los ejemplos.
  */
-function cambiaPerfil(eleccion) {
+function cambiaPerfil(eleccion, { practica = false } = {}) {
   const medidos = estado.trials.filter((t) => !t.ejemplo).length;
   if (medidos && !confirm(tx('Cambiar el paciente borra los {n} pulsos medidos. ¿Seguir?', { n: medidos }))) {
     $('sim-perfil').value = estado.sim.eleccion;
-    return;
+    return false;
   }
   if (medidos) {
     estado.trials = estado.trials.filter((t) => t.ejemplo);
@@ -1413,6 +1428,8 @@ function cambiaPerfil(eleccion) {
     revelado: false,
     mostrarReal: false,
     semilla: Math.floor(Math.random() * 1e6),
+    // Elegir otro paciente a mano deja la práctica: ya no hay nada que adivinar.
+    practica: practica ? { fase: 'examinar', respuestas: {} } : null,
   });
   // «Uno al azar» no tiene sentido a la vista: se pasa solo a ciegas.
   if (eleccion === 'azar') $('sim-ciego').checked = true;
@@ -1421,17 +1438,49 @@ function cambiaPerfil(eleccion) {
   pintaListas();
   pintaSimulacion();
   marcaEstado(
-    !estado.sim.perfil
-      ? 'paciente simulado apagado: se mide lo real'
-      : estado.sim.ciego
-        ? 'paciente simulado a ciegas: examinar y decidir qué tiene'
-        : 'paciente simulado: {nombre}',
-    { nombre: estado.sim.perfil && tx(PERFILES[estado.sim.perfil].nombre) },
+    practica
+      ? 'paciente al azar, a ciegas: examinar y, con {min} pulsos por lado, contestar'
+      : !estado.sim.perfil
+        ? 'paciente simulado apagado: se mide lo real'
+        : estado.sim.ciego
+          ? 'paciente simulado a ciegas: examinar y decidir qué tiene'
+          : 'paciente simulado: {nombre}',
+    { nombre: estado.sim.perfil && tx(PERFILES[estado.sim.perfil].nombre), min: MIN_POR_LADO },
   );
+  return true;
 }
 
-function revelaSimulacion() {
+/**
+ * «Voy a tener suerte»: un paciente al azar —el control sano incluido—, a
+ * ciegas, y la práctica en la fase de examinar. Ver practica.js.
+ */
+function empiezaPractica() {
+  $('sim-ciego').checked = true;
+  if (!cambiaPerfil('azar', { practica: true })) return;
+  $('sim-perfil').value = 'azar';
+}
+
+/** Revela y corrige: la práctica pasa a mostrar las respuestas contra la clave. */
+function terminaPractica() {
+  const pr = estado.sim.practica;
+  pr.fase = 'revelado';
+  revelaSimulacion({ desdePractica: true });
+  const { aciertos, total } = corrige(estado.sim.perfil, pr.respuestas);
+  marcaEstado('{n} de {total} correctas · era: {nombre}', {
+    n: aciertos,
+    total,
+    nombre: tx(PERFILES[estado.sim.perfil].nombre),
+  });
+}
+
+/**
+ * Revela el perfil. Fuera de la práctica —el botón Revelar, destildar «a
+ * ciegas», el tutorial— la deja: revelar a mitad de examen es rendirse, y las
+ * preguntas ya no tienen sentido.
+ */
+function revelaSimulacion({ desdePractica = false } = {}) {
   if (!estado.sim.perfil) return;
+  if (!desdePractica) estado.sim.practica = null;
   estado.sim.revelado = true;
   estado.sim.ciego = false;
   $('sim-ciego').checked = false;
@@ -1447,14 +1496,20 @@ function pintaSimulacion() {
   const { perfil, ciego, revelado, mostrarReal } = estado.sim;
   const oculto = Boolean(perfil) && ciego && !revelado;
   const p = perfil ? PERFILES[perfil] : null;
+  const practica = estado.sim.practica;
   // A ciegas el selector no se ve: diría qué perfil es.
   $('sim-campo').hidden = oculto;
+  $('sim-o').hidden = oculto;
   $('sim-info').textContent = !perfil
     ? tx('Apagado: se mide lo real.')
-    : oculto
-      ? tx('Perfil oculto. Examiná, decidí qué tiene el paciente y después apretá Revelar.')
-      : `${tx(p.nombre)}. ${tx(p.descripcion)}`;
-  $('sim-revelar').hidden = !oculto;
+    : oculto && practica
+      ? tx('Paciente al azar: puede tener una patología o ninguna. Examiná como siempre.')
+      : oculto
+        ? tx('Perfil oculto. Examiná, decidí qué tiene el paciente y después apretá Revelar.')
+        : `${tx(p.nombre)}. ${tx(p.descripcion)}`;
+  // En la práctica se revela contestando, con su propio botón.
+  $('sim-revelar').hidden = !oculto || Boolean(practica);
+  pintaPractica();
   const haySimulados = estado.trials.some((t) => t.simulado && t.crudoReal);
   $('sim-real').hidden = !perfil || oculto || !haySimulados;
   $('sim-real').setAttribute('aria-pressed', String(mostrarReal));
@@ -1467,6 +1522,71 @@ function pintaSimulacion() {
     : p
       ? tx('Paciente simulado: {nombre}. Los pulsos llevan una patología agregada por el motor.', { nombre: tx(p.nombre) })
       : '';
+}
+
+/** Pulsos aceptados de cada lado, los que cuentan para poder contestar. */
+function aceptadosPorLado() {
+  const n = (lado) => estado.trials.filter((t) => t.side === lado && !t.rejected).length;
+  return { derecha: n('derecha'), izquierda: n('izquierda') };
+}
+
+/**
+ * La caja de la práctica según la fase: el avance mientras se examina, las
+ * tres preguntas, y al revelar cada respuesta contra la correcta.
+ */
+function pintaPractica() {
+  const pr = estado.sim.practica;
+  const caja = $('practica-cuerpo');
+  $('btn-suerte').textContent = pr ? tx('Otro paciente al azar') : tx('Voy a tener suerte');
+  caja.hidden = !pr;
+  if (!pr) return;
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+
+  if (pr.fase === 'examinar') {
+    const a = aceptadosPorLado();
+    const listo = a.derecha >= MIN_POR_LADO && a.izquierda >= MIN_POR_LADO;
+    caja.innerHTML = `
+      <p class="practica-avance">${esc(
+        tx('Aceptados: derecha {d}/{min} · izquierda {i}/{min}', { d: a.derecha, i: a.izquierda, min: MIN_POR_LADO }),
+      )}</p>
+      <button id="practica-listo" class="primario"${listo ? '' : ' disabled'}>${esc(tx('Ya sé qué tiene'))}</button>
+      ${listo ? '' : `<p class="ayuda">${esc(tx('Hacen falta {min} pulsos aceptados de cada lado.', { min: MIN_POR_LADO }))}</p>`}`;
+    return;
+  }
+
+  const qs = preguntasPractica();
+  const revelado = pr.fase === 'revelado';
+  const nota = revelado ? corrige(estado.sim.perfil, pr.respuestas) : null;
+  let html = revelado
+    ? `<p class="practica-nota ${nota.aciertos === nota.total ? 'ok' : ''}">${esc(
+        tx('{n} de {total} correctas', { n: nota.aciertos, total: nota.total }),
+      )}</p>`
+    : '';
+  for (const q of qs) {
+    const d = nota?.detalle[q.id];
+    html += `<div class="tuto-pregunta"><p><b>${esc(q.texto)}</b></p><div class="opciones" role="group" aria-label="${esc(q.texto)}">`;
+    for (const [id, texto] of Object.entries(q.opciones)) {
+      // Al revelar: verde la correcta, rojo la elegida si no lo era.
+      const clase = revelado
+        ? id === d.correcta
+          ? 'bien'
+          : id === d.elegida
+            ? 'mal'
+            : ''
+        : pr.respuestas[q.id] === id
+          ? 'elegida'
+          : '';
+      html +=
+        `<button type="button" class="${clase}" data-pregunta="${q.id}" data-opcion="${esc(id)}"` +
+        ` aria-pressed="${pr.respuestas[q.id] === id}"${revelado ? ' disabled' : ''}>${esc(texto)}</button>`;
+    }
+    html += '</div></div>';
+  }
+  if (!revelado) {
+    const todas = qs.every((q) => pr.respuestas[q.id]);
+    html += `<button id="practica-revelar" class="primario"${todas ? '' : ' disabled'}>${esc(tx('Revelar'))}</button>`;
+  }
+  caja.innerHTML = html;
 }
 
 // ------------------------------------------------------------------ CSV ----

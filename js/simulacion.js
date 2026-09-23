@@ -36,6 +36,14 @@ const V_DESDE = 50;
 const V_HASTA = 100;
 
 /**
+ * Cuánto después del disparo termina un impulso típico, en s. Una sacada que
+ * arranca antes es encubierta; después, manifiesta. Es lo que usa practica.js
+ * para saber qué sacadas trae cada perfil, y el test comprueba que el detector
+ * las clasifique igual.
+ */
+export const FIN_IMPULSO_S = 0.13;
+
+/**
  * Los perfiles. Por lado afectado: rango de ganancia del reflejo y las
  * sacadas, cada una con su latencia desde el disparo del pulso (s) y la
  * fracción del error que corrige. El disparo cae ~60 ms antes del pico de la
@@ -84,6 +92,15 @@ export const PERFILES = {
       derecha: { ganancia: [0.3, 0.5], sacadas: [{ latencia: [0.2, 0.32], fraccion: 1 }] },
       izquierda: { ganancia: [0.3, 0.5], sacadas: [{ latencia: [0.2, 0.32], fraccion: 1 }] },
     },
+  },
+  // El control: pulsos marcados como simulados pero sin nada agregado. Sin él,
+  // «uno al azar» siempre tendría algo y la respuesta nunca sería «normal»:
+  // se aprendería a buscar la patología en vez de a leer.
+  sano: {
+    nombre: 'Sin patología (control)',
+    patron: 'normal',
+    descripcion: 'Los dos canales laterales sanos: el motor no agregó nada. Las ganancias y las sacadas que se vieron son las del compañero.',
+    lados: {},
   },
 };
 

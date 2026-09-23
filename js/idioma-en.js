@@ -255,6 +255,9 @@ export const HTML = {
   'sim.cerrar': 'close the simulator',
   'sim.ayuda':
     'A healthy classmate in front of the camera, and the engine adds a pathology: the gaze is dragged along with the head and comes back with saccades. The impulses, the noise and the rejections are those of the real test.',
+  'sim.suerte.ayuda':
+    'A random patient, blind —it may turn out healthy—. Examine and, with three impulses per side, answer three questions before revealing.',
+  'sim.o': 'or choose the patient:',
   'sim.paciente': 'Patient',
   'sim.perfil.t': 'which pathology is added to the impulses',
   'sim.sano': 'healthy: measure the real thing',
@@ -408,6 +411,31 @@ export const TEXTO = {
   'Mirá las dos medias por separado, la asimetría y los triángulos de sacadas: ¿de qué lado y cuándo corrigen?':
     'Look at the two means separately, the asymmetry and the saccade triangles: on which side and when do they correct?',
 
+  // ── práctica: «Voy a tener suerte» ──
+  'Voy a tener suerte': 'I’m feeling lucky',
+  'Otro paciente al azar': 'Another random patient',
+  'paciente al azar, a ciegas: examinar y, con {min} pulsos por lado, contestar':
+    'random patient, blind: examine and, with {min} impulses per side, answer',
+  '{n} de {total} correctas · era: {nombre}': '{n} of {total} correct · it was: {nombre}',
+  '{n} de {total} correctas': '{n} of {total} correct',
+  'Paciente al azar: puede tener una patología o ninguna. Examiná como siempre.':
+    'Random patient: it may have a pathology or none. Examine as always.',
+  'Aceptados: derecha {d}/{min} · izquierda {i}/{min}': 'Accepted: right {d}/{min} · left {i}/{min}',
+  'Ya sé qué tiene': 'I know what it has',
+  'Hacen falta {min} pulsos aceptados de cada lado.': '{min} accepted impulses are needed on each side.',
+  Revelar: 'Reveal',
+  '¿Qué lado está afectado?': 'Which side is affected?',
+  'El derecho': 'The right',
+  'El izquierdo': 'The left',
+  'Los dos': 'Both',
+  Ninguno: 'Neither',
+  '¿Qué sacadas correctivas aparecen?': 'Which corrective saccades appear?',
+  Ninguna: 'None',
+  'Encubiertas: durante el giro': 'Covert: during the turn',
+  'Manifiestas: después del giro': 'Overt: after the turn',
+  'De los dos tipos': 'Both kinds',
+  '¿Qué patrón muestra?': 'Which pattern does it show?',
+
   // ── gráficos ──
   cabeza: 'head',
   ojo: 'eye',
@@ -483,4 +511,7 @@ export const TEXTO = {
     'Right deficit in which the brain learned to correct during the turn: covert saccades, clustered and early. The area gain reads normal: the false negative.',
   'Los dos canales laterales con ganancia baja y sacadas manifiestas en los dos lados. La asimetría queda cerca de cero.':
     'Both lateral canals with low gain and overt saccades on both sides. The asymmetry stays close to zero.',
+  'Sin patología (control)': 'No pathology (control)',
+  'Los dos canales laterales sanos: el motor no agregó nada. Las ganancias y las sacadas que se vieron son las del compañero.':
+    'Both lateral canals healthy: the engine added nothing. The gains and saccades seen are the classmate’s own.',
 };

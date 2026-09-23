@@ -337,6 +337,7 @@ sacadas detectadas, perillas y Recalcular.
 | Neuritis derecha / izquierda | ganancia 0,35–0,55 de ese lado, sacadas manifiestas a 200–340 ms |
 | Déficit compensado derecho / izquierdo | ganancia 0,40–0,55, sacadas encubiertas agrupadas a 95–110 ms: se lee normal |
 | Vestibulopatía bilateral | los dos lados 0,30–0,50 con manifiestas |
+| Sin patología (control) | nada: los pulsos salen marcados como simulados, pero son los reales |
 
 - **En vivo y en la lista es la misma cuenta.** Al disparar el pulso se sortean
   sus parámetros y la traza de abajo muestra el arrastre y la sacada mientras
@@ -352,6 +353,24 @@ sacadas detectadas, perillas y Recalcular.
   pantalla no dice cuál es, tampoco el CSV (`simulado=oculto`). **Revelar** lo
   dice, y **Ver lo real** recalcula cada pulso sobre su crudo sin simular: lo
   que el compañero sano dio de verdad, con lo simulado tachado al lado.
+
+### Voy a tener suerte
+
+El botón grande del cajón es la práctica entera en un clic: sortea un
+paciente —el control sano incluido, o la respuesta nunca sería «normal» y se
+aprendería a buscar la patología en vez de a leer—, lo esconde y deja
+examinar. Un contador lleva los pulsos aceptados de cada lado; con tres por
+lado se habilita **Ya sé qué tiene**, y aparecen tres preguntas en el orden del
+razonamiento clínico: qué lado está afectado, qué sacadas aparecen y qué
+patrón muestra. **Revelar** corrige cada una —verde la correcta, rojo la
+elegida si no lo era—, da la nota, dice el perfil y deja **Ver lo real** a
+mano. **Otro paciente al azar** empieza de nuevo.
+
+La clave sale del perfil (`js/practica.js`), no de lo medido: es lo que el
+motor le puso al compañero. `test/practica.test.mjs` comprueba que el motor
+muestre de verdad ese lado y ese tipo de sacadas, para que la práctica no le
+diga «mal» a quien leyó bien. Elegir otro paciente a mano, destildar «a
+ciegas» o apretar el Revelar de siempre deja la práctica.
 
 A 30 fps una encubierta temprana se superpone con el arrastre y a veces no
 llega al umbral del detector de sacadas: puede quedar sin triángulo. Es la

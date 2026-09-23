@@ -742,6 +742,20 @@ kbd {
 .cajon-cuerpo > section { min-width: 0; }
 .cajon-cuerpo > section > .ayuda:first-child { margin-top: 0; }
 .sim-info { margin: 8px 0; padding: 8px 10px; border-radius: var(--r-widget); background: rgba(155, 81, 208, 0.1); color: #e4e4e7; font-size: 13px; }
+/* Práctica con paciente al azar: el botón grande arriba, y adentro el avance,
+   las preguntas (con el estilo de las del tutorial) y la nota. */
+.practica { margin: 10px 0 4px; padding: 10px; border: 1px solid rgba(155, 81, 208, 0.35); border-radius: var(--r-widget); }
+.practica > button.primario { width: 100%; }
+.practica > .ayuda { margin: 6px 0 0; }
+.practica-cuerpo { margin-top: 10px; }
+.practica-cuerpo[hidden] { display: none; }
+.practica-cuerpo .tuto-pregunta p { margin: 8px 0 4px; font-size: 13px; }
+.practica-cuerpo .opciones button.elegida { border-color: var(--c-covert); background: rgba(155, 81, 208, 0.2); }
+.practica-avance { margin: 0 0 8px; font-variant-numeric: tabular-nums; font-size: 13px; }
+.practica-nota { margin: 0 0 4px; font-weight: 600; font-size: 14px; color: var(--c-bad); }
+.practica-nota.ok { color: var(--c-ok); }
+.sim-o { margin: 10px 0 4px; color: var(--muted-fg); font-size: 12px; }
+.sim-o[hidden] { display: none; }
 /* El botón de la barra se ve encendido mientras hay un paciente simulado. */
 #btn-simulador.activo { color: var(--c-covert); border-color: var(--c-covert); background: rgba(155, 81, 208, 0.14); }
 /* Adentro del cajón nada pasa del ancho: los selectores y las etiquetas se
