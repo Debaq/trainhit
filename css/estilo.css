@@ -439,8 +439,11 @@ select { max-width: 170px; }
 .campo { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted-fg); }
 .campo select { flex: 1; max-width: none; }
 
-/* Con la traza congelada el canvas es una regla: el puntero lo dice. */
-canvas.medible { cursor: crosshair; }
+/* Con la traza congelada el canvas es una regla: el puntero lo dice.
+   `pan-y`: con el dedo, arrastrar de costado mide y arrastrar hacia arriba o
+   abajo sigue desplazando la página. Sin esto el navegador se quedaba con el
+   gesto entero y cancelaba el puntero a mitad de la medición. */
+canvas.medible { cursor: crosshair; touch-action: pan-y; }
 
 .check { display: inline-flex; gap: 5px; align-items: center; color: var(--muted-fg); font-size: 12px; cursor: pointer; }
 

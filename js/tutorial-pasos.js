@@ -299,6 +299,8 @@ export const PASEOS = [
           <p>Un <b>clic</b> fija una referencia. Moviéndose desde ahí aparecen Δt, el salto de cada
           curva, el <b>área</b> de cada una en el tramo —sombreada— y la <b>ganancia del tramo</b>, que
           es el cociente de las dos áreas. Otro clic la suelta.</p>
+          <p class="ayuda">Con el dedo: un toque pone el cursor, otro fija la referencia y
+          arrastrar de costado mide.</p>
           <p class="ayuda">Probá medir solo la subida del impulso y después el impulso entero: la
           ganancia cambia según el tramo, y el motor usa uno solo.</p>`,
       },

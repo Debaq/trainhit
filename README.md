@@ -188,7 +188,15 @@ cartel suma, contra ese punto:
   cuenta que hace el motor sobre la ventana del impulso, acá sobre la ventana
   que uno elija.
 
-Otro clic suelta la referencia. La traza de abajo se mide igual, pero antes
+Otro clic suelta la referencia.
+
+Con el dedo no hay «pasar por encima», así que la regla va por toques: el
+primero pone el cursor, el segundo fija la referencia, arrastrar de costado
+mide y otro toque la suelta. Arrastrar hacia arriba o abajo sigue desplazando
+la página (`touch-action: pan-y`). Antes, levantar el dedo borraba el cursor y
+no había forma de fijar una referencia en un teléfono.
+
+La traza de abajo se mide igual, pero antes
 hay que congelarla con `Espacio` (o `P`): la cámara sigue encendida y lo que
 se detiene es el análisis. Un pulso ya medido no se mueve, así que ahí no hace
 falta pausar nada.

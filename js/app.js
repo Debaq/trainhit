@@ -886,11 +886,12 @@ function ponPausa(v) {
 }
 
 /**
- * Cursor de medición sobre la traza en vivo congelada.
- *
- * Mover el puntero lee los valores; un clic fija la referencia y a partir de
- * ahí el cartel muestra además los Δ contra ese punto. Otro clic la suelta.
+ * ¿El puntero puede pasar por encima sin apretar? Mouse y lápiz sí; el dedo
+ * no. Al tacto la regla funciona por toques: el primero pone el cursor, el
+ * segundo fija la referencia, arrastrar de costado mide y otro toque la suelta.
  */
+const conPasada = (e) => e.pointerType !== 'touch';
+
 /**
  * Cursor de medición en los gráficos de pulsos.
  *
@@ -929,7 +930,11 @@ function medicionPulsos() {
       estado.medPulso = { id, t, ancla: mismo && estado.medPulso.ancla === null ? t : null };
       sucio.pulsos = true;
     });
-    cv.addEventListener('pointerleave', () => {
+    cv.addEventListener('pointerleave', (e) => {
+      // Con el dedo no hay «pasar por encima»: levantarlo dispara un
+      // `pointerleave`, y si eso borrara el cursor nunca se podría fijar una
+      // referencia. Al tacto el cursor queda hasta el próximo toque.
+      if (!conPasada(e)) return;
       // Con referencia puesta la medición queda: es lo que se acaba de medir.
       if (estado.medPulso?.id === id && estado.medPulso.ancla === null) {
         estado.medPulso = null;
@@ -939,6 +944,12 @@ function medicionPulsos() {
   }
 }
 
+/**
+ * Cursor de medición sobre la traza en vivo congelada.
+ *
+ * Mover el puntero lee los valores; un clic fija la referencia y a partir de
+ * ahí el cartel muestra además los Δ contra ese punto. Otro clic la suelta.
+ */
 function medicionViva() {
   const cv = $('plot-vivo');
   const mueve = (e) => {
@@ -958,7 +969,8 @@ function medicionViva() {
     estado.medicion = { t, ancla: estado.medicion?.ancla === null ? t : null };
     sucio.vivo = true;
   });
-  cv.addEventListener('pointerleave', () => {
+  cv.addEventListener('pointerleave', (e) => {
+    if (!conPasada(e)) return; // al tacto: ver `conPasada`
     // Con referencia puesta la medición queda a la vista aunque el puntero se
     // vaya: es lo que se acaba de medir y se quiere leer.
     if (estado.pausado && estado.medicion && estado.medicion.ancla === null) {
