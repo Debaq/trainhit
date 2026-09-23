@@ -79,6 +79,14 @@ Aun así suavizar hace parecer más precisa una señal de 30 fps, así que mient
 está encendido las trazas de cada pulso muestran los puntos de las muestras
 reales —y el interruptor lo apaga—.
 
+### Acerca de
+
+La firma **TecMedHub** de la barra (y «Quiénes lo hacemos», en la
+bienvenida) abre la tarjeta de quiénes lo hacen y para quién: Nicolás
+Baier-Quezada, Vanessa Uribe-Hernandez y Fernanda López-Moncada, del
+Laboratorio TecMedHub de la Universidad Austral de Chile, Sede Puerto Montt,
+para los estudiantes que visitan el laboratorio con hambre de conocimiento.
+
 ### El «me gusta»
 
 El corazón de la barra suma en un contador público y anónimo

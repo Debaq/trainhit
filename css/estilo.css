@@ -69,6 +69,96 @@ body {
   margin-left: 2px;
 }
 .firma i { font-style: normal; font-weight: 400; color: var(--muted-fg); }
+/* La firma es un botón (abre «Acerca de») pero no tiene que parecerlo. */
+button.firma {
+  background: none;
+  border: 0;
+  border-left: 1px solid var(--border);
+  border-radius: 0;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+}
+button.firma:hover { background: none; color: var(--foreground); }
+button.firma:hover i { color: #d4d4d8; }
+button.enlace {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0 0 0 4px;
+  color: var(--c-guide);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+button.enlace:hover { background: none; color: var(--foreground); }
+
+/* ── acerca de ───────────────────────────────────────────────────────────── */
+
+.acerca { max-width: 520px; position: relative; overflow: hidden; }
+/* Una franja con los dos colores de la app arriba de la tarjeta: la cabeza
+   y el ojo, que es de lo que trata todo esto. */
+.acerca::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--c-head) 0 50%, var(--c-eye) 50% 100%);
+}
+.acerca-cabeza { display: flex; align-items: center; gap: 14px; margin: 6px 0 14px; }
+.acerca-logo { width: 52px; height: 52px; flex: none; }
+.acerca-logo rect { fill: var(--background); stroke: var(--border); }
+.acerca-logo path { fill: none; stroke: var(--c-head); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.acerca h1 { margin: 0; }
+.tarjeta .acerca-bajada { margin: 2px 0 0; color: var(--muted-fg); font-size: 13px; }
+.acerca-dedicatoria {
+  margin: 0 0 18px;
+  padding: 12px 16px;
+  border-left: 3px solid var(--c-eye);
+  background: rgba(232, 114, 28, 0.06);
+  border-radius: 0 var(--r-widget) var(--r-widget) 0;
+  color: #e4e4e7;
+  font-size: 14.5px;
+  line-height: 1.55;
+  font-style: italic;
+}
+.acerca-seccion {
+  margin: 0 0 8px;
+  font-size: 11px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--muted-fg);
+}
+.acerca-equipo { list-style: none; margin: 0 0 16px; padding: 0; display: grid; gap: 8px; }
+.acerca-equipo li { display: flex; align-items: center; gap: 12px; font-size: 15px; color: var(--foreground); }
+.inicial {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font: 600 12px ui-monospace, SFMono-Regular, monospace;
+  font-style: normal;
+  color: #fff;
+  flex: none;
+}
+.inicial.c1 { background: var(--c-head); }
+.inicial.c2 { background: var(--c-eye); }
+.inicial.c3 { background: var(--c-covert); }
+.acerca-lugar {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-widget);
+  background: var(--background);
+}
+.acerca-lugar b { color: var(--c-head); font-size: 14px; }
+.acerca-lugar span { color: #d4d4d8; font-size: 13px; }
+.acerca a { color: var(--c-guide); }
 .tarjeta .credito { margin-top: 12px; color: #d4d4d8; }
 .tarjeta .credito b { color: var(--c-head); }
 

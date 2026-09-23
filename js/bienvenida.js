@@ -75,6 +75,8 @@ export function montaBienvenida() {
   // Solo la primera vez. Después queda a mano en el «?» de la barra.
   if (leeLS(LS_VISTA) !== '1') abrir(true);
 
+  montaAcerca({ cierraBienvenida: () => abrir(false, { foco: false }) });
+
   if (yaVoto) marcaVotado(boton);
   // El número se lee al abrir —es la petición a Abacus que sale en cada
   // carga, y está dicho en el README—; si el contador no contesta, el botón
@@ -101,6 +103,37 @@ export function montaBienvenida() {
   });
 
   return api;
+}
+
+/**
+ * «Acerca de»: quiénes lo hacen y para quién. Se abre desde la firma de la
+ * barra y desde la bienvenida; al cerrarlo el foco vuelve a donde estaba.
+ */
+function montaAcerca({ cierraBienvenida }) {
+  const modal = document.getElementById('acerca');
+  let volverA = null;
+  const abre = () => {
+    volverA = document.activeElement;
+    modal.hidden = false;
+    document.getElementById('acerca-cerrar').focus();
+  };
+  const cierra = () => {
+    modal.hidden = true;
+    if (volverA?.isConnected && !volverA.closest('[hidden]')) volverA.focus();
+    else document.getElementById('btn-ayuda').focus();
+  };
+  document.getElementById('btn-acerca').addEventListener('click', abre);
+  document.getElementById('btn-acerca-bienvenida').addEventListener('click', () => {
+    cierraBienvenida();
+    abre();
+  });
+  document.getElementById('acerca-cerrar').addEventListener('click', cierra);
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) cierra();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !modal.hidden) cierra();
+  });
 }
 
 function marcaVotado(boton) {

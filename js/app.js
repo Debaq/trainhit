@@ -1270,7 +1270,7 @@ function atajos() {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
     // Ctrl+C es copiar, Ctrl+D marcador, Ctrl+R recargar: no son atajos de acá.
     if (e.ctrlKey || e.metaKey || e.altKey) return;
-    if (!$('bienvenida').hidden || tutorial.bloqueaAtajos()) return;
+    if (!$('bienvenida').hidden || !$('acerca').hidden || tutorial.bloqueaAtajos()) return;
     const k = e.key.toLowerCase();
     if (k === 't') tutorial.abierto() ? tutorial.cierra() : tutorial.abre();
     else if (k === 'c') empiezaCalibracion();
