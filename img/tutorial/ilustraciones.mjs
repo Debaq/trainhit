@@ -24,6 +24,9 @@ const C = {
   eye: '#e8721c',
   ok: '#2e9e54',
   bad: '#d62d2d',
+  // las sacadas, con los colores de los gráficos: violeta encubierta, rojo manifiesta
+  covert: '#9b51d0',
+  overt: '#d62d2d',
   luz: '#d4b36a',
   pelo: '#27272a',
 };
@@ -347,6 +350,193 @@ const imagenes = {};
   // mal: arco amplio, en trazos: lento
   s += flecha(arco(1190, 500, 215, -2, 50), C.head, 12, 'pa', 'stroke-dasharray="4 22"');
   imagenes['impulsos.svg'] = svg(s, 'Cabeza vista desde arriba en dos cuadros. Bien, borde verde: giro corto y rápido de unos 15°. Mal, borde rojo: giro amplio y lento de más de 40°.');
+}
+
+/** Laptop de frente: pantalla con la cámara arriba al centro y la base. */
+function laptopFrente(cx, y, ancho = 520) {
+  const alto = ancho * 0.62;
+  let s = `<rect x="${cx - ancho / 2}" y="${y}" width="${ancho}" height="${alto}" rx="16" fill="${C.gris}"/>`;
+  s += `<rect x="${cx - ancho / 2 + 22}" y="${y + 30}" width="${ancho - 44}" height="${alto - 52}" rx="6" fill="${C.tenue}"/>`;
+  s += `<circle cx="${cx}" cy="${y + 15}" r="6" fill="#a1a1aa"/>`;
+  s += `<path d="M${cx - ancho / 2 - 40},${y + alto + 26}L${cx + ancho / 2 + 40},${y + alto + 26}L${cx + ancho / 2},${y + alto}L${cx - ancho / 2},${y + alto}Z" fill="${C.grisClaro}"/>`;
+  return { s, pantalla: [cx - ancho / 2 + 22, y + 30, ancho - 44, alto - 52] };
+}
+
+/** Un gráfico chico como los paneles de la app: cabeza azul y ojo naranja. */
+function panelito(x, y, w, h, ganOjo, { sacada = null, marca = null } = {}) {
+  const t0 = -20;
+  const t1 = 420;
+  const px = (t) => x + ((t - t0) / (t1 - t0)) * w;
+  const py = (v) => y + h - 14 - (v / 260) * (h - 28);
+  const cab = (t) => 220 * Math.exp(-(((t - 90) / (t < 90 ? 32 : 45)) ** 2));
+  const ojo = (t) => ganOjo * cab(t - 8) + (sacada ? sacada.a * Math.exp(-(((t - sacada.t) / 12) ** 2)) : 0);
+  const path = (f) => {
+    let r = '';
+    for (let t = t0; t <= t1; t += 4) r += `${r ? 'L' : 'M'}${px(t).toFixed(1)},${py(Math.max(0, f(t))).toFixed(1)}`;
+    return r;
+  };
+  let s = `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="10" fill="${C.tenue}" stroke="${C.linea}" stroke-width="3"/>`;
+  s += `<path d="${path(cab)}" fill="none" stroke="${C.head}" stroke-width="6" stroke-linejoin="round"/>`;
+  s += `<path d="${path(ojo)}" fill="none" stroke="${C.eye}" stroke-width="5" stroke-linejoin="round"/>`;
+  if (marca && sacada) {
+    const tx = px(sacada.t);
+    const ty = py(ojo(sacada.t)) - 14;
+    s += `<path d="M${tx - 11},${ty - 18}L${tx + 11},${ty - 18}L${tx},${ty}Z" fill="${marca}"/>`;
+  }
+  return s;
+}
+
+// ── 9. canales: los tres planos vistos desde arriba ──
+{
+  const cx = 800;
+  const cy = 470;
+  let s = '';
+  // los verticales: diagonales a 45°, en gris y punteadas (trainHIT no los mide)
+  for (const a of [45, -45]) {
+    const dx = Math.sin(rad(a)) * 390;
+    const dy = Math.cos(rad(a)) * 390;
+    s += `<line x1="${f(cx - dx)}" y1="${f(cy - dy)}" x2="${f(cx + dx)}" y2="${f(cy + dy)}" stroke="${C.grisClaro}" stroke-width="10" stroke-dasharray="26 18" stroke-linecap="round" marker-start="url(#pg)" marker-end="url(#pg)"/>`;
+  }
+  s += cabezaArriba(cx, cy, 170, 0, { piel: PIEL[2] });
+  // el lateral: el plano de la imagen, un giro alrededor de la cabeza, en azul
+  s += flecha(arco(cx, cy, 300, -70, 70), C.head, 16, 'pa');
+  s += `<path d="${arco(cx, cy, 300, 110, 250)}" fill="none" stroke="${C.head}" stroke-width="16" stroke-linecap="round" stroke-opacity="0.35"/>`;
+  // los canales, insinuados junto a cada oreja: tres anillos por lado
+  for (const lado of [-1, 1]) {
+    const ox = cx + lado * 215;
+    s += `<ellipse cx="${ox}" cy="${cy}" rx="34" ry="14" fill="none" stroke="${C.head}" stroke-width="6"/>`;
+    s += `<ellipse cx="${ox}" cy="${cy}" rx="30" ry="12" transform="rotate(45 ${ox} ${cy})" fill="none" stroke="${C.grisClaro}" stroke-width="5"/>`;
+    s += `<ellipse cx="${ox}" cy="${cy}" rx="30" ry="12" transform="rotate(-45 ${ox} ${cy})" fill="none" stroke="${C.grisClaro}" stroke-width="5"/>`;
+  }
+  imagenes['canales.svg'] = svg(s, 'Cabeza vista desde arriba con los tres planos: el lateral como un giro azul alrededor de la cabeza y los dos verticales como diagonales grises punteadas a 45°.');
+}
+
+// ── 10. límites: una webcam no es un equipo médico ──
+{
+  let s = '';
+  // izquierda: un impulso muestreado a 30 fps, pocas muestras en el pico
+  const x0 = 110;
+  const y0 = 250;
+  const w = 560;
+  const h = 400;
+  s += `<rect x="${x0}" y="${y0}" width="${w}" height="${h}" rx="12" fill="${C.tenue}" stroke="${C.linea}" stroke-width="3"/>`;
+  const px = (t) => x0 + 30 + (t / 300) * (w - 60);
+  const py = (v) => y0 + h - 30 - (v / 240) * (h - 70);
+  const cab = (t) => 220 * Math.exp(-(((t - 130) / 40) ** 2));
+  let d = '';
+  for (let t = 0; t <= 300; t += 3) d += `${d ? 'L' : 'M'}${f(px(t))},${f(py(cab(t)))}`;
+  s += `<path d="${d}" fill="none" stroke="${C.head}" stroke-width="5" stroke-opacity="0.35"/>`;
+  let m = '';
+  for (let t = 13; t <= 300; t += 33.3) {
+    s += `<circle cx="${f(px(t))}" cy="${f(py(cab(t)))}" r="11" fill="${C.head}"/>`;
+    m += `${m ? 'L' : 'M'}${f(px(t))},${f(py(cab(t)))}`;
+  }
+  s += `<path d="${m}" fill="none" stroke="${C.head}" stroke-width="4"/>`;
+  // derecha: la laptop con la cruz médica tachada encima
+  const lap = laptopFrente(1080, 380, 480);
+  s += lap.s;
+  const [sx, sy, sw, sh] = lap.pantalla;
+  s += `<path d="M${sx + 30},${sy + sh - 40}L${sx + sw * 0.35},${sy + sh - 40}L${sx + sw * 0.45},${sy + 50}L${sx + sw * 0.55},${sy + sh - 40}L${sx + sw - 30},${sy + sh - 40}" fill="none" stroke="${C.head}" stroke-width="5" stroke-opacity="0.6"/>`;
+  const kx = 1080;
+  const ky = 210;
+  s += `<path d="M${kx - 30},${ky - 90}h60v60h60v60h-60v60h-60v-60h-60v-60h60Z" fill="${C.grisClaro}"/>`;
+  s += `<circle cx="${kx}" cy="${ky}" r="125" fill="none" stroke="${C.bad}" stroke-width="16"/>`;
+  s += `<line x1="${kx - 88}" y1="${ky + 88}" x2="${kx + 88}" y2="${ky - 88}" stroke="${C.bad}" stroke-width="16" stroke-linecap="round"/>`;
+  imagenes['limites.svg'] = svg(s, 'A la izquierda un impulso de cabeza con pocas muestras sobre el pico, como a 30 fps; a la derecha una laptop con una cruz médica tachada en rojo encima.');
+}
+
+// ── 11. casos: leer dos paneles con lupa ──
+{
+  let s = '';
+  s += panelito(130, 190, 620, 420, 0.97);
+  s += panelito(850, 190, 620, 420, 0.45, { sacada: { t: 300, a: 150 }, marca: C.overt });
+  // la lupa sobre la sacada del panel de la derecha (t = 300 ms en su eje)
+  const lx = 850 + ((300 + 20) / 440) * 620;
+  const ly = 480;
+  s += `<circle cx="${lx}" cy="${ly}" r="120" fill="${C.head}" fill-opacity="0.06" stroke="${C.grisClaro}" stroke-width="18"/>`;
+  s += `<line x1="${lx + 85}" y1="${ly + 85}" x2="${lx + 200}" y2="${ly + 200}" stroke="${C.grisClaro}" stroke-width="34" stroke-linecap="round"/>`;
+  imagenes['casos.svg'] = svg(s, 'Dos paneles como los de la app: a la izquierda las curvas de cabeza y ojo superpuestas; a la derecha el ojo lejos de la cabeza y una sacada con su triángulo rojo, vista con una lupa.');
+}
+
+// ── 12. cierre de los casos: las tres cosas que se miran ──
+{
+  let s = '';
+  const tarjeta = (x) => `<rect x="${x}" y="200" width="420" height="500" rx="24" fill="${C.tenue}" stroke="${C.linea}" stroke-width="4"/>` +
+    `<path d="M${x + 340},250L${x + 356},268L${x + 386},232" stroke="${C.ok}" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+  // 1: cada media por separado, contra el corte
+  s += tarjeta(110);
+  s += `<line x1="150" y1="420" x2="490" y2="420" stroke="${C.grisClaro}" stroke-width="4" stroke-dasharray="14 10"/>`;
+  s += `<rect x="190" y="340" width="100" height="300" rx="8" fill="${C.head}"/>`;
+  s += `<rect x="350" y="500" width="100" height="140" rx="8" fill="${C.covert}"/>`;
+  // 2: la forma de la curva, con la sacada encubierta
+  s += tarjeta(590);
+  s += panelito(620, 330, 360, 300, 0.45, { sacada: { t: 118, a: 170 }, marca: C.covert });
+  // 3: pulsos aceptados y rechazados
+  s += tarjeta(1070);
+  for (let i = 0; i < 5; i++) {
+    const y = 330 + i * 64;
+    const ok = i === 1 || i === 3;
+    s += `<rect x="1110" y="${y}" width="250" height="40" rx="8" fill="${C.linea}"/>`;
+    s += ok
+      ? `<path d="M1386,${y + 20}L1400,${y + 34}L1428,${y + 6}" stroke="${C.ok}" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`
+      : `<path d="M1388,${y + 6}L1420,${y + 34}M1420,${y + 6}L1388,${y + 34}" stroke="${C.bad}" stroke-width="8" stroke-linecap="round"/>`;
+  }
+  imagenes['casos-cierre.svg'] = svg(s, 'Tres tarjetas con una tilde verde cada una: dos barras contra una línea de corte punteada, una curva con una sacada marcada en violeta, y una lista de pulsos casi todos con una cruz roja.');
+}
+
+// ── 13. paciente simulado: el iris real y dónde estaría el simulado ──
+{
+  let s = '';
+  const cx = 470;
+  const cy = 450;
+  s += `<rect x="${cx - 230}" y="${cy + 190}" width="460" height="200" rx="90" fill="${ROPA[2]}"/>`;
+  s += caraFrente(cx, cy, 170, { piel: PIEL[0] });
+  // lupa sobre el ojo izquierdo de la imagen, unida a la ampliación
+  const ex = cx - 68;
+  const ey = cy - 21;
+  const zx = 1110;
+  const zy = 440;
+  const zr = 280;
+  s += `<circle cx="${ex}" cy="${ey}" r="48" fill="none" stroke="${C.grisClaro}" stroke-width="5"/>`;
+  s += `<line x1="${ex + 34}" y1="${ey - 34}" x2="${zx - zr * 0.72}" y2="${zy - zr * 0.7}" stroke="${C.grisClaro}" stroke-width="4"/>`;
+  s += `<line x1="${ex + 34}" y1="${ey + 34}" x2="${zx - zr * 0.72}" y2="${zy + zr * 0.7}" stroke="${C.grisClaro}" stroke-width="4"/>`;
+  s += `<circle cx="${zx}" cy="${zy}" r="${zr}" fill="${PIEL[0]}" stroke="${C.grisClaro}" stroke-width="8"/>`;
+  s += `<ellipse cx="${zx}" cy="${zy}" rx="220" ry="118" fill="#f4f4f5"/>`;
+  s += `<path d="M${zx - 230},${zy - 20}Q${zx},${zy - 190} ${zx + 230},${zy - 20}" stroke="#00000044" stroke-width="10" fill="none"/>`;
+  // el iris real, en el centro, y el anillo violeta corrido: el simulado
+  s += `<circle cx="${zx}" cy="${zy}" r="78" fill="${C.eye}"/><circle cx="${zx}" cy="${zy}" r="34" fill="#18181b"/>`;
+  s += `<circle cx="${zx + 95}" cy="${zy}" r="78" fill="none" stroke="${C.covert}" stroke-width="12" stroke-dasharray="4 0"/>`;
+  s += `<path d="M${zx + 10},${zy + 128}L${zx + 90},${zy + 128}" stroke="${C.covert}" stroke-width="8" marker-end="url(#pv)"/>`;
+  imagenes['simulado.svg'] = svg(
+    s,
+    'Una persona sana de frente; su ojo ampliado muestra el iris real en naranja en el centro y un anillo violeta corrido hacia un costado: dónde estaría el iris con la patología simulada.',
+  ).replace('</defs>', `  <marker id="pv" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0,0L10,5L0,10Z" fill="${C.covert}"/></marker>\n</defs>`);
+}
+
+// ── 14. hacen falta pulsos: el paciente sintético ──
+{
+  let s = '';
+  const cx = 430;
+  const cy = 440;
+  // una cabeza de puntos: hecha de datos, no de una persona
+  for (let a = 0; a < 360; a += 9) {
+    const x = cx + 180 * Math.sin(rad(a));
+    const y = cy - 220 * Math.cos(rad(a));
+    s += `<circle cx="${f(x)}" cy="${f(y)}" r="7" fill="${C.grisClaro}"/>`;
+  }
+  for (const lado of [-1, 1]) {
+    s += `<ellipse cx="${cx + lado * 70}" cy="${cy - 30}" rx="38" ry="20" fill="none" stroke="${C.grisClaro}" stroke-width="5" stroke-dasharray="6 7"/>`;
+    s += `<circle cx="${cx + lado * 70}" cy="${cy - 30}" r="13" fill="${C.eye}"/>`;
+  }
+  s += `<path d="M${cx},${cy}L${cx - 18},${cy + 60}L${cx + 10},${cy + 64}" stroke="${C.grisClaro}" stroke-width="5" fill="none" stroke-dasharray="6 7"/>`;
+  // de la cabeza salen pulsos
+  s += `<path d="M${cx + 200},${cy}C${cx + 300},${cy} ${cx + 320},${cy - 140} ${cx + 420},${cy - 150}" stroke="${C.linea}" stroke-width="6" fill="none"/>`;
+  s += `<path d="M${cx + 200},${cy}L${cx + 420},${cy}" stroke="${C.linea}" stroke-width="6"/>`;
+  s += `<path d="M${cx + 200},${cy}C${cx + 300},${cy} ${cx + 320},${cy + 140} ${cx + 420},${cy + 150}" stroke="${C.linea}" stroke-width="6" fill="none"/>`;
+  s += panelito(cx + 430, cy - 250, 330, 190, 0.97);
+  s += panelito(cx + 430, cy - 45, 330, 190, 0.5, { sacada: { t: 300, a: 140 }, marca: C.overt });
+  s += panelito(cx + 430, cy + 160, 330, 190, 0.45, { sacada: { t: 118, a: 170 }, marca: C.covert });
+  imagenes['pulsos.svg'] = svg(s, 'Una cabeza dibujada con puntos, hecha de datos, de la que salen tres pulsos: uno normal, uno con una sacada manifiesta y uno con una encubierta.');
 }
 
 for (const [nombre, contenido] of Object.entries(imagenes)) {

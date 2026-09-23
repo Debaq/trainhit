@@ -3,17 +3,20 @@
 El tutorial (`js/tutorial.js`, pasos en `js/tutorial-pasos.js`) funciona
 sin imágenes: donde falta una muestra un recuadro con el nombre del archivo.
 
-**Hoy las ocho están como esquemas SVG**, dibujados por
+**Hoy las catorce están como esquemas SVG**, dibujados por
 `node img/tutorial/ilustraciones.mjs` con esta misma guía de estilo (plano,
 sin texto, azul la cabeza, naranja el ojo, verde bien, rojo mal). Cumplen su
 `alt` pero son esquemas. Los prompts de abajo siguen sirviendo para
 reemplazarlos por ilustraciones: se deja el `.webp` acá y se cambia la
 extensión en `js/tutorial-pasos.js`.
 
-Son **8 ilustraciones** para generar. Los dos gráficos de curvas
-(`ganancia.svg` y `sacadas.svg`) **no** están acá: están dibujados con
-`diagramas.mjs` a partir de curvas sintéticas, porque un generador de imágenes
-inventa la forma de las curvas, y la forma es justo lo que se enseña.
+Son **14 ilustraciones** para generar. Los tres gráficos de curvas
+(`ganancia.svg`, `sacadas.svg` y `patrones.svg`) **no** están acá: están
+dibujados con `diagramas.mjs` a partir de curvas sintéticas, porque un
+generador de imágenes inventa la forma de las curvas, y la forma es justo lo
+que se enseña. Por la misma razón, en las ilustraciones 11, 12 y 14 los
+gráficos chicos son decorado: si el generador los dibuja raros, se tapan o se
+simplifican, pero no se les pide una forma precisa.
 
 | # | Archivo | Paso | Se ve |
 |---|---|---|---|
@@ -25,6 +28,12 @@ inventa la forma de las curvas, y la forma es justo lo que se enseña.
 | 6 | `manos.webp` | Las manos del examinador | tarjeta grande |
 | 7 | `calibracion.webp` | Calibrar el paralaje | tarjeta flotante (recortada) |
 | 8 | `impulsos.webp` | Dar los impulsos | tarjeta flotante (recortada) |
+| 9 | `canales.webp` | Seis canales, tres planos | tarjeta grande |
+| 10 | `limites.webp` | Lo que esto no es | tarjeta grande |
+| 11 | `casos.webp` | Cómo se lee un caso (Casos a ciegas) | tarjeta grande |
+| 12 | `casos-cierre.webp` | Lo que dejan los casos | tarjeta grande |
+| 13 | `simulado.webp` | Examinar un paciente que no existe (Paciente simulado) | tarjeta grande |
+| 14 | `pulsos.webp` | Hacen falta pulsos (paciente de ejemplo) | tarjeta grande |
 
 ## Entrega
 
@@ -241,13 +250,137 @@ behind each arrow shows the angle covered. Keep everything in the horizontal mid
 band of the image. [BLOQUE DE ESTILO]
 ```
 
+## 9. `canales.webp` — Seis canales, tres planos
+
+**Tiene que mostrar:** una cabeza **vista desde arriba**, nariz hacia arriba,
+y los tres planos de los canales semicirculares. El **lateral** es el plano
+de la imagen: una flecha curva **azul** que rodea la cabeza, bien visible,
+porque es el que se mide. Los dos **verticales** (LARP y RALP) son dos
+diagonales **grises punteadas** a 45° que se cruzan sobre la cabeza, más
+apagadas: existen pero trainHIT no los mide. Junto a cada oreja, los tres
+canales insinuados como tres anillitos.
+
+```
+Top-down view (from the ceiling) of a stylized human head, nose pointing up, centered.
+A large curved blue arrow circles around the head in the image plane (horizontal
+rotation), strong and clear. Two gray dashed diagonal lines at 45 degrees cross over the
+head from corner to corner, forming an X, clearly fainter than the blue arrow. Near each
+ear, three tiny interlocking rings suggest the semicircular canals of the inner ear, one
+blue and two gray. Symmetric, schematic, calm. [BLOQUE DE ESTILO]
+```
+
+**Revisar:** que el giro azul se lea como el protagonista y las diagonales
+como secundarias. Si las diagonales salen del mismo color que el giro, no sirve.
+
+## 10. `limites.webp` — Lo que esto no es
+
+**Tiene que mostrar:** que esto es una herramienta de aprender, no un equipo
+médico. A la derecha, una **laptop de frente** con su cámara, y sobre ella
+una **cruz médica gris tachada** con un círculo rojo de prohibido. A la
+izquierda, una curva de impulso **azul** con **pocos puntos** sobre el pico
+—cuatro o cinco—, unidos por rectas: la cámara lenta ve pocas muestras.
+
+```
+On the right, a generic open laptop seen from the front with a small webcam dot on top
+of the screen. Floating above the laptop, a plain gray medical cross inside a red
+prohibition circle with a diagonal red slash. On the left, a small dark chart panel with
+a single blue bell-shaped curve drawn with only five or six big blue dots connected by
+straight segments, sparse samples over the peak. Clean, balanced composition.
+[BLOQUE DE ESTILO]
+```
+
+**Revisar:** que el símbolo tachado no parezca una ambulancia, un hospital ni
+una marca. Es la idea «no es un equipo médico», sin texto.
+
+## 11. `casos.webp` — Cómo se lee un caso
+
+**Tiene que mostrar:** dos paneles de gráfico oscuros, como los de la app,
+uno al lado del otro. En el de la izquierda la curva **azul** (cabeza) y la
+**naranja** (ojo) se tapan. En el de la derecha la naranja queda a la mitad
+de alto y más tarde aparece un **pico naranja angosto** con un **triángulo
+rojo** encima. Una **lupa** gris sobre ese pico.
+
+```
+Two dark rounded chart panels side by side, like a medical software screen. Left panel:
+a blue bell curve and an orange bell curve almost perfectly overlapping. Right panel:
+the same blue bell curve, the orange curve only half its height, and later a narrow
+sharp orange spike with a tiny red triangle marker above it. A gray magnifying glass
+hovers over the orange spike in the right panel. Flat, schematic, no axes labels.
+[BLOQUE DE ESTILO]
+```
+
+## 12. `casos-cierre.webp` — Lo que dejan los casos
+
+**Tiene que mostrar:** tres tarjetas en fila, cada una con una **tilde verde**
+en la esquina, que resumen lo que hay que mirar: (1) dos **barras** —una
+**azul** alta y una **violeta** baja— contra una línea de corte punteada;
+(2) un gráfico chico con la curva naranja y una **sacada marcada con un
+triángulo violeta**; (3) una lista de renglones grises, casi todos con una
+**cruz roja** y pocos con **tilde verde**.
+
+```
+Three dark rounded cards in a row, each with a small green check mark in its top right
+corner. Card one: a tall blue bar and a short violet bar standing next to each other,
+with a gray dashed horizontal line crossing between their heights. Card two: a tiny
+chart with a blue bell curve and an orange curve with a narrow spike marked by a small
+violet triangle. Card three: five gray horizontal rows like a list, three marked with
+red crosses and two with green checks. Minimal, icon-like, evenly spaced.
+[BLOQUE DE ESTILO] Also use violet #9b51d0 for the covert saccade marker and the short bar.
+```
+
+## 13. `simulado.webp` — Examinar un paciente que no existe
+
+**Tiene que mostrar:** una persona **sana** de frente (el compañero que hace
+de paciente) y, al lado, una **ampliación circular de uno de sus ojos**. En
+la ampliación: el iris real **naranja** en el centro y un **anillo violeta**
+del mismo tamaño **corrido hacia un costado**, con una flechita violeta: ahí
+estaría el iris con la patología simulada. Un cono fino une el ojo con la
+ampliación.
+
+```
+Left: a friendly adult seen from the front, head and shoulders, calm neutral
+expression, casual clothes. A thin circle around one of their eyes connects with two
+thin gray lines to a large circular magnified view on the right. Inside the magnified
+view: the eye with a white sclera, an orange iris with a dark pupil exactly in the
+center, and an empty violet ring of the same size shifted sideways from the iris, plus
+a small violet arrow pointing in the direction of the shift. The violet ring must look
+like a ghost or overlay, not a second eye. [BLOQUE DE ESTILO] Also use violet #9b51d0
+for the ghost iris ring.
+```
+
+**Revisar:** que el anillo violeta se entienda como una superposición sobre el
+ojo real y no como un ojo deforme o con dos iris.
+
+## 14. `pulsos.webp` — Hacen falta pulsos (paciente de ejemplo)
+
+**Tiene que mostrar:** un **paciente sintético**: una cabeza de frente
+dibujada **con puntos**, como hecha de datos, sin rasgos de una persona real,
+con los ojos **naranjas**. De la cabeza salen tres líneas grises que llegan a
+**tres paneles chicos** apilados, cada uno con un pulso: uno **normal**
+(curvas superpuestas), uno con una **sacada manifiesta** (triángulo **rojo**
+después del pulso) y uno con una **encubierta** (triángulo **violeta** en el
+pulso).
+
+```
+Left: a stylized human head seen from the front made only of evenly spaced gray dots,
+like a point cloud or data mannequin, with two small orange dots as eyes and a dotted
+nose, no other features, clearly artificial. From the right side of the head, three
+thin gray curved lines branch out to three small stacked dark chart panels on the
+right. Each panel shows a blue bell curve and an orange curve: top panel curves
+overlapping; middle panel orange lower with a later narrow orange spike marked by a
+tiny red triangle; bottom panel with a narrow orange spike during the blue curve marked
+by a tiny violet triangle. [BLOQUE DE ESTILO] Also use violet #9b51d0 for the covert
+marker.
+```
+
 ---
 
 ## Después de agregarlas
 
 1. Copiar cada `.webp` acá con el nombre exacto de la tabla.
-2. Abrir **Aprender** en la barra (o `T`) y pasar por los paseos de conceptos,
-   preparación y primera medición: el recuadro «imagen pendiente» tiene que
-   haber desaparecido.
-3. `npm test`: el test del tutorial comprueba que cada imagen que nombran los
+2. Cambiar la extensión en `js/tutorial-pasos.js` (de `.svg` a `.webp`) de las
+   que se reemplazaron.
+3. Abrir **Aprender** en la barra (o `T`) y pasar por los paseos: ningún paso
+   tiene que mostrar el recuadro «imagen pendiente».
+4. `npm test`: el test del tutorial comprueba que cada imagen que nombran los
    pasos esté en esta tabla o en la carpeta.

@@ -71,6 +71,8 @@ export const LUGARES = ['abajo', 'arriba', 'derecha', 'izquierda'];
 const HACEN_FALTA_PULSOS = {
   id: 'pulsos',
   titulo: 'Hacen falta pulsos',
+  img: 'pulsos.svg',
+  alt: 'Una cabeza dibujada con puntos, hecha de datos, de la que salen tres pulsos: uno normal, uno con una sacada manifiesta y uno con una encubierta.',
   espera: 'pulso',
   cuerpo: `
     <p>Este paseo mira pulsos ya medidos. Si todavía no hay, se pueden cargar los de un
@@ -118,6 +120,8 @@ export const PASEOS = [
       {
         id: 'canales',
         titulo: 'Seis canales, tres planos',
+        img: 'canales.svg',
+        alt: 'Cabeza vista desde arriba con los tres planos: el lateral como un giro azul alrededor de la cabeza y los dos verticales como diagonales grises punteadas a 45°.',
         cuerpo: `
           <p>Cada oído tiene tres canales semicirculares —lateral, anterior y posterior—, y trabajan
           en pares que comparten plano: los dos laterales; el anterior izquierdo con el posterior
@@ -159,6 +163,8 @@ export const PASEOS = [
       {
         id: 'interpretar',
         titulo: 'Qué patrones se buscan',
+        img: 'patrones.svg',
+        alt: 'Cuatro pares de gráficos, derecha e izquierda: normal, déficit unilateral con sacada, déficit bilateral y sacada encubierta dentro del impulso.',
         cuerpo: `
           <p>El resultado se lee con los dos lados juntos, la ganancia <b>y</b> las sacadas:</p>
           <ul>
@@ -176,6 +182,8 @@ export const PASEOS = [
       {
         id: 'limites',
         titulo: 'Lo que esto no es',
+        img: 'limites.svg',
+        alt: 'A la izquierda un impulso de cabeza con pocas muestras sobre el pico, como a 30 fps; a la derecha una laptop con una cruz médica tachada en rojo encima.',
         cuerpo: `
           <p>trainHIT es para <b>aprender</b> cómo se mide el reflejo, no para diagnosticar. Una webcam
           a 30 fps, sin fijar la distancia al blanco y sin desacadizar, da valores didácticos.</p>
@@ -467,6 +475,8 @@ export const PASEOS = [
       {
         id: 'como-leer',
         titulo: 'Cómo se lee un caso',
+        img: 'casos.svg',
+        alt: 'Dos paneles como los de la app: a la izquierda las curvas de cabeza y ojo superpuestas; a la derecha el ojo lejos de la cabeza y una sacada con su triángulo rojo, vista con una lupa.',
         cuerpo: `
           <p>Cada caso carga los pulsos de un paciente sintético, con una letra y sin decir qué
           tiene. Mirá los dos paneles y respondé <b>antes</b> de que se cuente.</p>
@@ -570,6 +580,8 @@ export const PASEOS = [
       {
         id: 'cierre',
         titulo: 'Lo que dejan los casos',
+        img: 'casos-cierre.svg',
+        alt: 'Tres tarjetas con una tilde verde cada una: dos barras contra una línea de corte punteada, una curva con una sacada marcada en violeta, y una lista de pulsos casi todos con una cruz roja.',
         cuerpo: `
           <ul>
             <li>Se lee la <b>media de cada lado</b>, no solo la asimetría (caso C).</li>
@@ -593,6 +605,8 @@ export const PASEOS = [
       {
         id: 'que-es',
         titulo: 'Examinar un paciente que no existe',
+        img: 'simulado.svg',
+        alt: 'Una persona sana de frente; su ojo ampliado muestra el iris real en naranja en el centro y un anillo violeta corrido hacia un costado: dónde estaría el iris con la patología simulada.',
         cuerpo: `
           <p>Un compañero sano se sienta frente a la cámara. El motor le agrega una patología a cada
           pulso: la mirada se arrastra con la cabeza en lo que el reflejo no compensa, y sacadas la

@@ -94,3 +94,43 @@ ${cuerpo}
   writeFileSync(new URL('sacadas.svg', DEST), svg(cuerpo, 'Sacadas correctivas encubierta y manifiesta'));
 }
 console.log('ganancia.svg y sacadas.svg regenerados');
+
+// ── patrones.svg: los cuatro patrones que se buscan, cada uno con sus dos
+// lados. Mismas curvas que arriba, en chico: el alumno tiene que reconocer
+// la forma, no leer números.
+{
+  const mini = (x0, y0, w, h, ojo) => {
+    const t0 = -20, t1 = 420, vmax = 280;
+    const px = (t) => x0 + ((t - t0) / (t1 - t0)) * w;
+    const py = (v) => y0 + h - (v / vmax) * h;
+    const linea = (f, color, ancho) => {
+      let d = '';
+      for (let t = t0; t <= t1; t += 3) d += `${d ? 'L' : 'M'}${px(t).toFixed(1)},${py(Math.max(0, f(t))).toFixed(1)}`;
+      return `<path d="${d}" fill="none" stroke="${color}" stroke-width="${ancho}" stroke-linejoin="round" stroke-linecap="round"/>`;
+    };
+    return `<rect x="${x0}" y="${y0}" width="${w}" height="${h}" fill="none" stroke="${C.grid}" stroke-width="2" rx="6"/>` +
+      linea(cabeza, C.head, 5) + linea(ojo, C.eye, 4);
+  };
+  const sano = (t) => 0.97 * cabeza(t - 8);
+  const manifiesta = (t) => 0.42 * cabeza(t - 8) + gauss(t, 300, 150, 14);
+  const encubierta = (t) => 0.45 * cabeza(t - 8) + gauss(t, 118, 170, 12);
+  const patrones = [
+    ['Normal', 'cerca de 1 en los dos lados', sano, sano],
+    ['Déficit unilateral', 'un lado bajo, con sacadas de ese lado', manifiesta, sano],
+    ['Déficit bilateral', 'los dos bajos: asimetría cerca de cero', manifiesta, manifiesta],
+    ['Sacadas encubiertas', 'la ganancia se lee normal: mirar la forma', sano, encubierta],
+  ];
+  let cuerpo = '';
+  patrones.forEach(([titulo, sub, der, izq], i) => {
+    const x = 60 + (i % 2) * 750;
+    const y = 50 + Math.floor(i / 2) * 400;
+    cuerpo += `<text x="${x}" y="${y + 34}" fill="${C.fg}" font-size="34" font-weight="700">${titulo}</text>`;
+    cuerpo += `<text x="${x}" y="${y + 72}" fill="${C.muted}" font-size="24">${sub}</text>`;
+    cuerpo += mini(x, y + 96, 330, 250, der) + mini(x + 350, y + 96, 330, 250, izq);
+    cuerpo += `<text x="${x + 12}" y="${y + 130}" fill="${C.muted}" font-size="22">derecha</text>`;
+    cuerpo += `<text x="${x + 362}" y="${y + 130}" fill="${C.muted}" font-size="22">izquierda</text>`;
+  });
+  cuerpo += leyenda(880, [[C.head, 'cabeza'], [C.eye, 'ojo (invertido)']]);
+  writeFileSync(new URL('patrones.svg', DEST), svg(cuerpo, 'Los cuatro patrones: normal, déficit unilateral, bilateral y sacadas encubiertas'));
+}
+console.log('patrones.svg generado');

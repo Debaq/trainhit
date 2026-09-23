@@ -215,9 +215,10 @@ motor cambia y eso deja de ser cierto, el test lo dice antes que un alumno.
 
 Mientras una imagen falta se ve un recuadro con su nombre. Los dos gráficos de
 curvas no se generan con IA —inventaría la forma de las curvas, que es lo que se
-enseña—: los dibuja `node img/tutorial/diagramas.mjs`. Las ocho ilustraciones
-(portada, reflejo, impulso, montaje, postura, manos, calibración e impulsos)
-son esquemas SVG que dibuja `node img/tutorial/ilustraciones.mjs` con la guía
+enseña—: los dibuja `node img/tutorial/diagramas.mjs`, que también dibuja
+`patrones.svg`, los cuatro patrones que se buscan. Las catorce ilustraciones
+—todas las tarjetas grandes de los paseos y los dos pasos flotantes de
+calibrar e impulsos— son esquemas SVG que dibuja `node img/tutorial/ilustraciones.mjs` con la guía
 de estilo de `PROMPTS.md`; los prompts siguen ahí para reemplazarlas por
 ilustraciones de autor.
 
