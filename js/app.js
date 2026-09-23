@@ -82,6 +82,8 @@ const estado = {
    * desmarcar la casilla. null mientras no hay k a mano.
    */
   kAntesManual: null,
+  /** Pulsos descartados, el último al final: `Z` los devuelve. */
+  papelera: [],
 };
 
 function vivoVacio() {
@@ -341,11 +343,13 @@ function procesaFrame(mediaTime) {
 
   // --- parpadeo, desde la malla ---
   const apertura = (o) => geom.eyelidOpenness(P(o.lidUp), P(o.lidDown), P(o.outer), P(o.inner));
-  const blink =
-    Math.max(
-      geom.blinkScore(apertura(IDX.derecho) ?? geom.EYE_OPEN_REF),
-      geom.blinkScore(apertura(IDX.izquierdo) ?? geom.EYE_OPEN_REF),
-    ) > cfg.blinkScore;
+  // Se guarda el PUNTAJE y no el sí/no: así la perilla de parpadeo también
+  // se puede recalcular sobre pulsos ya medidos (ver `procesaCrudo`).
+  const blinkScore = Math.max(
+    geom.blinkScore(apertura(IDX.derecho) ?? geom.EYE_OPEN_REF),
+    geom.blinkScore(apertura(IDX.izquierdo) ?? geom.EYE_OPEN_REF),
+  );
+  const blink = blinkScore > cfg.blinkScore;
 
   // --- ojos ---
   const mide = (o) => geom.observeEye(P(o.iris), o.border.map(P), P(o.outer), P(o.inner));
@@ -378,7 +382,7 @@ function procesaFrame(mediaTime) {
   const gaze = estado.model.gazeAzimuthDeg(obs, yaw);
   estado.vivo.azimut = gaze;
 
-  estado.crudo.push({ t: mediaTime, yaw, offsetMm: obs.offsetMm, blink, irisPx: obs.radiusPx, vergMm });
+  estado.crudo.push({ t: mediaTime, yaw, offsetMm: obs.offsetMm, blinkScore, irisPx: obs.radiusPx, vergMm });
   while (estado.crudo.length && mediaTime - estado.crudo[0].t > plots.SEGUNDOS_VIVO) estado.crudo.shift();
 
   const d = estado.diff.push({ t: mediaTime, headDeg: yaw, gazeDeg: gaze });
@@ -568,17 +572,15 @@ function pintaListas() {
       tr.tabIndex = 0;
       const estadoTxt = t.rejected ? RECHAZO_TEXT[t.rejected].split(' —')[0] : 'OK';
       tr.innerHTML = `
-        <td class="num">#${t.id}${t.ejemplo ? '<i class="ej" title="pulso de ejemplo: paciente sintético">ej</i>' : ''}</td>
+        <td class="num">#${t.id}${t.ejemplo ? '<i class="ej" title="pulso de ejemplo: paciente sintético">ej</i>' : ''}${
+          t.calibrado ? '' : '<i class="sc" title="medido sin calibrar: la ganancia incluye el paralaje">s/c</i>'
+        }</td>
         <td>${fmt(t.peakHeadDegS, 0)} °/s</td>
         <td>${fmt(t.durationMs, 0)} ms</td>
-        <td class="g">${fmt(t.gain)}</td>
+        <td class="g${t.calibrado ? '' : ' sin'}">${fmt(t.gain)}</td>
         <td class="est ${t.rejected ? 'mal' : 'ok'}">${estadoTxt}</td>
         <td class="acc"><button class="x" title="descartar" aria-label="descartar el pulso ${t.id}">✕</button></td>`;
-      const descarta = () => {
-        estado.trials = estado.trials.filter((x) => x !== t);
-        if (estado.seleccion === t) estado.seleccion = null;
-        pintaListas();
-      };
+      const descarta = () => tiraAPapelera(t);
       tr.querySelector('.x').addEventListener('click', (e) => {
         e.stopPropagation();
         descarta();
@@ -620,6 +622,7 @@ function pintaListas() {
     const total = estado.trials.filter((t) => t.side === lado).length;
     $(metaId).textContent = `${r.n} aceptados · ${total - r.n} rechazados`;
   }
+  $('btn-deshacer').hidden = !estado.papelera.length;
   const a = asimetria(der.media, izq.media);
   $('asim').textContent = a === null ? 'asimetría —' : `asimetría ${fmt(a, 1)} %`;
 }
@@ -772,6 +775,7 @@ function borraTodos() {
   if (estado.trials.length && !estado.ejemplo && !confirm(`¿Borrar los ${estado.trials.length} pulsos?`)) return;
   estado.trials = [];
   estado.seleccion = null;
+  vaciaPapelera();
   saleDeEjemplo();
   pintaListas();
 }
@@ -801,6 +805,7 @@ function cargaEjemplos() {
   estado.model.kParallax = fit?.acceptable ? fit.kParallax : K_EJEMPLO;
   estado.model.calibrated = true;
   estado.trials = [];
+  vaciaPapelera();
   PULSOS_EJEMPLO.forEach((p, i) => {
     const { crudo, tTrigger } = crudoDeEjemplo(p, i + 1);
     const trial = procesaCrudo(crudo, tTrigger, estado.model, derivActual(), cfg);
@@ -821,6 +826,7 @@ function saleDeEjemplo() {
   if (!estado.ejemplo) return;
   estado.trials = estado.trials.filter((t) => !t.ejemplo);
   if (estado.seleccion?.ejemplo) estado.seleccion = null;
+  vaciaPapelera();
   estado.model.kParallax = estado.ejemplo.k;
   estado.model.calibrated = estado.ejemplo.calibrado;
   estado.ultimoFit = estado.ejemplo.fit;
@@ -830,9 +836,35 @@ function saleDeEjemplo() {
 }
 
 function descartaUltimo() {
-  estado.trials.pop();
-  estado.seleccion = null;
+  const t = estado.trials[estado.trials.length - 1];
+  if (t) tiraAPapelera(t);
+}
+
+/**
+ * Descartar no borra: el pulso va a una papelera y `Z` (o «Deshacer») lo
+ * devuelve a su lugar. `D` está al lado de otras teclas y descartar el pulso
+ * equivocado, sin vuelta atrás, era perder una medición que no se repite igual.
+ */
+function tiraAPapelera(t) {
+  estado.trials = estado.trials.filter((x) => x !== t);
+  if (estado.seleccion === t) estado.seleccion = null;
+  estado.papelera.push(t);
   pintaListas();
+  marcaEstado(`pulso #${t.id} descartado · Z para deshacer`);
+}
+
+function deshaceDescarte() {
+  const t = estado.papelera.pop();
+  if (!t) return;
+  estado.trials = [...estado.trials, t].sort((a, b) => a.id - b.id);
+  estado.seleccion = t;
+  pintaListas();
+  marcaEstado(`pulso #${t.id} de vuelta`);
+}
+
+/** La papelera es de la sesión que se está mirando: otra sesión la vacía. */
+function vaciaPapelera() {
+  estado.papelera = [];
 }
 
 function sliders() {
@@ -1064,6 +1096,7 @@ function atajos() {
     else if (k === 'c') empiezaCalibracion();
     else if (k === 'r') borraTodos();
     else if (k === 'd') descartaUltimo();
+    else if (k === 'z') deshaceDescarte();
     else if (k === 'h') abreHerramientas($('herramientas').hidden);
     else if (k === ' ' || k === 'p') {
       // `preventDefault` acá no es solo para que la página no haga scroll: si
@@ -1176,6 +1209,7 @@ $('btn-arrancar').addEventListener('click', () => (estado.corriendo ? detener() 
 $('btn-calibrar').addEventListener('click', empiezaCalibracion);
 $('btn-borrar').addEventListener('click', borraTodos);
 $('btn-descartar').addEventListener('click', descartaUltimo);
+$('btn-deshacer').addEventListener('click', deshaceDescarte);
 $('btn-csv').addEventListener('click', exportaTodo);
 $('btn-recalcular').addEventListener('click', recalculaTodos);
 $('btn-defecto').addEventListener('click', () => perillasPorDefecto());

@@ -20,7 +20,7 @@ export const MARGEN_CRUDO_MS = 250;
 /**
  * Corre el motor sobre muestras crudas y devuelve el pulso analizado.
  *
- * @param {Array<{t:number,yaw:number,offsetMm:number,blink:boolean,irisPx?:number,vergMm?:number}>} crudo
+ * @param {Array<{t:number,yaw:number,offsetMm:number,blinkScore?:number,blink?:boolean,irisPx?:number,vergMm?:number}>} crudo
  *   una por frame, `t` en segundos
  * @param {number} tTrigger instante del disparo, en segundos: el cero del pulso
  * @param {{gazeAzimuthDeg:Function}} model modelo ocular (trae el `k`)
@@ -44,7 +44,10 @@ export function procesaCrudo(crudo, tTrigger, model, deriv, cfg) {
       gazePos: d.gazeDeg,
       headVel: d.headVel,
       gazeVel: d.gazeVel,
-      blink: c.blink,
+      // El puntaje se compara con la perilla de AHORA, así recalcular también
+      // mueve el parpadeo. Los crudos viejos (y los importados sin puntaje)
+      // traen solo el sí/no de cuando se midieron.
+      blink: c.blinkScore !== undefined && c.blinkScore !== null ? c.blinkScore > cfg.blinkScore : Boolean(c.blink),
       irisPx: c.irisPx ?? null,
       vergMm: c.vergMm ?? null,
       // Lo crudo del frame que cerró la ventana, para el CSV de muestras.

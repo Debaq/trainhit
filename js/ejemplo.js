@@ -76,7 +76,7 @@ const rad = (d) => (d * Math.PI) / 180;
 
 /**
  * Muestras crudas de un impulso, como las guarda app.js: `{ t, yaw, offsetMm,
- * blink, irisPx, vergMm }` por frame, con `t` en segundos.
+ * blinkScore, irisPx, vergMm }` por frame, con `t` en segundos.
  *
  * El yaw del motor es positivo hacia la IZQUIERDA del paciente (ver
  * `SIGNO_DERECHA` en analysis.js): un impulso a la derecha baja el yaw.
@@ -103,8 +103,11 @@ export function crudoDeEjemplo({ lado, pico, ganancia, sacada = null, parpadeo =
     if (sacada !== null) mirada *= 1 - suave((t - CENTRO_S - sacada) / 0.04);
 
     const offsetMm = EYE_ROTATION_RADIUS_MM * (Math.sin(rad(mirada)) - K_EJEMPLO * Math.sin(rad(yaw))) + ruido(0.025);
-    const blink = parpadeo && t > CENTRO_S - 0.03 && t < CENTRO_S + 0.1;
-    crudo.push({ t, yaw, offsetMm, blink, irisPx: 9 + ruido(0.3), vergMm: ruido(0.02) });
+    // Puntaje de parpadeo (0 abierto, 1 cerrado), como lo guarda app.js. El
+    // parpadeo cierra a ~0,85: una perilla por encima de eso lo deja pasar.
+    const cerrado = parpadeo && t > CENTRO_S - 0.03 && t < CENTRO_S + 0.1;
+    const blinkScore = cerrado ? 0.85 + ruido(0.03) : Math.max(0, 0.08 + ruido(0.04));
+    crudo.push({ t, yaw, offsetMm, blinkScore, irisPx: 9 + ruido(0.3), vergMm: ruido(0.02) });
   }
   return { crudo, tTrigger };
 }

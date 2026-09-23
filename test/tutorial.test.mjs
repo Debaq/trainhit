@@ -100,6 +100,12 @@ test('las perillas hacen con los ejemplos lo que dicen los paseos', () => {
   assert.ok(g > 1.8 && g < 2, `k=0 da ${g}`);
 });
 
+test('la perilla de parpadeo se recalcula sobre pulsos ya medidos', () => {
+  // «Probá subirlo a 0,90 y recalculá: el pulso con parpadeo pasa a aceptado».
+  assert.ok(ejemplos().some((t) => t.rejected === 'parpadeo'));
+  assert.ok(!ejemplos({ ...CONFIG, blinkScore: 0.9 }).some((t) => t.rejected === 'parpadeo'));
+});
+
 test('la calibración de ejemplo se acepta y recupera su k', () => {
   const fit = geom.fitParallax(calibracionDeEjemplo(), geom.EYE_ROTATION_RADIUS_MM);
   assert.ok(fit.acceptable, fit.issue);

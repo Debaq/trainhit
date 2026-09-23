@@ -7,8 +7,9 @@
 // no necesariamente alguien con cuenta en GitHub.
 //
 // Lo que se manda es una petición sin datos: no viaja ni el video, ni las
-// mediciones, ni nada de la sesión. Es la ÚNICA petición que sale de la página
-// aparte del modelo de MediaPipe, y solo si alguien aprieta el botón.
+// mediciones, ni nada de la sesión. Aparte del modelo de MediaPipe es lo único
+// que sale de la página: una lectura del número en cada carga y, solo si
+// alguien aprieta el botón, el voto.
 
 const BASE = 'https://abacus.jasoncameron.dev';
 const ESPACIO = 'trainhit';

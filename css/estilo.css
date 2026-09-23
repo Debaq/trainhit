@@ -533,7 +533,18 @@ kbd {
   font-style: normal;
   text-transform: uppercase;
 }
+.lista .sc {
+  margin-left: 4px;
+  padding: 0 4px;
+  border-radius: 3px;
+  background: rgba(214, 45, 45, 0.15);
+  color: var(--c-bad);
+  font: 600 9px ui-monospace, monospace;
+  font-style: normal;
+}
 .lista .g { font-weight: 700; text-align: right; }
+/* Ganancia sin calibrar: se muestra, pero no se lee como un resultado. */
+.lista .g.sin { color: var(--muted-fg); font-weight: 400; text-decoration: line-through dotted; }
 .lista .est { text-align: right; }
 .lista .est.ok { color: var(--c-ok); }
 .lista .est.mal { color: var(--c-bad); }

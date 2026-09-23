@@ -115,6 +115,7 @@ puede ser externo, así que va autorizado por su hash sha256 en la CSP;
 | `C` | Calibrar el paralaje (10 s). **Obligatorio antes de creerle a la ganancia.** |
 | `R` | Borrar todos los pulsos |
 | `D` | Descartar el último |
+| `Z` | Devolver el último descartado |
 | `H` | Abrir o cerrar las herramientas |
 | `T` | Abrir o cerrar «Aprender a usar» |
 | `Espacio` o `P` | Pausar y congelar la traza de abajo para medirla (la cámara sigue) |
@@ -478,6 +479,13 @@ Todo lo que en un equipo comercial es una constante escondida, acá es un slider
 ventana y grado del derivador, umbrales de inicio y fin del impulso, rango de
 pico y de duración aceptados, umbral de parpadeo, y un `k` que se puede poner a
 mano para **ver** cómo el paralaje mueve la ganancia entera.
+
+El parpadeo también se recalcula: cada frame guarda el **puntaje** de
+parpadeo (0 abierto, 1 cerrado) y no el sí/no, así que la perilla se aplica de
+nuevo sobre pulsos ya medidos.
+
+Un pulso medido sin calibrar sale en la lista con **s/c** y la ganancia
+tachada: el número incluye el paralaje entero y no se lee como resultado.
 
 Mover una perilla no recalcula los pulsos viejos: afecta a los siguientes, y
 los números de la tabla son los que se midieron con la configuración que había

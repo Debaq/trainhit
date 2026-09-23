@@ -266,7 +266,8 @@ export const PASEOS = [
         objetivo: '.lado .lista',
         cuerpo: `
           <p>Un pulso por fila: pico, duración, ganancia y estado. <b>✕</b> lo descarta, y
-          <kbd>D</kbd> descarta el último.</p>
+          <kbd>D</kbd> descarta el último; <kbd>Z</kbd> lo devuelve. Un pulso medido sin calibrar
+          sale marcado <b>s/c</b> y con la ganancia tachada.</p>
           <p>Un rechazado dice por qué: <i>MUY LENTO</i> pide un impulso más fuerte, <i>PARPADEO</i>
           repetirlo con los ojos abiertos, <i>CARA PERDIDA</i> quedarse en el encuadre. Los rechazados
           no entran en la media.</p>`,
@@ -550,8 +551,9 @@ export const PASEOS = [
         cuerpo: `
           <p>Qué tan cerrado tiene que estar el ojo (0 abierto, 1 cerrado) para marcar la muestra como
           parpadeo. Un parpadeo dentro del impulso rechaza el pulso: con el ojo cerrado no hay iris.</p>
-          <p class="ayuda">Esta es la excepción: el parpadeo se decide al medir, cuadro a cuadro, así
-          que vale para los pulsos siguientes y <b>Recalcular</b> no lo cambia.</p>`,
+          <p>Probá subirlo a <b>0,90</b> y recalculá: el pulso con parpadeo de los ejemplos pasa a
+          aceptado, con una ganancia que se calculó con el ojo cerrado. Un umbral flojo no rechaza
+          menos parpadeos: acepta mediciones sin iris.</p>`,
       },
       {
         id: 'iris',
