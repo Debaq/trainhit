@@ -8,7 +8,7 @@
          jsdelivr (MediaPipe), y conexiones solo a lo que la página usa. -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-JDrU11sii92daddN2MY59ptvb2NYq9S/7KK4Mxg93Po='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
+      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-PpzpY+qkFFmQbtUIDLaYS6z9lcKQqO134G0WuXVrsNo='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
     />
     <meta
       name="description"
@@ -52,7 +52,7 @@
     />
     <!-- Mapa de importación: versiona los imports internos. Lo regenera
          bump.mjs junto con su hash en la CSP de arriba. Va antes del arranque. -->
-    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-23.10","./js/app.js":"./js/app.js?v=2026-09-23.10","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-23.10","./js/curve.js":"./js/curve.js?v=2026-09-23.10","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-23.10","./js/geom.js":"./js/geom.js?v=2026-09-23.10","./js/head.js":"./js/head.js?v=2026-09-23.10","./js/pipeline.js":"./js/pipeline.js?v=2026-09-23.10","./js/plots.js":"./js/plots.js?v=2026-09-23.10","./js/signal.js":"./js/signal.js?v=2026-09-23.10","./js/tracker.js":"./js/tracker.js?v=2026-09-23.10","./js/tutorial.js":"./js/tutorial.js?v=2026-09-23.10","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-23.10"}}</script>
+    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-23.11","./js/app.js":"./js/app.js?v=2026-09-23.11","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-23.11","./js/curve.js":"./js/curve.js?v=2026-09-23.11","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-23.11","./js/geom.js":"./js/geom.js?v=2026-09-23.11","./js/head.js":"./js/head.js?v=2026-09-23.11","./js/pipeline.js":"./js/pipeline.js?v=2026-09-23.11","./js/plots.js":"./js/plots.js?v=2026-09-23.11","./js/signal.js":"./js/signal.js?v=2026-09-23.11","./js/tracker.js":"./js/tracker.js?v=2026-09-23.11","./js/tutorial.js":"./js/tutorial.js?v=2026-09-23.11","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-23.11"}}</script>
     <script src="js/arranque.js"></script>
     <noscript><link rel="stylesheet" href="css/estilo.css" /></noscript>
   </head>
@@ -420,6 +420,7 @@
           <div class="acciones-perillas">
             <button id="btn-recalcular">Recalcular los pulsos con esta configuración</button>
             <button id="btn-defecto" class="ghost" title="cada perilla a su valor de fábrica">Valores por defecto</button>
+            <button id="btn-sin-antes" class="ghost" title="saca los valores tachados de antes de recalcular" hidden>Quitar comparación</button>
           </div>
         </section>
 

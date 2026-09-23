@@ -826,7 +826,7 @@ export const METODOS_GANANCIA = {
 };
 
 /** Ganancia contra pico de velocidad, con el corte y la franja aceptada. */
-export function dibujaDispersion(canvas, trials, cfg, { metodo = 'area' } = {}) {
+export function dibujaDispersion(canvas, trials, cfg, { metodo = 'area', antes = null } = {}) {
   const de = METODOS_GANANCIA[metodo]?.de ?? METODOS_GANANCIA.area.de;
   const { ctx, w, h } = prepara(canvas);
   const pad = { l: 36, r: 6, t: 12, b: 16 };
@@ -843,6 +843,31 @@ export function dibujaDispersion(canvas, trials, cfg, { metodo = 'area' } = {}) 
   ctx.setLineDash([]);
 
   recorta(ctx, pad, w, h);
+  // Antes de recalcular: un círculo hueco y una línea hasta el punto de ahora.
+  // Es el efecto de la perilla dibujado, sin tener que acordarse del número.
+  if (antes) {
+    for (const t of trials) {
+      const a = antes.get(t.id);
+      if (!a || a.gain === null || a.gain === undefined) continue;
+      const color = t.side === 'derecha' ? COLOR.cabeza : COLOR.covert;
+      ctx.strokeStyle = color;
+      ctx.globalAlpha = 0.55;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(px(a.peak), py(a.gain), 3.5, 0, Math.PI * 2);
+      ctx.stroke();
+      const g = de(t);
+      if (g !== null && g !== undefined && Number.isFinite(g)) {
+        ctx.setLineDash([2, 2]);
+        ctx.beginPath();
+        ctx.moveTo(px(a.peak), py(a.gain));
+        ctx.lineTo(px(t.peakHeadDegS), py(g));
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
   for (const t of trials) {
     const g = de(t);
     if (g === null || g === undefined || !Number.isFinite(g)) continue;

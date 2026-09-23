@@ -561,6 +561,13 @@ ganancia irse a 1,9, sin tener que hacer otro impulso. El motor que corre al
 medir y al recalcular es el mismo (`js/pipeline.js`), así que con la misma
 configuración da lo mismo.
 
+Recalcular deja a la vista lo que había: en la lista la ganancia de antes
+tachada al lado de la nueva (y el estado viejo en el tooltip), en cada panel
+la media de antes, la asimetría de antes, y en la nube de ganancias un
+círculo hueco donde estaba cada punto, unido al de ahora. Antes el efecto de
+una perilla había que recordarlo de memoria. La comparación dura hasta el
+próximo pulso, los ejemplos, **Borrar todos** o **Quitar comparación**.
+
 **Valores por defecto**, al pie de las perillas, devuelve cada una a su valor
 de fábrica. Mientras alguna no lo está, la barra dice **PERILLAS CAMBIADAS**
 (con cuáles al pasar el mouse): una ventana de 200 ms que quedó puesta de un

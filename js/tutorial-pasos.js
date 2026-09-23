@@ -695,7 +695,9 @@ export const PASEOS = [
           crudas, así que <b>Recalcular</b> vuelve a correr el motor entero sobre los pulsos que ya
           están, con la configuración de ahora.</p>
           <p>El método de este paseo: mové <b>una</b> perilla, recalculá, mirá qué cambió, y volvela a
-          su lugar.</p>
+          su lugar. Después de recalcular, la ganancia de antes queda <s>tachada</s> al lado de la
+          nueva, los paneles dicen la media de antes y en la nube de ganancias cada punto viejo
+          queda unido al nuevo.</p>
           <p class="ayuda">Mientras alguna perilla no está en su valor de fábrica, la barra de arriba
           dice <b>PERILLAS CAMBIADAS</b>: los pulsos que se midan así no son comparables con otros.</p>`,
       },

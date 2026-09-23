@@ -84,6 +84,8 @@ const estado = {
   kAntesManual: null,
   /** Pulsos descartados, el último al final: `Z` los devuelve. */
   papelera: [],
+  /** Los pulsos antes del último Recalcular (ver `fotoAntes`), o null. */
+  antes: null,
 };
 
 function vivoVacio() {
@@ -518,6 +520,7 @@ function cierraPulso() {
   anotaConfig(trial);
   estado.trials.push(trial);
   estado.seleccion = trial;
+  olvidaAntes();
   pintaListas();
 }
 
@@ -535,6 +538,7 @@ function anotaConfig(trial) {
  */
 function recalculaTodos() {
   const idSel = estado.seleccion?.id;
+  estado.antes = fotoAntes();
   estado.trials = estado.trials.map((t) => {
     if (!t.crudo) return t;
     const nuevo = procesaCrudo(t.crudo, t.tTrigger, estado.model, derivActual(), cfg);
@@ -549,7 +553,30 @@ function recalculaTodos() {
   estado.seleccion = estado.trials.find((t) => t.id === idSel) ?? null;
   estado.recalculados++;
   pintaListas();
-  marcaEstado(`${estado.trials.length} pulsos recalculados con la configuración actual`);
+  marcaEstado(`${estado.trials.length} pulsos recalculados con la configuración actual: tachado, lo de antes`);
+}
+
+/**
+ * Cómo estaban los pulsos antes de recalcular. Recalcular pisaba los números
+ * y el efecto de una perilla había que recordarlo de memoria: con la foto, la
+ * lista muestra el valor viejo tachado al lado del nuevo, los paneles la media
+ * de antes y la nube los puntos de antes unidos a los de ahora.
+ */
+function fotoAntes() {
+  const lado = (side) => resumenLado(estado.trials, side);
+  const der = lado('derecha');
+  const izq = lado('izquierda');
+  return {
+    porId: new Map(estado.trials.map((t) => [t.id, { gain: t.gain, rejected: t.rejected, peak: t.peakHeadDegS, side: t.side }])),
+    derecha: der,
+    izquierda: izq,
+    asim: asimetria(der.media, izq.media),
+  };
+}
+
+/** La comparación vale contra el recálculo; cualquier otro cambio de pulsos la vence. */
+function olvidaAntes() {
+  estado.antes = null;
 }
 
 // ------------------------------------------------------------------- UI ----
@@ -577,7 +604,7 @@ function pintaListas() {
         }</td>
         <td>${fmt(t.peakHeadDegS, 0)} °/s</td>
         <td>${fmt(t.durationMs, 0)} ms</td>
-        <td class="g${t.calibrado ? '' : ' sin'}">${fmt(t.gain)}</td>
+        <td class="g${t.calibrado ? '' : ' sin'}">${antesDe(t)}${fmt(t.gain)}</td>
         <td class="sac">${(t.sacadas ?? [])
           .map((s) => `<i class="${s.tipo === 'encubierta' ? 'c-covert' : 'c-overt'}" title="sacada ${s.tipo}">▼</i>`)
           .join('')}</td>
@@ -610,7 +637,8 @@ function pintaListas() {
         `\nk ${fmt(t.k)} · derivador ${t.deriv?.windowMs} ms grado ${t.deriv?.degree}` +
         (t.rejected ? `\n${RECHAZO_TEXT[t.rejected]}` : '') +
         (t.calibrado ? '' : '\nmedido SIN calibrar') +
-        (t.ejemplo ? '\npulso de EJEMPLO: paciente sintético' : '');
+        (t.ejemplo ? '\npulso de EJEMPLO: paciente sintético' : '') +
+        (cambio(t) ? `\nantes de recalcular: ${fmt(cambio(t).gain)} ${cambio(t).rejected ? RECHAZO_TEXT[cambio(t).rejected].split(' —')[0] : 'OK'}` : '');
       tbody.appendChild(tr);
     }
   }
@@ -625,12 +653,32 @@ function pintaListas() {
     g.textContent = r.n ? (r.n > 1 ? `${fmt(r.media)} ± ${fmt(r.de)}` : fmt(r.media)) : '—';
     g.className = `gan ${!r.n || !estado.model.calibrated ? 'sin' : r.media >= cfg.gainNormalMin ? 'ok' : 'bajo'}`;
     const total = estado.trials.filter((t) => t.side === lado).length;
-    $(metaId).textContent = `${r.n} aceptados · ${total - r.n} rechazados`;
+    const a = estado.antes?.[lado];
+    $(metaId).textContent =
+      `${r.n} aceptados · ${total - r.n} rechazados` +
+      (a ? ` · antes ${a.n ? (a.n > 1 ? `${fmt(a.media)} ± ${fmt(a.de)}` : fmt(a.media)) : '—'}` : '');
   }
   $('btn-deshacer').hidden = !estado.papelera.length;
   pintaMetodos();
   const a = asimetria(der.media, izq.media);
-  $('asim').textContent = a === null ? 'asimetría —' : `asimetría ${fmt(a, 1)} %`;
+  $('asim').textContent =
+    (a === null ? 'asimetría —' : `asimetría ${fmt(a, 1)} %`) +
+    (estado.antes ? ` (antes ${estado.antes.asim === null ? '—' : `${fmt(estado.antes.asim, 1)} %`})` : '');
+  $('btn-sin-antes').hidden = !estado.antes;
+}
+
+/** Lo que el pulso era antes del último Recalcular, si cambió. */
+function cambio(t) {
+  const a = estado.antes?.porId.get(t.id);
+  if (!a) return null;
+  const igual = a.rejected === t.rejected && (a.gain === t.gain || Math.abs((a.gain ?? NaN) - (t.gain ?? NaN)) < 0.005);
+  return igual ? null : a;
+}
+
+/** El valor de antes, tachado, para la celda de ganancia. */
+function antesDe(t) {
+  const a = cambio(t);
+  return a ? `<s class="antes">${fmt(a.gain)}</s> ` : '';
 }
 
 /** Las tres ganancias, resumidas por lado sobre los mismos pulsos aceptados. */
@@ -733,7 +781,11 @@ function pintaTodo() {
       plots.dibujaPulso($('plot-pulso'), estado.seleccion || estado.trials[estado.trials.length - 1], cfg, {
         medicion: conMedicion('plot-pulso'),
       });
-      plots.dibujaDispersion($('plot-ganancias'), estado.trials, cfg, { metodo: $('metodo-gan').value });
+      plots.dibujaDispersion($('plot-ganancias'), estado.trials, cfg, {
+        metodo: $('metodo-gan').value,
+        // Los puntos de antes solo tienen sentido con la ganancia que se guardó.
+        antes: $('metodo-gan').value === 'area' ? estado.antes?.porId : null,
+      });
     }
     sucio.pulsos = false;
   }
@@ -803,6 +855,7 @@ function borraTodos() {
   estado.trials = [];
   estado.seleccion = null;
   vaciaPapelera();
+  olvidaAntes();
   saleDeEjemplo();
   pintaListas();
 }
@@ -836,6 +889,7 @@ function cargaEjemplos(caso = null) {
   estado.model.calibrated = true;
   estado.trials = [];
   vaciaPapelera();
+  olvidaAntes();
   // Semillas fijas: el mismo caso da los mismos pulsos cada vez, en el aula y
   // en los tests.
   const semilla0 = caso ? 100 : 1;
@@ -865,6 +919,7 @@ function saleDeEjemplo() {
   estado.trials = estado.trials.filter((t) => !t.ejemplo);
   if (estado.seleccion?.ejemplo) estado.seleccion = null;
   vaciaPapelera();
+  olvidaAntes();
   estado.model.kParallax = estado.ejemplo.k;
   estado.model.calibrated = estado.ejemplo.calibrado;
   estado.ultimoFit = estado.ejemplo.fit;
@@ -1255,6 +1310,10 @@ $('btn-deshacer').addEventListener('click', deshaceDescarte);
 $('btn-csv').addEventListener('click', exportaTodo);
 $('btn-recalcular').addEventListener('click', recalculaTodos);
 $('btn-defecto').addEventListener('click', () => perillasPorDefecto());
+$('btn-sin-antes').addEventListener('click', () => {
+  olvidaAntes();
+  pintaListas();
+});
 $('btn-herramientas').addEventListener('click', () => abreHerramientas($('herramientas').hidden));
 $('btn-cerrar').addEventListener('click', () => abreHerramientas(false));
 $('btn-pausa').addEventListener('click', () => ponPausa(!estado.pausado));

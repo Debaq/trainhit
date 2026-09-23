@@ -579,6 +579,7 @@ kbd {
 .lista .est.ok { color: var(--c-ok); }
 .lista .est.mal { color: var(--c-bad); }
 .lista .acc { text-align: right; width: 22px; padding: 0 4px; }
+.lista s.antes { color: var(--muted-fg); font-weight: 400; }
 .lista .sac { padding: 2px 2px; font-size: 9px; white-space: nowrap; }
 .lista .sac i { font-style: normal; }
 .lista .x { background: none; border: 0; padding: 0 2px; color: var(--muted-fg); font: inherit; cursor: pointer; }
