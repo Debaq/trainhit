@@ -6,7 +6,7 @@
 import * as geom from './geom.js';
 import { HeadTracker, quatFromMatrix, quatRotate } from './head.js';
 import { Differentiator } from './signal.js';
-import { CONFIG, RECHAZO_TEXT, analyzeTrial, asimetria, resumenLado } from './analysis.js';
+import { CONFIG, RECHAZO_TEXT, SIGNO_DERECHA, analyzeTrial, asimetria, resumenLado } from './analysis.js';
 import * as plots from './plots.js';
 import { FPS_MAX, IDX, abrirCamara, bucleDeFrames, crearLandmarker, describeCamara, listarCamaras } from './tracker.js';
 import { montaBienvenida } from './bienvenida.js';
@@ -15,6 +15,7 @@ import { K_EJEMPLO, calibracionDeEjemplo, crudoDeEjemplo, pulsosDe } from './eje
 import { MARGEN_CRUDO_MS, procesaCrudo } from './pipeline.js';
 import { leeSesion, textoSesion } from './sesion.js';
 import { textoGift } from './preguntas.js';
+import { PERFILES, arrastre, offsetConMirada, parametrosPulso, simulaCrudo } from './simulacion.js';
 
 const $ = (id) => document.getElementById(id);
 const fmt = (v, d = 2) => (v === null || v === undefined || Number.isNaN(v) ? '—' : v.toFixed(d));
@@ -88,10 +89,17 @@ const estado = {
   papelera: [],
   /** Los pulsos antes del último Recalcular (ver `fotoAntes`), o null. */
   antes: null,
+  /**
+   * Paciente simulado (ver simulacion.js). `eleccion` es lo que dice el
+   * selector —puede ser «azar»—; `perfil`, el que se aplica de verdad.
+   */
+  sim: { eleccion: '', perfil: null, ciego: false, revelado: false, mostrarReal: false, semilla: 1 },
+  /** El pulso simulado en curso, para la traza en vivo: ver `simulaEnVivo`. */
+  simVivo: null,
 };
 
 function vivoVacio() {
-  return { offsetMm: null, pxPerMm: null, irisPx: null, yaw: 0, inclinacion: null, azimut: null, blink: false };
+  return { offsetMm: null, pxPerMm: null, irisPx: null, yaw: 0, inclinacion: null, azimut: null, blink: false, simDeltaMm: 0 };
 }
 
 // ----------------------------------------------------------- carga modelo ---
@@ -383,7 +391,13 @@ function procesaFrame(mediaTime) {
 
   juntaCalibracion(obs, yaw, blink);
 
-  const gaze = estado.model.gazeAzimuthDeg(obs, yaw);
+  // Paciente simulado: lo que el motor ve en vivo lleva el arrastre del
+  // perfil. El crudo guarda lo REAL; al cerrar el pulso la simulación se
+  // rehace entera sobre él (`simulaPulso`), que es lo que queda en la lista.
+  const offsetVisto = simulaEnVivo(mediaTime, yaw, obs.offsetMm);
+  estado.vivo.simDeltaMm = offsetVisto - obs.offsetMm;
+  estado.vivo.offsetMm = offsetVisto;
+  const gaze = estado.model.gazeAzimuthDeg({ offsetMm: offsetVisto }, yaw);
   estado.vivo.azimut = gaze;
 
   estado.crudo.push({ t: mediaTime, yaw, offsetMm: obs.offsetMm, blinkScore, irisPx: obs.radiusPx, vergMm });
@@ -487,7 +501,56 @@ function detectaPulso(m) {
   if (Math.abs(m.headVel) > cfg.impulse.onDegS) {
     const desde = m.t - cfg.impulse.preTriggerMs / 1000;
     estado.captura = { tTrigger: m.t, samples: estado.rolling.filter((s) => s.t >= desde) };
+    if (estado.sim.perfil) {
+      const lado = m.headVel * SIGNO_DERECHA > 0 ? 'derecha' : 'izquierda';
+      estado.simVivo = {
+        tTrigger: m.t,
+        lado,
+        params: parametrosPulso(estado.sim.perfil, lado, semillaPulso(estado.proximoId)),
+        cuadros: estado.crudo.filter((c) => c.t >= m.t - 0.15).map((c) => ({ t: c.t, yaw: c.yaw })),
+      };
+    }
   }
+}
+
+/** Cuánto dura la simulación en vivo de un pulso: la ventana y un poco más. */
+const SIM_VIVO_S = 1;
+
+/**
+ * El corrimiento del iris que ve el motor en vivo con el perfil puesto. Es la
+ * misma cuenta que `simulaCrudo`, hecha cuadro a cuadro sobre lo que va
+ * llegando: así la traza de abajo muestra el arrastre y la sacada mientras se
+ * examina, no recién en la lista.
+ */
+function simulaEnVivo(t, yaw, offsetMm) {
+  const v = estado.simVivo;
+  if (!v) return offsetMm;
+  if (t > v.tTrigger + SIM_VIVO_S) {
+    estado.simVivo = null;
+    return offsetMm;
+  }
+  v.cuadros.push({ t, yaw });
+  const d = arrastre(v.cuadros, v.tTrigger, v.params);
+  return offsetConMirada(offsetMm, yaw, d[d.length - 1], estado.model);
+}
+
+/** Semilla de un pulso: cambia con cada perfil elegido, fija dentro de él. */
+function semillaPulso(id) {
+  return estado.sim.semilla * 1000 + id;
+}
+
+/**
+ * Pone el perfil sobre el crudo real de un pulso y lo vuelve a analizar. Usa
+ * los parámetros que ya se sortearon en vivo si el lado coincide, para que la
+ * lista muestre el mismo pulso que se vio pasar abajo.
+ */
+function simulaPulso(real, crudo, tTrigger) {
+  const v = estado.simVivo?.tTrigger === tTrigger ? estado.simVivo : null;
+  const params = v?.lado === real.side ? v.params : parametrosPulso(estado.sim.perfil, real.side, semillaPulso(estado.proximoId));
+  const crudoSim = simulaCrudo(crudo, tTrigger, params, estado.model);
+  const t = procesaCrudo(crudoSim, tTrigger, estado.model, derivActual(), cfg);
+  if (!t) return null;
+  return Object.assign(t, { crudo: crudoSim, crudoReal: crudo, simulado: estado.sim.perfil, simParams: params });
 }
 
 /** Perillas del derivador, como las quiere `procesaCrudo`. */
@@ -515,10 +578,11 @@ function cierraPulso() {
 
   const desde = cap.tTrigger - (cfg.impulse.preTriggerMs + MARGEN_CRUDO_MS) / 1000;
   const crudo = estado.crudo.filter((c) => c.t >= desde && c.t <= tFin);
-  const trial = procesaCrudo(crudo, cap.tTrigger, estado.model, derivActual(), cfg);
+  let trial = procesaCrudo(crudo, cap.tTrigger, estado.model, derivActual(), cfg);
   if (!trial) return;
+  if (estado.sim.perfil) trial = simulaPulso(trial, crudo, cap.tTrigger) ?? trial;
   trial.id = estado.proximoId++;
-  trial.crudo = crudo;
+  trial.crudo ??= crudo;
   anotaConfig(trial);
   estado.trials.push(trial);
   estado.seleccion = trial;
@@ -543,10 +607,15 @@ function recalculaTodos() {
   estado.antes = fotoAntes();
   estado.trials = estado.trials.map((t) => {
     if (!t.crudo) return t;
-    const nuevo = procesaCrudo(t.crudo, t.tTrigger, estado.model, derivActual(), cfg);
+    // Con «Ver lo real», los simulados se calculan sobre su crudo sin simular.
+    const real = estado.sim.mostrarReal && t.crudoReal;
+    const nuevo = procesaCrudo(real ? t.crudoReal : t.crudo, t.tTrigger, estado.model, derivActual(), cfg);
     if (!nuevo) return t;
     nuevo.id = t.id;
     nuevo.crudo = t.crudo;
+    if (t.simulado) {
+      Object.assign(nuevo, { simulado: t.simulado, crudoReal: t.crudoReal, simParams: t.simParams, muestraReal: Boolean(real) });
+    }
     // Recalcular no convierte un ejemplo (ni uno importado) en un pulso medido.
     if (t.ejemplo) nuevo.ejemplo = true;
     if (t.importado) Object.assign(nuevo, { importado: true, ejemploEnArchivo: t.ejemploEnArchivo });
@@ -603,6 +672,8 @@ function pintaListas() {
       const estadoTxt = t.rejected ? RECHAZO_TEXT[t.rejected].split(' —')[0] : 'OK';
       tr.innerHTML = `
         <td class="num">#${t.id}${
+          t.simulado ? '<i class="ej simtag" title="paciente simulado: patología agregada a un pulso real">sim</i>' : ''
+        }${
           t.importado
             ? '<i class="ej" title="pulso importado de un CSV">imp</i>'
             : t.ejemplo
@@ -669,6 +740,7 @@ function pintaListas() {
   }
   $('btn-deshacer').hidden = !estado.papelera.length;
   pintaMetodos();
+  pintaSimulacion();
   const a = asimetria(der.media, izq.media);
   $('asim').textContent =
     (a === null ? 'asimetría —' : `asimetría ${fmt(a, 1)} %`) +
@@ -851,8 +923,9 @@ function dibujaVideo() {
   if (estado.landmarks) {
     plots.dibujaPuntos(ctx, estado.landmarks, IDX, overlay.width, overlay.height);
   }
-  plots.dibujaOjo($('ojo-der'), video, estado.crops.derecho, estado.landmarks, IDX.derecho, estado.espejo);
-  plots.dibujaOjo($('ojo-izq'), video, estado.crops.izquierdo, estado.landmarks, IDX.izquierdo, estado.espejo);
+  const fantasma = { simDeltaMm: estado.vivo.simDeltaMm, pxPerMm: estado.vivo.pxPerMm };
+  plots.dibujaOjo($('ojo-der'), video, estado.crops.derecho, estado.landmarks, IDX.derecho, estado.espejo, fantasma);
+  plots.dibujaOjo($('ojo-izq'), video, estado.crops.izquierdo, estado.landmarks, IDX.izquierdo, estado.espejo, fantasma);
 }
 
 function abreHerramientas(abrir) {
@@ -1217,6 +1290,116 @@ function atajos() {
   });
 }
 
+// ------------------------------------------------------- paciente simulado ---
+
+/** Llena el selector de perfiles desde simulacion.js. */
+function montaSimulacion() {
+  const sel = $('sim-perfil');
+  for (const [id, p] of Object.entries(PERFILES)) {
+    const o = document.createElement('option');
+    o.value = id;
+    o.textContent = p.nombre;
+    sel.insertBefore(o, sel.querySelector('option[value="azar"]'));
+  }
+  sel.addEventListener('change', (e) => cambiaPerfil(e.target.value));
+  $('sim-ciego').addEventListener('change', (e) => {
+    // Sacar el «a ciegas» es revelar: la pantalla pasa a decir cuál es.
+    if (!e.target.checked && estado.sim.ciego) return revelaSimulacion();
+    estado.sim.ciego = e.target.checked;
+    pintaSimulacion();
+  });
+  $('sim-revelar').addEventListener('click', revelaSimulacion);
+  $('sim-real').addEventListener('click', () => {
+    estado.sim.mostrarReal = !estado.sim.mostrarReal;
+    recalculaTodos();
+    pintaSimulacion();
+    marcaEstado(
+      estado.sim.mostrarReal
+        ? 'lo que el compañero dio de verdad: tachado, lo simulado'
+        : 'de vuelta a la simulación: tachado, lo real',
+    );
+  });
+  pintaSimulacion();
+}
+
+/**
+ * Cambia el perfil. Los pulsos que había se van: mezclar pulsos de dos
+ * pacientes —uno sano y uno simulado, o dos perfiles— daría una media que no
+ * es de nadie, igual que con los ejemplos.
+ */
+function cambiaPerfil(eleccion) {
+  const medidos = estado.trials.filter((t) => !t.ejemplo).length;
+  if (medidos && !confirm(`Cambiar el paciente borra los ${medidos} pulsos medidos. ¿Seguir?`)) {
+    $('sim-perfil').value = estado.sim.eleccion;
+    return;
+  }
+  if (medidos) {
+    estado.trials = estado.trials.filter((t) => t.ejemplo);
+    estado.seleccion = null;
+    vaciaPapelera();
+    olvidaAntes();
+  }
+  const ids = Object.keys(PERFILES);
+  Object.assign(estado.sim, {
+    eleccion,
+    perfil: eleccion === 'azar' ? ids[Math.floor(Math.random() * ids.length)] : eleccion || null,
+    revelado: false,
+    mostrarReal: false,
+    semilla: Math.floor(Math.random() * 1e6),
+  });
+  // «Uno al azar» no tiene sentido a la vista: se pasa solo a ciegas.
+  if (eleccion === 'azar') $('sim-ciego').checked = true;
+  estado.sim.ciego = $('sim-ciego').checked;
+  estado.simVivo = null;
+  pintaListas();
+  pintaSimulacion();
+  marcaEstado(
+    !estado.sim.perfil
+      ? 'paciente simulado apagado: se mide lo real'
+      : estado.sim.ciego
+        ? 'paciente simulado a ciegas: examinar y decidir qué tiene'
+        : `paciente simulado: ${PERFILES[estado.sim.perfil].nombre}`,
+  );
+}
+
+function revelaSimulacion() {
+  if (!estado.sim.perfil) return;
+  estado.sim.revelado = true;
+  estado.sim.ciego = false;
+  $('sim-ciego').checked = false;
+  // Si era «al azar», el selector pasa a decir cuál salió.
+  estado.sim.eleccion = estado.sim.perfil;
+  $('sim-perfil').value = estado.sim.perfil;
+  pintaSimulacion();
+  marcaEstado(`el paciente simulado era: ${PERFILES[estado.sim.perfil].nombre}`);
+}
+
+/** Lo que muestra la sección y la barra según el estado de la simulación. */
+function pintaSimulacion() {
+  const { perfil, ciego, revelado, mostrarReal } = estado.sim;
+  const oculto = Boolean(perfil) && ciego && !revelado;
+  const p = perfil ? PERFILES[perfil] : null;
+  // A ciegas el selector no se ve: diría qué perfil es.
+  $('sim-campo').hidden = oculto;
+  $('sim-info').textContent = !perfil
+    ? 'Apagado: se mide lo real.'
+    : oculto
+      ? 'Perfil oculto. Examiná, decidí qué tiene el paciente y después apretá Revelar.'
+      : `${p.nombre}. ${p.descripcion}`;
+  $('sim-revelar').hidden = !oculto;
+  const haySimulados = estado.trials.some((t) => t.simulado && t.crudoReal);
+  $('sim-real').hidden = !perfil || oculto || !haySimulados;
+  $('sim-real').setAttribute('aria-pressed', String(mostrarReal));
+  $('sim-real').textContent = mostrarReal ? 'Ver lo simulado' : 'Ver lo real';
+  const aviso = $('aviso-sim');
+  aviso.hidden = !perfil;
+  aviso.title = oculto
+    ? 'Paciente simulado, a ciegas: los pulsos llevan una patología agregada por el motor.'
+    : p
+      ? `Paciente simulado: ${p.nombre}. Los pulsos llevan una patología agregada por el motor.`
+      : '';
+}
+
 // ------------------------------------------------------------------ CSV ----
 
 function baja(texto, sufijo, { ext = 'csv', tipo = 'text/csv' } = {}) {
@@ -1241,6 +1424,7 @@ function exportaTodo() {
       trials: estado.trials,
       version: document.documentElement.dataset.v ?? '',
       calibracion: estado.ultimoFit?.muestras ?? null,
+      simulacionOculta: estado.sim.ciego && !estado.sim.revelado,
     }),
     'sesion',
   );
@@ -1300,6 +1484,7 @@ function importaSesion(texto, nombre) {
     trial.ejemplo = true;
     trial.importado = true;
     trial.ejemploEnArchivo = p.ejemplo;
+    if (p.simulado) trial.simulado = p.simulado;
     trial.calibrado = p.calibrado;
     trial.k = model.kParallax;
     trial.deriv = deriv;
@@ -1375,6 +1560,7 @@ $('camara').addEventListener('change', () => {
 });
 
 sliders();
+montaSimulacion();
 atajos();
 medicionViva();
 medicionPulsos();

@@ -81,6 +81,7 @@ body {
 .badge.ok { background: rgba(46, 158, 84, 0.15); color: var(--c-ok); }
 .badge.mal { background: rgba(214, 45, 45, 0.15); color: var(--c-bad); }
 .badge.warn { background: rgba(209, 136, 0, 0.15); color: var(--c-warn); cursor: help; }
+.badge.sim { background: rgba(155, 81, 208, 0.18); color: var(--c-covert); cursor: help; }
 
 .estado { color: var(--muted-fg); font: 12px ui-monospace, monospace; }
 .sep { flex: 1; }
@@ -563,6 +564,7 @@ kbd {
   font-style: normal;
   text-transform: uppercase;
 }
+.lista .simtag { background: rgba(155, 81, 208, 0.2); color: var(--c-covert); }
 .lista .sc {
   margin-left: 4px;
   padding: 0 4px;

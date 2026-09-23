@@ -278,6 +278,47 @@ los pacientes sintéticos el ruido de la mirada no pasa de 10 °/s; con una
 webcam real puede haber falsas sacadas, y es parte de lo que se aprende a
 mirar.
 
+## Paciente simulado
+
+**Paciente simulado**, en Herramientas, pone una patología sobre pulsos
+**reales**: un compañero sano hace de paciente, el alumno le da impulsos de
+verdad —con su técnica, sus rebotes y sus manos en la cara— y el motor le
+agrega el déficit. Examinar y leer a la vez, que es lo que ni la cámara sola
+ni los casos sintéticos dan por separado.
+
+`js/simulacion.js` trabaja sobre el crudo, antes del motor: al azimut de
+mirada real de cada cuadro le suma el arrastre que el reflejo no compensa
+—`(1 − g)` de cada tramo rápido del giro; la vuelta lenta al centro no
+arrastra— y sacadas de 30 ms que lo devuelven al blanco, y lo vuelve a
+convertir en corrimiento del iris con el mismo radio y el mismo `k` con que
+el motor lo lee. Lo demás corre igual que con un pulso medido: ganancias,
+sacadas detectadas, perillas y Recalcular.
+
+| Perfil | Qué agrega |
+|---|---|
+| Neuritis derecha / izquierda | ganancia 0,35–0,55 de ese lado, sacadas manifiestas a 200–340 ms |
+| Déficit compensado derecho / izquierdo | ganancia 0,40–0,55, sacadas encubiertas agrupadas a 95–110 ms: se lee normal |
+| Vestibulopatía bilateral | los dos lados 0,30–0,50 con manifiestas |
+
+- **En vivo y en la lista es la misma cuenta.** Al disparar el pulso se sortean
+  sus parámetros y la traza de abajo muestra el arrastre y la sacada mientras
+  se examina; al cerrarlo se rehace sobre el crudo entero. Un test comprueba
+  que el cálculo es causal, o sea que las dos vistas coinciden.
+- **El video no miente.** Los ojos ampliados son el video real y no se mueven
+  con la patología: un anillo violeta marca dónde estaría el iris simulado.
+- **Nunca pasa por una medición real.** La barra dice **SIMULADO**, cada pulso
+  lleva **sim**, los gráficos una marca de agua (una captura se la lleva
+  puesta) y el CSV la columna `simulado`. Cambiar de paciente borra los pulsos:
+  mezclar dos pacientes daría una media que no es de nadie.
+- **A ciegas.** Con «a ciegas» (o «uno al azar») el selector se esconde y la
+  pantalla no dice cuál es, tampoco el CSV (`simulado=oculto`). **Revelar** lo
+  dice, y **Ver lo real** recalcula cada pulso sobre su crudo sin simular: lo
+  que el compañero sano dio de verdad, con lo simulado tachado al lado.
+
+A 30 fps una encubierta temprana se superpone con el arrastre y a veces no
+llega al umbral del detector de sacadas: puede quedar sin triángulo. Es la
+misma limitación que con un paciente de verdad, y queda a la vista.
+
 ## Tres métodos de ganancia
 
 **Ganancia vs pico**, en Herramientas, tiene un selector de **método** —área,

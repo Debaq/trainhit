@@ -86,3 +86,16 @@ test('la simulación es determinista y no arrastra con giros lentos', () => {
   const d = arrastre(lento, 0.5, { ganancia: 0.3, sacadas: [] });
   assert.ok(Math.max(...d.map(Math.abs)) < 1e-9);
 });
+
+test('lo que se ve en vivo es lo mismo que queda en la lista', () => {
+  // En vivo el arrastre se calcula con los cuadros que van llegando; al cerrar
+  // el pulso, con todos. Tiene que ser causal: cada cuadro depende solo de los
+  // anteriores, o la traza de abajo y la lista mostrarían pulsos distintos.
+  const { crudo, tTrigger, real } = sanos[1];
+  const par = parametrosPulso('neuritis-izq', real.side, 5);
+  const entero = arrastre(crudo, tTrigger, par);
+  for (let k = 0; k < crudo.length; k++) {
+    const hastaAca = arrastre(crudo.slice(0, k + 1), tTrigger, par);
+    assert.ok(Math.abs(hastaAca[k] - entero[k]) < 1e-12, `cuadro ${k}`);
+  }
+});

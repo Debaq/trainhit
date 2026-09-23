@@ -537,8 +537,23 @@ export function tiempoEnVivo(canvas, clientX, { segundos = SEGUNDOS_VIVO } = {})
  * marca puesta—.
  */
 function marcaNoValidado(ctx, w, h, pad) {
+  marcaAgua(ctx, w, h, pad, 'NO VALIDADO', COLOR.bad);
+}
+
+/**
+ * Marca de agua de un paciente simulado. Por la misma razón que NO VALIDADO:
+ * una captura del gráfico no puede circular como si fuera una medición real.
+ * Con «Ver lo real» dice SIN SIMULAR, que también es una vista que no se
+ * debe confundir con la sesión.
+ */
+function marcaSimulado(ctx, w, h, pad, trials) {
+  const t = trials.find((x) => x.simulado);
+  if (t) marcaAgua(ctx, w, h, pad, t.muestraReal ? 'SIN SIMULAR' : 'SIMULADO', COLOR.covert, 26);
+}
+
+function marcaAgua(ctx, w, h, pad, texto, color, dy = 0) {
   const cx = pad.l + (w - pad.l - pad.r) / 2;
-  const cy = pad.t + (h - pad.t - pad.b) / 2;
+  const cy = pad.t + (h - pad.t - pad.b) / 2 + dy;
   ctx.save();
   ctx.translate(cx, cy);
   ctx.rotate(-Math.atan2(h - pad.t - pad.b, w - pad.l - pad.r));
@@ -546,8 +561,8 @@ function marcaNoValidado(ctx, w, h, pad) {
   ctx.textBaseline = 'middle';
   ctx.font = `600 ${Math.max(13, Math.min(22, (w - pad.l - pad.r) / 11))}px system-ui, sans-serif`;
   ctx.globalAlpha = 0.28;
-  ctx.fillStyle = COLOR.bad;
-  ctx.fillText('NO VALIDADO', 0, 0);
+  ctx.fillStyle = color;
+  ctx.fillText(texto, 0, 0);
   ctx.globalAlpha = 1;
   ctx.restore();
 }
@@ -761,6 +776,7 @@ export function overlayLado(canvas, trials, side, cfg, seleccion, { promedio = f
     cajaRechazo(ctx, w, h, pad, { px, py }, seleccion, { x0: -cfg.impulse.preTriggerMs, x1: cfg.impulse.windowMs });
   }
   if (delLado.some((t) => t.noValidado)) marcaNoValidado(ctx, w, h, pad);
+  marcaSimulado(ctx, w, h, pad, delLado);
 }
 
 /** Un pulso solo, con la ventana del impulso sombreada y los umbrales. */
@@ -815,6 +831,7 @@ export function dibujaPulso(canvas, trial, cfg, { medicion = null } = {}) {
     });
   }
   if (trial.noValidado) marcaNoValidado(ctx, w, h, pad);
+  marcaSimulado(ctx, w, h, pad, [trial]);
 }
 
 /** Qué ganancia de un pulso usa cada método. */
@@ -880,6 +897,7 @@ export function dibujaDispersion(canvas, trials, cfg, { metodo = 'area', antes =
   ctx.globalAlpha = 1;
   ctx.restore();
   if (trials.some((t) => t.noValidado)) marcaNoValidado(ctx, w, h, pad);
+  marcaSimulado(ctx, w, h, pad, trials);
 }
 
 /** La calibración: offset/R contra sin(yaw). Si hay paralaje, es una recta. */
@@ -942,7 +960,7 @@ export function dibujaPuntos(ctx, landmarks, idx, w, h) {
  * Se dibuja la MISMA imagen con otras coordenadas de origen en vez de recortar
  * píxeles: es un `drawImage` con la caja de origen, y la placa hace el resto.
  */
-export function dibujaOjo(canvas, video, crop, landmarks, ojo, espejo) {
+export function dibujaOjo(canvas, video, crop, landmarks, ojo, espejo, { simDeltaMm = 0, pxPerMm = null } = {}) {
   const { ctx, w, h } = prepara(canvas);
   ctx.fillStyle = '#09090B';
   ctx.fillRect(0, 0, w, h);
@@ -980,6 +998,24 @@ export function dibujaOjo(canvas, video, crop, landmarks, ojo, espejo) {
     marca(ojo.iris, COLOR.ok, 3);
     marca(ojo.outer, COLOR.overt, 2.5);
     marca(ojo.inner, COLOR.overt, 2.5);
+    // Paciente simulado: el ojo del video es el real y no se mueve con la
+    // patología. Un anillo violeta dice dónde estaría el iris simulado, a lo
+    // largo del eje de las comisuras, que es donde el motor mide.
+    const [a, b, c] = [landmarks[ojo.outer], landmarks[ojo.inner], landmarks[ojo.iris]];
+    if (simDeltaMm && pxPerMm && a && b && c) {
+      const ax = (b.x - a.x) * vw;
+      const ay = (b.y - a.y) * vh;
+      const n = Math.hypot(ax, ay) || 1;
+      const dx = (ax / n) * simDeltaMm * pxPerMm;
+      const dy = (ay / n) * simDeltaMm * pxPerMm;
+      const gx = ((c.x * vw + dx - sx) / sw) * w;
+      const gy = ((c.y * vh + dy - sy) / sh) * h;
+      ctx.strokeStyle = COLOR.covert;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.arc(gx, gy, Math.max(6, (pxPerMm * 5.85 * w) / sw), 0, Math.PI * 2);
+      ctx.stroke();
+    }
   }
   ctx.restore();
 }

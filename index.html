@@ -8,7 +8,7 @@
          jsdelivr (MediaPipe), y conexiones solo a lo que la página usa. -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-Yl3rZCA+6Up7Mb+CsI2gOUQCowntYllEP8KCGFZwO9M='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
+      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-HVBrpm8sR5Oq+m9B1+0qUcQwYr+9vwVBrTGF0mXefAs='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
     />
     <meta
       name="description"
@@ -52,7 +52,7 @@
     />
     <!-- Mapa de importación: versiona los imports internos. Lo regenera
          bump.mjs junto con su hash en la CSP de arriba. Va antes del arranque. -->
-    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-23.17","./js/app.js":"./js/app.js?v=2026-09-23.17","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-23.17","./js/curve.js":"./js/curve.js?v=2026-09-23.17","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-23.17","./js/geom.js":"./js/geom.js?v=2026-09-23.17","./js/head.js":"./js/head.js?v=2026-09-23.17","./js/pipeline.js":"./js/pipeline.js?v=2026-09-23.17","./js/plots.js":"./js/plots.js?v=2026-09-23.17","./js/preguntas.js":"./js/preguntas.js?v=2026-09-23.17","./js/sesion.js":"./js/sesion.js?v=2026-09-23.17","./js/signal.js":"./js/signal.js?v=2026-09-23.17","./js/simulacion.js":"./js/simulacion.js?v=2026-09-23.17","./js/tracker.js":"./js/tracker.js?v=2026-09-23.17","./js/tutorial.js":"./js/tutorial.js?v=2026-09-23.17","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-23.17"}}</script>
+    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-23.19","./js/app.js":"./js/app.js?v=2026-09-23.19","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-23.19","./js/curve.js":"./js/curve.js?v=2026-09-23.19","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-23.19","./js/geom.js":"./js/geom.js?v=2026-09-23.19","./js/head.js":"./js/head.js?v=2026-09-23.19","./js/pipeline.js":"./js/pipeline.js?v=2026-09-23.19","./js/plots.js":"./js/plots.js?v=2026-09-23.19","./js/preguntas.js":"./js/preguntas.js?v=2026-09-23.19","./js/sesion.js":"./js/sesion.js?v=2026-09-23.19","./js/signal.js":"./js/signal.js?v=2026-09-23.19","./js/simulacion.js":"./js/simulacion.js?v=2026-09-23.19","./js/tracker.js":"./js/tracker.js?v=2026-09-23.19","./js/tutorial.js":"./js/tutorial.js?v=2026-09-23.19","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-23.19"}}</script>
     <script src="js/arranque.js"></script>
     <noscript><link rel="stylesheet" href="css/estilo.css" /></noscript>
   </head>
@@ -65,6 +65,7 @@
       <span id="badge-calib" class="badge mal">SIN CALIBRAR</span>
       <span id="aviso-fps" class="badge warn" hidden>TOPE 60 FPS</span>
       <span id="aviso-perillas" class="badge warn" hidden>PERILLAS CAMBIADAS</span>
+      <span id="aviso-sim" class="badge sim" hidden>SIMULADO</span>
       <span id="estado" class="estado" aria-live="polite">listo</span>
       <span class="sep"></span>
       <span class="chip" title="cuadros por segundo PROCESADOS, no los que da la cámara"><i>fps</i><b id="v-fps">—</b></span>
@@ -444,6 +445,34 @@
             <li>Cabeza y ojo salen de la misma imagen: un error de seguimiento entra en las dos señales.</li>
             <li>Solo canal lateral; los verticales necesitan la componente vertical del ojo.</li>
           </ul>
+        </section>
+
+        <!-- Paciente simulado: ver js/simulacion.js. Un compañero sano frente a
+             la cámara y el motor le agrega una patología al crudo de cada pulso. -->
+        <section id="h-simulacion">
+          <h3>Paciente simulado</h3>
+          <p class="ayuda">
+            Un compañero sano frente a la cámara y el motor le agrega una patología: la mirada se
+            arrastra con la cabeza y vuelve con sacadas. Los impulsos, el ruido y los rechazos son
+            los del examen real. Calibrar primero.
+          </p>
+          <label id="sim-campo" class="campo">
+            <span>Paciente</span>
+            <select id="sim-perfil" title="qué patología se le agrega a los pulsos">
+              <option value="">sano: medir lo real</option>
+              <option value="azar">uno al azar (a ciegas)</option>
+            </select>
+          </label>
+          <label class="check"><input type="checkbox" id="sim-ciego" /> a ciegas: la pantalla no dice cuál es</label>
+          <p id="sim-info" class="meta"></p>
+          <div class="acciones-perillas">
+            <button id="sim-revelar" hidden>Revelar</button>
+            <button id="sim-real" aria-pressed="false" hidden>Ver lo real</button>
+          </div>
+          <p class="ayuda">
+            En los ojos ampliados, el anillo violeta es dónde estaría el iris simulado: el video es el
+            real y no se mueve con la patología.
+          </p>
         </section>
 
         <section id="h-docentes">

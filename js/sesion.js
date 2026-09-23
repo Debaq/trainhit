@@ -22,13 +22,13 @@ const num = (v, d = 3) => (v === null || v === undefined || Number.isNaN(v) ? ''
 const siNo = (v) => (v ? 'si' : 'no');
 
 /** Un pulso por fila, con la configuración con la que se calculó. */
-export function filasPulsos(trials, version = '') {
+export function filasPulsos(trials, version = '', { simulacionOculta = false } = {}) {
   return [
     [
       'id', 'lado', 'pico_cabeza_deg_s', 'duracion_ms', 'ganancia_area', 'ganancia_60ms', 'ganancia_pico',
       'rechazo', 'calibrado', 'k', 'iris_min_px', 'disconj_mm', 'hueco_max_ms', 'deriv_ventana_ms', 'deriv_grado',
       'fps_muestreo', 'no_validado', 'ejemplo', 'version',
-      'sacadas_encubiertas', 'sacadas_manifiestas', 'ganancia_hasta_sacada', 'importado',
+      'sacadas_encubiertas', 'sacadas_manifiestas', 'ganancia_hasta_sacada', 'importado', 'simulado',
     ],
     ...trials.map((t) => [
       t.id,
@@ -56,6 +56,8 @@ export function filasPulsos(trials, version = '') {
       (t.sacadas ?? []).filter((s) => s.tipo === 'manifiesta').length,
       num(t.gains?.desacadizada),
       siNo(t.importado),
+      // El perfil del paciente simulado; a ciegas, sin decir cuál.
+      t.simulado ? (simulacionOculta ? 'oculto' : t.simulado) : '',
     ]),
   ];
 }
@@ -118,10 +120,10 @@ export function filasCalibracion(muestras) {
 }
 
 /** El archivo entero. */
-export function textoSesion({ trials, version = '', calibracion = null }) {
+export function textoSesion({ trials, version = '', calibracion = null, simulacionOculta = false }) {
   const filas = [
     ['# TABLA: pulsos'],
-    ...filasPulsos(trials, version),
+    ...filasPulsos(trials, version, { simulacionOculta }),
     [],
     ['# TABLA: muestras'],
     ...filasMuestras(trials),
@@ -212,6 +214,7 @@ export function leeSesion(texto) {
       k: numero(f.k),
       calibrado: f.calibrado === 'si',
       ejemplo: f.ejemplo === 'si',
+      simulado: f.simulado || null,
       deriv: ventana && grado ? { windowMs: ventana, degree: grado } : null,
       crudo: crudo.sort((a, b) => a.t - b.t),
     };
