@@ -86,7 +86,7 @@ export const PASEOS = [
       {
         id: 'vor',
         titulo: 'El reflejo vestíbulo-ocular',
-        img: 'vor.webp',
+        img: 'vor.svg',
         alt: 'Cabeza vista desde arriba girando hacia un lado (flecha azul) y los ojos girando hacia el otro (flechas naranjas), con la línea de mirada fija sobre un blanco.',
         cuerpo: `
           <p>Cuando la cabeza gira, los canales semicirculares del oído interno lo detectan y mueven
@@ -100,7 +100,7 @@ export const PASEOS = [
       {
         id: 'impulso',
         titulo: 'El impulso cefálico',
-        img: 'impulso.webp',
+        img: 'impulso.svg',
         alt: 'Examinador detrás del paciente girando su cabeza un ángulo chico y rápido; el paciente mira fijo un punto al frente.',
         cuerpo: `
           <p>El examinador gira la cabeza del paciente un giro <b>chico</b> (10–20°), <b>rápido</b>
@@ -189,7 +189,7 @@ export const PASEOS = [
       {
         id: 'montaje',
         titulo: 'Cámara y luz',
-        img: 'montaje.webp',
+        img: 'montaje.svg',
         alt: 'Paciente sentado frente a una laptop con la cámara a la altura de los ojos, a un brazo de distancia, con la luz de frente y sin ventana detrás.',
         cuerpo: `
           <ul>
@@ -204,7 +204,7 @@ export const PASEOS = [
       {
         id: 'postura',
         titulo: 'Postura y blanco',
-        img: 'postura.webp',
+        img: 'postura.svg',
         alt: 'Vista de perfil: la cabeza del paciente flexionada unos 30° hacia abajo, con la mirada puesta en la cámara.',
         cuerpo: `
           <p>El paciente sentado, con la cabeza <b>flexionada unos 30° hacia abajo</b>: así el canal
@@ -216,7 +216,7 @@ export const PASEOS = [
       {
         id: 'manos',
         titulo: 'Las manos del examinador',
-        img: 'manos.webp',
+        img: 'manos.svg',
         alt: 'Dos cuadros. Bien, con borde verde: manos sobre la parte alta de la cabeza, cara despejada. Mal, con borde rojo: dedos sobre las sienes y cejas, tapando la cara.',
         cuerpo: `
           <p>El examinador se para <b>detrás</b> y toma la cabeza por arriba, con las manos lejos de
@@ -276,7 +276,7 @@ export const PASEOS = [
         titulo: 'Calibrar el paralaje',
         objetivo: '#btn-calibrar',
         espera: 'calibrado',
-        img: 'calibracion.webp',
+        img: 'calibracion.svg',
         alt: 'Paciente mirando fijo un punto rojo mientras gira la cabeza lento de un lado al otro, con un arco de ±20° dibujado.',
         cuerpo: `
           <p>Apretá <b>Calibrar</b> (o <kbd>C</kbd>). Aparece un punto rojo arriba al centro, junto a la
@@ -291,7 +291,7 @@ export const PASEOS = [
         objetivo: '.vivo',
         espera: 'pulso',
         antes: 'cierraHerramientas',
-        img: 'impulsos.webp',
+        img: 'impulsos.svg',
         alt: 'Cabeza vista desde arriba en dos cuadros. Bien, borde verde: giro corto y rápido de unos 15°. Mal, borde rojo: giro amplio y lento de más de 40°.',
         cuerpo: `
           <p>Un giro <b>corto y rápido</b> hacia un lado, y la cabeza queda quieta ahí. Se vuelve
@@ -799,6 +799,6 @@ export const PASEOS = [
 
 /** Imagen del menú de paseos. */
 export const PORTADA = {
-  img: 'portada.webp',
+  img: 'portada.svg',
   alt: 'Un examinador de pie detrás de un paciente sentado frente a una laptop, con las manos sobre la cabeza del paciente.',
 };

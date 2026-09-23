@@ -1,8 +1,14 @@
 # Imágenes del tutorial
 
-El tutorial (`js/tutorial.js`, pasos en `js/tutorial-pasos.js`) ya funciona
+El tutorial (`js/tutorial.js`, pasos en `js/tutorial-pasos.js`) funciona
 sin imágenes: donde falta una muestra un recuadro con el nombre del archivo.
-Apenas el archivo aparece en esta carpeta con ese nombre, se ve.
+
+**Hoy las ocho están como esquemas SVG**, dibujados por
+`node img/tutorial/ilustraciones.mjs` con esta misma guía de estilo (plano,
+sin texto, azul la cabeza, naranja el ojo, verde bien, rojo mal). Cumplen su
+`alt` pero son esquemas. Los prompts de abajo siguen sirviendo para
+reemplazarlos por ilustraciones: se deja el `.webp` acá y se cambia la
+extensión en `js/tutorial-pasos.js`.
 
 Son **8 ilustraciones** para generar. Los dos gráficos de curvas
 (`ganancia.svg` y `sacadas.svg`) **no** están acá: están dibujados con
