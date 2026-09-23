@@ -22,17 +22,21 @@
 //   espera    opcional, condición que el paso pide cumplir antes de seguir
 //             (ver CONDICIONES). Nunca traba: «Saltar» sigue a mano.
 //   antes     opcional, acción de la interfaz al entrar al paso.
+//
+// Un paseo puede tener `alSalir`: una acción que corre cuando se lo deja por
+// cualquier camino —terminado, al menú o cerrando—. Es para lo que el paseo
+// rompe a propósito y no puede quedar roto después (el k a mano en 0).
 
 /** Lo que un paso puede esperar, con el texto de mientras tanto. */
 export const CONDICIONES = {
   cara: 'esperando la cámara y una cara en el encuadre…',
   calibrado: 'esperando una calibración aceptada…',
   pulso: 'esperando pulsos: medidos o de ejemplo…',
-  recalculado: 'esperando que se aprete «Recalcular»…',
+  recalculado: 'esperando que se apriete «Recalcular»…',
 };
 
 /** Lo que un paso (o un botón de su cuerpo) puede pedirle a la interfaz. */
-export const ACCIONES = ['abreHerramientas', 'cierraHerramientas', 'cargaEjemplos'];
+export const ACCIONES = ['abreHerramientas', 'cierraHerramientas', 'cargaEjemplos', 'restauraK', 'restauraPerillas'];
 
 /** Lugares posibles de la tarjeta respecto del objetivo. */
 export const LUGARES = ['abajo', 'arriba', 'derecha', 'izquierda'];
@@ -383,6 +387,7 @@ export const PASEOS = [
     id: 'herramientas',
     titulo: 'Herramientas por dentro',
     resumen: 'La recta del paralaje, el último pulso, la nube de ganancias y cómo se mide.',
+    alSalir: 'restauraK',
     pasos: [
       HACEN_FALTA_PULSOS,
       {
@@ -407,22 +412,6 @@ export const PASEOS = [
           se vea la recta es la prueba de que lo medido es paralaje y no la mirada paseando.</p>
           <p class="ayuda">Con los ejemplos se ve la calibración del paciente sintético, k = 0,95. Con
           la cámara, la de quien calibró.</p>`,
-      },
-      {
-        id: 'kmanual',
-        titulo: 'k a mano',
-        objetivo: '.perilla:has(#k-manual)',
-        antes: 'abreHerramientas',
-        lugar: 'izquierda',
-        espera: 'recalculado',
-        cuerpo: `
-          <p>El experimento que explica la calibración: poné el deslizador en <b>0</b>, marcá
-          <b>usar este k</b> y apretá <b>Recalcular</b> más abajo.</p>
-          <p>Las ganancias del lado sano pasan a ~1,9. Nadie tiene un reflejo de 1,9: es el paralaje
-          sin corregir, que tiene el mismo tamaño que la señal.</p>
-          <p class="ayuda">Desmarcar la casilla no devuelve el k de antes. Con los ejemplos:
-          <button type="button" data-accion="cargaEjemplos">volver a cargarlos</button>. Con la cámara,
-          calibrá de nuevo.</p>`,
       },
       {
         id: 'ultimo',
@@ -461,6 +450,22 @@ export const PASEOS = [
           no hace.</p>
           <p>Más abajo, las referencias: de dónde sale cada número.</p>`,
       },
+      {
+        id: 'kmanual',
+        titulo: 'k a mano',
+        objetivo: '.perilla:has(#k-manual)',
+        antes: 'abreHerramientas',
+        lugar: 'izquierda',
+        espera: 'recalculado',
+        cuerpo: `
+          <p>El experimento que explica la calibración: poné el deslizador en <b>0</b>, marcá
+          <b>usar este k</b> y apretá <b>Recalcular</b> más abajo.</p>
+          <p>Las ganancias del lado sano pasan a ~1,9. Nadie tiene un reflejo de 1,9: es el paralaje
+          sin corregir, que tiene el mismo tamaño que la señal.</p>
+          <p class="ayuda">Va al final del paseo a propósito: con k = 0 todo lo demás se lee mal.
+          Al terminar el paseo vuelve solo el k calibrado; también se puede ahora:
+          <button type="button" data-accion="restauraK">volver al k calibrado</button>.</p>`,
+      },
     ],
   },
 
@@ -482,7 +487,9 @@ export const PASEOS = [
           crudas, así que <b>Recalcular</b> vuelve a correr el motor entero sobre los pulsos que ya
           están, con la configuración de ahora.</p>
           <p>El método de este paseo: mové <b>una</b> perilla, recalculá, mirá qué cambió, y volvela a
-          su lugar.</p>`,
+          su lugar.</p>
+          <p class="ayuda">Mientras alguna perilla no está en su valor de fábrica, la barra de arriba
+          dice <b>PERILLAS CAMBIADAS</b>: los pulsos que se midan así no son comparables con otros.</p>`,
       },
       {
         id: 'ventana',
@@ -567,8 +574,8 @@ export const PASEOS = [
         cuerpo: `
           <p>Mové alguna perilla y apretá <b>Recalcular</b>. Los números de la lista pasan a ser los
           de la configuración de ahora, y el CSV se lleva cuál fue.</p>
-          <p class="ayuda">Cada perilla muestra su valor al lado del nombre: anotá el original antes de
-          moverla para poder volver.</p>`,
+          <p>Para dejar todo como vino: <button type="button" data-accion="restauraPerillas">valores por
+          defecto y recalcular</button>. El mismo botón está al pie de las perillas.</p>`,
       },
     ],
   },

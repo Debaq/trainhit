@@ -593,6 +593,7 @@ kbd {
 .ayuda { margin: 6px 0; color: var(--muted-fg); font-size: 12px; }
 
 .perillas { display: grid; gap: 10px; }
+.acciones-perillas { display: flex; flex-wrap: wrap; gap: 8px; }
 .perilla { display: block; font-size: 12px; color: var(--muted-fg); }
 .perilla > span { display: block; }
 .perilla b { color: var(--foreground); font-family: ui-monospace, monospace; }

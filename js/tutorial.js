@@ -48,10 +48,13 @@ function anotaVisto(id) {
 
 /**
  * @param {object} p
- * @param {Record<string, () => boolean>} p.condiciones  una por clave de CONDICIONES
+ * @param {Record<string, (desde: object) => boolean>} p.condiciones  una por
+ *   clave de CONDICIONES. Reciben la instantánea del estado tomada al entrar
+ *   al paso, para las que piden que algo pase DURANTE el paso.
  * @param {Record<string, () => void>} p.acciones  una por nombre de ACCIONES
+ * @param {() => object} [p.instantanea]  lo que las condiciones comparan
  */
-export function montaTutorial({ condiciones, acciones }) {
+export function montaTutorial({ condiciones, acciones, instantanea = () => ({}) }) {
   for (const k of Object.keys(CONDICIONES)) if (!condiciones[k]) throw new Error(`tutorial: falta la condición ${k}`);
   for (const k of ACCIONES) if (!acciones[k]) throw new Error(`tutorial: falta la acción ${k}`);
 
@@ -74,6 +77,12 @@ export function montaTutorial({ condiciones, acciones }) {
   let i = 0;
   let tic = null;
   let volverA = null;
+  /**
+   * El estado al entrar al paso. Sin esto «esperando que se apriete
+   * Recalcular» se daba por cumplido con un Recalcular de otro paseo, de
+   * hace diez minutos.
+   */
+  let desde = {};
 
   // Los botones del cuerpo de un paso (`data-accion`) disparan acciones.
   cuerpo.addEventListener('click', (e) => {
@@ -81,8 +90,18 @@ export function montaTutorial({ condiciones, acciones }) {
     if (b && ACCIONES.includes(b.dataset.accion)) acciones[b.dataset.accion]();
   });
 
-  function menu() {
+  /**
+   * Deja el paseo en curso. Un paseo puede pedir deshacer algo al irse
+   * (`alSalir`): el k a mano en 0 de «Herramientas por dentro» no puede
+   * seguir puesto cuando se mide de verdad o se mira otro paseo.
+   */
+  function dejaPaseo() {
+    if (paseo?.alSalir) acciones[paseo.alSalir]();
     paseo = null;
+  }
+
+  function menu() {
+    dejaPaseo();
     raiz.dataset.modo = 'modal';
     tarjeta.setAttribute('aria-modal', 'true');
     tarjeta.classList.add('menu');
@@ -121,6 +140,7 @@ export function montaTutorial({ condiciones, acciones }) {
   }
 
   function empieza(p) {
+    if (paseo !== p) dejaPaseo();
     paseo = p;
     muestra(0);
   }
@@ -129,6 +149,7 @@ export function montaTutorial({ condiciones, acciones }) {
     i = Math.max(0, Math.min(paseo.pasos.length - 1, n));
     const p = paseo.pasos[i];
     if (p.antes) acciones[p.antes]();
+    desde = instantanea();
 
     raiz.dataset.modo = p.objetivo ? 'guia' : 'modal';
     tarjeta.setAttribute('aria-modal', p.objetivo ? 'false' : 'true');
@@ -173,7 +194,7 @@ export function montaTutorial({ condiciones, acciones }) {
     if (!paseo) return;
     const p = paseo.pasos[i];
     const ultimo = i === paseo.pasos.length - 1;
-    const cumplida = !p.espera || condiciones[p.espera]();
+    const cumplida = !p.espera || condiciones[p.espera](desde);
     espera.hidden = !p.espera;
     if (p.espera) {
       espera.textContent = cumplida ? 'listo ✓' : CONDICIONES[p.espera];
@@ -246,6 +267,7 @@ export function montaTutorial({ condiciones, acciones }) {
   }
 
   function cierra() {
+    dejaPaseo();
     raiz.hidden = true;
     clearInterval(tic);
     tic = null;

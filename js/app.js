@@ -77,6 +77,11 @@ const estado = {
   ejemplo: null,
   /** Cuántas veces se apretó «Recalcular»: lo espera un paso del tutorial. */
   recalculados: 0,
+  /**
+   * El k y la calibración de antes de poner el k a mano, para devolverlos al
+   * desmarcar la casilla. null mientras no hay k a mano.
+   */
+  kAntesManual: null,
 };
 
 function vivoVacio() {
@@ -451,6 +456,9 @@ function cierraCalibracion() {
   }
   estado.model.kParallax = fit.kParallax;
   estado.model.calibrated = true;
+  // Una calibración nueva manda sobre el k a mano que hubiera.
+  estado.kAntesManual = null;
+  $('k-manual-on').checked = false;
   marcaEstado(
     `calibrado: k=${fmt(fit.kParallax)} · residuo ${fmt(fit.residualDeg, 1)}°` +
       (fit.kPlausible ? '' : ` · k fuera del rango anatómico (${geom.CALIB_K_PLAUSIBLE.join('–')}): repetir`),
@@ -631,7 +639,10 @@ function pintaTodo() {
   const badge = $('badge-calib');
   // Con los ejemplos la calibración es la del paciente sintético, no la de
   // quien está frente a la cámara: el rótulo no puede decir CALIBRADO a secas.
-  if (estado.ejemplo) {
+  if (estado.kAntesManual) {
+    badge.textContent = `k A MANO=${fmt(estado.model.kParallax)}`;
+    badge.className = 'badge mal';
+  } else if (estado.ejemplo) {
     badge.textContent = `EJEMPLO k=${fmt(estado.model.kParallax)}`;
     badge.className = 'badge warn';
   } else {
@@ -775,6 +786,9 @@ function cargaEjemplos() {
   const reales = estado.trials.filter((t) => !t.ejemplo).length;
   if (reales && !confirm(`Los ejemplos reemplazan los ${reales} pulsos medidos. ¿Seguir?`)) return;
   if (estado.corriendo) detener();
+  // El k a mano no es la calibración de nadie: se devuelve la de verdad antes
+  // de guardarla para cuando se salga de los ejemplos.
+  restauraK();
   if (!estado.ejemplo) {
     estado.ejemplo = { k: estado.model.kParallax, calibrado: estado.model.calibrated, fit: estado.ultimoFit };
   }
@@ -786,7 +800,6 @@ function cargaEjemplos() {
   sucio.calib = true;
   estado.model.kParallax = fit?.acceptable ? fit.kParallax : K_EJEMPLO;
   estado.model.calibrated = true;
-  $('k-manual-on').checked = false;
   estado.trials = [];
   PULSOS_EJEMPLO.forEach((p, i) => {
     const { crudo, tTrigger } = crudoDeEjemplo(p, i + 1);
@@ -860,11 +873,71 @@ function sliders() {
   );
   $('k-manual-on').addEventListener('change', (e) => {
     if (e.target.checked) {
+      estado.kAntesManual ??= { k: estado.model.kParallax, calibrado: estado.model.calibrated };
       estado.model.kParallax = Number($('k-manual').value);
       estado.model.calibrated = false;
       marcaEstado('k puesto a mano: la ganancia NO está calibrada');
+    } else {
+      restauraK();
     }
   });
+  for (const el of document.querySelectorAll('#h-perillas input, #h-perillas select')) {
+    el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', avisaPerillas);
+  }
+  avisaPerillas();
+}
+
+/**
+ * Devuelve el k que había antes de ponerlo a mano. Antes desmarcar la casilla
+ * dejaba el k manual puesto —y la ganancia sin calibrar— sin decir nada, y el
+ * experimento de k = 0 se arrastraba a todo lo que se midiera después.
+ */
+function restauraK({ recalcula = false } = {}) {
+  $('k-manual-on').checked = false;
+  const antes = estado.kAntesManual;
+  if (!antes) return;
+  estado.kAntesManual = null;
+  estado.model.kParallax = antes.k;
+  estado.model.calibrated = antes.calibrado;
+  if (recalcula && estado.trials.length) recalculaTodos();
+  marcaEstado(
+    `volvió el k de antes (k=${fmt(antes.k)})` +
+      (recalcula || !estado.trials.length ? '' : ': «Recalcular» para verlo en los pulsos'),
+  );
+}
+
+/** Cada perilla con su valor de fábrica, que es el `value` del HTML. */
+function perillas() {
+  return [...document.querySelectorAll('#h-perillas input[type=range], #h-perillas select')].map((el) => ({
+    el,
+    nombre: el.closest('.perilla')?.querySelector('span')?.firstChild?.textContent.trim() ?? el.id,
+    fabrica: el.tagName === 'SELECT' ? [...el.options].find((o) => o.defaultSelected)?.value : el.defaultValue,
+  }));
+}
+
+/**
+ * La barra avisa mientras alguna perilla no está en su valor de fábrica:
+ * los pulsos que se miden así no se comparan con otros, y una ventana de
+ * 200 ms olvidada de un paseo no puede pasar desapercibida al medir.
+ */
+function avisaPerillas() {
+  const cambiadas = perillas().filter((p) => p.el.value !== p.fabrica);
+  const aviso = $('aviso-perillas');
+  aviso.hidden = !cambiadas.length;
+  aviso.title = cambiadas.length
+    ? `No están en su valor de fábrica: ${cambiadas.map((p) => p.nombre).join(', ')}. «Valores por defecto» en Herramientas.`
+    : '';
+}
+
+function perillasPorDefecto({ recalcula = false } = {}) {
+  for (const p of perillas()) {
+    if (p.el.value === p.fabrica) continue;
+    p.el.value = p.fabrica;
+    p.el.dispatchEvent(new Event(p.el.tagName === 'SELECT' ? 'change' : 'input'));
+  }
+  avisaPerillas();
+  if (recalcula && estado.trials.length) recalculaTodos();
+  marcaEstado('perillas en sus valores por defecto' + (recalcula ? '' : ': «Recalcular» para aplicarlas a los pulsos'));
 }
 
 /**
@@ -1105,6 +1178,7 @@ $('btn-borrar').addEventListener('click', borraTodos);
 $('btn-descartar').addEventListener('click', descartaUltimo);
 $('btn-csv').addEventListener('click', exportaTodo);
 $('btn-recalcular').addEventListener('click', recalculaTodos);
+$('btn-defecto').addEventListener('click', () => perillasPorDefecto());
 $('btn-herramientas').addEventListener('click', () => abreHerramientas($('herramientas').hidden));
 $('btn-cerrar').addEventListener('click', () => abreHerramientas(false));
 $('btn-pausa').addEventListener('click', () => ponPausa(!estado.pausado));
@@ -1147,16 +1221,22 @@ const bienvenida = montaBienvenida();
 // El recorrido del tutorial espera cosas de la medición real: por eso se
 // monta acá, con acceso al estado, y no en su módulo.
 const tutorial = montaTutorial({
+  instantanea: () => ({ recalculados: estado.recalculados }),
   condiciones: {
     cara: () => estado.corriendo && estado.caraOk,
-    calibrado: () => estado.model.calibrated,
+    // La calibración del paciente de ejemplo no es la de quien está frente a
+    // la cámara: no cuenta como «calibrado» para el paso de calibrar.
+    calibrado: () => estado.model.calibrated && !estado.ejemplo,
     pulso: () => estado.trials.length > 0,
-    recalculado: () => estado.recalculados > 0,
+    // Un Recalcular hecho DURANTE el paso, no uno de otro paseo.
+    recalculado: (desde) => estado.recalculados > desde.recalculados,
   },
   acciones: {
     abreHerramientas: () => abreHerramientas(true),
     cierraHerramientas: () => abreHerramientas(false),
     cargaEjemplos,
+    restauraK: () => restauraK({ recalcula: true }),
+    restauraPerillas: () => perillasPorDefecto({ recalcula: true }),
   },
 });
 $('btn-tutorial').addEventListener('click', () => {

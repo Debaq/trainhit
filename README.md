@@ -140,6 +140,12 @@ calibración aceptada, pulsos, un recálculo—, pero la espera nunca traba: el
 botón dice «Saltar» hasta que se cumple. El menú marca con ✓ los paseos
 terminados (en `localStorage`, solo como comodidad).
 
+Lo que un paseo rompe a propósito no se queda roto: el de herramientas pone
+`k = 0` para mostrar el paralaje, así que ese paso va último y el `k`
+calibrado vuelve solo al dejar el paseo por cualquier camino (`alSalir`). Las
+esperas miran lo que pasa **durante** el paso: un Recalcular de otro paseo no
+cuenta, y la calibración del paciente de ejemplo no cuenta como calibrar.
+
 ### Pulsos de ejemplo
 
 Los paseos de gráficos, herramientas y perillas necesitan pulsos, y no siempre
@@ -479,6 +485,13 @@ ventana del derivador y ver cómo baja el pico, o poner `k = 0` y ver la
 ganancia irse a 1,9, sin tener que hacer otro impulso. El motor que corre al
 medir y al recalcular es el mismo (`js/pipeline.js`), así que con la misma
 configuración da lo mismo.
+
+**Valores por defecto**, al pie de las perillas, devuelve cada una a su valor
+de fábrica. Mientras alguna no lo está, la barra dice **PERILLAS CAMBIADAS**
+(con cuáles al pasar el mouse): una ventana de 200 ms que quedó puesta de un
+experimento no puede pasar desapercibida al medir de verdad. El `k` a mano
+es aparte: mientras está puesto la barra dice **k A MANO**, y desmarcar la
+casilla —o calibrar de nuevo— devuelve el `k` que había.
 
 **Exportar CSV** baja un solo archivo con las dos tablas, una abajo de la
 otra y separadas por una línea `# TABLA: …`: un pulso por fila —con la
