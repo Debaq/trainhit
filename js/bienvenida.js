@@ -53,12 +53,12 @@ export function montaBienvenida() {
   const cuenta = document.getElementById('megusta-cuenta');
   const yaVoto = leeLS(LS_VOTO) === '1';
 
-  const abrir = (v) => {
+  const abrir = (v, { foco = true } = {}) => {
     modal.hidden = !v;
-    if (v) document.getElementById('btn-empezar').focus();
+    if (v) document.getElementById('btn-tutorial').focus();
     else {
       escribeLS(LS_VISTA, '1');
-      document.getElementById('btn-ayuda').focus();
+      if (foco) document.getElementById('btn-ayuda').focus();
     }
   };
 
@@ -82,6 +82,10 @@ export function montaBienvenida() {
     .then((v) => (cuenta.textContent = v))
     .catch(() => (cuenta.textContent = '—'));
 
+  // «Ver el tutorial» lo cablea app.js, que es quien tiene el tutorial: acá
+  // solo se ofrece cerrar la bienvenida sin robarle el foco.
+  const api = { abrir, cierra: () => abrir(false, { foco: false }) };
+
   boton.addEventListener('click', async () => {
     if (leeLS(LS_VOTO) === '1') return;
     boton.disabled = true;
@@ -94,6 +98,8 @@ export function montaBienvenida() {
       boton.title = 'el contador no responde';
     }
   });
+
+  return api;
 }
 
 function marcaVotado(boton) {

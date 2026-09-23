@@ -10,6 +10,8 @@ import { CONFIG, RECHAZO_TEXT, analyzeTrial, asimetria, resumenLado } from './an
 import * as plots from './plots.js';
 import { FPS_MAX, IDX, abrirCamara, bucleDeFrames, crearLandmarker, describeCamara, listarCamaras } from './tracker.js';
 import { montaBienvenida } from './bienvenida.js';
+import { montaTutorial } from './tutorial.js';
+import { K_EJEMPLO, PULSOS_EJEMPLO, calibracionDeEjemplo, crudoDeEjemplo } from './ejemplo.js';
 import { MARGEN_CRUDO_MS, procesaCrudo } from './pipeline.js';
 
 const $ = (id) => document.getElementById(id);
@@ -68,6 +70,13 @@ const estado = {
   caraOk: false,
   duracionCalibS: 10,
   maxVelCalibDegS: 60,
+  /**
+   * Con pulsos de ejemplo cargados: la calibración que había antes, para
+   * devolverla al salir. null cuando se mide de verdad.
+   */
+  ejemplo: null,
+  /** Cuántas veces se apretó «Recalcular»: lo espera un paso del tutorial. */
+  recalculados: 0,
 };
 
 function vivoVacio() {
@@ -132,6 +141,7 @@ function modalCarga() {
 
 async function arrancar() {
   let carga = null;
+  saleDeEjemplo();
   try {
     marcaEstado('pidiendo cámara…');
     estado.stream = await abrirCamara($('video'), { deviceId: $('camara').value || undefined });
@@ -519,10 +529,13 @@ function recalculaTodos() {
     if (!nuevo) return t;
     nuevo.id = t.id;
     nuevo.crudo = t.crudo;
+    // Recalcular no convierte un ejemplo en un pulso medido.
+    if (t.ejemplo) nuevo.ejemplo = true;
     anotaConfig(nuevo);
     return nuevo;
   });
   estado.seleccion = estado.trials.find((t) => t.id === idSel) ?? null;
+  estado.recalculados++;
   pintaListas();
   marcaEstado(`${estado.trials.length} pulsos recalculados con la configuración actual`);
 }
@@ -547,7 +560,7 @@ function pintaListas() {
       tr.tabIndex = 0;
       const estadoTxt = t.rejected ? RECHAZO_TEXT[t.rejected].split(' —')[0] : 'OK';
       tr.innerHTML = `
-        <td class="num">#${t.id}</td>
+        <td class="num">#${t.id}${t.ejemplo ? '<i class="ej" title="pulso de ejemplo: paciente sintético">ej</i>' : ''}</td>
         <td>${fmt(t.peakHeadDegS, 0)} °/s</td>
         <td>${fmt(t.durationMs, 0)} ms</td>
         <td class="g">${fmt(t.gain)}</td>
@@ -581,7 +594,8 @@ function pintaListas() {
         `\niris ${fmt(t.irisPx, 1)} px · ojos ${fmt(t.disconjMm)} mm · hueco ${fmt(t.gapMs, 0)} ms` +
         `\nk ${fmt(t.k)} · derivador ${t.deriv?.windowMs} ms grado ${t.deriv?.degree}` +
         (t.rejected ? `\n${RECHAZO_TEXT[t.rejected]}` : '') +
-        (t.calibrado ? '' : '\nmedido SIN calibrar');
+        (t.calibrado ? '' : '\nmedido SIN calibrar') +
+        (t.ejemplo ? '\npulso de EJEMPLO: paciente sintético' : '');
       tbody.appendChild(tr);
     }
   }
@@ -615,8 +629,15 @@ function pintaTodo() {
 
   const cal = estado.model.calibrated;
   const badge = $('badge-calib');
-  badge.textContent = cal ? `CALIBRADO k=${fmt(estado.model.kParallax)}` : 'SIN CALIBRAR';
-  badge.className = `badge ${cal ? 'ok' : 'mal'}`;
+  // Con los ejemplos la calibración es la del paciente sintético, no la de
+  // quien está frente a la cámara: el rótulo no puede decir CALIBRADO a secas.
+  if (estado.ejemplo) {
+    badge.textContent = `EJEMPLO k=${fmt(estado.model.kParallax)}`;
+    badge.className = 'badge warn';
+  } else {
+    badge.textContent = cal ? `CALIBRADO k=${fmt(estado.model.kParallax)}` : 'SIN CALIBRAR';
+    badge.className = `badge ${cal ? 'ok' : 'mal'}`;
+  }
 
   const ultima = estado.rolling[estado.rolling.length - 1];
   // El fps que se muestra es el de frames PROCESADOS, no el que da la cámara.
@@ -737,9 +758,61 @@ function abreHerramientas(abrir) {
 
 function borraTodos() {
   // Una tecla apretada sin querer no puede tirar la sesión entera.
-  if (estado.trials.length && !confirm(`¿Borrar los ${estado.trials.length} pulsos?`)) return;
+  if (estado.trials.length && !estado.ejemplo && !confirm(`¿Borrar los ${estado.trials.length} pulsos?`)) return;
   estado.trials = [];
   estado.seleccion = null;
+  saleDeEjemplo();
+  pintaListas();
+}
+
+/**
+ * Carga el paciente sintético de ejemplo.js, para explorar sin cámara. Toma
+ * el lugar de la sesión: mezclar pulsos sintéticos con medidos daría una
+ * media que no es de nadie. El paciente trae su propia paralaje, así que se
+ * lo «calibra» con ella y se guarda la calibración de antes para devolverla.
+ */
+function cargaEjemplos() {
+  const reales = estado.trials.filter((t) => !t.ejemplo).length;
+  if (reales && !confirm(`Los ejemplos reemplazan los ${reales} pulsos medidos. ¿Seguir?`)) return;
+  if (estado.corriendo) detener();
+  if (!estado.ejemplo) {
+    estado.ejemplo = { k: estado.model.kParallax, calibrado: estado.model.calibrated, fit: estado.ultimoFit };
+  }
+  // La calibración del paciente sintético pasa por el mismo ajuste que una de
+  // verdad, así el gráfico del paralaje muestra su recta.
+  const muestras = calibracionDeEjemplo();
+  const fit = geom.fitParallax(muestras, estado.model.radiusMm);
+  estado.ultimoFit = fit ? { ...fit, muestras } : null;
+  sucio.calib = true;
+  estado.model.kParallax = fit?.acceptable ? fit.kParallax : K_EJEMPLO;
+  estado.model.calibrated = true;
+  $('k-manual-on').checked = false;
+  estado.trials = [];
+  PULSOS_EJEMPLO.forEach((p, i) => {
+    const { crudo, tTrigger } = crudoDeEjemplo(p, i + 1);
+    const trial = procesaCrudo(crudo, tTrigger, estado.model, derivActual(), cfg);
+    if (!trial) return;
+    trial.id = estado.proximoId++;
+    trial.crudo = crudo;
+    trial.ejemplo = true;
+    anotaConfig(trial);
+    estado.trials.push(trial);
+  });
+  estado.seleccion = estado.trials[estado.trials.length - 1] ?? null;
+  pintaListas();
+  marcaEstado(`${estado.trials.length} pulsos de ejemplo: paciente sintético, canal izquierdo con déficit`);
+}
+
+/** Vuelve a la medición real: se van los ejemplos y vuelve la calibración de antes. */
+function saleDeEjemplo() {
+  if (!estado.ejemplo) return;
+  estado.trials = estado.trials.filter((t) => !t.ejemplo);
+  if (estado.seleccion?.ejemplo) estado.seleccion = null;
+  estado.model.kParallax = estado.ejemplo.k;
+  estado.model.calibrated = estado.ejemplo.calibrado;
+  estado.ultimoFit = estado.ejemplo.fit;
+  sucio.calib = true;
+  estado.ejemplo = null;
   pintaListas();
 }
 
@@ -900,9 +973,10 @@ function atajos() {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
     // Ctrl+C es copiar, Ctrl+D marcador, Ctrl+R recargar: no son atajos de acá.
     if (e.ctrlKey || e.metaKey || e.altKey) return;
-    if (!$('bienvenida').hidden) return;
+    if (!$('bienvenida').hidden || tutorial.bloqueaAtajos()) return;
     const k = e.key.toLowerCase();
-    if (k === 'c') empiezaCalibracion();
+    if (k === 't') tutorial.abierto() ? tutorial.cierra() : tutorial.abre();
+    else if (k === 'c') empiezaCalibracion();
     else if (k === 'r') borraTodos();
     else if (k === 'd') descartaUltimo();
     else if (k === 'h') abreHerramientas($('herramientas').hidden);
@@ -958,7 +1032,7 @@ function filasPulsos() {
     [
       'id', 'lado', 'pico_cabeza_deg_s', 'duracion_ms', 'ganancia_area', 'ganancia_60ms', 'ganancia_pico',
       'rechazo', 'calibrado', 'k', 'iris_min_px', 'disconj_mm', 'hueco_max_ms', 'deriv_ventana_ms', 'deriv_grado',
-      'fps_muestreo', 'no_validado', 'version',
+      'fps_muestreo', 'no_validado', 'ejemplo', 'version',
     ],
     ...estado.trials.map((t) => [
       t.id,
@@ -978,6 +1052,7 @@ function filasPulsos() {
       t.deriv?.degree ?? '',
       num(t.fpsMuestreo, 1),
       t.noValidado ? 'si' : 'no',
+      t.ejemplo ? 'si' : 'no',
       version,
     ]),
   ];
@@ -1056,7 +1131,27 @@ sliders();
 atajos();
 medicionViva();
 medicionPulsos();
-montaBienvenida();
+const bienvenida = montaBienvenida();
+// El recorrido del tutorial espera cosas de la medición real: por eso se
+// monta acá, con acceso al estado, y no en su módulo.
+const tutorial = montaTutorial({
+  condiciones: {
+    cara: () => estado.corriendo && estado.caraOk,
+    calibrado: () => estado.model.calibrated,
+    pulso: () => estado.trials.length > 0,
+    recalculado: () => estado.recalculados > 0,
+  },
+  acciones: {
+    abreHerramientas: () => abreHerramientas(true),
+    cierraHerramientas: () => abreHerramientas(false),
+    cargaEjemplos,
+  },
+});
+$('btn-tutorial').addEventListener('click', () => {
+  bienvenida.cierra();
+  tutorial.abre();
+});
+$('btn-aprender').addEventListener('click', () => tutorial.abre());
 // Modo sin red: ver sw.js. Si el navegador no lo soporta o falla, la página
 // funciona igual; solo no queda guardada.
 if ('serviceWorker' in navigator) {

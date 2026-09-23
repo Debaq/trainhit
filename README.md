@@ -116,7 +116,62 @@ puede ser externo, así que va autorizado por su hash sha256 en la CSP;
 | `R` | Borrar todos los pulsos |
 | `D` | Descartar el último |
 | `H` | Abrir o cerrar las herramientas |
+| `T` | Abrir o cerrar «Aprender a usar» |
 | `Espacio` o `P` | Pausar y congelar la traza de abajo para medirla (la cámara sigue) |
+
+## Aprender a usar
+
+**Aprender**, en la barra (o `T`, o el botón de la bienvenida), abre un menú de
+paseos cortos, cada uno sobre un tema y en cualquier orden:
+
+| Paseo | De qué trata |
+|---|---|
+| Qué mide un vHIT | el reflejo, el impulso, la ganancia, las sacadas, los límites |
+| Preparar la sesión | cámara, luz, postura, manos del examinador |
+| La primera medición | con la cámara: calibrar, impulsos, paneles, lista, CSV |
+| Leer los gráficos | la regla, los rechazados, la asimetría, promedio, suavizar, orientación, pausa |
+| Herramientas por dentro | la recta del paralaje, k a mano, el último pulso, ganancia contra pico |
+| Las perillas del motor | cada perilla, probada con «Recalcular» sobre pulsos ya medidos |
+
+Las tarjetas de leer van al centro con el fondo tapado. Las demás iluminan la
+parte de la pantalla de la que hablan y dejan la página usable, porque lo que se
+señala tiene que poder apretarse. Algunos pasos esperan algo —la cara, una
+calibración aceptada, pulsos, un recálculo—, pero la espera nunca traba: el
+botón dice «Saltar» hasta que se cumple. El menú marca con ✓ los paseos
+terminados (en `localStorage`, solo como comodidad).
+
+### Pulsos de ejemplo
+
+Los paseos de gráficos, herramientas y perillas necesitan pulsos, y no siempre
+hay alguien a quien darle impulsos. Por eso arrancan ofreciendo los de un
+**paciente sintético** (`js/ejemplo.js`): canal derecho sano, izquierdo con
+déficit y sacadas encubiertas, un pulso lento y uno con parpadeo, más su
+calibración. No son resultados armados a mano: son muestras crudas por frame
+que pasan por el motor entero, así que las perillas y «Recalcular» les hacen lo
+mismo que a un pulso medido.
+
+Como el motor no desacadiza, alguno del lado malo se lee normal: la sacada
+encubierta le tapa el déficit. Es el sesgo al falso negativo, a la vista.
+
+Los ejemplos reemplazan la sesión (mezclar pulsos sintéticos con medidos daría
+una media que no es de nadie), salen marcados **ej** en la lista y con
+`ejemplo=si` en el CSV, y la barra dice **EJEMPLO k=…** en vez de CALIBRADO,
+porque esa calibración es la del paciente sintético. Se van solos al encender la
+cámara o con **Borrar todos**, y vuelve la calibración que había.
+
+### Dónde está cada cosa
+
+El mecanismo está en `js/tutorial.js` y el contenido en `js/tutorial-pasos.js`,
+datos puros que `test/tutorial.test.mjs` recorre: cada objetivo tiene que
+existir en `index.html`, cada imagen tiene que estar en `img/tutorial/` o
+encargada en `img/tutorial/PROMPTS.md` (con su prompt y la guía de estilo), y
+el paciente de ejemplo tiene que hacer lo que dicen los textos —el lado sano en
+~1, k = 0 dando ~1,9, la ventana de 200 ms dejando pulsos en MUY LENTO—. Si el
+motor cambia y eso deja de ser cierto, el test lo dice antes que un alumno.
+
+Mientras una imagen falta se ve un recuadro con su nombre. Los dos gráficos de
+curvas no se generan con IA —inventaría la forma de las curvas, que es lo que se
+enseña—: los dibuja `node img/tutorial/diagramas.mjs`.
 
 ## Medir sobre el gráfico
 
@@ -313,6 +368,8 @@ js/pipeline.js  de muestras crudas a pulso analizado: lo que corre al medir y al
 js/tracker.js   MediaPipe Face Landmarker + cámara + bucle de frames
 js/plots.js     los cuatro gráficos, en canvas y sin librerías
 js/app.js       el cableado y la interfaz
+js/tutorial.js  «Aprender a usar»: el menú de paseos; el contenido, en js/tutorial-pasos.js
+js/ejemplo.js   el paciente sintético de los paseos
 ```
 
 Las cinco decisiones que importan, resumidas:

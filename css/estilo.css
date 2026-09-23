@@ -163,6 +163,125 @@ body {
 .tarjeta .ayuda { color: var(--muted-fg); font-size: 13px; }
 .tarjeta button { margin-top: 6px; }
 
+.tarjeta .acciones { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ── tutorial ────────────────────────────────────────────────────────────── */
+
+/* El contenedor no captura el puntero: en el recorrido la página tiene que
+   seguir usable detrás. Lo capturan la tarjeta y, solo en las tarjetas de
+   leer, el fondo. Va por encima del cajón (10) y de la bienvenida (20), y por
+   debajo del punto de fijación (30), que tiene que verse al calibrar. */
+.tutorial {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  pointer-events: none;
+}
+.tutorial[hidden] { display: none; }
+.tuto-fondo { position: absolute; inset: 0; background: rgba(9, 9, 11, 0.75); pointer-events: auto; }
+.tutorial[data-modo='guia'] .tuto-fondo { display: none; }
+
+/* El foco oscurece todo MENOS el objetivo con una sombra enorme: así el
+   objetivo queda a la vista sin copiarlo ni moverlo de su lugar. */
+.tuto-foco {
+  position: fixed;
+  border-radius: var(--r-window);
+  box-shadow: 0 0 0 200vmax rgba(9, 9, 11, 0.62);
+  outline: 2px solid var(--c-guide);
+  pointer-events: none;
+  transition: left 0.18s ease, top 0.18s ease, width 0.18s ease, height 0.18s ease;
+}
+.tuto-foco[hidden] { display: none; }
+
+.tuto-tarjeta {
+  position: relative;
+  pointer-events: auto;
+  width: min(620px, 100%);
+  max-width: none;
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  padding: 16px 20px 14px;
+}
+.tuto-tarjeta.flota { position: fixed; max-height: min(70dvh, 560px); padding: 12px 14px 10px; }
+.tuto-tarjeta h1 { font-size: 20px; margin: 4px 0 8px; }
+.tuto-tarjeta.flota h1 { font-size: 16px; }
+.tuto-cuerpo p, .tuto-cuerpo li { color: #d4d4d8; font-size: 14px; }
+.tuto-tarjeta.flota .tuto-cuerpo p, .tuto-tarjeta.flota .tuto-cuerpo li { font-size: 13px; }
+.tuto-cuerpo ul, .tuto-cuerpo ol { margin: 0 0 10px; padding-left: 20px; }
+.tuto-cuerpo li { margin-bottom: 4px; }
+.tuto-cuerpo .c-cabeza { color: var(--c-head); }
+.tuto-cuerpo .c-ojo { color: var(--c-eye); }
+
+.tuto-arriba { display: flex; align-items: center; gap: 8px; }
+.tuto-arriba button { margin: 0; padding: 2px 8px; font-size: 12px; color: var(--muted-fg); }
+.tuto-paseo { font: 600 11px ui-monospace, monospace; letter-spacing: 0.4px; text-transform: uppercase; color: var(--c-guide); }
+.tuto-arriba[hidden],
+.tuto-nav [hidden],
+.tuto-paseos[hidden] { display: none; }
+
+/* El menú: un botón grande por paseo, con título, resumen y si ya se vio. */
+.tuto-paseos { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.tuto-paseos button {
+  margin: 0;
+  width: 100%;
+  text-align: left;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 12px;
+  padding: 9px 12px;
+}
+.tuto-paseos button b { font-size: 14px; }
+.tuto-paseos button span { grid-column: 1; color: var(--muted-fg); font-size: 12px; }
+.tuto-paseos button i { grid-column: 2; grid-row: 1 / 3; align-self: center; font: 11px ui-monospace, monospace; font-style: normal; color: var(--muted-fg); }
+.tuto-paseos button.visto i { color: var(--c-ok); }
+
+/* 16:9 fijo: la tarjeta no salta de alto cuando la imagen termina de bajar. */
+.tuto-fig { margin: 0 0 10px; }
+.tuto-fig[hidden] { display: none; }
+.tuto-fig img,
+.tuto-falta {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--r-widget);
+  border: 1px solid var(--border);
+  background: var(--background);
+}
+.tuto-tarjeta.flota .tuto-fig img,
+.tuto-tarjeta.flota .tuto-falta { aspect-ratio: 16 / 7; }
+/* En el menú la portada es un encabezado: lo que importa es la lista. */
+.tuto-tarjeta.menu .tuto-fig img,
+.tuto-tarjeta.menu .tuto-falta { aspect-ratio: 16 / 5; }
+.tuto-falta {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 16px;
+  border-style: dashed;
+  border-color: var(--accent-strong);
+  color: var(--muted-fg);
+  font-size: 12px;
+  overflow: hidden;
+}
+.tuto-falta b { font: 600 11px ui-monospace, monospace; color: var(--c-warn); }
+
+.tuto-espera { font: 600 12px ui-monospace, monospace; color: var(--c-warn); margin: 0 0 8px; }
+.tuto-espera.ok { color: var(--c-ok); }
+.tuto-espera[hidden] { display: none; }
+
+.tuto-nav { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+.tuto-nav button { margin: 0; }
+.tuto-cuenta { flex: 1; text-align: center; font: 11px ui-monospace, monospace; color: var(--muted-fg); }
+
+@media (prefers-reduced-motion: reduce) {
+  .tuto-foco { transition: none; }
+}
+
 /* ── barra de carga ──────────────────────────────────────────────────────── */
 
 .carga { min-width: min(420px, 100%); }
@@ -395,6 +514,17 @@ kbd {
 .lista tr:hover td { background: var(--muted); }
 .lista tr.sel td { background: var(--accent); }
 .lista .num { color: var(--muted-fg); }
+/* Pulso del paciente sintético: que no se confunda con uno medido. */
+.lista .ej {
+  margin-left: 4px;
+  padding: 0 4px;
+  border-radius: 3px;
+  background: rgba(209, 136, 0, 0.18);
+  color: var(--c-warn);
+  font: 600 9px ui-monospace, monospace;
+  font-style: normal;
+  text-transform: uppercase;
+}
 .lista .g { font-weight: 700; text-align: right; }
 .lista .est { text-align: right; }
 .lista .est.ok { color: var(--c-ok); }

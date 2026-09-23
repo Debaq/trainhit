@@ -8,7 +8,7 @@
          jsdelivr (MediaPipe), y conexiones solo a lo que la página usa. -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-RvOeAG8EYmMmIG6K7a4XR3nc3nNukMu/zNdp78cjTxI='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
+      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-HCv0H0lX44Ys+6R0YFVbX0gbKfU5Xmxy/2l0EJNqMno='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
     />
     <meta
       name="description"
@@ -52,7 +52,7 @@
     />
     <!-- Mapa de importación: versiona los imports internos. Lo regenera
          bump.mjs junto con su hash en la CSP de arriba. Va antes del arranque. -->
-    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-22.23","./js/app.js":"./js/app.js?v=2026-09-22.23","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-22.23","./js/curve.js":"./js/curve.js?v=2026-09-22.23","./js/geom.js":"./js/geom.js?v=2026-09-22.23","./js/head.js":"./js/head.js?v=2026-09-22.23","./js/pipeline.js":"./js/pipeline.js?v=2026-09-22.23","./js/plots.js":"./js/plots.js?v=2026-09-22.23","./js/signal.js":"./js/signal.js?v=2026-09-22.23","./js/tracker.js":"./js/tracker.js?v=2026-09-22.23"}}</script>
+    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-23.3","./js/app.js":"./js/app.js?v=2026-09-23.3","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-23.3","./js/curve.js":"./js/curve.js?v=2026-09-23.3","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-23.3","./js/geom.js":"./js/geom.js?v=2026-09-23.3","./js/head.js":"./js/head.js?v=2026-09-23.3","./js/pipeline.js":"./js/pipeline.js?v=2026-09-23.3","./js/plots.js":"./js/plots.js?v=2026-09-23.3","./js/signal.js":"./js/signal.js?v=2026-09-23.3","./js/tracker.js":"./js/tracker.js?v=2026-09-23.3","./js/tutorial.js":"./js/tutorial.js?v=2026-09-23.3","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-23.3"}}</script>
     <script src="js/arranque.js"></script>
     <noscript><link rel="stylesheet" href="css/estilo.css" /></noscript>
   </head>
@@ -70,6 +70,7 @@
       <span class="chip"><i>cara</i><b id="v-cara">no</b></span>
       <span class="chip"><i>v cabeza</i><b id="v-vcab">—</b></span>
       <button id="btn-megusta" class="megusta" title="me gusta" aria-label="me gusta">♥ <span id="megusta-cuenta">…</span></button>
+      <button id="btn-aprender" class="ghost" title="paseos guiados por la página (T)">Aprender</button>
       <button id="btn-ayuda" class="ghost" title="qué es esto" aria-label="qué es esto">?</button>
       <button id="btn-herramientas" class="ghost">Herramientas</button>
     </header>
@@ -133,11 +134,38 @@
         <p class="ayuda credito">
           Desarrollado en <b>TecMedHub</b>, Universidad Austral de Chile.
         </p>
-        <button id="btn-empezar" class="primario">Empezar</button>
+        <div class="acciones">
+          <button id="btn-tutorial" class="primario">Aprender a usar</button>
+          <button id="btn-empezar">Empezar</button>
+        </div>
         <p class="pie">versión <span class="v-app"></span></p>
       </div>
     </div>
 
+    <!-- Tutorial: ver js/tutorial.js. Una sola tarjeta con dos modos: al
+         centro con el fondo tapado para leer, o flotando junto a la parte de
+         la pantalla que se señala, con la página usable detrás. -->
+    <div id="tutorial" class="tutorial" data-modo="modal" hidden>
+      <div class="tuto-fondo"></div>
+      <div class="tuto-foco" hidden></div>
+      <div class="tuto-tarjeta tarjeta" role="dialog" aria-modal="true" aria-labelledby="tuto-titulo">
+        <div class="tuto-arriba">
+          <button id="tuto-menu" class="ghost" title="volver a la lista de paseos">‹ Paseos</button>
+          <span class="tuto-paseo"></span>
+        </div>
+        <h1 id="tuto-titulo"></h1>
+        <figure class="tuto-fig" hidden></figure>
+        <div class="tuto-cuerpo"></div>
+        <ul class="tuto-paseos" hidden></ul>
+        <p class="tuto-espera" aria-live="polite" hidden></p>
+        <div class="tuto-nav">
+          <button id="tuto-salir" class="ghost">Salir</button>
+          <span class="tuto-cuenta"></span>
+          <button id="tuto-anterior">Anterior</button>
+          <button id="tuto-siguiente" class="primario">Siguiente</button>
+        </div>
+      </div>
+    </div>
 
     <div class="app">
       <!-- ─────────── columna izquierda: video, ojos y botonera ─────────── -->
@@ -224,7 +252,7 @@
       </div>
 
       <div class="cajon-cuerpo">
-        <section>
+        <section id="h-presentacion">
           <h3>Presentación</h3>
           <div class="ajustes">
             <label class="check"><input type="checkbox" id="espejo" checked /> Espejar el video</label>
@@ -250,7 +278,7 @@
           </p>
         </section>
 
-        <section>
+        <section id="h-medir">
           <h3>Medir sobre los gráficos</h3>
           <p class="ayuda">
             El puntero sobre cualquier gráfico de pulsos lee el instante y las dos velocidades.
@@ -263,7 +291,7 @@
           </p>
         </section>
 
-        <section>
+        <section id="h-calib">
           <h3>Calibración del paralaje</h3>
           <canvas id="plot-calib" class="plot chico" role="img" aria-label="ajuste del paralaje: offset del iris contra seno del yaw"></canvas>
           <p id="calib-info" class="meta">sin calibrar</p>
@@ -281,19 +309,19 @@
           </label>
         </section>
 
-        <section>
+        <section id="h-pulso">
           <h3>Último pulso</h3>
           <canvas id="plot-pulso" class="plot chico" role="img" aria-label="último pulso con la ventana del impulso"></canvas>
           <p class="ayuda">Sombreado: la ventana del impulso. Punteado: los umbrales de inicio y fin.</p>
         </section>
 
-        <section>
+        <section id="h-ganancias">
           <h3>Ganancia vs pico</h3>
           <canvas id="plot-ganancias" class="plot chico" role="img" aria-label="ganancia de cada pulso contra su pico de velocidad"></canvas>
           <p class="ayuda">Punteada: corte 0,80, de estudios con señal desacadizada. Este motor no desacadiza.</p>
         </section>
 
-        <section>
+        <section id="h-perillas">
           <h3>Perillas</h3>
           <div class="perillas">
             <label class="perilla">
@@ -348,7 +376,7 @@
           <button id="btn-recalcular">Recalcular los pulsos con esta configuración</button>
         </section>
 
-        <section>
+        <section id="h-como">
           <h3>Cómo se mide</h3>
           <ol class="pasos">
             <li><b>Iris como regla.</b> 11,7 mm de diámetro; el semieje mayor no cambia con el giro ⇒ escala px/mm.</li>
@@ -367,7 +395,7 @@
           </ul>
         </section>
 
-        <section>
+        <section id="h-refs">
           <h3>De dónde salen los números</h3>
           <ul class="refs">
             <li>
