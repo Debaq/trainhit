@@ -270,8 +270,12 @@ diez rechazados encima, diez cajas no se leen.
 
 ## El punto de fijación
 
-Al calibrar aparece un punto rojo en el centro de la pantalla, con la cuenta
-de lo que falta y el rango de cabeza logrado. El paciente tiene que mirar algo
+Al calibrar aparece un punto rojo arriba al centro, pegado al borde, con la
+cuenta de lo que falta y el rango de cabeza logrado. Está ahí porque ahí está
+la cámara de casi cualquier equipo: el blanco de los impulsos es la cámara
+—el modelo de paralaje asume el objetivo pegado a ella— y calibrar mirando el
+centro de la pantalla pedía una cosa para calibrar y otra para medir. Si la
+cámara está en otro lado, se mira la cámara. El paciente tiene que mirar algo
 quieto mientras gira la cabeza: si no fija, lo que se mide no es el paralaje
 sino la mirada paseando. No captura el puntero, así que el operador sigue
 usando los controles con el punto puesto.

@@ -227,8 +227,8 @@ export const PASEOS = [
         img: 'calibracion.webp',
         alt: 'Paciente mirando fijo un punto rojo mientras gira la cabeza lento de un lado al otro, con un arco de ±20° dibujado.',
         cuerpo: `
-          <p>Apretá <b>Calibrar</b> (o <kbd>C</kbd>). Aparece un punto rojo: el paciente lo mira
-          <b>sin soltarlo</b> y gira la cabeza <b>lento</b> de un lado al otro, ±20°, durante 10 s.</p>
+          <p>Apretá <b>Calibrar</b> (o <kbd>C</kbd>). Aparece un punto rojo arriba al centro, junto a la
+          cámara —el mismo blanco que en los impulsos—: el paciente lo mira <b>sin soltarlo</b> y gira la cabeza <b>lento</b> de un lado al otro, ±20°, durante 10 s.</p>
           <p>Al girar la cabeza el iris se corre en la imagen aunque el ojo no se mueva, y ese
           corrimiento es tan grande como la señal. Sin calibrar, un reflejo perfecto se lee ~1,9. Si
           la calibración sale rechazada, la barra de estado dice qué hacer distinto.</p>`,

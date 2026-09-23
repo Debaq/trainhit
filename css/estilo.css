@@ -110,8 +110,13 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 14px;
+  /* Arriba al centro, pegado al borde: es donde está la cámara de casi
+     cualquier portátil o teléfono. El blanco de los impulsos es la cámara
+     (el modelo de paralaje asume el objetivo pegado a ella), y calibrar
+     mirando el centro de la pantalla contradecía lo que se pide después. */
+  justify-content: flex-start;
+  padding-top: 4px;
+  gap: 10px;
   /* Nada de fondo: el operador tiene que seguir viendo el video y el rango
      mientras el paciente fija. */
   pointer-events: none;

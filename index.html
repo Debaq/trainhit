@@ -8,7 +8,7 @@
          jsdelivr (MediaPipe), y conexiones solo a lo que la página usa. -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-YO/Y9HN9DJqGJ9XgjBpi5PNgxpLa95HeZVXrr+JFqu8='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
+      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-6IRRt/Gc0Q1po6k9E/fFNwyULcCHt2Thbb3zgsDegac='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
     />
     <meta
       name="description"
@@ -52,7 +52,7 @@
     />
     <!-- Mapa de importación: versiona los imports internos. Lo regenera
          bump.mjs junto con su hash en la CSP de arriba. Va antes del arranque. -->
-    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-23.5","./js/app.js":"./js/app.js?v=2026-09-23.5","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-23.5","./js/curve.js":"./js/curve.js?v=2026-09-23.5","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-23.5","./js/geom.js":"./js/geom.js?v=2026-09-23.5","./js/head.js":"./js/head.js?v=2026-09-23.5","./js/pipeline.js":"./js/pipeline.js?v=2026-09-23.5","./js/plots.js":"./js/plots.js?v=2026-09-23.5","./js/signal.js":"./js/signal.js?v=2026-09-23.5","./js/tracker.js":"./js/tracker.js?v=2026-09-23.5","./js/tutorial.js":"./js/tutorial.js?v=2026-09-23.5","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-23.5"}}</script>
+    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-23.6","./js/app.js":"./js/app.js?v=2026-09-23.6","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-23.6","./js/curve.js":"./js/curve.js?v=2026-09-23.6","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-23.6","./js/geom.js":"./js/geom.js?v=2026-09-23.6","./js/head.js":"./js/head.js?v=2026-09-23.6","./js/pipeline.js":"./js/pipeline.js?v=2026-09-23.6","./js/plots.js":"./js/plots.js?v=2026-09-23.6","./js/signal.js":"./js/signal.js?v=2026-09-23.6","./js/tracker.js":"./js/tracker.js?v=2026-09-23.6","./js/tutorial.js":"./js/tutorial.js?v=2026-09-23.6","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-23.6"}}</script>
     <script src="js/arranque.js"></script>
     <noscript><link rel="stylesheet" href="css/estilo.css" /></noscript>
   </head>
@@ -78,11 +78,12 @@
 
     <!-- Punto de fijación de la calibración. El paciente tiene que mirar algo
          quieto mientras gira la cabeza: si no fija, lo que se mide no es el
-         paralaje sino la mirada paseando. Va encima de todo y sin capturar el
-         puntero, para no estorbar los controles. -->
+         paralaje sino la mirada paseando. Va arriba al centro, junto a la
+         cámara, que es el mismo blanco de los impulsos. Encima de todo y sin
+         capturar el puntero, para no estorbar los controles. -->
     <div id="fijacion" class="fijacion" hidden>
       <i class="punto"></i>
-      <p>Mirá el punto <b>sin soltarlo</b> y girá la cabeza lento, ±20°</p>
+      <p>Mirá el punto —o la cámara, si está en otro lado— <b>sin soltarlo</b> y girá la cabeza lento, ±20°</p>
       <p id="fijacion-cuenta" class="cuenta" aria-live="polite"></p>
     </div>
 
