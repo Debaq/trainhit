@@ -6,8 +6,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
-import { ACCIONES, CONDICIONES, LUGARES, PASEOS, PORTADA } from '../js/tutorial-pasos.js';
-import { K_EJEMPLO, PULSOS_EJEMPLO, calibracionDeEjemplo, crudoDeEjemplo } from '../js/ejemplo.js';
+import { ACCIONES, CONDICIONES, LUGARES, PASEOS, PATRONES, PORTADA } from '../js/tutorial-pasos.js';
+import { CASOS, K_EJEMPLO, PULSOS_EJEMPLO, calibracionDeEjemplo, crudoDeEjemplo } from '../js/ejemplo.js';
 import { procesaCrudo } from '../js/pipeline.js';
 import { CONFIG, resumenLado } from '../js/analysis.js';
 import * as geom from '../js/geom.js';
@@ -110,4 +110,60 @@ test('la calibración de ejemplo se acepta y recupera su k', () => {
   const fit = geom.fitParallax(calibracionDeEjemplo(), geom.EYE_ROTATION_RADIUS_MM);
   assert.ok(fit.acceptable, fit.issue);
   assert.ok(Math.abs(fit.kParallax - K_EJEMPLO) < 0.03, `k ${fit.kParallax}`);
+});
+
+/** Los pulsos de un caso, con las mismas semillas que usa app.js. */
+function caso(letra) {
+  const model = new geom.EyeModel();
+  model.kParallax = K_EJEMPLO;
+  model.calibrated = true;
+  return CASOS[letra].pulsos.map((p, i) => {
+    const { crudo, tTrigger } = crudoDeEjemplo(p, 100 + i);
+    return procesaCrudo(crudo, tTrigger, model, { windowMs: 50, degree: 2 }, CONFIG);
+  });
+}
+
+/** Lo que el alumno ve en los paneles, dicho como patrón. */
+function patronVisible(letra) {
+  const ts = caso(letra);
+  const der = resumenLado(ts, 'derecha');
+  const izq = resumenLado(ts, 'izquierda');
+  if (der.n < 3 && izq.n < 3) return 'no-concluyente';
+  const bien = (r) => r.media >= CONFIG.gainNormalMin;
+  if (bien(der) && bien(izq)) {
+    // Normal según la ganancia: lo que distingue a un encubierto es que el
+    // reflejo que se le puso al paciente es bajo y la sacada cae adentro.
+    for (const lado of ['derecha', 'izquierda']) {
+      const ps = CASOS[letra].pulsos.filter((p) => p.lado === lado);
+      if (ps.every((p) => p.ganancia < 0.6 && p.sacada !== undefined && p.sacada < 0.08)) {
+        return lado === 'derecha' ? 'encubierto-der' : 'encubierto-izq';
+      }
+    }
+    return 'normal';
+  }
+  if (!bien(der) && !bien(izq)) return 'bilateral';
+  return bien(izq) ? 'unilateral-der' : 'unilateral-izq';
+}
+
+test('cada caso muestra el patrón que dice su respuesta', () => {
+  for (const [letra, c] of Object.entries(CASOS)) {
+    assert.ok(c.patron in PATRONES, `${letra}: ${c.patron}`);
+    assert.equal(patronVisible(letra), c.patron, `caso ${letra}`);
+  }
+  // El caso D es el falso negativo: la media izquierda se lee normal.
+  assert.ok(resumenLado(caso('D'), 'izquierda').media >= CONFIG.gainNormalMin);
+});
+
+test('las preguntas del tutorial apuntan a la respuesta de su caso', () => {
+  const preguntas = pasos.filter((p) => p.pregunta);
+  assert.ok(preguntas.length >= Object.keys(CASOS).length);
+  for (const p of preguntas) {
+    const q = p.pregunta;
+    assert.ok(q.correcta in PATRONES, `${p.id}: ${q.correcta}`);
+    assert.ok(q.explica && q.pista, `${p.id}: falta explica o pista`);
+    if (q.caso) {
+      assert.equal(q.correcta, CASOS[q.caso].patron, `${p.id}`);
+      assert.match(p.cuerpo, new RegExp(`data-accion="cargaCaso" data-arg="${q.caso}"`), `${p.id}: sin botón de carga`);
+    }
+  }
 });

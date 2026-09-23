@@ -14,7 +14,7 @@
 // «Siguiente». Quien ya sabe calibrar no tiene por qué hacerlo para ver el
 // resto.
 
-import { ACCIONES, CONDICIONES, PASEOS, PORTADA } from './tutorial-pasos.js';
+import { ACCIONES, CONDICIONES, PASEOS, PATRONES, PORTADA } from './tutorial-pasos.js';
 
 /** Cada cuánto se mira la condición del paso y se reubica la tarjeta. */
 const TIC_MS = 250;
@@ -84,10 +84,11 @@ export function montaTutorial({ condiciones, acciones, instantanea = () => ({}) 
    */
   let desde = {};
 
-  // Los botones del cuerpo de un paso (`data-accion`) disparan acciones.
+  // Los botones del cuerpo de un paso (`data-accion`) disparan acciones; el
+  // `data-arg`, si hay, va de argumento (la letra del caso).
   cuerpo.addEventListener('click', (e) => {
     const b = e.target.closest('[data-accion]');
-    if (b && ACCIONES.includes(b.dataset.accion)) acciones[b.dataset.accion]();
+    if (b && ACCIONES.includes(b.dataset.accion)) acciones[b.dataset.accion](b.dataset.arg);
   });
 
   /**
@@ -161,6 +162,7 @@ export function montaTutorial({ condiciones, acciones, instantanea = () => ({}) 
     nombrePaseo.textContent = paseo.titulo;
     titulo.textContent = p.titulo;
     cuerpo.innerHTML = p.cuerpo;
+    if (p.pregunta) pintaPregunta(cuerpo, p.pregunta);
     pintaFigura(fig, p);
     cuenta.textContent = `${i + 1} / ${paseo.pasos.length}`;
     bAnterior.disabled = i === 0;
@@ -299,6 +301,43 @@ export function montaTutorial({ condiciones, acciones, instantanea = () => ({}) 
   });
 
   return { abre, cierra, abierto: () => !raiz.hidden, bloqueaAtajos: () => !raiz.hidden && raiz.dataset.modo === 'modal' };
+}
+
+/**
+ * Una pregunta de opción múltiple: las opciones son los PATRONES y la
+ * respuesta no se ve hasta elegir. Equivocarse no cierra nada: dice dónde
+ * mirar (`pista`) y se puede volver a intentar. Acertar da la explicación.
+ *
+ * Contestar antes de que se cuente es el punto: leer un gráfico sabiendo lo
+ * que tiene que mostrar no es leerlo.
+ */
+function pintaPregunta(cuerpo, q) {
+  const caja = document.createElement('div');
+  caja.className = 'tuto-pregunta';
+  const lista = document.createElement('div');
+  lista.className = 'opciones';
+  lista.setAttribute('role', 'group');
+  lista.setAttribute('aria-label', 'respuestas');
+  const devolucion = document.createElement('p');
+  devolucion.className = 'tuto-respuesta';
+  devolucion.setAttribute('aria-live', 'polite');
+  devolucion.hidden = true;
+  for (const [id, texto] of Object.entries(PATRONES)) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = texto;
+    b.addEventListener('click', () => {
+      const ok = id === q.correcta;
+      b.classList.add(ok ? 'bien' : 'mal');
+      devolucion.hidden = false;
+      devolucion.className = `tuto-respuesta ${ok ? 'ok' : 'no'}`;
+      devolucion.innerHTML = ok ? `<b>Sí.</b> ${q.explica}` : `<b>No.</b> ${q.pista}`;
+      if (ok) for (const o of lista.children) o.disabled = true;
+    });
+    lista.appendChild(b);
+  }
+  caja.append(lista, devolucion);
+  cuerpo.appendChild(caja);
 }
 
 /**

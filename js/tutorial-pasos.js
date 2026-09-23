@@ -22,6 +22,10 @@
 //   espera    opcional, condición que el paso pide cumplir antes de seguir
 //             (ver CONDICIONES). Nunca traba: «Saltar» sigue a mano.
 //   antes     opcional, acción de la interfaz al entrar al paso.
+//   pregunta  opcional, `{ caso, correcta, explica, pista }`: opción múltiple
+//             sobre PATRONES. `correcta` es un patrón; `explica` se muestra al
+//             acertar y `pista` al errar. Con `caso`, test/tutorial.test.mjs
+//             comprueba que ese caso de ejemplo.js muestre de verdad ese patrón.
 //
 // Un paseo puede tener `alSalir`: una acción que corre cuando se lo deja por
 // cualquier camino —terminado, al menú o cerrando—. Es para lo que el paseo
@@ -36,7 +40,21 @@ export const CONDICIONES = {
 };
 
 /** Lo que un paso (o un botón de su cuerpo) puede pedirle a la interfaz. */
-export const ACCIONES = ['abreHerramientas', 'cierraHerramientas', 'cargaEjemplos', 'restauraK', 'restauraPerillas'];
+export const ACCIONES = ['abreHerramientas', 'cierraHerramientas', 'cargaEjemplos', 'cargaCaso', 'restauraK', 'restauraPerillas'];
+
+/**
+ * Las respuestas posibles de «Casos a ciegas», las mismas en todos: si cada
+ * caso trajera solo las suyas, la lista delataría la respuesta.
+ */
+export const PATRONES = {
+  normal: 'Normal en los dos lados',
+  'unilateral-der': 'Déficit del lado derecho',
+  'unilateral-izq': 'Déficit del lado izquierdo',
+  bilateral: 'Déficit de los dos lados',
+  'encubierto-der': 'Ganancia normal, pero con sacadas encubiertas del lado derecho',
+  'encubierto-izq': 'Ganancia normal, pero con sacadas encubiertas del lado izquierdo',
+  'no-concluyente': 'No se puede concluir: hay que repetir la prueba',
+};
 
 /** Lugares posibles de la tarjeta respecto del objetivo. */
 export const LUGARES = ['abajo', 'arriba', 'derecha', 'izquierda'];
@@ -411,6 +429,129 @@ export const PASEOS = [
           <p>La traza de abajo se mueve, así que para medirla hay que congelarla: <b>Pausar</b> o
           <kbd>Espacio</kbd>. La cámara sigue encendida; lo que se detiene es el análisis.</p>
           <p>Congelada, la regla funciona igual que en los paneles.</p>`,
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────── casos a ciegas ──
+  {
+    id: 'casos',
+    titulo: 'Casos a ciegas',
+    resumen: 'Cinco pacientes sintéticos sin diagnóstico: mirá los paneles y decí qué patrón ves.',
+    pasos: [
+      {
+        id: 'como-leer',
+        titulo: 'Cómo se lee un caso',
+        cuerpo: `
+          <p>Cada caso carga los pulsos de un paciente sintético, con una letra y sin decir qué
+          tiene. Mirá los dos paneles y respondé <b>antes</b> de que se cuente.</p>
+          <ul>
+            <li>La <b>media ± DE</b> de cada lado y cuántos pulsos se aceptaron.</li>
+            <li>La <b>asimetría</b>, abajo a la derecha de la traza en vivo.</li>
+            <li>La <b>forma</b> de las curvas naranjas: un pico angosto que se despega de la azul es
+            una sacada. Durante el impulso, encubierta; después, manifiesta.</li>
+            <li>Cuántos pulsos quedaron <b>rechazados</b>, y por qué.</li>
+          </ul>
+          <p class="ayuda">Los casos reemplazan la sesión, como los pulsos de ejemplo. La curva promedio
+          (en Herramientas) ayuda a ver la forma.</p>`,
+      },
+      {
+        id: 'caso-a',
+        titulo: 'Caso A',
+        objetivo: '.col-lados',
+        antes: 'cierraHerramientas',
+        cuerpo: `
+          <p><button type="button" class="primario" data-accion="cargaCaso" data-arg="A">Cargar el caso A</button></p>
+          <p>¿Qué patrón muestra?</p>`,
+        pregunta: {
+          caso: 'A',
+          correcta: 'normal',
+          explica: `Las dos medias cerca de 1, asimetría casi nula y las curvas naranjas tapando a las
+            azules, sin picos que se despeguen. Es el patrón contra el que se compara todo lo demás.`,
+          pista: 'Mirá las dos medias y si alguna curva naranja se despega de la azul.',
+        },
+      },
+      {
+        id: 'caso-b',
+        titulo: 'Caso B',
+        objetivo: '.col-lados',
+        antes: 'cierraHerramientas',
+        cuerpo: `
+          <p><button type="button" class="primario" data-accion="cargaCaso" data-arg="B">Cargar el caso B</button></p>
+          <p>¿Qué patrón muestra?</p>`,
+        pregunta: {
+          caso: 'B',
+          correcta: 'unilateral-der',
+          explica: `El derecho da ~0,5 y el izquierdo ~1; la asimetría sale negativa, del lado derecho.
+            Después de cada impulso a la derecha hay un pico naranja: la sacada manifiesta que trae la
+            mirada de vuelta. Es el patrón de una neuritis vestibular derecha.`,
+          pista: 'Compará las dos medias: ¿cuál de los dos lados queda lejos de 1? Mirá también el signo de la asimetría.',
+        },
+      },
+      {
+        id: 'caso-c',
+        titulo: 'Caso C',
+        objetivo: '.col-lados',
+        antes: 'cierraHerramientas',
+        cuerpo: `
+          <p><button type="button" class="primario" data-accion="cargaCaso" data-arg="C">Cargar el caso C</button></p>
+          <p>¿Qué patrón muestra?</p>`,
+        pregunta: {
+          caso: 'C',
+          correcta: 'bilateral',
+          explica: `Los dos lados bajos, con sacadas manifiestas en los dos, y la asimetría casi en cero.
+            <b>Una asimetría normal no es un resultado normal</b>: compara los lados entre sí, y acá
+            los dos fallan igual.`,
+          pista: 'La asimetría sola engaña: mirá cada media por separado.',
+        },
+      },
+      {
+        id: 'caso-d',
+        titulo: 'Caso D',
+        objetivo: '.col-lados',
+        antes: 'cierraHerramientas',
+        cuerpo: `
+          <p><button type="button" class="primario" data-accion="cargaCaso" data-arg="D">Cargar el caso D</button></p>
+          <p>¿Qué patrón muestra? No te quedes con el número: elegí un pulso de cada lado y miralo.</p>`,
+        pregunta: {
+          caso: 'D',
+          correcta: 'encubierto-izq',
+          explica: `Las dos medias dan normales —la izquierda hasta pasa de 1—, pero en cada impulso a
+            la izquierda la curva naranja se despega con un pico angosto <b>durante</b> el giro. El
+            reflejo izquierdo no alcanza y una sacada encubierta lo corrige a tiempo. Como este motor
+            no desacadiza, la sacada entra en la ganancia y la infla: es el <b>falso negativo</b>. Un
+            equipo clínico lo separa; acá hay que verlo en la forma.`,
+          pista: 'Las medias no alcanzan. Seleccioná un pulso del lado izquierdo en la lista y mirá la curva naranja durante el impulso.',
+        },
+      },
+      {
+        id: 'caso-e',
+        titulo: 'Caso E',
+        objetivo: '.col-lados',
+        antes: 'cierraHerramientas',
+        cuerpo: `
+          <p><button type="button" class="primario" data-accion="cargaCaso" data-arg="E">Cargar el caso E</button></p>
+          <p>¿Qué patrón muestra?</p>`,
+        pregunta: {
+          caso: 'E',
+          correcta: 'no-concluyente',
+          explica: `Casi todo salió rechazado: impulsos lentos, la cabeza que vuelve sola, la cara
+            tapada por las manos, parpadeos. Con uno o ningún pulso aceptado por lado no hay media que
+            leer. Lo que corresponde es corregir la técnica y repetir, no interpretar.`,
+          pista: 'Mirá cuántos pulsos se aceptaron de cada lado, y los motivos de los rechazados.',
+        },
+      },
+      {
+        id: 'cierre',
+        titulo: 'Lo que dejan los casos',
+        cuerpo: `
+          <ul>
+            <li>Se lee la <b>media de cada lado</b>, no solo la asimetría (caso C).</li>
+            <li>Se miran las <b>curvas</b>, no solo los números: una sacada encubierta puede dejar
+            normal una ganancia que no lo es (caso D).</li>
+            <li>Sin pulsos aceptados suficientes <b>no se concluye</b> (caso E).</li>
+          </ul>
+          <p class="ayuda">Los casos se pueden volver a cargar desde acá cuando se quiera.</p>`,
       },
     ],
   },

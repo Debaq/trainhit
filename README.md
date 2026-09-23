@@ -131,6 +131,7 @@ paseos cortos, cada uno sobre un tema y en cualquier orden:
 | Preparar la sesión | cámara, luz, postura, manos del examinador |
 | La primera medición | con la cámara: calibrar, impulsos, paneles, lista, CSV |
 | Leer los gráficos | la regla, los rechazados, la asimetría, promedio, suavizar, orientación, pausa |
+| Casos a ciegas | cinco pacientes sintéticos sin diagnóstico: el alumno responde qué patrón ve |
 | Herramientas por dentro | la recta del paralaje, el último pulso, ganancia contra pico, los tres métodos de ganancia, k a mano |
 | Las perillas del motor | cada perilla, probada con «Recalcular» sobre pulsos ya medidos |
 
@@ -165,6 +166,27 @@ una media que no es de nadie), salen marcados **ej** en la lista y con
 `ejemplo=si` en el CSV, y la barra dice **EJEMPLO k=…** en vez de CALIBRADO,
 porque esa calibración es la del paciente sintético. Se van solos al encender la
 cámara o con **Borrar todos**, y vuelve la calibración que había.
+
+### Casos a ciegas
+
+Cinco pacientes sintéticos (`CASOS` en `js/ejemplo.js`), cada uno con una
+letra y sin decir qué tiene. El alumno los carga, mira los paneles y elige un
+patrón de una lista que es la misma para todos —si cada caso trajera sus
+opciones, la lista delataría la respuesta—. Errar da una pista de dónde
+mirar y se puede volver a intentar; acertar da la explicación.
+
+| Caso | Patrón | Lo que enseña |
+|---|---|---|
+| A | normal | la referencia |
+| B | déficit derecho, sacadas manifiestas | la neuritis de libro, y el signo de la asimetría |
+| C | déficit bilateral | una asimetría de cero no es un resultado normal |
+| D | déficit izquierdo con sacadas encubiertas | la media se lee normal (¡>1!): el falso negativo de no desacadizar |
+| E | casi todo rechazado | sin pulsos aceptados no se concluye |
+
+Son muestras crudas que pasan por el motor entero, igual que el ejemplo de
+siempre. El test genera cada caso y comprueba que el motor muestre el patrón
+que dice su respuesta, así una pregunta no puede quedar con la respuesta
+equivocada sin que CI lo note.
 
 ### Dónde está cada cosa
 

@@ -220,6 +220,20 @@ body {
 .tuto-cuerpo .c-cabeza { color: var(--c-head); }
 .tuto-cuerpo .c-ojo { color: var(--c-eye); }
 
+/* Preguntas de «Casos a ciegas»: una opción por renglón, y la devolución
+   abajo. El color va en el botón elegido, no en todos: la respuesta correcta
+   no se delata hasta que se la elige. */
+.tuto-pregunta .opciones { display: flex; flex-direction: column; gap: 4px; margin: 4px 0 8px; }
+.tuto-pregunta .opciones button { margin: 0; text-align: left; font-size: 13px; padding: 5px 9px; }
+.tuto-pregunta .opciones button.bien { border-color: var(--c-ok); background: rgba(46, 158, 84, 0.18); }
+.tuto-pregunta .opciones button.mal { border-color: var(--c-bad); background: rgba(214, 45, 45, 0.14); }
+.tuto-pregunta .opciones button:disabled { cursor: default; opacity: 0.75; }
+.tuto-pregunta .opciones button.bien:disabled { opacity: 1; }
+.tuto-respuesta { font-size: 13px; padding: 6px 9px; border-radius: var(--r-widget); }
+.tuto-respuesta.ok { background: rgba(46, 158, 84, 0.12); }
+.tuto-respuesta.no { background: rgba(214, 45, 45, 0.1); }
+.tuto-respuesta[hidden] { display: none; }
+
 .tuto-arriba { display: flex; align-items: center; gap: 8px; }
 .tuto-arriba button { margin: 0; padding: 2px 8px; font-size: 12px; color: var(--muted-fg); }
 .tuto-paseo { font: 600 11px ui-monospace, monospace; letter-spacing: 0.4px; text-transform: uppercase; color: var(--c-guide); }

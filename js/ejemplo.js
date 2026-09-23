@@ -29,6 +29,10 @@ const CENTRO_S = 0.45;
 const LARGO_S = 1.3;
 /** Umbral con que se ubica el disparo, como el detector en vivo. */
 const DISPARO_DEG_S = 60;
+/** Cuánto después del impulso vuelve la cabeza en un pulso con rebote. */
+const REBOTE_S = 0.22;
+/** Cuánto más ancha (y por lo tanto más lenta) es la vuelta que el impulso. */
+const REBOTE_ANCHO = 1.6;
 
 /**
  * Los pulsos del paciente. `pico` en °/s, `lado` el del paciente,
@@ -81,7 +85,10 @@ const rad = (d) => (d * Math.PI) / 180;
  * El yaw del motor es positivo hacia la IZQUIERDA del paciente (ver
  * `SIGNO_DERECHA` en analysis.js): un impulso a la derecha baja el yaw.
  */
-export function crudoDeEjemplo({ lado, pico, ganancia, sacada = null, parpadeo = false }, semilla = 1) {
+export function crudoDeEjemplo(
+  { lado, pico, ganancia, sacada = null, parpadeo = false, rebote = false, hueco = false },
+  semilla = 1,
+) {
   const r = azar(semilla);
   const ruido = (amp) => (r() + r() + r() - 1.5) * amp; // casi normal, sin colas
   const signo = lado === 'derecha' ? -1 : 1;
@@ -92,9 +99,21 @@ export function crudoDeEjemplo({ lado, pico, ganancia, sacada = null, parpadeo =
   for (let i = 0; i * (1 / FPS) <= LARGO_S; i++) {
     // El frame no llega exacto: un par de ms de temblor, como una webcam.
     const t = i / FPS + ruido(0.002);
+    // Cara perdida: el modelo no entrega cuadros durante ~140 ms en pleno
+    // impulso, que es lo que pasa cuando una mano tapa la cara.
+    if (hueco && t > CENTRO_S - 0.03 && t < CENTRO_S + 0.11) continue;
     const u = (t - CENTRO_S) / SIGMA_S;
-    const yaw = signo * amplitud * 0.5 * (1 + erf(u / Math.SQRT2)) + ruido(0.08);
-    const vel = pico * Math.exp(-(u * u) / 2);
+    let yaw = signo * amplitud * 0.5 * (1 + erf(u / Math.SQRT2)) + ruido(0.08);
+    let vel = pico * Math.exp(-(u * u) / 2);
+    if (rebote) {
+      // El examinador suelta y la cabeza vuelve sola al centro: más lenta que
+      // el impulso —si no, el motor tomaría la vuelta por el impulso— pero
+      // bien por encima del umbral de rebote.
+      const sr = SIGMA_S * REBOTE_ANCHO;
+      const ur = (t - CENTRO_S - REBOTE_S) / sr;
+      yaw -= signo * amplitud * 0.5 * (1 + erf(ur / Math.SQRT2));
+      vel = Math.max(vel, (pico / REBOTE_ANCHO) * Math.exp(-(ur * ur) / 2));
+    }
     if (tTrigger === null && vel > DISPARO_DEG_S) tTrigger = t;
 
     // Con ganancia g la mirada se va (1 − g) de lo que giró la cabeza; la
@@ -128,4 +147,70 @@ export function calibracionDeEjemplo(semilla = 99) {
     out.push([EYE_ROTATION_RADIUS_MM * (Math.sin(rad(mirada)) - K_EJEMPLO * Math.sin(rad(yaw))) + ruido(0.03), yaw]);
   }
   return out;
+}
+
+// ─────────────────────────────────────────────────────────────── casos ──
+//
+// Pacientes para el paseo «Casos a ciegas»: se cargan con una letra, sin
+// decir qué tienen, y el alumno responde qué patrón ve antes de que se le
+// cuente. Cada uno enseña una lectura distinta; el `patron` es la respuesta
+// y test/tutorial.test.mjs comprueba que el motor lo produzca de verdad —si
+// el motor cambia y el caso deja de mostrar lo que dice, el test lo dice
+// antes que un alumno—.
+//
+// Los patrones:
+//   normal             las dos medias en ~1, sin sacadas.
+//   unilateral-der     derecha baja con sacadas manifiestas, izquierda normal.
+//   bilateral          las dos bajas, con sacadas.
+//   encubierto-izq     el izquierdo tiene déficit, pero las sacadas son todas
+//                      encubiertas y la media SE LEE NORMAL: el falso
+//                      negativo de un motor que no desacadiza.
+//   no-concluyente     casi todos rechazados: no hay con qué concluir.
+
+const d = (pico, ganancia, extra = {}) => ({ lado: 'derecha', pico, ganancia, ...extra });
+const i = (pico, ganancia, extra = {}) => ({ lado: 'izquierda', pico, ganancia, ...extra });
+
+export const CASOS = {
+  A: {
+    patron: 'normal',
+    pulsos: [d(180, 0.98), i(200, 0.96), d(220, 0.95), i(170, 0.99), d(160, 1.0), i(230, 0.94), d(240, 0.97), i(190, 1.0), d(200, 0.96), i(210, 0.97)],
+  },
+  B: {
+    patron: 'unilateral-der',
+    pulsos: [
+      d(190, 0.45, { sacada: 0.22 }), i(200, 0.97), d(220, 0.5, { sacada: 0.25 }), i(180, 0.95),
+      d(170, 0.4, { sacada: 0.2 }), i(230, 0.98), d(240, 0.55, { sacada: 0.28 }), i(160, 0.96),
+      d(210, 0.48, { sacada: 0.24 }), i(210, 0.99),
+    ],
+  },
+  C: {
+    patron: 'bilateral',
+    pulsos: [
+      d(190, 0.45, { sacada: 0.22 }), i(200, 0.5, { sacada: 0.26 }), d(220, 0.4, { sacada: 0.25 }),
+      i(180, 0.44, { sacada: 0.2 }), d(170, 0.5, { sacada: 0.28 }), i(230, 0.38, { sacada: 0.24 }),
+      d(240, 0.42, { sacada: 0.21 }), i(160, 0.46, { sacada: 0.27 }), d(210, 0.48, { sacada: 0.23 }),
+      i(210, 0.52, { sacada: 0.25 }),
+    ],
+  },
+  D: {
+    patron: 'encubierto-izq',
+    pulsos: [
+      d(190, 0.97), i(200, 0.45, { sacada: 0.05 }), d(220, 0.95), i(180, 0.5, { sacada: 0.04 }),
+      d(170, 0.99), i(230, 0.42, { sacada: 0.05 }), d(240, 0.96), i(160, 0.48, { sacada: 0.04 }),
+      d(210, 0.98), i(210, 0.46, { sacada: 0.05 }),
+    ],
+  },
+  E: {
+    patron: 'no-concluyente',
+    pulsos: [
+      d(100, 0.97), i(105, 0.96), d(200, 0.95, { rebote: true }), i(190, 0.98, { rebote: true }),
+      d(210, 0.96, { hueco: true }), i(220, 0.95, { parpadeo: true }), d(190, 0.98, { parpadeo: true }),
+      i(200, 0.97, { hueco: true }), d(220, 0.96), i(110, 0.95),
+    ],
+  },
+};
+
+/** Los pulsos de un caso, o los del ejemplo de siempre si no se nombra ninguno. */
+export function pulsosDe(caso) {
+  return caso ? CASOS[caso].pulsos : PULSOS_EJEMPLO;
 }

@@ -11,7 +11,7 @@ import * as plots from './plots.js';
 import { FPS_MAX, IDX, abrirCamara, bucleDeFrames, crearLandmarker, describeCamara, listarCamaras } from './tracker.js';
 import { montaBienvenida } from './bienvenida.js';
 import { montaTutorial } from './tutorial.js';
-import { K_EJEMPLO, PULSOS_EJEMPLO, calibracionDeEjemplo, crudoDeEjemplo } from './ejemplo.js';
+import { K_EJEMPLO, calibracionDeEjemplo, crudoDeEjemplo, pulsosDe } from './ejemplo.js';
 import { MARGEN_CRUDO_MS, procesaCrudo } from './pipeline.js';
 
 const $ = (id) => document.getElementById(id);
@@ -807,8 +807,11 @@ function borraTodos() {
  * el lugar de la sesión: mezclar pulsos sintéticos con medidos daría una
  * media que no es de nadie. El paciente trae su propia paralaje, así que se
  * lo «calibra» con ella y se guarda la calibración de antes para devolverla.
+ *
+ * Con `caso` carga uno de los pacientes de «Casos a ciegas» (`CASOS` de
+ * ejemplo.js). La barra no dice qué tiene: eso es lo que se pregunta.
  */
-function cargaEjemplos() {
+function cargaEjemplos(caso = null) {
   const reales = estado.trials.filter((t) => !t.ejemplo).length;
   if (reales && !confirm(`Los ejemplos reemplazan los ${reales} pulsos medidos. ¿Seguir?`)) return;
   if (estado.corriendo) detener();
@@ -828,8 +831,11 @@ function cargaEjemplos() {
   estado.model.calibrated = true;
   estado.trials = [];
   vaciaPapelera();
-  PULSOS_EJEMPLO.forEach((p, i) => {
-    const { crudo, tTrigger } = crudoDeEjemplo(p, i + 1);
+  // Semillas fijas: el mismo caso da los mismos pulsos cada vez, en el aula y
+  // en los tests.
+  const semilla0 = caso ? 100 : 1;
+  pulsosDe(caso).forEach((p, i) => {
+    const { crudo, tTrigger } = crudoDeEjemplo(p, semilla0 + i);
     const trial = procesaCrudo(crudo, tTrigger, estado.model, derivActual(), cfg);
     if (!trial) return;
     trial.id = estado.proximoId++;
@@ -839,8 +845,13 @@ function cargaEjemplos() {
     estado.trials.push(trial);
   });
   estado.seleccion = estado.trials[estado.trials.length - 1] ?? null;
+  estado.ejemplo.caso = caso;
   pintaListas();
-  marcaEstado(`${estado.trials.length} pulsos de ejemplo: paciente sintético, canal izquierdo con déficit`);
+  marcaEstado(
+    caso
+      ? `caso ${caso}: ${estado.trials.length} pulsos de un paciente sintético. ¿Qué patrón muestra?`
+      : `${estado.trials.length} pulsos de ejemplo: paciente sintético, canal izquierdo con déficit`,
+  );
 }
 
 /** Vuelve a la medición real: se van los ejemplos y vuelve la calibración de antes. */
@@ -1291,7 +1302,8 @@ const tutorial = montaTutorial({
   acciones: {
     abreHerramientas: () => abreHerramientas(true),
     cierraHerramientas: () => abreHerramientas(false),
-    cargaEjemplos,
+    cargaEjemplos: () => cargaEjemplos(),
+    cargaCaso: (caso) => cargaEjemplos(caso),
     restauraK: () => restauraK({ recalcula: true }),
     restauraPerillas: () => perillasPorDefecto({ recalcula: true }),
   },
