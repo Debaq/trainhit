@@ -38,6 +38,11 @@ const estado = {
   stream: null,
   corriendo: false,
   pausado: false,
+  /** Cursor de medición en la traza viva: `{ t, ancla }` en segundos, o null. */
+  medicion: null,
+  /** Cursor en un gráfico de pulsos: `{ id, t, ancla }` en ms, o null. */
+  medPulso: null,
+  promedio: false,
   espejo: true,
   model: new geom.EyeModel(),
   head: new HeadTracker('lateral'),
@@ -69,19 +74,80 @@ function vivoVacio() {
   return { offsetMm: null, pxPerMm: null, irisPx: null, yaw: 0, inclinacion: null, azimut: null, blink: false };
 }
 
+// ----------------------------------------------------------- carga modelo ---
+
+/** Lo que tarda la carga antes de que valga la pena tapar la pantalla. */
+const DEMORA_MODAL_MS = 350;
+
+const MB = (b) => (b / 1048576).toFixed(1);
+
+const FASE_TEXTO = {
+  motor: 'Cargando el motor de visión…',
+  modelo: 'Descargando el modelo…',
+  iniciando: 'Iniciando el modelo…',
+};
+
+/**
+ * Modal de progreso de la carga del modelo.
+ *
+ * No se abre de entrada: si el modelo ya está en la caché del service worker
+ * la carga dura un suspiro, y un modal que aparece y desaparece es peor que
+ * no mostrar nada. Se abre recién si a los `DEMORA_MODAL_MS` la carga sigue.
+ */
+function modalCarga() {
+  const modal = $('carga');
+  const barra = $('carga-barra');
+  const relleno = barra.querySelector('i');
+  let abierto = false;
+  const timer = setTimeout(() => {
+    abierto = true;
+    modal.hidden = false;
+  }, DEMORA_MODAL_MS);
+
+  return {
+    progreso({ fase, recibido, total }) {
+      $('carga-fase').textContent =
+        fase === 'modelo' && total
+          ? `${FASE_TEXTO.modelo} ${MB(recibido)} de ${MB(total)} MB`
+          : fase === 'modelo' && recibido
+            ? `${FASE_TEXTO.modelo} ${MB(recibido)} MB`
+            : FASE_TEXTO[fase];
+      const frac = total ? recibido / total : null;
+      barra.classList.toggle('indet', frac === null);
+      if (frac === null) {
+        barra.removeAttribute('aria-valuenow');
+      } else {
+        relleno.style.width = `${Math.round(frac * 100)}%`;
+        barra.setAttribute('aria-valuenow', String(Math.round(frac * 100)));
+      }
+    },
+    cierra() {
+      clearTimeout(timer);
+      if (abierto) modal.hidden = true;
+    },
+  };
+}
+
 // ---------------------------------------------------------------- cámara ---
 
 async function arrancar() {
+  let carga = null;
   try {
     marcaEstado('pidiendo cámara…');
     estado.stream = await abrirCamara($('video'), { deviceId: $('camara').value || undefined });
     marcaEstado('cargando modelo…');
     if (!estado.landmarker) {
-      const l = await crearLandmarker({ gpu: true });
+      carga = modalCarga();
+      const l = await crearLandmarker({ gpu: true, onProgreso: carga.progreso });
       estado.landmarker = l.landmarker;
       estado.delegate = l.delegate;
+      carga.cierra();
+      carga = null;
     }
-    await poblarCamaras();
+    // Con la descripción del stream, para que el selector marque la cámara que
+    // abrió y no la primera de la lista.
+    const cam = describeCamara(estado.stream);
+    await poblarCamaras(cam);
     estado.corriendo = true;
     $('sin-video').hidden = true;
     // La caja toma la relación de aspecto REAL de la cámara. Sin esto, con una
@@ -90,14 +156,16 @@ async function arrancar() {
     ajustaAspecto();
     estado.bucle = bucleDeFrames($('video'), procesaFrame);
     $('btn-arrancar').textContent = 'Detener';
-    avisaTope(describeCamara(estado.stream));
+    avisaTope(cam);
     const notas = [];
     if (estado.delegate === 'CPU') notas.push('modelo en CPU: más lento');
     if (!estado.bucle.soportaRVFC) notas.push('sin rVFC: timestamps peores');
     marcaEstado(notas.length ? `midiendo (${notas.join(' · ')})` : 'midiendo');
   } catch (e) {
     // Si la cámara abrió pero el modelo no cargó, la cámara quedaría
-    // encendida y el botón diciendo «Encender»: se apaga todo.
+    // encendida y el botón diciendo «Encender»: se apaga todo. El modal de
+    // carga también, o el error queda tapado por una barra que no avanza.
+    carga?.cierra();
     detener();
     marcaEstado(`error: ${e.message}`);
     console.error(e);
@@ -105,6 +173,7 @@ async function arrancar() {
 }
 
 function detener() {
+  $('fijacion').hidden = true;
   estado.bucle?.detener();
   estado.stream?.getTracks().forEach((t) => t.stop());
   estado.corriendo = false;
@@ -166,7 +235,20 @@ function ajustaAspecto() {
   else v.addEventListener('loadedmetadata', ajustaAspecto, { once: true });
 }
 
-async function poblarCamaras() {
+/**
+ * Llena el selector y lo deja marcando la cámara que DE VERDAD está abierta.
+ *
+ * Es importante que sea la abierta y no la primera de la lista. Al encender
+ * sin haber elegido nada, la restricción es `facingMode` y el navegador elige
+ * la cámara que quiere; el selector quedaba marcando la primera, que podía ser
+ * otra. Además de mentir, dejaba una cámara imposible de elegir: la que el
+ * selector ya daba por seleccionada no dispara `change`, así que elegirla en
+ * la lista no hacía nada.
+ *
+ * `getSettings().deviceId` no está en todos los navegadores; ahí se cae al
+ * `label` del track, que sí viene una vez concedido el permiso.
+ */
+async function poblarCamaras(abierta) {
   const sel = $('camara');
   const previo = sel.value;
   const cams = await listarCamaras();
@@ -177,7 +259,13 @@ async function poblarCamaras() {
     o.textContent = c.label || `cámara ${i + 1}`;
     sel.appendChild(o);
   });
-  if (previo) sel.value = previo;
+
+  const opciones = [...sel.options];
+  const porId = abierta?.deviceId && opciones.find((o) => o.value === abierta.deviceId);
+  const porLabel = abierta?.label && opciones.find((o) => o.textContent === abierta.label);
+  const elegida = porId || porLabel;
+  if (elegida) sel.value = elegida.value;
+  else if (previo && opciones.some((o) => o.value === previo)) sel.value = previo;
 }
 
 // -------------------------------------------------------------- pipeline ---
@@ -321,8 +409,6 @@ function juntaCalibracion(obs, yaw, blink) {
   if (!lento) c.descartadasRapido++;
   else if (blink) c.descartadasParpadeo++;
   else c.samples.push([obs.offsetMm, yaw]);
-
-  if ((performance.now() - c.t0) / 1000 >= estado.duracionCalibS) cierraCalibracion();
 }
 
 function empiezaCalibracion() {
@@ -333,6 +419,7 @@ function empiezaCalibracion() {
   estado.calib = { t0: performance.now(), samples: [], descartadasRapido: 0, descartadasParpadeo: 0, rapidoAhora: false };
   estado.ultimoFit = null;
   sucio.calib = true;
+  $('fijacion').hidden = false;
   abreHerramientas(true);
   marcaEstado('calibrando: fijar un punto y mover la cabeza LENTO, ±20°');
 }
@@ -341,6 +428,7 @@ function cierraCalibracion() {
   const c = estado.calib;
   estado.calib = null;
   sucio.calib = true;
+  $('fijacion').hidden = true;
   const fit = geom.fitParallax(c.samples, estado.model.radiusMm);
   estado.ultimoFit = fit ? { ...fit, muestras: c.samples } : null;
   if (!fit) {
@@ -517,13 +605,33 @@ function pintaListas() {
 function pintaTodo() {
   requestAnimationFrame(pintaTodo);
 
+  // El reloj de la calibración corre acá y no donde se juntan las muestras:
+  // ahí solo se llega con cara detectada, así que una calibración sin cara
+  // —el paciente salió del encuadre, la luz se fue— no terminaba nunca y
+  // dejaba el punto de fijación puesto para siempre.
+  if (estado.calib && (performance.now() - estado.calib.t0) / 1000 >= estado.duracionCalibS) {
+    cierraCalibracion();
+  }
+
   const cal = estado.model.calibrated;
   const badge = $('badge-calib');
   badge.textContent = cal ? `CALIBRADO k=${fmt(estado.model.kParallax)}` : 'SIN CALIBRAR';
   badge.className = `badge ${cal ? 'ok' : 'mal'}`;
 
   const ultima = estado.rolling[estado.rolling.length - 1];
-  $('v-fps').textContent = fmt(estado.fps, 0);
+  // El fps que se muestra es el de frames PROCESADOS, no el que da la cámara.
+  // Si supera el tope, el tope falló en este dispositivo: se marca en rojo y
+  // se enciende el aviso, que es el dato que hace falta para diagnosticarlo.
+  const fpsFuera = estado.fps > FPS_MAX * 1.05;
+  const chipFps = $('v-fps');
+  chipFps.textContent = fmt(estado.fps, 0);
+  chipFps.className = fpsFuera ? 'mal' : '';
+  if (fpsFuera && $('aviso-fps').hidden) {
+    $('aviso-fps').hidden = false;
+    $('aviso-fps').title =
+      `Se están procesando ${fmt(estado.fps, 0)} fps con el tope puesto en ${FPS_MAX}: ` +
+      'el tope no está funcionando en este dispositivo. Los pulsos salen marcados NO VALIDADO.';
+  }
   $('v-cara').textContent = estado.caraOk ? 'sí' : 'no';
   $('v-vcab').textContent = ultima ? `${fmt(ultima.headVel, 0)} °/s` : '—';
   $('v-offset').textContent = fmt(estado.vivo.offsetMm);
@@ -539,17 +647,30 @@ function pintaTodo() {
 
   if (estado.corriendo || sucio.vivo) {
     dibujaVideo();
-    plots.trazaViva($('plot-vivo'), estado.rolling);
+    // El cursor solo con la traza quieta: sobre una traza que corre, el número
+    // que se lee ya es viejo cuando se termina de leer.
+    plots.trazaViva($('plot-vivo'), estado.rolling, {
+      medicion: estado.pausado ? estado.medicion : null,
+    });
     sucio.vivo = false;
   }
 
   // Con el cajón cerrado sus canvas miden cero; al abrirlo se ensucia todo.
   const herramientas = !$('herramientas').hidden;
   if (sucio.pulsos) {
-    plots.overlayLado($('plot-der'), estado.trials, 'derecha', cfg, estado.seleccion);
-    plots.overlayLado($('plot-izq'), estado.trials, 'izquierda', cfg, estado.seleccion);
+    const conMedicion = (id) => (estado.medPulso?.id === id ? estado.medPulso : null);
+    plots.overlayLado($('plot-der'), estado.trials, 'derecha', cfg, estado.seleccion, {
+      promedio: estado.promedio,
+      medicion: conMedicion('plot-der'),
+    });
+    plots.overlayLado($('plot-izq'), estado.trials, 'izquierda', cfg, estado.seleccion, {
+      promedio: estado.promedio,
+      medicion: conMedicion('plot-izq'),
+    });
     if (herramientas) {
-      plots.dibujaPulso($('plot-pulso'), estado.seleccion || estado.trials[estado.trials.length - 1], cfg);
+      plots.dibujaPulso($('plot-pulso'), estado.seleccion || estado.trials[estado.trials.length - 1], cfg, {
+        medicion: conMedicion('plot-pulso'),
+      });
       plots.dibujaDispersion($('plot-ganancias'), estado.trials, cfg);
     }
     sucio.pulsos = false;
@@ -569,6 +690,11 @@ function pintaCalibracion() {
     $('calib-info').textContent =
       `${t.toFixed(1)}/${estado.duracionCalibS}s · ${c.samples.length} muestras · rango ${rango.toFixed(0)}°/${geom.CALIB_MIN_HEAD_RANGE_DEG}°` +
       (c.rapidoAhora ? ' · ¡MÁS LENTO!' : '');
+    // Junto al punto va lo único que el paciente necesita saber mientras fija:
+    // cuánto falta, y si se está moviendo demasiado rápido.
+    $('fijacion-cuenta').textContent = c.rapidoAhora
+      ? '¡MÁS LENTO!'
+      : `faltan ${Math.max(0, estado.duracionCalibS - t).toFixed(0)} s · rango ${rango.toFixed(0)}° de ${geom.CALIB_MIN_HEAD_RANGE_DEG}°`;
     plots.dibujaParalaje($('plot-calib'), c.samples, null, estado.model.radiusMm);
   } else if (estado.ultimoFit) {
     const f = estado.ultimoFit;
@@ -668,6 +794,107 @@ function sliders() {
   });
 }
 
+/**
+ * Pausa el análisis y congela la traza de abajo para poder medirla.
+ *
+ * La cámara sigue encendida: lo que se detiene es el motor, no el video. La
+ * traza queda quieta con lo último que entró, que es lo que hace falta para
+ * leerla con el cursor de medición.
+ */
+function ponPausa(v) {
+  estado.pausado = v;
+  const b = $('btn-pausa');
+  b.setAttribute('aria-pressed', String(v));
+  b.innerHTML = v ? 'Reanudar <kbd>Espacio</kbd>' : 'Pausar <kbd>Espacio</kbd>';
+  if (!v) estado.medicion = null; // al reanudar no queda un cursor viejo colgado
+  $('plot-vivo').classList.toggle('medible', v);
+  sucio.vivo = true; // redibuja: al pausar aparece el cursor de medición
+  marcaEstado(v ? 'pausado: medí en la traza de abajo (clic fija la referencia)' : 'midiendo');
+}
+
+/**
+ * Cursor de medición sobre la traza en vivo congelada.
+ *
+ * Mover el puntero lee los valores; un clic fija la referencia y a partir de
+ * ahí el cartel muestra además los Δ contra ese punto. Otro clic la suelta.
+ */
+/**
+ * Cursor de medición en los gráficos de pulsos.
+ *
+ * Uno solo a la vez, el del gráfico donde está el puntero: dos cursores vivos
+ * en paneles distintos se leen como si midieran lo mismo y no es así.
+ * Al contrario que la traza viva, acá no hace falta pausar: un pulso ya medido
+ * no se mueve más.
+ */
+function medicionPulsos() {
+  // La ventana del eje es la misma para los dos overlays; el pulso solo usa
+  // la suya, que son los extremos de sus muestras.
+  const ventanaDe = (id) => {
+    if (id !== 'plot-pulso') return { x0: -cfg.impulse.preTriggerMs, x1: cfg.impulse.windowMs };
+    const t = estado.seleccion || estado.trials[estado.trials.length - 1];
+    if (!t?.samples?.length) return null;
+    return { x0: t.samples[0].tMs, x1: t.samples[t.samples.length - 1].tMs };
+  };
+
+  for (const id of ['plot-der', 'plot-izq', 'plot-pulso']) {
+    const cv = $(id);
+    cv.classList.add('medible');
+    const posicion = (e) => {
+      const v = ventanaDe(id);
+      return v ? plots.tiempoEnPulso(cv, e.clientX, v) : null;
+    };
+    cv.addEventListener('pointermove', (e) => {
+      const t = posicion(e);
+      if (t === null) return;
+      estado.medPulso = { id, t, ancla: estado.medPulso?.id === id ? estado.medPulso.ancla : null };
+      sucio.pulsos = true;
+    });
+    cv.addEventListener('pointerdown', (e) => {
+      const t = posicion(e);
+      if (t === null) return;
+      const mismo = estado.medPulso?.id === id;
+      estado.medPulso = { id, t, ancla: mismo && estado.medPulso.ancla === null ? t : null };
+      sucio.pulsos = true;
+    });
+    cv.addEventListener('pointerleave', () => {
+      // Con referencia puesta la medición queda: es lo que se acaba de medir.
+      if (estado.medPulso?.id === id && estado.medPulso.ancla === null) {
+        estado.medPulso = null;
+        sucio.pulsos = true;
+      }
+    });
+  }
+}
+
+function medicionViva() {
+  const cv = $('plot-vivo');
+  const mueve = (e) => {
+    if (!estado.pausado) return;
+    const t = plots.tiempoEnVivo(cv, e.clientX);
+    if (t === null) return;
+    estado.medicion = { t, ancla: estado.medicion?.ancla ?? null };
+    sucio.vivo = true;
+  };
+  cv.addEventListener('pointermove', mueve);
+  cv.addEventListener('pointerdown', (e) => {
+    if (!estado.pausado) return;
+    const t = plots.tiempoEnVivo(cv, e.clientX);
+    if (t === null) return;
+    // Segundo clic con referencia puesta: la suelta. Así se mide otro tramo
+    // sin tener que salir del gráfico.
+    estado.medicion = { t, ancla: estado.medicion?.ancla === null ? t : null };
+    sucio.vivo = true;
+  });
+  cv.addEventListener('pointerleave', () => {
+    // Con referencia puesta la medición queda a la vista aunque el puntero se
+    // vaya: es lo que se acaba de medir y se quiere leer.
+    if (estado.pausado && estado.medicion && estado.medicion.ancla === null) {
+      estado.medicion = null;
+      sucio.vivo = true;
+    }
+  });
+}
+
 function atajos() {
   document.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
@@ -679,10 +906,14 @@ function atajos() {
     else if (k === 'r') borraTodos();
     else if (k === 'd') descartaUltimo();
     else if (k === 'h') abreHerramientas($('herramientas').hidden);
-    else if (k === ' ') {
+    else if (k === ' ' || k === 'p') {
+      // `preventDefault` acá no es solo para que la página no haga scroll: si
+      // el foco quedó en un botón —y queda, apenas se aprieta «Encender
+      // cámara»— el espacio ACCIONA ese botón. El atajo pausaba y de paso
+      // apagaba la cámara. El click por teclado sale en el keyup y esto lo
+      // cancela.
       e.preventDefault();
-      $('pausa').checked = estado.pausado = !estado.pausado;
-      marcaEstado(estado.pausado ? 'pausado' : 'midiendo');
+      ponPausa(!estado.pausado);
     }
   });
 }
@@ -701,13 +932,33 @@ function bajaCsv(filas, sufijo) {
   URL.revokeObjectURL(url);
 }
 
+/**
+ * Las dos tablas en un archivo, una abajo de la otra y con su título.
+ *
+ * Eran dos descargas y había que acordarse de bajar las dos; separadas, el
+ * resumen y las muestras que lo producen terminaban en carpetas distintas.
+ * Van con una línea `# TABLA: …` adelante y una vacía en medio, que es como
+ * las planillas cortan un CSV en bloques.
+ */
+function exportaTodo() {
+  const filas = [
+    ['# TABLA: pulsos'],
+    ...filasPulsos(),
+    [],
+    ['# TABLA: muestras'],
+    ...filasMuestras(),
+  ];
+  bajaCsv(filas, 'sesion');
+}
+
 /** Un pulso por fila, con la configuración con la que se calculó. */
-function exporta() {
+function filasPulsos() {
   const version = document.documentElement.dataset.v ?? '';
   const filas = [
     [
       'id', 'lado', 'pico_cabeza_deg_s', 'duracion_ms', 'ganancia_area', 'ganancia_60ms', 'ganancia_pico',
-      'rechazo', 'calibrado', 'k', 'iris_min_px', 'disconj_mm', 'hueco_max_ms', 'deriv_ventana_ms', 'deriv_grado', 'version',
+      'rechazo', 'calibrado', 'k', 'iris_min_px', 'disconj_mm', 'hueco_max_ms', 'deriv_ventana_ms', 'deriv_grado',
+      'fps_muestreo', 'no_validado', 'version',
     ],
     ...estado.trials.map((t) => [
       t.id,
@@ -725,10 +976,12 @@ function exporta() {
       num(t.gapMs, 0),
       t.deriv?.windowMs ?? '',
       t.deriv?.degree ?? '',
+      num(t.fpsMuestreo, 1),
+      t.noValidado ? 'si' : 'no',
       version,
     ]),
   ];
-  bajaCsv(filas, 'pulsos');
+  return filas;
 }
 
 /**
@@ -737,7 +990,7 @@ function exporta() {
  * ventana del derivador. Es lo que hace falta para rehacer el cálculo en una
  * planilla.
  */
-function exportaMuestras() {
+function filasMuestras() {
   const filas = [
     [
       'id', 'lado', 't_ms', 'cabeza_deg', 'mirada_deg', 'v_cabeza_deg_s', 'v_mirada_deg_s', 'en_impulso', 'parpadeo',
@@ -754,7 +1007,7 @@ function exportaMuestras() {
       ]);
     }
   }
-  bajaCsv(filas, 'muestras');
+  return filas;
 }
 
 // ------------------------------------------------------------------ init ---
@@ -763,14 +1016,22 @@ $('btn-arrancar').addEventListener('click', () => (estado.corriendo ? detener() 
 $('btn-calibrar').addEventListener('click', empiezaCalibracion);
 $('btn-borrar').addEventListener('click', borraTodos);
 $('btn-descartar').addEventListener('click', descartaUltimo);
-$('btn-csv').addEventListener('click', exporta);
-$('btn-csv-muestras').addEventListener('click', exportaMuestras);
+$('btn-csv').addEventListener('click', exportaTodo);
 $('btn-recalcular').addEventListener('click', recalculaTodos);
 $('btn-herramientas').addEventListener('click', () => abreHerramientas($('herramientas').hidden));
 $('btn-cerrar').addEventListener('click', () => abreHerramientas(false));
-$('pausa').addEventListener('change', (e) => {
-  estado.pausado = e.target.checked;
-  marcaEstado(estado.pausado ? 'pausado' : 'midiendo');
+$('btn-pausa').addEventListener('click', () => ponPausa(!estado.pausado));
+$('promedio').addEventListener('change', (e) => {
+  estado.promedio = e.target.checked;
+  sucio.pulsos = true;
+});
+$('orientacion').addEventListener('change', (e) => {
+  plots.ORIENTACION.modo = e.target.value;
+  // La leyenda tiene que decir la verdad: en «real» la traza ocular va cruda,
+  // o sea para el lado contrario que la cabeza.
+  $('leyenda-ojo').textContent = e.target.value === 'real' ? 'ojo (crudo)' : 'ojo (invertido)';
+  sucio.pulsos = true;
+  sucio.vivo = true;
 });
 $('suavizar').addEventListener('change', (e) => {
   plots.opciones.suavizado = e.target.checked;
@@ -793,6 +1054,8 @@ $('camara').addEventListener('change', () => {
 
 sliders();
 atajos();
+medicionViva();
+medicionPulsos();
 montaBienvenida();
 // Modo sin red: ver sw.js. Si el navegador no lo soporta o falla, la página
 // funciona igual; solo no queda guardada.

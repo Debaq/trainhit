@@ -3,15 +3,37 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import * as geom from '../js/geom.js';
-import { Differentiator, lsqFit } from '../js/signal.js';
-import { CONFIG, analyzeTrial, asimetria, findImpulse, resumenLado, sampleAt } from '../js/analysis.js';
+import { Differentiator, limitadorDeCadencia, lsqFit } from '../js/signal.js';
+import { CONFIG, FPS_VALIDADO, analyzeTrial, asimetria, cadenciaFps, findImpulse, resumenLado, sampleAt, sideSign } from '../js/analysis.js';
 import { HeadTracker, quatFromMatrix } from '../js/head.js';
 import { monotona } from '../js/curve.js';
+import { ORIENTACION, areaEntre, flipDe, promedioLado, signoBanda, velOjo } from '../js/plots.js';
 import { K, R, corre, headPos, muestrasCalibracion, matDeQuat, axisAngle, qmul, qrot, rad } from './sintetico.mjs';
 
 const cerca = (a, b, tol, msg) => assert.ok(Math.abs(a - b) <= tol, `${msg ?? ''} esperado ${b}±${tol}, dio ${a}`);
 
 // ------------------------------------------------------------ ganancia ---
+
+test('la cadencia se mide de las muestras y marca lo que pasa el umbral', () => {
+  // El umbral de validez es independiente del tope operativo de la cámara:
+  // subir FPS_MAX no vuelve válido un pulso muestreado más rápido.
+  for (const fps of [30, 60]) {
+    const r = corre({ fps, pk: 200, ganancia: 1 });
+    cerca(r.fpsMuestreo, fps, 1, `cadencia medida a ${fps}`);
+    assert.equal(r.noValidado, false, `${fps} fps no debería marcarse`);
+  }
+  const rapido = corre({ fps: 120, pk: 200, ganancia: 1 });
+  cerca(rapido.fpsMuestreo, 120, 1, 'cadencia medida a 120');
+  assert.equal(rapido.noValidado, true, '120 fps tiene que quedar marcado');
+  assert.ok(120 > FPS_VALIDADO);
+});
+
+test('la cadencia usa la mediana: un frame perdido no la arrastra', () => {
+  const s = (tMs) => ({ tMs });
+  const conHueco = [s(0), s(16.7), s(33.3), s(83.3), s(100), s(116.7)];
+  cerca(cadenciaFps(conHueco), 60, 1, 'mediana con un hueco');
+  assert.equal(cadenciaFps([s(0)]), null);
+});
 
 test('la ganancia de área recupera la nominal a 30, 60 y 120 fps', () => {
   for (const fps of [30, 60, 120]) {
@@ -259,4 +281,150 @@ test('procesaCrudo da lo mismo que el pipeline en vivo y permite recalcular con 
 
   const d = procesaCrudo(crudo, tTrigger, model, { windowMs: 200, degree: 1 }, CONFIG);
   assert.ok(d.peakHeadDegS < a.peakHeadDegS, 'ventana ancha y grado 1 aplanan el pico');
+});
+
+// ─────────────────────────────── orientación de los paneles ───────────────
+//
+// Es la parte donde el motor nativo dejó escrito que es fácil equivocarse: la
+// banda de velocidad aceptada tiene que caer DEL LADO donde se dibuja el
+// impulso, y eso no es el `flip` del panel a secas.
+
+const conModo = (modo, fn) => {
+  const previo = ORIENTACION.modo;
+  ORIENTACION.modo = modo;
+  try { fn(); } finally { ORIENTACION.modo = previo; }
+};
+
+/** Una muestra en el pico de un impulso del lado dado, con el ojo a ganancia 0,6. */
+const pico = (side) => {
+  const headVel = 200 * sideSign(side);
+  return { headVel, gazeVel: headVel - 0.6 * headVel };
+};
+
+test('en comparativo los dos impulsos van arriba y la banda también', () => {
+  conModo('comparativo', () => {
+    for (const side of ['derecha', 'izquierda']) {
+      const dibujado = pico(side).headVel * flipDe(side);
+      assert.ok(dibujado > 0, `${side}: el impulso tiene que ir hacia arriba`);
+      assert.ok(signoBanda(side) > 0, `${side}: la banda va arriba`);
+    }
+  });
+});
+
+test('en real cada impulso va hacia su lado y la banda lo sigue', () => {
+  conModo('real', () => {
+    const der = pico('derecha').headVel * flipDe('derecha');
+    const izq = pico('izquierda').headVel * flipDe('izquierda');
+    assert.ok(der * izq < 0, 'los dos lados no pueden ir para el mismo lado');
+    // El motor tiene el yaw positivo hacia la izquierda: dibujar la señal tal
+    // cual mandaba el impulso DERECHO hacia abajo, que es lo contrario de lo
+    // que significa «dirección real».
+    assert.ok(der > 0, 'la derecha del paciente va ARRIBA');
+    assert.ok(izq < 0, 'la izquierda del paciente va ABAJO');
+    for (const side of ['derecha', 'izquierda']) {
+      const dibujado = pico(side).headVel * flipDe(side);
+      assert.equal(Math.sign(signoBanda(side)), Math.sign(dibujado), `${side}: banda enfrente del pulso`);
+    }
+  });
+});
+
+test('la traza ocular: superpuesta en comparativo, cruda en real', () => {
+  for (const side of ['derecha', 'izquierda']) {
+    const s = pico(side);
+    conModo('comparativo', () => {
+      const cabeza = s.headVel * flipDe(side);
+      const ojo = velOjo(s) * flipDe(side);
+      assert.ok(cabeza * ojo > 0, `${side}: con el ojo invertido las dos van del mismo lado`);
+      assert.ok(Math.abs(ojo) < Math.abs(cabeza), `${side}: ganancia 0,6 dibuja el ojo por debajo`);
+    });
+    conModo('real', () => {
+      const cabeza = s.headVel * flipDe(side);
+      const ojo = velOjo(s) * flipDe(side);
+      assert.ok(cabeza * ojo < 0, `${side}: la señal cruda pone el ojo al revés que la cabeza`);
+    });
+  }
+});
+
+// ────────────────────────────── tope de cadencia ──────────────────────────
+//
+// El tope tiene que aguantar que el reloj del video mienta: es lo que pasa en
+// algunos Android, donde `mediaTime` no avanza como el reloj de pared.
+
+/** Cuántos frames de `n` a `fpsEntrada` deja pasar el limitador. */
+function pasan(fpsMax, fpsEntrada, n, { mediaTime = (i) => i / fpsEntrada } = {}) {
+  const pasa = limitadorDeCadencia(fpsMax);
+  let ok = 0;
+  for (let i = 0; i < n; i++) if (pasa(mediaTime(i), i / fpsEntrada)) ok++;
+  return ok;
+}
+
+test('el tope recorta una cámara rápida a lo que dice el tope', () => {
+  // 240 frames en 1 s con tope 60: pasa ~1 de cada 4.
+  const ok = pasan(60, 240, 240);
+  assert.ok(ok <= 61, `pasaron ${ok}, el tope son 60`);
+  assert.ok(ok >= 58, `pasaron solo ${ok}: el tope no tiene que ahogar la señal`);
+});
+
+test('una cámara lenta pasa entera: el tope no agrega descartes', () => {
+  assert.equal(pasan(60, 30, 30), 30);
+});
+
+test('el tope aguanta que el reloj del video mienta', () => {
+  // Caso Android: `mediaTime` avanza al doble de lo que avanza el reloj real.
+  // Filtrando solo por él pasarían 120 de 240; el reloj de pared lo frena.
+  const ok = pasan(60, 240, 240, { mediaTime: (i) => (i / 240) * 2 });
+  assert.ok(ok <= 61, `con el reloj del video mintiendo pasaron ${ok}`);
+});
+
+test('el tope aguanta que el reloj del video se congele o se reinicie', () => {
+  // Congelado: sin el reloj de pared no pasaría NINGÚN frame.
+  assert.ok(pasan(60, 60, 60, { mediaTime: () => 5 }) >= 58, 'reloj congelado');
+  // Reinicio a la mitad (stream nuevo): antes no volvía a pasar ni un frame.
+  const reinicio = pasan(60, 60, 60, { mediaTime: (i) => (i < 30 ? 100 + i / 60 : (i - 30) / 60) });
+  assert.ok(reinicio >= 58, `tras el reinicio pasaron ${reinicio} de 60`);
+});
+
+// ─────────────────────────────── posprocesado ─────────────────────────────
+
+test('el área bajo la velocidad es el desplazamiento', () => {
+  // Velocidad constante de 100 °/s durante 0,4 s son 40°.
+  const pts = [];
+  for (let t = 0; t <= 0.4001; t += 0.01) pts.push([t, 100]);
+  cerca(areaEntre(pts, 0, 0.4), 40, 0.01, 'rectángulo');
+  // Un tramo: la mitad del tiempo, la mitad del área.
+  cerca(areaEntre(pts, 0.1, 0.3), 20, 0.01, 'tramo interno');
+  // Los extremos se interpolan: no salta de a una muestra entera.
+  cerca(areaEntre(pts, 0.105, 0.295), 19, 0.01, 'extremos entre muestras');
+  // Da igual en qué orden vengan los dos cursores.
+  cerca(areaEntre(pts, 0.3, 0.1), 20, 0.01, 'al revés');
+});
+
+test('el cociente de áreas es la ganancia del tramo', () => {
+  const cabeza = [];
+  const ojo = [];
+  for (let t = 0; t <= 0.3001; t += 0.005) {
+    const v = 200 * Math.exp(-(((t - 0.15) / 0.04) ** 2) / 2);
+    cabeza.push([t, v]);
+    ojo.push([t, 0.7 * v]);
+  }
+  const g = areaEntre(ojo, 0.05, 0.25) / areaEntre(cabeza, 0.05, 0.25);
+  cerca(g, 0.7, 0.001, 'ganancia por áreas');
+});
+
+test('el promedio del lado resume los pulsos aceptados y saca los rechazados', () => {
+  const buenos = [corre({ fps: 60, pk: 200, ganancia: 0.6 }), corre({ fps: 60, pk: 210, ganancia: 0.6 })];
+  const malo = corre({ fps: 60, pk: 90, ganancia: 1 }); // «lento»: rechazado
+  assert.equal(malo.rejected, 'lento');
+  assert.equal(malo.side, buenos[0].side, 'el test necesita que sean del mismo lado');
+
+  const side = buenos[0].side;
+  const media = promedioLado([...buenos, malo], side);
+  assert.equal(media.n, 2, 'el rechazado no entra en el promedio');
+
+  const picoDe = (ss) => ss.reduce((p, s) => (Math.abs(s.headVel) > Math.abs(p) ? s.headVel : p), 0);
+  const esperado = (picoDe(buenos[0].samples) + picoDe(buenos[1].samples)) / 2;
+  cerca(picoDe(media.samples), esperado, 12, 'pico del promedio');
+
+  // Un solo pulso no es un promedio.
+  assert.equal(promedioLado([buenos[0], malo], side), null);
 });

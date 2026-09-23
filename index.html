@@ -8,28 +8,62 @@
          jsdelivr (MediaPipe), y conexiones solo a lo que la página usa. -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-mVqandv01HPv41eVSa8AmOCj18OgeBwhUapjgFF70+U='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
+      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-RvOeAG8EYmMmIG6K7a4XR3nc3nNukMu/zNdp78cjTxI='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
     />
     <meta
       name="description"
       content="vHIT didáctico en el navegador: mide la ganancia del reflejo vestíbulo-ocular con la webcam, con cada paso del cálculo a la vista. No es un equipo médico."
     />
     <meta name="theme-color" content="#09090b" />
+    <!-- Tarjeta de enlace: lo que ven WhatsApp, Slack, X o un LMS cuando se
+         pega el link. La URL de `og:image` tiene que ser ABSOLUTA —los
+         scrapers no resuelven rutas relativas de forma confiable—, así que si
+         el sitio se sirve en otro dominio hay que cambiar las cuatro de acá.
+         La leyenda "no es un equipo médico" va también adentro de la imagen:
+         así viaja con el link aunque el que lo comparta no escriba nada. -->
+    <link rel="canonical" href="https://debaq.github.io/trainhit/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="trainHIT" />
+    <meta property="og:locale" content="es_CL" />
+    <meta property="og:url" content="https://debaq.github.io/trainhit/" />
+    <meta property="og:title" content="trainHIT — vHIT didáctico en el navegador" />
+    <meta
+      property="og:description"
+      content="Mide la ganancia del reflejo vestíbulo-ocular con la webcam, con cada paso del cálculo a la vista. Herramienta didáctica: no es un equipo médico."
+    />
+    <meta property="og:image" content="https://debaq.github.io/trainhit/img/og.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="trainHIT: un pulso con la velocidad de cabeza y la de mirada separadas, y el rótulo «no es un equipo médico»."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="trainHIT — vHIT didáctico en el navegador" />
+    <meta
+      name="twitter:description"
+      content="Mide la ganancia del reflejo vestíbulo-ocular con la webcam, con cada paso del cálculo a la vista. Herramienta didáctica: no es un equipo médico."
+    />
+    <meta name="twitter:image" content="https://debaq.github.io/trainhit/img/og.png" />
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2309090b'/%3E%3Cpath d='M5 21 L11 8 L17 21 L23 8 L27 17' fill='none' stroke='%232e7dd6' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"
     />
     <!-- Mapa de importación: versiona los imports internos. Lo regenera
          bump.mjs junto con su hash en la CSP de arriba. Va antes del arranque. -->
-    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-22.3","./js/app.js":"./js/app.js?v=2026-09-22.3","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-22.3","./js/curve.js":"./js/curve.js?v=2026-09-22.3","./js/geom.js":"./js/geom.js?v=2026-09-22.3","./js/head.js":"./js/head.js?v=2026-09-22.3","./js/pipeline.js":"./js/pipeline.js?v=2026-09-22.3","./js/plots.js":"./js/plots.js?v=2026-09-22.3","./js/signal.js":"./js/signal.js?v=2026-09-22.3","./js/tracker.js":"./js/tracker.js?v=2026-09-22.3"}}</script>
+    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-22.23","./js/app.js":"./js/app.js?v=2026-09-22.23","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-22.23","./js/curve.js":"./js/curve.js?v=2026-09-22.23","./js/geom.js":"./js/geom.js?v=2026-09-22.23","./js/head.js":"./js/head.js?v=2026-09-22.23","./js/pipeline.js":"./js/pipeline.js?v=2026-09-22.23","./js/plots.js":"./js/plots.js?v=2026-09-22.23","./js/signal.js":"./js/signal.js?v=2026-09-22.23","./js/tracker.js":"./js/tracker.js?v=2026-09-22.23"}}</script>
     <script src="js/arranque.js"></script>
     <noscript><link rel="stylesheet" href="css/estilo.css" /></noscript>
   </head>
   <body>
     <header class="topbar">
       <span class="marca">train<b>HIT</b></span>
+      <!-- Quién lo hace. Se esconde en pantallas angostas: en la barra mandan
+           el estado y las lecturas, no la firma. -->
+      <span class="firma">TecMedHub<i>Universidad Austral de Chile</i></span>
       <span id="badge-calib" class="badge mal">SIN CALIBRAR</span>
-      <span id="aviso-fps" class="badge warn" hidden>TOPE 100 FPS</span>
+      <span id="aviso-fps" class="badge warn" hidden>TOPE 60 FPS</span>
       <span id="estado" class="estado" aria-live="polite">listo</span>
       <span class="sep"></span>
       <span class="chip"><i>fps</i><b id="v-fps">—</b></span>
@@ -40,7 +74,40 @@
       <button id="btn-herramientas" class="ghost">Herramientas</button>
     </header>
 
+    <!-- Punto de fijación de la calibración. El paciente tiene que mirar algo
+         quieto mientras gira la cabeza: si no fija, lo que se mide no es el
+         paralaje sino la mirada paseando. Va encima de todo y sin capturar el
+         puntero, para no estorbar los controles. -->
+    <div id="fijacion" class="fijacion" hidden>
+      <i class="punto"></i>
+      <p>Mirá el punto <b>sin soltarlo</b> y girá la cabeza lento, ±20°</p>
+      <p id="fijacion-cuenta" class="cuenta" aria-live="polite"></p>
+    </div>
+
     <!-- ─────────── bienvenida ─────────── -->
+    <!-- Carga del modelo. Aparece solo si la espera se nota: ver `modalCarga`
+         en app.js. La primera vez son varios MB; después sale del service
+         worker y esto no llega a verse. -->
+    <div id="carga" class="modal" hidden>
+      <div class="tarjeta carga" role="dialog" aria-modal="true" aria-labelledby="carga-titulo">
+        <h1 id="carga-titulo">Preparando train<b>HIT</b></h1>
+        <p id="carga-fase" aria-live="polite">Descargando el modelo…</p>
+        <div
+          id="carga-barra"
+          class="barra"
+          role="progressbar"
+          aria-labelledby="carga-titulo"
+          aria-valuemin="0"
+          aria-valuemax="100"
+        >
+          <i></i>
+        </div>
+        <p class="ayuda">
+          Se baja una sola vez: queda guardado en el navegador y la próxima vez abre al toque.
+        </p>
+      </div>
+    </div>
+
     <div id="bienvenida" class="modal" hidden>
       <div class="tarjeta" role="dialog" aria-modal="true" aria-labelledby="bienvenida-titulo">
         <h1 id="bienvenida-titulo">train<b>HIT</b></h1>
@@ -59,14 +126,18 @@
           didácticos.
         </p>
         <p class="ayuda">
-          Se procesa como mucho a 100 fps aunque la cámara dé más. Es un tope puesto a propósito:
+          Se procesa como mucho a 60 fps aunque la cámara dé más. Es un tope puesto a propósito:
           esto no es un equipo médico y no queremos que se use como tal.
         </p>
         <p class="ayuda">Calibrar el paralaje con <kbd>C</kbd> antes de medir.</p>
+        <p class="ayuda credito">
+          Desarrollado en <b>TecMedHub</b>, Universidad Austral de Chile.
+        </p>
         <button id="btn-empezar" class="primario">Empezar</button>
         <p class="pie">versión <span class="v-app"></span></p>
       </div>
     </div>
+
 
     <div class="app">
       <!-- ─────────── columna izquierda: video, ojos y botonera ─────────── -->
@@ -86,19 +157,17 @@
 
         <div class="botonera">
           <button id="btn-arrancar" class="primario">Encender cámara</button>
+          <button id="btn-pausa" aria-pressed="false" title="congela la traza de abajo para medirla">
+            Pausar <kbd>Espacio</kbd>
+          </button>
           <button id="btn-calibrar">Calibrar <kbd>C</kbd></button>
           <button id="btn-descartar">Descartar <kbd>D</kbd></button>
           <button id="btn-borrar" class="peligro">Borrar todos <kbd>R</kbd></button>
-          <button id="btn-csv" title="un pulso por fila">CSV pulsos</button>
-          <button id="btn-csv-muestras" title="una muestra por fila, de todos los pulsos">CSV muestras</button>
+          <button id="btn-csv" title="un archivo con las dos tablas: un pulso por fila y una muestra por fila">Exportar CSV</button>
         </div>
         <div class="botonera fina">
           <select id="camara" title="cámara"></select>
-          <label class="check"><input type="checkbox" id="espejo" checked /> espejar</label>
-          <label class="check"><input type="checkbox" id="pausa" /> pausa</label>
-          <label class="check" title="interpolación monótona entre muestras; los puntos son las muestras reales">
-            <input type="checkbox" id="suavizar" checked /> suavizar
-          </label>
+          <span class="meta">presentación y medición en <b>Herramientas</b> <kbd>H</kbd></span>
         </div>
 
         <div class="lecturas">
@@ -141,7 +210,7 @@
     <section class="vivo">
       <div class="vivo-head">
         <span>Velocidad en vivo</span>
-        <span class="leyenda"><i class="c-cabeza"></i>cabeza <i class="c-ojo"></i>ojo (invertido)</span>
+        <span class="leyenda"><i class="c-cabeza"></i>cabeza <i class="c-ojo"></i><span id="leyenda-ojo">ojo (invertido)</span></span>
         <span id="asim" class="meta">asimetría —</span>
       </div>
       <canvas id="plot-vivo" role="img" aria-label="velocidad de cabeza y de ojo en vivo"></canvas>
@@ -155,6 +224,45 @@
       </div>
 
       <div class="cajon-cuerpo">
+        <section>
+          <h3>Presentación</h3>
+          <div class="ajustes">
+            <label class="check"><input type="checkbox" id="espejo" checked /> Espejar el video</label>
+            <label class="check" title="interpolación monótona entre muestras; los puntos son las muestras reales">
+              <input type="checkbox" id="suavizar" checked /> Suavizar las trazas
+            </label>
+            <label class="check" title="media de los pulsos aceptados del lado, alineados por el disparo">
+              <input type="checkbox" id="promedio" /> Curva promedio del lado
+            </label>
+            <!-- Una sola decisión con dos combinaciones coherentes: ver
+                 `ORIENTACION` en plots.js. -->
+            <label class="campo">
+              <span>Orientación</span>
+              <select id="orientacion" title="hacia dónde apunta cada impulso y de qué lado va la traza ocular">
+                <option value="comparativo">comparar lados (impulso arriba)</option>
+                <option value="real">dirección real (der. arriba, izq. abajo)</option>
+              </select>
+            </label>
+          </div>
+          <p class="ayuda">
+            Suavizar hace PARECER más precisa una señal de 30 fps: mientras está activo, los puntos
+            marcan las muestras reales.
+          </p>
+        </section>
+
+        <section>
+          <h3>Medir sobre los gráficos</h3>
+          <p class="ayuda">
+            El puntero sobre cualquier gráfico de pulsos lee el instante y las dos velocidades.
+            Un clic fija la referencia: a partir de ahí salen Δt, el salto de cada traza, el
+            <b>área</b> de cada una en el tramo —sombreada— y la ganancia de ese tramo, que es el
+            cociente de las áreas. Otro clic la suelta.
+          </p>
+          <p class="ayuda">
+            La traza de abajo se mide igual, con <kbd>Espacio</kbd> para congelarla primero.
+          </p>
+        </section>
+
         <section>
           <h3>Calibración del paralaje</h3>
           <canvas id="plot-calib" class="plot chico" role="img" aria-label="ajuste del paralaje: offset del iris contra seno del yaw"></canvas>
@@ -253,7 +361,7 @@
           <ul class="pasos">
             <li>No desacadiza ⇒ sesgo al falso negativo.</li>
             <li>No fija la distancia al objetivo.</li>
-            <li>30 fps: el pico cae entre muestras. Tope de 100 fps puesto a propósito: no es un equipo médico.</li>
+            <li>30 fps: el pico cae entre muestras. Tope de 60 fps puesto a propósito: no es un equipo médico.</li>
             <li>Cabeza y ojo salen de la misma imagen: un error de seguimiento entra en las dos señales.</li>
             <li>Solo canal lateral; los verticales necesitan la componente vertical del ojo.</li>
           </ul>

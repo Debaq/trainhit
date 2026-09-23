@@ -1,5 +1,7 @@
 # trainHIT
 
+Desarrollado en **TecMedHub**, Universidad Austral de Chile.
+
 vHIT (video Head Impulse Test) **didáctico**, en el navegador, con la webcam del
 equipo. Sin instalar nada: se abre `index.html` desde un servidor local y mide.
 
@@ -9,8 +11,8 @@ paso del cálculo **se vea**, se pueda tocar y se entienda por qué está hecho 
 
 > **No reemplaza a un equipo clínico.** Corre a los 30 fps de una webcam común;
 > un vHIT de gafas usa cámara >250 Hz, y el remoto comercial más lento va a 100 fps.
-> Por eso mismo **se procesa como mucho a 100 fps** aunque la cámara dé más
-> (ver [Tope de 100 fps](#tope-de-100-fps)).
+> Por eso mismo **se procesa como mucho a 60 fps** aunque la cámara dé más
+> (ver [Tope de 60 fps](#tope-de-60-fps)).
 
 Medir con cámara remota y sin gafas **es otro método, no un vHIT incompleto**.
 Hay normativos publicados con cámara remota a 100 fps y blanco a 1–1,3 m
@@ -114,19 +116,167 @@ puede ser externo, así que va autorizado por su hash sha256 en la CSP;
 | `R` | Borrar todos los pulsos |
 | `D` | Descartar el último |
 | `H` | Abrir o cerrar las herramientas |
-| `Espacio` | Pausar el análisis (la cámara sigue) |
+| `Espacio` o `P` | Pausar y congelar la traza de abajo para medirla (la cámara sigue) |
 
-## Tope de 100 fps
+## Medir sobre el gráfico
 
-Si la cámara puede entregar más de 100 cuadros por segundo, trainHIT la pide
-a 100 como máximo y, si igual llegan más, descarta los que sobran. En la barra
-aparece **TOPE 100 FPS** con la explicación al pasar el mouse.
+El puntero sobre cualquier gráfico de pulsos —los dos paneles de lado y el
+del pulso solo— es una regla: el cursor marca el instante y el cartel da el
+valor de cabeza y de ojo. Un clic fija una referencia y a partir de ahí el
+cartel suma, contra ese punto:
+
+- **Δt** y el salto de cada traza;
+- el **área** de cada una en el tramo, sombreada bajo la curva. Integrar
+  velocidad da desplazamiento, así que esa superficie son los grados que giró
+  la cabeza —y los que se movió el ojo— en ese tramo;
+- la **ganancia del tramo**, que es el cociente de las dos áreas: la misma
+  cuenta que hace el motor sobre la ventana del impulso, acá sobre la ventana
+  que uno elija.
+
+Otro clic suelta la referencia. La traza de abajo se mide igual, pero antes
+hay que congelarla con `Espacio` (o `P`): la cámara sigue encendida y lo que
+se detiene es el análisis. Un pulso ya medido no se mueve, así que ahí no hace
+falta pausar nada.
+
+Hay un cursor a la vez, el del gráfico donde está el puntero: dos cursores
+vivos en paneles distintos se leen como si midieran lo mismo, y no es así.
+
+Sin esto solo se podía estimar a ojo contra la grilla, y la separación entre
+cabeza y ojo —que es el hallazgo— es justo lo que hay que poder medir.
+
+## Curva promedio
+
+**Curva promedio del lado**, en Herramientas, superpone la media de los pulsos
+aceptados de cada panel, más gruesa que los pulsos sueltos porque es el
+resumen y no uno más. Los pulsos no comparten instantes —cada uno se disparó
+en un frame distinto—, así que se promedian sobre una grilla de tiempo común
+interpolando cada uno. Los rechazados quedan afuera: promediar un pulso con la
+cara perdida ensucia la media justo donde importa. Con el promedio a la vista,
+el cursor mide sobre él.
+
+Promediar es lo que hace visible lo que un pulso suelto esconde: el ruido de
+seguimiento se va y queda la forma.
+
+**Espejar**, **suavizar**, la curva promedio y la orientación viven en
+Herramientas: son ajustes de presentación, y en la barra del video quedaba
+todo mezclado con los controles de la medición. Ahí abajo quedan la cámara y
+el botón de pausa.
+
+El botón de pausa era una casilla perdida entre las opciones del video. Ahora
+es un botón que se ve apretado cuando lo está (`aria-pressed`), y el atajo
+funciona aunque el foco esté en otro botón: antes el espacio ACCIONABA ese
+botón además de pausar, así que pausar justo después de encender la cámara la
+apagaba.
+
+## Orientación de los paneles
+
+Dos modos, que son **una sola decisión** con dos combinaciones coherentes
+(igual que `PanelOrientation` y `TraceSides` en el motor nativo):
+
+- **Comparar lados**: los dos paneles se normalizan con el impulso hacia
+  arriba y la traza ocular va invertida, para que se superponga con la de
+  cabeza. Lo que se lee es la separación entre curvas. Es el modo por defecto.
+- **Dirección real**: cada impulso va hacia su lado —derecha del paciente
+  arriba, izquierda abajo— y la traza ocular va cruda, o sea al revés que la
+  cabeza, porque el VOR es un reflejo compensatorio.
+
+Dos cosas que es fácil hacer mal y acá están cubiertas por tests:
+
+- La banda verde de velocidad aceptada y los umbrales del impulso tienen que
+  caer **del lado donde se dibuja el pulso**, que no es el factor del panel a
+  secas (`signoBanda` en `js/plots.js`).
+- «Dirección real» no es dibujar la señal cruda. El motor tiene el yaw
+  positivo hacia la **izquierda** del paciente (`SIGNO_DERECHA`), así que
+  dibujarla tal cual manda el impulso derecho hacia abajo, que es lo contrario
+  de lo que el modo promete.
+
+## Pulsos rechazados
+
+Un pulso rechazado se dibujaba más pálido y nada más: alcanzaba para no
+confundirlo con los buenos, pero no para saber qué salió mal sin ir a la
+tabla. Ahora el pulso que se está mirando lleva una caja punteada roja sobre
+el tramo del impulso con el motivo escrito encima: `MUY LENTO`, `PARPADEO`,
+`CARA PERDIDA`. En el overlay la caja es solo para el pulso seleccionado: con
+diez rechazados encima, diez cajas no se leen.
+
+## El punto de fijación
+
+Al calibrar aparece un punto rojo en el centro de la pantalla, con la cuenta
+de lo que falta y el rango de cabeza logrado. El paciente tiene que mirar algo
+quieto mientras gira la cabeza: si no fija, lo que se mide no es el paralaje
+sino la mirada paseando. No captura el puntero, así que el operador sigue
+usando los controles con el punto puesto.
+
+## Tope de 60 fps
+
+Si la cámara puede entregar más de 60 cuadros por segundo, trainHIT la pide
+a 60 como máximo y, si igual llegan más, descarta los que sobran. En la barra
+aparece **TOPE 60 FPS** con la explicación al pasar el mouse.
 
 No es una limitación técnica: es una decisión. Con una cámara rápida los
 números de esta página empezarían a parecerse a los de un equipo clínico sin
 tener ni la validación ni el control de la distancia al objetivo que eso
 exige. El tope está para que nadie use esto como equipo médico. Está en
 `FPS_MAX` de `js/tracker.js`, y el aviso en `avisaTope` de `js/app.js`.
+
+El tope se aplica dos veces: en la restricción que se le pide a
+`getUserMedia` y, si el navegador la ignora, descartando los frames que llegan
+de más (`limitadorDeCadencia` en `js/signal.js`). Ese filtro mira dos relojes
+con papeles distintos: el de pared es la cota dura, y el del video
+(`mediaTime`) se suma **solo mientras avanza**. Filtrando solo por el del
+video, un reloj que miente rompe el tope —hubo un caso de 240 fps procesados
+en Android con el tope en 60—; bloqueando cuando está congelado, la página
+deja de procesar del todo.
+
+El fps del chip de la barra es el de frames **procesados**, no el que entrega
+la cámara. Si supera el tope se pone en rojo y salta el aviso: eso significa
+que el tope no está funcionando en ese dispositivo, y es el dato que hace
+falta para diagnosticarlo.
+
+El tope operativo viene acompañado de un **umbral de validez** aparte,
+`FPS_VALIDADO` en `js/analysis.js`. Son dos cosas distintas a propósito:
+
+- `FPS_MAX` decide qué se le pide a la cámara y qué frames se descartan.
+- `FPS_VALIDADO` decide si el resultado se puede leer como lo que trainHIT
+  dice medir. La cadencia **se mide del pulso** (`cadenciaFps`, mediana de los
+  intervalos entre muestras), no se declara: si un pulso se muestreó más
+  rápido que el umbral, sale marcado `NO VALIDADO` encima de los gráficos y
+  con `no_validado=si` y el `fps_muestreo` real en el CSV.
+
+En uso normal —cualquier webcam a 30 o 60 fps— no se ve ninguna marca: el
+estudiante trabaja con los gráficos limpios. Aflojar `FPS_MAX` no apaga el
+rótulo, porque el rótulo no depende de `FPS_MAX` sino de los datos.
+
+## La espera del modelo
+
+La primera vez hay que bajar el runtime de MediaPipe y el modelo
+`face_landmarker.task` —unos MB—, y esa espera antes era una pantalla quieta.
+Ahora el modelo lo baja `bajaModelo` (`js/tracker.js`) leyendo el cuerpo de a
+pedazos y se le pasa a MediaPipe ya resuelto en `modelAssetBuffer`: así se
+puede contar lo que llega y mostrarlo. El modal es `#carga` en `index.html` y
+lo maneja `modalCarga` en `js/app.js`.
+
+No se abre de entrada. Espera `DEMORA_MODAL_MS` (350 ms): si el modelo ya está
+en la caché del service worker la carga dura un suspiro y un modal que
+aparece y desaparece molesta más que la espera. Si el servidor no manda
+`Content-Length` no hay porcentaje honesto, y la barra va indeterminada en vez
+de inventar uno.
+
+## La tarjeta de enlace
+
+Cuando el link se pega en WhatsApp, Slack, X o un LMS, la vista previa sale de
+los `og:`/`twitter:` de `index.html` y de `img/og.png`. La imagen se edita en
+`img/og.svg` y se regenera con:
+
+```sh
+rsvg-convert -w 1200 -h 630 img/og.svg -o img/og.png
+```
+
+La leyenda **NO ES UN EQUIPO MÉDICO** está adentro de la imagen a propósito:
+así viaja con el link aunque el que lo comparte no escriba nada. Si el sitio
+se sirve en otro dominio hay que actualizar las URL absolutas de `og:url`,
+`og:image`, `twitter:image` y el `canonical`: los scrapers no resuelven rutas
+relativas de forma confiable.
 
 ## Calibrar primero, y por qué
 
@@ -265,9 +415,12 @@ ganancia irse a 1,9, sin tener que hacer otro impulso. El motor que corre al
 medir y al recalcular es el mismo (`js/pipeline.js`), así que con la misma
 configuración da lo mismo.
 
-Los dos botones de CSV bajan un pulso por fila (con la configuración con la
-que se calculó cada uno) o una muestra por fila de todos los pulsos, con lo
-derivado y lo crudo al lado, para rehacer el cálculo en una planilla.
+**Exportar CSV** baja un solo archivo con las dos tablas, una abajo de la
+otra y separadas por una línea `# TABLA: …`: un pulso por fila —con la
+configuración con la que se calculó cada uno— y una muestra por fila de todos
+los pulsos, con lo derivado y lo crudo al lado para rehacer el cálculo en una
+planilla. Eran dos descargas distintas y había que acordarse de bajar las dos;
+el resumen y las muestras que lo producen terminaban en carpetas separadas.
 
 ## Licencia
 

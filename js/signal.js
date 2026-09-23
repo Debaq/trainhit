@@ -167,3 +167,47 @@ export class Differentiator {
     };
   }
 }
+
+/**
+ * Limitador de cadencia: decide si un frame se procesa o se descarta.
+ *
+ * Es la segunda mitad del tope de fps —la primera es la restricción que se le
+ * pide a `getUserMedia`—, y existe para cuando el navegador la ignora.
+ *
+ * Mira DOS relojes, con papeles distintos:
+ *
+ * - **El de pared** es la cota dura: nunca pasan más de `fpsMax` frames por
+ *   segundo real, pase lo que pase. Es un reloj malo para medir —trae el
+ *   jitter de captura y de inferencia— pero no miente sobre el ritmo.
+ * - **El del video** (`mediaTime`) es el instante real de captura y se suma al
+ *   filtro **solo mientras avanza**. Es un reloj de contenido: puede volver a
+ *   cero con un stream nuevo, congelarse, o avanzar con otra escala según el
+ *   navegador, y hubo un caso de 240 fps procesados en Android con el tope
+ *   puesto en 60. Filtrando solo por él, un reloj que miente rompe el tope;
+ *   bloqueando cuando está congelado, la página deja de procesar del todo.
+ *   Se lo usa cuando es creíble y se lo ignora cuando no.
+ *
+ * Vive en el motor y no en `tracker.js` para que se pueda probar sin cámara.
+ *
+ * @param {number} fpsMax cuadros por segundo como mucho
+ * @returns {(tMedios: number, tPared: number) => boolean} true si se procesa
+ */
+export function limitadorDeCadencia(fpsMax) {
+  const minDt = 1 / fpsMax - 1e-4;
+  let ultimoMedios = -Infinity;
+  let ultimaPared = -Infinity;
+
+  return (tMedios, tPared) => {
+    // Un stream nuevo manda los relojes atrás. Sin esto la diferencia queda
+    // negativa para siempre y no vuelve a pasar ni un frame.
+    if (tMedios < ultimoMedios) ultimoMedios = -Infinity;
+    if (tPared < ultimaPared) ultimaPared = -Infinity;
+
+    if (tPared - ultimaPared < minDt) return false;
+    if (tMedios > ultimoMedios && tMedios - ultimoMedios < minDt) return false;
+
+    ultimoMedios = tMedios;
+    ultimaPared = tPared;
+    return true;
+  };
+}

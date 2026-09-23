@@ -1,0 +1,53 @@
+<!-- Fuente de la tarjeta de enlace (og:image). Se edita acá y se regenera el
+     PNG con:  rsvg-convert -w 1200 -h 630 img/og.svg -o img/og.png
+     El PNG es lo que consumen WhatsApp, Slack y X: ninguno renderiza SVG. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#09090b"/>
+  <rect x="0" y="0" width="1200" height="6" fill="#2E7DD6"/>
+  <clipPath id="recuadro"><rect x="-16" y="-16" width="432" height="282" rx="14"/></clipPath>
+
+  <g transform="translate(96 150)">
+    <path d="M0 96 L44 0 L88 96 L132 0 L176 64" fill="none" stroke="#2E7DD6"
+          stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="96" y="330" font-family="DejaVu Sans, sans-serif" font-size="92" fill="#FAFAFA">
+    train<tspan font-weight="bold">HIT</tspan>
+  </text>
+  <text x="96" y="396" font-family="DejaVu Sans, sans-serif" font-size="36" fill="#A1A1AA">
+    vHIT didáctico en el navegador
+  </text>
+  <text x="96" y="448" font-family="DejaVu Sans, sans-serif" font-size="29" fill="#A1A1AA">
+    La ganancia del reflejo vestíbulo-ocular
+  </text>
+  <text x="96" y="488" font-family="DejaVu Sans, sans-serif" font-size="29" fill="#A1A1AA">
+    con la webcam, paso a paso.
+  </text>
+  <g transform="translate(96 522)">
+    <rect x="0" y="0" width="466" height="46" rx="10" fill="#D62D2D" fill-opacity="0.14"/>
+    <text x="20" y="31" font-family="DejaVu Sans, sans-serif" font-size="25" font-weight="bold" fill="#D62D2D">
+      NO ES UN EQUIPO MÉDICO
+    </text>
+  </g>
+  <text x="96" y="596" font-family="DejaVu Sans, sans-serif" font-size="23" fill="#71717A">
+    <tspan font-weight="bold" fill="#A1A1AA">TecMedHub</tspan> · Universidad Austral de Chile
+  </text>
+
+  <!-- Un pulso: cabeza (azul) contra mirada (naranja). La separación entre las
+       dos curvas y la sacada correctiva son EL hallazgo del vHIT; que la tarjeta
+       muestre eso y no un adorno es a propósito. Las trazas salen del mismo
+       modelo sintético que usan los tests: pico 200 °/s, ganancia 0,6. -->
+  <g transform="translate(704 190)" clip-path="url(#recuadro)">
+    <rect x="-16" y="-16" width="432" height="282" rx="14" fill="#18181b"/>
+    <line x1="0" y1="208.3" x2="400" y2="208.3" stroke="#3F3F46" stroke-width="2"/>
+    <path d="M 0.0 208.2 L 4.0 208.2 L 8.0 208.1 L 12.0 208.1 L 16.0 208.0 L 20.0 207.8 L 24.0 207.6 L 28.0 207.4 L 32.0 207.0 L 36.0 206.6 L 40.0 206.1 L 44.0 205.3 L 48.0 204.5 L 52.0 203.4 L 56.0 202.0 L 60.0 200.4 L 64.0 198.4 L 68.0 196.1 L 72.0 193.4 L 76.0 190.3 L 80.0 186.7 L 84.0 182.7 L 88.0 178.3 L 92.0 173.4 L 96.0 168.1 L 100.0 162.5 L 104.0 156.7 L 108.0 150.7 L 112.0 144.7 L 116.0 138.7 L 120.0 132.8 L 124.0 127.4 L 128.0 122.4 L 132.0 118.0 L 136.0 114.3 L 140.0 111.4 L 144.0 109.5 L 148.0 108.5 L 152.0 108.5 L 156.0 109.4 L 160.0 111.4 L 164.0 114.2 L 168.0 117.9 L 172.0 122.2 L 176.0 127.0 L 180.0 132.1 L 184.0 137.3 L 188.0 142.2 L 192.0 146.4 L 196.0 149.5 L 200.0 151.2 L 204.0 151.1 L 208.0 149.0 L 212.0 145.1 L 216.0 139.7 L 220.0 133.7 L 224.0 128.0 L 228.0 123.9 L 232.0 122.1 L 236.0 123.5 L 240.0 128.2 L 244.0 135.8 L 248.0 145.6 L 252.0 156.4 L 256.0 167.4 L 260.0 177.5 L 264.0 186.1 L 268.0 193.1 L 272.0 198.3 L 276.0 202.0 L 280.0 204.5 L 284.0 206.1 L 288.0 207.1 L 292.0 207.7 L 296.0 208.0 L 300.0 208.1 L 304.0 208.2 L 308.0 208.3 L 312.0 208.3 L 316.0 208.3 L 320.0 208.3 L 324.0 208.3 L 328.0 208.3 L 332.0 208.3 L 336.0 208.3 L 340.0 208.3 L 344.0 208.3 L 348.0 208.3 L 352.0 208.3 L 356.0 208.3 L 360.0 208.3 L 364.0 208.3 L 368.0 208.3 L 372.0 208.3 L 376.0 208.3 L 380.0 208.3 L 384.0 208.3 L 388.0 208.3 L 392.0 208.3 L 396.0 208.3 L 400.0 208.3" fill="none" stroke="#E8721C" stroke-width="5"
+          stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 0.0 208.2 L 4.0 208.1 L 8.0 208.0 L 12.0 207.9 L 16.0 207.7 L 20.0 207.5 L 24.0 207.2 L 28.0 206.7 L 32.0 206.2 L 36.0 205.5 L 40.0 204.5 L 44.0 203.4 L 48.0 201.9 L 52.0 200.0 L 56.0 197.8 L 60.0 195.1 L 64.0 191.8 L 68.0 187.9 L 72.0 183.4 L 76.0 178.2 L 80.0 172.3 L 84.0 165.6 L 88.0 158.2 L 92.0 150.1 L 96.0 141.3 L 100.0 132.0 L 104.0 122.3 L 108.0 112.3 L 112.0 102.2 L 116.0 92.2 L 120.0 82.5 L 124.0 73.4 L 128.0 65.1 L 132.0 57.7 L 136.0 51.6 L 140.0 46.8 L 144.0 43.5 L 148.0 41.9 L 152.0 41.9 L 156.0 43.5 L 160.0 46.8 L 164.0 51.6 L 168.0 57.7 L 172.0 65.1 L 176.0 73.4 L 180.0 82.5 L 184.0 92.2 L 188.0 102.2 L 192.0 112.3 L 196.0 122.3 L 200.0 132.0 L 204.0 141.3 L 208.0 150.1 L 212.0 158.2 L 216.0 165.6 L 220.0 172.3 L 224.0 178.2 L 228.0 183.4 L 232.0 187.9 L 236.0 191.8 L 240.0 195.1 L 244.0 197.8 L 248.0 200.0 L 252.0 201.9 L 256.0 203.4 L 260.0 204.5 L 264.0 205.5 L 268.0 206.2 L 272.0 206.7 L 276.0 207.2 L 280.0 207.5 L 284.0 207.7 L 288.0 207.9 L 292.0 208.0 L 296.0 208.1 L 300.0 208.2 L 304.0 208.2 L 308.0 208.3 L 312.0 208.3 L 316.0 208.3 L 320.0 208.3 L 324.0 208.3 L 328.0 208.3 L 332.0 208.3 L 336.0 208.3 L 340.0 208.3 L 344.0 208.3 L 348.0 208.3 L 352.0 208.3 L 356.0 208.3 L 360.0 208.3 L 364.0 208.3 L 368.0 208.3 L 372.0 208.3 L 376.0 208.3 L 380.0 208.3 L 384.0 208.3 L 388.0 208.3 L 392.0 208.3 L 396.0 208.3 L 400.0 208.3" fill="none" stroke="#2E7DD6" stroke-width="5"
+          stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g font-family="DejaVu Sans, sans-serif" font-size="24">
+    <rect x="704" y="486" width="26" height="6" rx="3" fill="#2E7DD6"/>
+    <text x="740" y="495" fill="#A1A1AA">cabeza</text>
+    <rect x="862" y="486" width="26" height="6" rx="3" fill="#E8721C"/>
+    <text x="898" y="495" fill="#A1A1AA">mirada</text>
+  </g>
+</svg>

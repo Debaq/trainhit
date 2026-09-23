@@ -37,6 +37,38 @@ export const CONFIG = {
   gainNormalMin: 0.8, // el corte dibujado. NO es nuestro corte: ver README.
 };
 
+/**
+ * Cadencia de muestreo por encima de la cual un resultado de trainHIT YA NO ES
+ * el que trainHIT dice medir.
+ *
+ * Está a propósito separado de `FPS_MAX` (tracker.js). `FPS_MAX` es el tope
+ * operativo: qué se le pide a la cámara y qué frames se descartan. Esto de acá
+ * es el umbral de VALIDEZ: cualquier pulso muestreado más rápido sale marcado
+ * como no validado, en los gráficos y en la exportación. Son dos cosas
+ * distintas y por eso son dos constantes distintas: aflojar el tope operativo
+ * no convierte en válido lo que no lo es, solo hace que el resultado salga
+ * rotulado. La cadencia se MIDE de los datos del pulso, no se declara.
+ */
+export const FPS_VALIDADO = 60;
+
+/**
+ * Cadencia real del pulso, en fps, por la mediana de los intervalos.
+ *
+ * Mediana y no promedio: un solo frame perdido duplica un intervalo y arrastra
+ * el promedio hacia abajo, y lo que interesa es el ritmo típico.
+ */
+export function cadenciaFps(samples) {
+  const dts = [];
+  for (let i = 1; i < samples.length; i++) {
+    const dt = samples[i].tMs - samples[i - 1].tMs;
+    if (dt > 0) dts.push(dt);
+  }
+  if (!dts.length) return null;
+  dts.sort((a, b) => a - b);
+  const med = dts[dts.length >> 1];
+  return med > 0 ? 1000 / med : null;
+}
+
 export const RECHAZO_TEXT = {
   'cara-perdida': 'CARA PERDIDA — quedarse en el encuadre',
   'iris-chico': 'IRIS MUY CHICO — acercarse a la cámara',
@@ -191,8 +223,16 @@ export function analyzeTrial(samples, cfg = CONFIG) {
   const side = peakSigned * SIGNO_DERECHA >= 0 ? 'derecha' : 'izquierda';
   const sign = sideSign(side);
 
+  // La cadencia sale de las muestras, no de una constante: es la que de verdad
+  // tuvo este pulso. El margen del 5% es para el jitter de una cámara que va
+  // justo en el límite, no una tolerancia.
+  const fpsMuestreo = cadenciaFps(samples);
+  const noValidado = fpsMuestreo !== null && fpsMuestreo > FPS_VALIDADO * 1.05;
+
   const win = findImpulse(samples, side, cfg);
-  if (!win) return { side, rejected: 'sin-impulso', samples, peakHeadDegS: Math.abs(peakSigned) };
+  if (!win) {
+    return { side, rejected: 'sin-impulso', samples, peakHeadDegS: Math.abs(peakSigned), fpsMuestreo, noValidado };
+  }
 
   const core = samples.slice(win.onset, win.offset + 1);
   const tOnset = core[0].tMs;
@@ -215,6 +255,8 @@ export function analyzeTrial(samples, cfg = CONFIG) {
     gapMs: huecoMaxMs(samples),
     irisPx: minimo(core, 'irisPx'),
     disconjMm: vergs.length ? Math.max(...vergs) - Math.min(...vergs) : null,
+    fpsMuestreo,
+    noValidado,
     rejected: null,
   };
 
