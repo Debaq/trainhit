@@ -83,7 +83,7 @@ reales —y el interruptor lo apaga—.
 
 La firma **TecMedHub** de la barra (y «Quiénes lo hacemos», en la
 bienvenida) abre la tarjeta de quiénes lo hacen y para quién: Nicolás
-Baier-Quezada, Vanessa Uribe-Hernandez y Fernanda López-Moncada, del
+Baier-Quezada, Vanessa Uribe-Hernández y Fernanda López-Moncada, del
 Laboratorio TecMedHub de la Universidad Austral de Chile, Sede Puerto Montt,
 para los estudiantes que visitan el laboratorio con hambre de conocimiento.
 
