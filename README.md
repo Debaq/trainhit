@@ -188,6 +188,20 @@ siempre. El test genera cada caso y comprueba que el motor muestre el patrón
 que dice su respuesta, así una pregunta no puede quedar con la respuesta
 equivocada sin que CI lo note.
 
+### Preguntas para Moodle
+
+**Preguntas para Moodle (GIFT)**, en Herramientas › Para docentes (y al final
+de los casos), baja un `.txt` en formato GIFT para importar en el banco de
+preguntas: una por cada caso a ciegas y un banco de conceptos —paralaje,
+sacadas, sesgo al falso negativo, canales, asimetría, calibración, rechazos,
+una numérica de ganancia, un verdadero/falso y un emparejamiento de
+métodos— (`js/preguntas.js`). El enunciado de cada caso lleva los números
+que el motor le saca **al exportar** —medias, aceptados, motivos de rechazo,
+sacadas, asimetría—, así que si el motor cambia las preguntas cambian con él.
+`test/preguntas.test.mjs` revisa que cada una tenga su título, un solo bloque
+de respuestas, una sola correcta y la sintaxis de GIFT escapada: un `=`
+suelto en un enunciado rompe la pregunta y el error aparece recién al subirla.
+
 ### Dónde está cada cosa
 
 El mecanismo está en `js/tutorial.js` y el contenido en `js/tutorial-pasos.js`,

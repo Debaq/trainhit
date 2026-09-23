@@ -8,7 +8,7 @@
          jsdelivr (MediaPipe), y conexiones solo a lo que la página usa. -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-V/J7BIB9bWB88gsdtpi/NvLMG6Ca/eajBURz0DwI1pQ='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
+      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-QrV4l5daeXqTusEdz0626LA2JEA5QQLd/DtqrLrnIr4='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
     />
     <meta
       name="description"
@@ -52,7 +52,7 @@
     />
     <!-- Mapa de importación: versiona los imports internos. Lo regenera
          bump.mjs junto con su hash en la CSP de arriba. Va antes del arranque. -->
-    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-23.13","./js/app.js":"./js/app.js?v=2026-09-23.13","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-23.13","./js/curve.js":"./js/curve.js?v=2026-09-23.13","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-23.13","./js/geom.js":"./js/geom.js?v=2026-09-23.13","./js/head.js":"./js/head.js?v=2026-09-23.13","./js/pipeline.js":"./js/pipeline.js?v=2026-09-23.13","./js/plots.js":"./js/plots.js?v=2026-09-23.13","./js/sesion.js":"./js/sesion.js?v=2026-09-23.13","./js/signal.js":"./js/signal.js?v=2026-09-23.13","./js/tracker.js":"./js/tracker.js?v=2026-09-23.13","./js/tutorial.js":"./js/tutorial.js?v=2026-09-23.13","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-23.13"}}</script>
+    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-23.14","./js/app.js":"./js/app.js?v=2026-09-23.14","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-23.14","./js/curve.js":"./js/curve.js?v=2026-09-23.14","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-23.14","./js/geom.js":"./js/geom.js?v=2026-09-23.14","./js/head.js":"./js/head.js?v=2026-09-23.14","./js/pipeline.js":"./js/pipeline.js?v=2026-09-23.14","./js/plots.js":"./js/plots.js?v=2026-09-23.14","./js/preguntas.js":"./js/preguntas.js?v=2026-09-23.14","./js/sesion.js":"./js/sesion.js?v=2026-09-23.14","./js/signal.js":"./js/signal.js?v=2026-09-23.14","./js/tracker.js":"./js/tracker.js?v=2026-09-23.14","./js/tutorial.js":"./js/tutorial.js?v=2026-09-23.14","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-23.14"}}</script>
     <script src="js/arranque.js"></script>
     <noscript><link rel="stylesheet" href="css/estilo.css" /></noscript>
   </head>
@@ -444,6 +444,17 @@
             <li>Cabeza y ojo salen de la misma imagen: un error de seguimiento entra en las dos señales.</li>
             <li>Solo canal lateral; los verticales necesitan la componente vertical del ojo.</li>
           </ul>
+        </section>
+
+        <section id="h-docentes">
+          <h3>Para docentes</h3>
+          <p class="ayuda">
+            Preguntas de autoevaluación en formato GIFT, para el banco de preguntas de Moodle: una
+            por cada caso a ciegas —con los números que el motor saca de cada uno— y otras sobre los
+            conceptos de los paseos. Una sesión medida se reparte con <b>Exportar CSV</b> y cada
+            alumno la abre con <b>Importar CSV</b>.
+          </p>
+          <button id="btn-gift">Preguntas para Moodle (GIFT)</button>
         </section>
 
         <section id="h-refs">

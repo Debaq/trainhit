@@ -40,7 +40,7 @@ export const CONDICIONES = {
 };
 
 /** Lo que un paso (o un botón de su cuerpo) puede pedirle a la interfaz. */
-export const ACCIONES = ['abreHerramientas', 'cierraHerramientas', 'cargaEjemplos', 'cargaCaso', 'restauraK', 'restauraPerillas'];
+export const ACCIONES = ['abreHerramientas', 'cierraHerramientas', 'cargaEjemplos', 'cargaCaso', 'exportaGift', 'restauraK', 'restauraPerillas'];
 
 /**
  * Las respuestas posibles de «Casos a ciegas», las mismas en todos: si cada
@@ -572,7 +572,9 @@ export const PASEOS = [
             normal una ganancia que no lo es (caso D).</li>
             <li>Sin pulsos aceptados suficientes <b>no se concluye</b> (caso E).</li>
           </ul>
-          <p class="ayuda">Los casos se pueden volver a cargar desde acá cuando se quiera.</p>`,
+          <p class="ayuda">Los casos se pueden volver a cargar desde acá cuando se quiera. Para
+          docentes: <button type="button" data-accion="exportaGift">preguntas para Moodle (GIFT)</button>,
+          con estos casos y las ideas de los paseos.</p>`,
       },
     ],
   },

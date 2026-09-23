@@ -14,6 +14,7 @@ import { montaTutorial } from './tutorial.js';
 import { K_EJEMPLO, calibracionDeEjemplo, crudoDeEjemplo, pulsosDe } from './ejemplo.js';
 import { MARGEN_CRUDO_MS, procesaCrudo } from './pipeline.js';
 import { leeSesion, textoSesion } from './sesion.js';
+import { textoGift } from './preguntas.js';
 
 const $ = (id) => document.getElementById(id);
 const fmt = (v, d = 2) => (v === null || v === undefined || Number.isNaN(v) ? '—' : v.toFixed(d));
@@ -1218,18 +1219,24 @@ function atajos() {
 
 // ------------------------------------------------------------------ CSV ----
 
-function bajaCsv(texto, sufijo) {
-  const url = URL.createObjectURL(new Blob([texto], { type: 'text/csv' }));
+function baja(texto, sufijo, { ext = 'csv', tipo = 'text/csv' } = {}) {
+  const url = URL.createObjectURL(new Blob([texto], { type: tipo }));
   const a = document.createElement('a');
   a.href = url;
-  a.download = `trainhit-${sufijo}-${new Date().toISOString().slice(0, 19).replace(/[:T-]/g, '')}.csv`;
+  a.download = `trainhit-${sufijo}-${new Date().toISOString().slice(0, 19).replace(/[:T-]/g, '')}.${ext}`;
   a.click();
   URL.revokeObjectURL(url);
 }
 
+/** Preguntas para Moodle en GIFT: ver preguntas.js. */
+function exportaGift() {
+  baja(textoGift(), 'preguntas-gift', { ext: 'txt', tipo: 'text/plain' });
+  marcaEstado('preguntas bajadas: en Moodle, Banco de preguntas › Importar › formato GIFT');
+}
+
 /** Todas las tablas en un archivo: ver sesion.js. */
 function exportaTodo() {
-  bajaCsv(
+  baja(
     textoSesion({
       trials: estado.trials,
       version: document.documentElement.dataset.v ?? '',
@@ -1315,6 +1322,7 @@ $('btn-borrar').addEventListener('click', borraTodos);
 $('btn-descartar').addEventListener('click', descartaUltimo);
 $('btn-deshacer').addEventListener('click', deshaceDescarte);
 $('btn-csv').addEventListener('click', exportaTodo);
+$('btn-gift').addEventListener('click', exportaGift);
 $('btn-importar').addEventListener('click', () => $('archivo-csv').click());
 $('archivo-csv').addEventListener('change', async (e) => {
   const f = e.target.files?.[0];
@@ -1389,6 +1397,7 @@ const tutorial = montaTutorial({
     cierraHerramientas: () => abreHerramientas(false),
     cargaEjemplos: () => cargaEjemplos(),
     cargaCaso: (caso) => cargaEjemplos(caso),
+    exportaGift,
     restauraK: () => restauraK({ recalcula: true }),
     restauraPerillas: () => perillasPorDefecto({ recalcula: true }),
   },
