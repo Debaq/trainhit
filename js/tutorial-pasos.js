@@ -81,7 +81,7 @@ export const PASEOS = [
   {
     id: 'conceptos',
     titulo: 'Qué mide un vHIT',
-    resumen: 'El reflejo, el impulso, la ganancia y las sacadas. Sin cámara.',
+    resumen: 'El reflejo, el impulso, los canales, la ganancia, las sacadas y qué patrones se buscan. Sin cámara.',
     pasos: [
       {
         id: 'vor',
@@ -345,7 +345,7 @@ export const PASEOS = [
   {
     id: 'graficos',
     titulo: 'Leer los gráficos',
-    resumen: 'La regla sobre el gráfico, los rechazados, la curva promedio y la orientación.',
+    resumen: 'La regla sobre el gráfico, los rechazados, las sacadas marcadas, la curva promedio y la orientación.',
     pasos: [
       HACEN_FALTA_PULSOS,
       {
@@ -583,7 +583,7 @@ export const PASEOS = [
   {
     id: 'herramientas',
     titulo: 'Herramientas por dentro',
-    resumen: 'La recta del paralaje, el último pulso, la nube de ganancias y cómo se mide.',
+    resumen: 'La recta del paralaje, el último pulso, la nube de ganancias, los métodos de cálculo y el k a mano.',
     alSalir: 'restauraK',
     pasos: [
       HACEN_FALTA_PULSOS,
