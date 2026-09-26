@@ -1380,6 +1380,7 @@ function montaSimulacion() {
   });
   $('sim-revelar').addEventListener('click', () => revelaSimulacion());
   $('btn-suerte').addEventListener('click', empiezaPractica);
+  $('aviso-practica').addEventListener('click', () => abreSimulador(true));
   // Las opciones y los botones de la práctica se pintan de nuevo en cada
   // pulso: un solo oyente en la caja, por delegación.
   $('practica-cuerpo').addEventListener('click', (e) => {
@@ -1458,6 +1459,10 @@ function empiezaPractica() {
   $('sim-ciego').checked = true;
   if (!cambiaPerfil('azar', { practica: true })) return;
   $('sim-perfil').value = 'azar';
+  // Abierto, el cajón tapa el panel izquierdo justo mientras se examina. Se
+  // cierra, la cuenta de aceptados sigue en la barra y vuelve solo para
+  // contestar (ver `pintaSimulacion`).
+  abreSimulador(false);
 }
 
 /** Revela y corrige: la práctica pasa a mostrar las respuestas contra la clave. */
@@ -1510,6 +1515,19 @@ function pintaSimulacion() {
   // En la práctica se revela contestando, con su propio botón.
   $('sim-revelar').hidden = !oculto || Boolean(practica);
   pintaPractica();
+  const cuenta = $('aviso-practica');
+  cuenta.hidden = practica?.fase !== 'examinar';
+  if (!cuenta.hidden) {
+    const a = aceptadosPorLado();
+    const vars = { d: a.derecha, i: a.izquierda, min: MIN_POR_LADO };
+    cuenta.textContent = tx('der {d}/{min} · izq {i}/{min}', vars);
+    cuenta.title = tx('pulsos aceptados de cada lado; con {min} y {min} se contesta en el Simulador', vars);
+    // Una sola vez: si se lo vuelve a cerrar para seguir mirando, no insiste.
+    if (a.derecha >= MIN_POR_LADO && a.izquierda >= MIN_POR_LADO && !practica.abierto) {
+      practica.abierto = true;
+      abreSimulador(true);
+    }
+  }
   const haySimulados = estado.trials.some((t) => t.simulado && t.crudoReal);
   $('sim-real').hidden = !perfil || oculto || !haySimulados;
   $('sim-real').setAttribute('aria-pressed', String(mostrarReal));

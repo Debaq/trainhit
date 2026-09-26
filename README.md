@@ -359,8 +359,10 @@ sacadas detectadas, perillas y Recalcular.
 El botón grande del cajón es la práctica entera en un clic: sortea un
 paciente —el control sano incluido, o la respuesta nunca sería «normal» y se
 aprendería a buscar la patología en vez de a leer—, lo esconde y deja
-examinar. Un contador lleva los pulsos aceptados de cada lado; con tres por
-lado se habilita **Ya sé qué tiene**, y aparecen tres preguntas en el orden del
+examinar. El cajón se cierra —abierto tapa el panel izquierdo justo mientras
+se examina— y un contador en la barra, junto a **SIMULADO**, lleva los pulsos
+aceptados de cada lado; apretarlo vuelve a abrir el cajón. Con tres por lado
+el cajón se abre solo, se habilita **Ya sé qué tiene**, y aparecen tres preguntas en el orden del
 razonamiento clínico: qué lado está afectado, qué sacadas aparecen y qué
 patrón muestra. **Revelar** corrige cada una —verde la correcta, rojo la
 elegida si no lo era—, da la nota, dice el perfil y deja **Ver lo real** a

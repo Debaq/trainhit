@@ -421,6 +421,9 @@ export const TEXTO = {
   'Paciente al azar: puede tener una patología o ninguna. Examiná como siempre.':
     'Random patient: it may have a pathology or none. Examine as always.',
   'Aceptados: derecha {d}/{min} · izquierda {i}/{min}': 'Accepted: right {d}/{min} · left {i}/{min}',
+  'der {d}/{min} · izq {i}/{min}': 'R {d}/{min} · L {i}/{min}',
+  'pulsos aceptados de cada lado; con {min} y {min} se contesta en el Simulador':
+    'accepted pulses on each side; with {min} and {min}, answer in the Simulator',
   'Ya sé qué tiene': 'I know what it has',
   'Hacen falta {min} pulsos aceptados de cada lado.': '{min} accepted impulses are needed on each side.',
   Revelar: 'Reveal',
