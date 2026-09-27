@@ -56,7 +56,8 @@ Rama: `feat/laberinto-3d`.
     todos los navegadores;
   - el marco de la cabeza sale de la gravedad, así que funciona con el teléfono
     parado, apaisado o inclinado;
-  - pide permiso en iOS y avisa si el teléfono no entrega giroscopio.
+  - pide permiso en iOS y avisa si el teléfono no entrega giroscopio;
+  - **probado con éxito en un teléfono real** el 2026-09-27.
 
 ### Patología (`js/patologia.js`)
 
@@ -85,9 +86,6 @@ Rama: `feat/laberinto-3d`.
 
 ## Falta probar
 
-- **En un teléfono real**, el giroscopio después del arreglo del orden de ejes y
-  del marco por gravedad: se probó con eventos simulados de los dos órdenes.
-  Hace falta HTTPS (GitHub Pages).
 - El diente de sierra del nistagmo y las sacadas en pantalla, a velocidad
   normal (los tests del modelo los cubren).
 - Revisión clínica de las constantes: 10 °/s de fase lenta por canal muerto, la
