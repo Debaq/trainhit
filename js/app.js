@@ -1738,6 +1738,18 @@ $('btn-simulador').addEventListener('click', () => abreSimulador($('simulador').
 $('btn-cerrar-sim').addEventListener('click', () => abreSimulador(false));
 const laberinto = montaLaberinto();
 $('btn-laberinto').addEventListener('click', () => laberinto.abre());
+// El QR del enlace trae `?enlace=código`: el teléfono va directo al Laberinto
+// con el código puesto. Se lo saca de la dirección para no reusarlo al recargar.
+{
+  const url = new URL(location.href);
+  const codigo = url.searchParams.get('enlace');
+  if (codigo) {
+    url.searchParams.delete('enlace');
+    history.replaceState(null, '', url);
+    laberinto.abre();
+    laberinto.enlaza(codigo.replace(/\D/g, '').slice(0, 6));
+  }
+}
 $('btn-pausa').addEventListener('click', () => ponPausa(!estado.pausado));
 $('metodo-gan').addEventListener('change', () => (sucio.pulsos = true));
 $('promedio').addEventListener('change', (e) => {

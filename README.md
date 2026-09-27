@@ -415,6 +415,19 @@ y, en iPhone, el permiso que Safari pide al apretar el botón; «Centrar» corri
 la deriva. Es una recreación de lo que hacía la app aVOR (Universidad de
 Sydney, solo iOS), que ya no está disponible.
 
+**Enlazar** usa un teléfono como cabeza del modelo que se ve en el PC: se lo
+mueve como una cabeza y en el PC se ven los canales, los ojos y la patología
+puesta. El PC crea un código de 6 dígitos (y un QR con el enlace); el teléfono
+lo escribe, o abre el QR, y queda como cabeza —sin dibujar, para ahorrar
+batería—. La presentación pasa por `servidor/senal.php`, un PHP de un solo
+archivo sin base de datos que guarda cada sala 10 minutos en el directorio
+temporal; después el giroscopio va directo entre los dos aparatos por WebRTC,
+sin pasar por el servidor. Dónde está ese PHP lo dice
+`<meta name="trainhit-senal">` en index.html: relativo si la página se sirve
+desde un servidor con PHP (para probar: `php -S localhost:8095` en la raíz), o
+la dirección completa, con su origen en `connect-src` de la CSP. El PHP, a su
+vez, lista en `ORIGENES` desde dónde se lo puede llamar.
+
 El botón de la esquina (o `H`) esconde la barra y el panel y deja solo el
 visor, en pantalla completa donde el navegador la permite; `Esc` o el mismo
 botón los traen de vuelta.
@@ -696,6 +709,7 @@ js/ejemplo.js   el paciente sintético de los paseos
 js/canales.js   los seis canales: ejes, tasa de disparo, impulsos (sin DOM)
 js/cabeza.js    la cabeza provisoria como superficie implícita (sin DOM)
 js/patologia.js canales enfermos: VOR, nistagmo espontáneo y sacadas (sin DOM)
+js/enlace.js    enlace teléfono–PC: sala en servidor/senal.php y canal WebRTC
 js/laberinto.js el Laberinto 3D: escena three.js, modelo, gestos y sensores
 ```
 

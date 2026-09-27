@@ -61,6 +61,7 @@ import {
   faseLentaEspontanea,
   funciones,
 } from './patologia.js';
+import { abreSala, leeCabeza, mensajeCabeza, uneSala } from './enlace.js';
 import { alCambiarIdioma, tx } from './idioma.js';
 
 const $ = (id) => document.getElementById(id);
@@ -169,6 +170,9 @@ export function montaLaberinto() {
     qManual: Q1(),
     qSensor: Q1(),
     sensor: sensorApagado(),
+    // El enlace con otro aparato (enlace.js): como `visor`, la cabeza la
+    // mueve un teléfono; como `cabeza`, este teléfono mueve la de un PC.
+    remoto: null,
     qCabeza: Q1(),
     qPrevia: Q1(),
     // El ojo, con su VOR, su nistagmo y sus sacadas (patologia.js).
@@ -495,6 +499,7 @@ export function montaLaberinto() {
     $('btn-laberinto').setAttribute('aria-pressed', 'false');
     cancelAnimationFrame(st.raf);
     st.raf = 0;
+    cortaEnlace();
     apagaSensores();
     soloVisor(false);
     $('btn-laberinto').focus();
@@ -509,7 +514,8 @@ export function montaLaberinto() {
       e.preventDefault();
       giraMundo(eje, g);
     };
-    if (k === 'Escape') seccion.classList.contains('solo-visor') ? soloVisor(false) : cierra();
+    if (k === 'Escape' && !$('lab-enlace').hidden) cierraDialogoEnlace();
+    else if (k === 'Escape') seccion.classList.contains('solo-visor') ? soloVisor(false) : cierra();
     else if (k === 'h' || k === 'H') soloVisor(!seccion.classList.contains('solo-visor'));
     else if (k === 'ArrowLeft') gira([0, 1, 0], -paso);
     else if (k === 'ArrowRight') gira([0, 1, 0], paso);
@@ -819,8 +825,13 @@ export function montaLaberinto() {
       omegaExacta = im.eje.map((v) => v * p.velocidad);
       if (p.fin) {
         st.impulso = null;
-        st.qManual = qMul(im.qBase, qInv(st.qSensor));
+        st.qManual = qMul(im.qBase, qInv(qFuente()));
       }
+    } else if (st.remoto?.rol === 'visor') {
+      // La cabeza la mueve el teléfono enlazado, y su giroscopio da la
+      // velocidad directa. Sin datos frescos, quieta.
+      st.qCabeza = qMul(st.qManual, st.remoto.q);
+      omegaExacta = ahora - st.remoto.t < 250 ? st.remoto.w : [0, 0, 0];
     } else {
       st.qCabeza = qMul(st.qManual, st.qSensor);
     }
@@ -1036,7 +1047,14 @@ export function montaLaberinto() {
     st.qManual = qMul(qEjeAngulo([e.x, e.y, e.z], grados), st.qManual);
   }
 
+  /** Lo que mueve la cabeza además de la mano: el teléfono enlazado o el propio. */
+  function qFuente() {
+    return st.remoto?.rol === 'visor' ? st.remoto.q : st.qSensor;
+  }
+
   function centra() {
+    // El teléfono enlazado también toma su posición como frente nuevo.
+    if (st.remoto?.rol === 'visor' && st.remoto.canal.readyState === 'open') st.remoto.canal.send('centrar');
     st.impulso = null;
     st.qManual = Q1();
     st.qSensor = Q1();
@@ -1269,9 +1287,157 @@ export function montaLaberinto() {
     const enTelefono = orden ? ORDENES_GIRO[orden](r) : reciente ? s.wOri : ORDENES_GIRO[ORDEN_SUPUESTO](r);
     const enCabeza = s.marco ? aMarco(s.marco, enTelefono) : enTelefono;
     st.qSensor = integraGiro(st.qSensor, enCabeza, dt);
+    // Este teléfono es la cabeza de un PC: se le manda cada evento.
+    const enlace = st.remoto;
+    if (enlace?.rol === 'cabeza' && enlace.canal.readyState === 'open') {
+      enlace.canal.send(mensajeCabeza(qMul(st.qManual, st.qSensor), enCabeza));
+    }
   }
 
-  return { abre, cierra, abierto: () => st.abierta };
+  // -------------------------------------------------------------- enlace ---
+  //
+  // Teléfono y PC se presentan por el PHP de señalización (enlace.js) y
+  // después hablan directo. El PC es el `visor`: muestra el modelo y usa la
+  // cabeza que le llega. El teléfono es la `cabeza`: prende sus sensores,
+  // manda lo que mide y deja de dibujar para ahorrar batería.
+
+  function estadoEnlace(texto) {
+    $('lab-enlace-estado').textContent = texto;
+  }
+
+  /** Abre el diálogo; con `codigo`, ya puesto para entrar como cabeza. */
+  function abreEnlace(codigo = '') {
+    $('lab-enlace').hidden = false;
+    if (codigo) $('lab-enlace-entrada').value = codigo;
+    estadoEnlace(codigo ? tx('Apretá «Conectar» para usar este teléfono como cabeza.') : '');
+    (codigo ? $('lab-enlace-unirse') : $('lab-enlace-crear')).focus();
+  }
+
+  function cierraDialogoEnlace() {
+    $('lab-enlace').hidden = true;
+    // Una sala abierta que nadie usó se cancela al cerrar.
+    if (st.salaPendiente) {
+      st.salaPendiente.cancela();
+      st.salaPendiente = null;
+      $('lab-enlace-codigo').hidden = true;
+    }
+  }
+
+  async function dibujaQr(texto) {
+    const { qrcode } = await import('https://cdn.jsdelivr.net/npm/qrcode-generator@2.0.4/dist/qrcode.mjs');
+    const qr = qrcode(0, 'M');
+    qr.addData(texto);
+    qr.make();
+    const n = qr.getModuleCount();
+    const margen = 2;
+    const lienzoQr = $('lab-enlace-qr');
+    lienzoQr.width = lienzoQr.height = n + 2 * margen;
+    const ctx = lienzoQr.getContext('2d');
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, n + 2 * margen, n + 2 * margen);
+    ctx.fillStyle = '#000';
+    for (let f = 0; f < n; f++) for (let c = 0; c < n; c++) if (qr.isDark(f, c)) ctx.fillRect(c + margen, f + margen, 1, 1);
+  }
+
+  async function creaCodigo() {
+    cortaEnlace();
+    if (st.salaPendiente) st.salaPendiente.cancela();
+    $('lab-enlace-codigo').hidden = true;
+    estadoEnlace(tx('Abriendo la sala…'));
+    try {
+      const sala = await abreSala();
+      st.salaPendiente = sala;
+      $('lab-enlace-numero').textContent = sala.codigo;
+      $('lab-enlace-codigo').hidden = false;
+      const url = new URL(location.href);
+      url.search = '';
+      url.hash = '';
+      url.searchParams.set('enlace', sala.codigo);
+      dibujaQr(url.href).catch((e) => console.warn('laberinto: QR', e));
+      estadoEnlace(tx('Esperando al teléfono…'));
+      const canal = await sala.canal;
+      st.salaPendiente = null;
+      conecta('visor', sala.pc, canal);
+    } catch (e) {
+      if (e.message !== 'cancelado') estadoEnlace(tx('No se pudo enlazar: {msg}', { msg: e.message }));
+    }
+  }
+
+  async function uneComoCabeza() {
+    const codigo = $('lab-enlace-entrada').value.replace(/\D/g, '');
+    if (codigo.length !== 6) {
+      estadoEnlace(tx('El código tiene 6 dígitos.'));
+      return;
+    }
+    // Primero los sensores: el permiso de iOS pide que sea dentro del toque.
+    await prendeSensores();
+    if (!st.sensor.activo) {
+      estadoEnlace(tx('Sin los sensores del teléfono no se puede ser la cabeza.'));
+      return;
+    }
+    cortaEnlace();
+    estadoEnlace(tx('Conectando…'));
+    try {
+      const { pc, canal } = await uneSala(codigo);
+      conecta('cabeza', pc, canal);
+    } catch (e) {
+      estadoEnlace(tx('No se pudo enlazar: {msg}', { msg: e.message }));
+    }
+  }
+
+  function conecta(rol, pc, canal) {
+    st.remoto = { rol, pc, canal, q: Q1(), w: [0, 0, 0], t: 0 };
+    centra();
+    pc.addEventListener('connectionstatechange', () => {
+      if (['failed', 'closed', 'disconnected'].includes(pc.connectionState) && st.remoto?.pc === pc) {
+        cortaEnlace();
+        avisa(tx('Se cortó el enlace con el otro aparato.'));
+      }
+    });
+    if (rol === 'visor') {
+      canal.addEventListener('message', (e) => {
+        const m = leeCabeza(e.data);
+        if (m && st.remoto?.canal === canal) Object.assign(st.remoto, m, { t: performance.now() });
+      });
+      $('lab-enlace-badge').hidden = false;
+    } else {
+      canal.addEventListener('message', (e) => e.data === 'centrar' && centra());
+      // El teléfono no dibuja: su pantalla no la mira nadie.
+      cancelAnimationFrame(st.raf);
+      st.raf = 0;
+      $('lab-remota').hidden = false;
+    }
+    estadoEnlace('');
+    $('lab-enlace').hidden = true;
+  }
+
+  function cortaEnlace() {
+    const r = st.remoto;
+    if (!r) return;
+    st.remoto = null;
+    r.pc.close();
+    // Lo que se había girado queda donde estaba.
+    if (r.rol === 'visor') st.qManual = st.qCabeza;
+    $('lab-enlace-badge').hidden = true;
+    $('lab-remota').hidden = true;
+    if (r.rol === 'cabeza' && st.abierta && st.listo && !st.raf) {
+      st.tPrevio = performance.now();
+      st.raf = requestAnimationFrame(cuadro);
+    }
+  }
+
+  $('lab-enlazar').addEventListener('click', () => abreEnlace());
+  $('lab-enlace-cerrar').addEventListener('click', cierraDialogoEnlace);
+  $('lab-enlace-crear').addEventListener('click', creaCodigo);
+  $('lab-enlace-unirse').addEventListener('click', uneComoCabeza);
+  $('lab-enlace-entrada').addEventListener('keydown', (e) => e.key === 'Enter' && uneComoCabeza());
+  $('lab-remota-centrar').addEventListener('click', () => centra());
+  $('lab-remota-soltar').addEventListener('click', () => {
+    cortaEnlace();
+    apagaSensores();
+  });
+
+  return { abre, cierra, abierto: () => st.abierta, enlaza: abreEnlace };
 }
 
 // ------------------------------------------------------ modelo provisorio ---

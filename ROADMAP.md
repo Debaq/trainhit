@@ -59,6 +59,19 @@ Rama: `feat/laberinto-3d`.
   - pide permiso en iOS y avisa si el teléfono no entrega giroscopio;
   - **probado con éxito en un teléfono real** el 2026-09-27.
 
+### Enlace teléfono–PC (`js/enlace.js`, `servidor/senal.php`)
+
+- El teléfono hace de cabeza y el PC muestra el modelo, con la patología
+  elegida en el PC.
+- El PC crea un código de 6 dígitos con su QR; el teléfono lo escribe o abre el
+  QR.
+- La presentación pasa por un PHP de un solo archivo en el servidor propio:
+  sala de 10 minutos en archivos temporales, sin base de datos.
+- Después, el giroscopio va directo por WebRTC.
+- «Centrar» en el PC recentra también el teléfono.
+- El teléfono, como cabeza, no dibuja, para ahorrar batería.
+- Probado con dos pestañas contra el PHP local.
+
 ### Patología (`js/patologia.js`)
 
 - Cada canal normal, con hipofunción o en arreflexia: en grilla o con casos
@@ -86,6 +99,10 @@ Rama: `feat/laberinto-3d`.
 
 ## Falta probar
 
+- El enlace con un teléfono y un PC de verdad, con el PHP en el servidor propio.
+  Hay que poner su dirección en `<meta name="trainhit-senal">` y en
+  `connect-src` de la CSP.
+
 - El diente de sierra del nistagmo y las sacadas en pantalla, a velocidad
   normal (los tests del modelo los cubren).
 - Revisión clínica de las constantes: 10 °/s de fase lenta por canal muerto, la
@@ -93,6 +110,16 @@ Rama: `feat/laberinto-3d`.
   algo mayor que la horizontal.
 
 ## Pendiente
+
+- **La vía en el PC**: el arco de tres neuronas animado con la actividad
+  corriendo (canal → nervio vestibular → núcleos vestibulares → VI → fascículo
+  longitudinal medial → III → rectos), y las vías de los verticales hacia III y
+  IV. Se corta donde está la lesión. Sirve con el teléfono enlazado o con los
+  impulsos armados.
+- **Nistagmo espontáneo con la cámara** (en trainHIT, no en el Laberinto): el
+  paciente fija un blanco o el dedo, se registra el ojo 10 a 20 s y se detecta
+  el diente de sierra, con la dirección de la fase rápida y la velocidad de la
+  fase lenta; también con el blanco a los lados, para el evocado por la mirada.
 
 - **VPPB**: partículas en los canales (canalitiasis), su nistagmo al cambiar de
   posición la cabeza y las maniobras (Dix-Hallpike, Epley, rolido).
@@ -103,6 +130,5 @@ Rama: `feat/laberinto-3d`.
 
 ## Ideas
 
-- Con la cámara (fuera del Laberinto 3D, que no la usa): evaluación de
-  movimientos oculares, con el paciente siguiendo el dedo o un blanco
-  (seguimiento lento, sacadas, mirada excéntrica).
+- Con la cámara, más allá del nistagmo espontáneo: seguimiento lento y sacadas
+  siguiendo el dedo o un blanco.
