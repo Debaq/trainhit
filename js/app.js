@@ -1,7 +1,7 @@
 // trainHIT — motor e interfaz.
 //
 // El hilo es: landmarks -> ángulos -> velocidades -> pulsos -> ganancia.
-// Cada paso está en su módulo; acá solo se los conecta y se los muestra.
+// Cada paso está en su módulo; aquí solo se los conecta y se los muestra.
 
 import * as geom from './geom.js';
 import { HeadTracker, quatFromMatrix, quatRotate } from './head.js';
@@ -24,7 +24,7 @@ import { Remuestreo } from './giroscopio.js';
 import { montaTelefono } from './telefono.js';
 
 /**
- * El Laberinto 3D, que nació acá, vive en su propio sitio: Labyrinthus 3D
+ * El Laberinto 3D, que nació aquí, vive en su propio sitio: Labyrinthus 3D
  * (github.com/Debaq/labyrinthus3d). trainHIT solo lo enlaza.
  */
 const LABYRINTHUS_URL = 'https://tecmedhub.org/labyrinthus3d/';
@@ -562,7 +562,7 @@ function procesaFrame(mediaTime) {
 /**
  * Del giro de la cabeza y el ojo de un cuadro, a la traza y los pulsos. Es el
  * tramo que comparten la webcam (`procesaFrame`) y el teléfono
- * (`cuadroTelefono`): de acá en adelante el motor no sabe de dónde vino.
+ * (`cuadroTelefono`): de aquí en adelante el motor no sabe de dónde vino.
  *
  * @param {number} t hora del cuadro, en s
  * @param {number} yaw giro de la cabeza, en grados
@@ -1018,7 +1018,7 @@ function pintaLeyendaOjo() {
 function pintaTodo() {
   requestAnimationFrame(pintaTodo);
 
-  // El reloj de la calibración corre acá y no donde se juntan las muestras:
+  // El reloj de la calibración corre aquí y no donde se juntan las muestras:
   // ahí solo se llega con cara detectada, así que una calibración sin cara
   // —el paciente salió del encuadre, la luz se fue— no terminaba nunca y
   // dejaba el punto de fijación puesto para siempre.
@@ -1163,7 +1163,7 @@ function pintaCalibracion() {
  *
  * El overlay se dibuja en coordenadas de la IMAGEN, sin espejar: el espejo lo
  * aplica el CSS al contenedor, así que video y puntos se invierten juntos. Los
- * recortes de ojo sí se espejan acá, porque son canvas sueltos.
+ * recortes de ojo sí se espejan aquí, porque son canvas sueltos.
  */
 function dibujaVideo() {
   if (estado.telefono) return dibujaCaraTelefono();
@@ -1456,7 +1456,7 @@ const conPasada = (e) => e.pointerType !== 'touch';
  *
  * Uno solo a la vez, el del gráfico donde está el puntero: dos cursores vivos
  * en paneles distintos se leen como si midieran lo mismo y no es así.
- * Al contrario que la traza viva, acá no hace falta pausar: un pulso ya medido
+ * Al contrario que la traza viva, aquí no hace falta pausar: un pulso ya medido
  * no se mueve más.
  */
 function medicionPulsos() {
@@ -1542,7 +1542,7 @@ function medicionViva() {
 function atajos() {
   document.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
-    // Ctrl+C es copiar, Ctrl+D marcador, Ctrl+R recargar: no son atajos de acá.
+    // Ctrl+C es copiar, Ctrl+D marcador, Ctrl+R recargar: no son atajos de aquí.
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (!$('bienvenida').hidden || !$('acerca').hidden || !$('enlace').hidden || tutorial.bloqueaAtajos()) return;
     const k = e.key.toLowerCase();
@@ -1555,7 +1555,7 @@ function atajos() {
     else if (k === 's') abreSimulador($('simulador').hidden);
     else if (k === 'l') window.open(LABYRINTHUS_URL, '_blank', 'noopener');
     else if (k === ' ' || k === 'p') {
-      // `preventDefault` acá no es solo para que la página no haga scroll: si
+      // `preventDefault` aquí no es solo para que la página no haga scroll: si
       // el foco quedó en un botón —y queda, apenas se aprieta «Encender
       // cámara»— el espacio ACCIONA ese botón. El atajo pausaba y de paso
       // apagaba la cámara. El click por teclado sale en el keyup y esto lo
@@ -1940,7 +1940,7 @@ $('btn-cerrar').addEventListener('click', () => abreHerramientas(false));
 $('btn-simulador').addEventListener('click', () => abreSimulador($('simulador').hidden));
 $('btn-cerrar-sim').addEventListener('click', () => abreSimulador(false));
 // Un QR del enlace teléfono–PC hecho antes de la mudanza trae `?enlace=código`
-// y apunta acá: se lo manda a Labyrinthus 3D con el mismo código.
+// y apunta aquí: se lo manda a Labyrinthus 3D con el mismo código.
 {
   const codigo = new URLSearchParams(location.search).get('enlace');
   if (codigo) location.replace(`${LABYRINTHUS_URL}?enlace=${encodeURIComponent(codigo.replace(/\D/g, '').slice(0, 6))}`);
@@ -1996,7 +1996,7 @@ function montaIdioma() {
     boton.title = IDIOMAS[otro()];
     boton.lang = otro();
     // El manual, en el idioma de la interfaz. Los PDF son assets del release
-    // «manual» de GitHub y no viajan con la página: el enlace anda aunque la
+    // «manual» de GitHub y no viajan con la página: el enlace funciona aunque la
     // página se sirva desde otro lado. Ver docs/manual/generar-pdf.py.
     const pdf = idioma() === 'en' ? 'trainhit-manual-en.pdf' : 'trainhit-manual.pdf';
     for (const a of document.querySelectorAll('.enlace-manual')) a.href = MANUAL_URL + pdf;
@@ -2075,7 +2075,7 @@ if (telefono.rol() === 'cabeza') bienvenida.cierra();
 $('btn-telefono').addEventListener('click', () => telefono.abre());
 $('badge-telefono').addEventListener('click', () => telefono.abre());
 // El recorrido del tutorial espera cosas de la medición real: por eso se
-// monta acá, con acceso al estado, y no en su módulo.
+// monta aquí, con acceso al estado, y no en su módulo.
 const tutorial = montaTutorial({
   instantanea: () => ({ recalculados: estado.recalculados }),
   respuestas: {

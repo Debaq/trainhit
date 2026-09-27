@@ -30,7 +30,7 @@ export const CONFIG = {
     // haya del otro lado del hueco no es la continuación de lo de antes.
     gapMaxMs: 100,
     // Radio del iris en píxeles por debajo del cual el landmark es demasiado
-    // grueso para la escala: paciente lejos o cámara chica.
+    // grueso para la escala: paciente lejos o cámara pequeña.
     irisMinPx: 5,
   },
   saccade: {
@@ -50,7 +50,7 @@ export const CONFIG = {
  * el que trainHIT dice medir.
  *
  * Está a propósito separado de `FPS_MAX` (tracker.js). `FPS_MAX` es el tope
- * operativo: qué se le pide a la cámara y qué frames se descartan. Esto de acá
+ * operativo: qué se le pide a la cámara y qué frames se descartan. Esto de aquí
  * es el umbral de VALIDEZ: cualquier pulso muestreado más rápido sale marcado
  * como no validado, en los gráficos y en la exportación. Son dos cosas
  * distintas y por eso son dos constantes distintas: aflojar el tope operativo
@@ -79,7 +79,7 @@ export function cadenciaFps(samples) {
 
 export const RECHAZO_TEXT = {
   'cara-perdida': 'CARA PERDIDA — quedarse en el encuadre',
-  'iris-chico': 'IRIS MUY CHICO — acercarse a la cámara',
+  'iris-chico': 'IRIS MUY PEQUEÑO — acercarse a la cámara',
   lento: 'MUY LENTO — impulso más fuerte',
   rapido: 'MUY RÁPIDO',
   corto: 'MUY CORTO',
@@ -98,7 +98,7 @@ export const RECHAZO_TEXT = {
  * paciente da yaw NEGATIVO. Es la misma convención con la que el offset del
  * iris (positivo hacia la izquierda del paciente en la imagen) hace que la
  * paralaje `k` salga positiva, así que no se toca el yaw: se nombra el lado
- * acá, y en ningún otro lugar. Verificado con cámara.
+ * aquí, y en ningún otro lugar. Verificado con cámara.
  */
 export const SIGNO_DERECHA = -1;
 
@@ -136,7 +136,7 @@ export function findImpulse(samples, side, cfg = CONFIG) {
       j += 1;
     }
     // Se acabó la ventana sin confirmar: el pulso queda incompleto, que es lo
-    // honesto. Darlo por terminado acá sería inventar un final que no se vio.
+    // honesto. Darlo por terminado aquí sería inventar un final que no se vio.
     if (j >= samples.length) return null;
     i = j + 1; // fue un bache: la velocidad volvió a subir
   }
@@ -329,7 +329,7 @@ export function detectaSacadas(samples, onsetIdx, tOffsetMs, sign, cfg = CONFIG)
  * la primera sacada encubierta. Lo que pasa después ya no es el reflejo sino
  * la corrección, así que no entra.
  *
- * Los equipos clínicos desacadizan con otra resolución (250 Hz): acá, con dos
+ * Los equipos clínicos desacadizan con otra resolución (250 Hz): aquí, con dos
  * o tres cuadros antes de la sacada, es una estimación para COMPARAR con la
  * reportada y ver cuánto la infló la sacada, no un número para informar. Sin
  * sacada encubierta no hay nada que sacar y vale lo mismo que la de área.

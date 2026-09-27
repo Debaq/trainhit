@@ -28,7 +28,7 @@ const n = Math.min(ts.length, archivos.length);
 const cuadros = archivos.slice(0, n).map((f, i) => ({ src: `cuadros/${f}`, t: ts[i] - ts[0] }));
 console.log(`${n} cuadros (${esMjpeg ? 'sin recodificar' : 'recodificados'})`);
 
-// Servidor mínimo: la página y los cuadros de acá, y js/ del repo.
+// Servidor mínimo: la página y los cuadros de aquí, y js/ del repo.
 const LAB = new URL('./', import.meta.url).pathname;
 const JS = new URL('../../../js/', import.meta.url).pathname;
 const TIPOS = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.jpg': 'image/jpeg' };

@@ -4,7 +4,7 @@
 // `light-dark()`. Lo único que decide este módulo es qué `color-scheme` rige:
 //
 //   sistema  sin `data-theme`: el que pida el sistema operativo, y si el
-//            sistema cambia (el modo noche que se prende solo), cambia la
+//            sistema cambia (el modo noche que se enciende solo), cambia la
 //            página también.
 //   claro    `data-theme="light"` en <html>.
 //   oscuro   `data-theme="dark"`.
@@ -21,7 +21,7 @@ export const TEMAS = ['sistema', 'claro', 'oscuro'];
 /** Lo que va en `data-theme` para cada tema; el del sistema no lleva. */
 const ATRIBUTO = { claro: 'light', oscuro: 'dark' };
 
-/** La misma clave lee `arranque.js`: si se cambia acá, se cambia allá. */
+/** La misma clave lee `arranque.js`: si se cambia aquí, se cambia allí. */
 const LS_TEMA = 'trainhit.tema';
 
 const oyentes = [];

@@ -156,7 +156,7 @@ for (const L of Object.values(IDIOMAS)) {
   }
 
   // ── patrones.svg: los cuatro patrones que se buscan, cada uno con sus dos
-  // lados. Mismas curvas que arriba, en chico: el alumno tiene que reconocer
+  // lados. Mismas curvas que arriba, en pequeño: el alumno tiene que reconocer
   // la forma, no leer números.
   {
     const mini = (x0, y0, w, h, ojo) => {

@@ -1,7 +1,7 @@
 // El diccionario inglés tiene que acompañar al español: cada frase que el
 // código pasa a `tx()` o a `marcaEstado()`, cada clave `data-i18n` de
 // index.html y cada tabla de textos de los módulos del motor. Una frase que se
-// cambia en español y no en idioma-en.js aparece acá, no en el aula.
+// cambia en español y no en idioma-en.js aparece aquí, no en el aula.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';

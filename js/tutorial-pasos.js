@@ -10,7 +10,7 @@
 //   titulo, cuerpo   el cuerpo es HTML propio, nunca datos de afuera. Un
 //             `<button data-accion="…">` adentro dispara esa acción (ACCIONES).
 //   img       opcional, archivo de img/tutorial/. Si todavía no existe se ve
-//             un recuadro con el nombre: el tutorial anda antes que las
+//             un recuadro con el nombre: el tutorial funciona antes que las
 //             imágenes. Las que faltan tienen su prompt en img/tutorial/PROMPTS.md.
 //   alt       texto alternativo de la imagen: lo que la imagen TIENE que
 //             mostrar, así que sirve también para revisar la que llegue.
@@ -70,7 +70,7 @@ export const PATRONES = {
 export const LUGARES = ['abajo', 'arriba', 'derecha', 'izquierda'];
 
 /**
- * Los paseos de leer pulsos empiezan acá: sin pulsos no hay nada que mirar,
+ * Los paseos de leer pulsos empiezan aquí: sin pulsos no hay nada que mirar,
  * y no todo el mundo tiene a alguien a mano para darle impulsos.
  */
 const HACEN_FALTA_PULSOS = {
@@ -113,9 +113,9 @@ export const PASEOS = [
         id: 'impulso',
         titulo: 'El impulso cefálico',
         img: 'impulso.svg',
-        alt: 'Examinador detrás del paciente girando su cabeza un ángulo chico y rápido; el paciente mira fijo un punto al frente.',
+        alt: 'Examinador detrás del paciente girando su cabeza un ángulo pequeño y rápido; el paciente mira fijo un punto al frente.',
         cuerpo: `
-          <p>El examinador gira la cabeza del paciente un giro <b>chico</b> (10–20°), <b>rápido</b>
+          <p>El examinador gira la cabeza del paciente un giro <b>pequeño</b> (10–20°), <b>rápido</b>
           (150–300 °/s) e <b>impredecible</b>, mientras el paciente mira un punto fijo.</p>
           <p>Si el canal de ese lado funciona, los ojos se quedan clavados en el punto. Si no, se van
           con la cabeza y después vuelven al blanco con un salto: la <b>sacada correctiva</b>.</p>
@@ -243,7 +243,7 @@ export const PASEOS = [
         alt: 'De perfil, en dos cuadros. A la izquierda la cabeza gira hacia abajo (flecha azul) y el ojo hacia arriba (flecha naranja); a la derecha la cabeza hacia arriba y el ojo hacia abajo. En los dos la mirada sigue sobre el punto rojo de adelante.',
         cuerpo: `
           <p>Con la cabeza ya girada, el examinador la mueve en ese plano: <b>mentón hacia abajo</b>
-          o <b>mentón hacia arriba</b>, un giro chico, rápido e impredecible, como el lateral.</p>
+          o <b>mentón hacia arriba</b>, un giro pequeño, rápido e impredecible, como el lateral.</p>
           <ul>
             <li><b>Hacia abajo</b> prueba el <b>anterior</b> del par: en LARP el anterior izquierdo;
             en RALP el anterior derecho.</li>
@@ -323,7 +323,7 @@ export const PASEOS = [
           <ul>
             <li>Cámara <b>a la altura de los ojos</b> y la cara de frente, centrada.</li>
             <li>A un brazo de distancia: lo justo para que el <b>iris se vea nítido</b> en los ojos
-            ampliados. Muy lejos, el pulso sale rechazado por <i>IRIS MUY CHICO</i>.</li>
+            ampliados. Muy lejos, el pulso sale rechazado por <i>IRIS MUY PEQUEÑO</i>.</li>
             <li>Luz <b>de frente</b> o de costado. Nunca una ventana detrás del paciente: la cara
             queda en sombra y el modelo la pierde.</li>
             <li>Sin anteojos si se puede: los reflejos tapan el iris.</li>
@@ -753,7 +753,7 @@ export const PASEOS = [
         espera: 'pulso',
         cuerpo: `
           <p>Enciende la cámara, calibra y da impulsos como siempre. La traza de abajo ya muestra la
-          patología mientras examinás.</p>
+          patología mientras examinas.</p>
           <p>En los ojos ampliados, el <b>anillo violeta</b> es dónde estaría el iris simulado: el video
           es el real y no se mueve.</p>
           <p class="ayuda">Hacen falta al menos tres pulsos aceptados por lado para decir algo.</p>`,
@@ -982,7 +982,7 @@ export const PASEOS = [
         antes: 'abreHerramientas',
         lugar: 'izquierda',
         cuerpo: `
-          <p>El radio del iris en píxeles por debajo del cual se rechaza el pulso. Con el iris chico
+          <p>El radio del iris en píxeles por debajo del cual se rechaza el pulso. Con el iris pequeño
           —paciente lejos, cámara de poca resolución— un píxel de error es muchos grados, y la
           ganancia deja de significar algo.</p>`,
       },
@@ -1012,7 +1012,7 @@ export const PORTADA = {
 const TRADUCCIONES = { en };
 
 /**
- * Los paseos en un idioma: la estructura de acá con los textos de la capa de
+ * Los paseos en un idioma: la estructura de aquí con los textos de la capa de
  * ese idioma encima. Lo que la capa no trae queda en español, así que un paso
  * nuevo sin traducir se ve en español en vez de romper el tutorial.
  */

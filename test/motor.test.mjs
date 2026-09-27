@@ -240,7 +240,7 @@ test('un hueco de cara dentro del pulso lo rechaza', () => {
   assert.ok(conHueco.gapMs > 100);
 });
 
-test('iris chico y disconjugación se miden y el iris chico rechaza', () => {
+test('iris pequeño y disconjugación se miden y el iris pequeño rechaza', () => {
   const bueno = corre({ fps: 60, pk: 200, ganancia: 1 });
   const s = bueno.samples.map((x, i) => ({ ...x, irisPx: i === 5 ? 3 : 9, vergMm: 0.2 + (i % 2) * 0.1 }));
   const t = analyzeTrial(s, CONFIG);

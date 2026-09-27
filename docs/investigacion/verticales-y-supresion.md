@@ -218,7 +218,7 @@ node $L/rigida.mjs grab2t.json fases2.txt        # referencias rígidas
 
 - `procesa.mjs` abre Chromium **con ventana**: sin ventana no hay GPU y
   MediaPipe va muy lento.
-- `/tmp` suele ser un tmpfs chico: un video de 4 minutos ocupa ~1 GB y sus
+- `/tmp` suele ser un tmpfs pequeño: un video de 4 minutos ocupa ~1 GB y sus
   cuadros otro tanto.
 - `analiza.mjs`, `refs.mjs` y `series.mjs` son los de la prueba 1 (`grab.json`,
   `fases.txt`).

@@ -1,5 +1,5 @@
 // Los paseos del tutorial en inglés. Es una capa sobre tutorial-pasos.js: el
-// español manda la estructura —ids, objetivos, esperas, acciones, casos— y acá
+// español manda la estructura —ids, objetivos, esperas, acciones, casos— y aquí
 // solo va el texto, por id de paseo y de paso. `tutorialEn` (en
 // tutorial-pasos.js) los junta.
 //

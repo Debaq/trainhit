@@ -14,17 +14,17 @@ T0=$(date +%s.%N)
 fase() { echo "$1 $(echo "$(date +%s.%N) - $T0" | bc)" >> fases3.txt; }
 sleep 1.5
 di "Quieto, mirando la cámara."; fase quieto; sleep 4
-di "Asentí lento, mirando la cámara."; fase cal_v; sleep 12
-di "Girá lento a los lados, mirando la cámara."; fase cal_h; sleep 12
+di "Asiente lento, mirando la cámara."; fase cal_v; sleep 12
+di "Gira lento a los lados, mirando la cámara."; fase cal_h; sleep 12
 di "Impulsos rápidos y cortos a los lados, mirando la cámara."; fase imp_h_1; sleep 18
 di "Cabeceos rápidos y cortos, mirando la cámara."; fase imp_v_1; sleep 18
-di "Quieto. Encendé el láser y mirá el punto en la pared."; fase laser; sleep 4
-di "Asentí lento mirando el punto del láser."; fase vors_v; sleep 12
-di "Girá lento a los lados mirando el punto del láser."; fase vors_h; sleep 12
+di "Quieto. Enciende el láser y mira el punto en la pared."; fase laser; sleep 4
+di "Asiente lento mirando el punto del láser."; fase vors_v; sleep 12
+di "Gira lento a los lados mirando el punto del láser."; fase vors_h; sleep 12
 di "Impulsos rápidos y cortos a los lados, mirando el punto del láser."; fase imp_h_0; sleep 18
 di "Cabeceos rápidos y cortos, mirando el punto del láser."; fase imp_v_0; sleep 18
-di "Apagá el láser y mirá la cámara."; fase quieto2; sleep 3
-di "Girá lento a los lados, mirando la cámara."; fase cal_h2; sleep 12
+di "Apaga el láser y mira la cámara."; fase quieto2; sleep 3
+di "Gira lento a los lados, mirando la cámara."; fase cal_h2; sleep 12
 fase fin; sleep 1; kill -INT $FF
 di "Listo, terminamos. Gracias."
 wait $FF || true

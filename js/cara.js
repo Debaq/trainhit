@@ -93,7 +93,7 @@ export function geometria(yawDeg, offsetMm, { radiusMm = EYE_ROTATION_RADIUS_MM,
 
 /**
  * Los landmarks que habría dado MediaPipe, normalizados a la imagen: solo los
- * de `IDX` (tracker.js, que se pasa para no cargar MediaPipe acá) que usan los
+ * de `IDX` (tracker.js, que se pasa para no cargar MediaPipe aquí) que usan los
  * recortes y los puntos del overlay.
  */
 export function landmarks(geo, IDX) {

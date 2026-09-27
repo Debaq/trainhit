@@ -11,7 +11,7 @@ import { parametrosPulso, simulaCrudo } from '../js/simulacion.js';
 import { CORTE_S, HZ_CAMARA, Remuestreo, aMarco, leeGiro, marcoDesdeArriba, mensajeGiro } from '../js/giroscopio.js';
 import * as cara from '../js/cara.js';
 
-// Los índices de tracker.js, que no se puede importar acá (trae MediaPipe).
+// Los índices de tracker.js, que no se puede importar aquí (trae MediaPipe).
 const IDX = {
   derecho: { iris: 468, border: [469, 470, 471, 472], outer: 33, inner: 133 },
   izquierdo: { iris: 473, border: [474, 475, 476, 477], outer: 362, inner: 263 },

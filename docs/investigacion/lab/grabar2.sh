@@ -12,14 +12,14 @@ T0=$(date +%s.%N)
 fase() { echo "$1 $(echo "$(date +%s.%N) - $T0" | bc)" >> fases2.txt; }
 sleep 1.5
 di "Quieto, mirando la cámara."; fase quieto; sleep 4
-di "Asentí lento, mentón arriba y abajo, sin dejar de mirar la cámara."; fase cal_v; sleep 12
-di "Ahora girá lento a los lados, mirando la cámara."; fase cal_h; sleep 12
-di "Quieto. Estirá un brazo con el pulgar hacia arriba, justo debajo de la cámara, sin taparte la cara. Mirá la uña del pulgar."; fase pulgar; sleep 3
-di "Asentí lento moviendo la cabeza y el brazo juntos, como un solo bloque. Los ojos siempre en la uña."; fase vors_v; sleep 12
-di "Ahora girá lento a los lados, cabeza y brazo juntos, mirando la uña."; fase vors_h; sleep 12
+di "Asiente lento, mentón arriba y abajo, sin dejar de mirar la cámara."; fase cal_v; sleep 12
+di "Ahora gira lento a los lados, mirando la cámara."; fase cal_h; sleep 12
+di "Quieto. Estira un brazo con el pulgar hacia arriba, justo debajo de la cámara, sin taparte la cara. Mira la uña del pulgar."; fase pulgar; sleep 3
+di "Asiente lento moviendo la cabeza y el brazo juntos, como un solo bloque. Los ojos siempre en la uña."; fase vors_v; sleep 12
+di "Ahora gira lento a los lados, cabeza y brazo juntos, mirando la uña."; fase vors_h; sleep 12
 di "Ahora cabeceos cortos y más rápidos, cabeza y brazo juntos, mirando la uña."; fase vors_v_rapido; sleep 12
-di "Bajá el brazo y mirá la cámara."; fase quieto2; sleep 2
-di "Asentí lento otra vez, mirando la cámara."; fase cal_v2; sleep 10
+di "Baja el brazo y mira la cámara."; fase quieto2; sleep 2
+di "Asiente lento otra vez, mirando la cámara."; fase cal_v2; sleep 10
 fase fin; sleep 1; kill -INT $FF
 di "Listo, terminamos. Gracias."
 wait $FF || true

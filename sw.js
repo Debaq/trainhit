@@ -1,8 +1,8 @@
-// Service worker: que la página siga andando sin red.
+// Service worker: que la página siga funcionando sin red.
 //
 // Es una herramienta de aula, y en el aula el wifi falla. Lo que pesa —el
 // runtime de MediaPipe y el modelo, unos 10 MB— se guarda la primera vez y
-// después se sirve de acá aunque no haya red. Los archivos propios van con
+// después se sirve de aquí aunque no haya red. Los archivos propios van con
 // red primero: llevan `?v=…`, así que una versión nueva es una dirección
 // nueva y se baja sola; si no hay red, se sirve la copia guardada.
 //

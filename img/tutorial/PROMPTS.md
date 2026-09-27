@@ -7,7 +7,7 @@ sin imágenes: donde falta una muestra un recuadro con el nombre del archivo.
 `node img/tutorial/ilustraciones.mjs` con esta misma guía de estilo (plano,
 sin texto, azul la cabeza, naranja el ojo, verde bien, rojo mal). Cumplen su
 `alt` pero son esquemas. Los prompts de abajo siguen sirviendo para
-reemplazarlos por ilustraciones: se deja el `.webp` acá y se cambia la
+reemplazarlos por ilustraciones: se deja el `.webp` aquí y se cambia la
 extensión en `js/tutorial-pasos.js`.
 
 Las seis del paseo «Los canales verticales» (`verticales*.svg`) salen del
@@ -16,11 +16,11 @@ mismo script y no tienen prompt: son esquemas de anatomía y de geometría
 iris— donde un generador inventa justo lo que se enseña.
 
 Son **14 ilustraciones** para generar. Los tres gráficos de curvas
-(`ganancia.svg`, `sacadas.svg` y `patrones.svg`) **no** están acá: están
+(`ganancia.svg`, `sacadas.svg` y `patrones.svg`) **no** están aquí: están
 dibujados con `diagramas.mjs` a partir de curvas sintéticas, porque un
 generador de imágenes inventa la forma de las curvas, y la forma es justo lo
 que se enseña. Por la misma razón, en las ilustraciones 11, 12 y 14 los
-gráficos chicos son decorado: si el generador los dibuja raros, se tapan o se
+gráficos pequeños son decorado: si el generador los dibuja raros, se tapan o se
 simplifican, pero no se les pide una forma precisa.
 
 | # | Archivo | Paso | Se ve |
@@ -79,7 +79,7 @@ pantalla.
 - **Personas:** adultos, rasgos neutros, sin marcas ni logos. Variar entre
   imágenes edad, sexo y tono de piel. El paciente con ropa de calle; el
   examinador con camisa o ambo liso, sin estetoscopio (no es la escena).
-- **Equipos:** una laptop genérica, sin logo. Nada de gafas de vHIT: acá se
+- **Equipos:** una laptop genérica, sin logo. Nada de gafas de vHIT: aquí se
   mide sin gafas, con la cámara de la laptop.
 
 Bloque de estilo para pegar al final de cada prompt:
@@ -123,7 +123,7 @@ the webcam. Wide composition, everything in the horizontal middle band.
 
 **Tiene que mostrar:** una cabeza **vista desde arriba** (desde el techo)
 girando hacia un lado —flecha curva **azul** alrededor de la cabeza— y los dos
-ojos girando hacia el **lado contrario** —flechas curvas **naranjas** chicas—,
+ojos girando hacia el **lado contrario** —flechas curvas **naranjas** pequeñas—,
 con la línea de mirada recta y fija hacia un punto adelante. Opcional, sutil:
 el oído interno insinuado a los costados.
 
@@ -142,7 +142,7 @@ error más probable del generador y es todo el concepto.
 
 ## 3. `impulso.webp` — El impulso cefálico
 
-**Tiene que mostrar:** el examinador detrás, dando un giro **chico y rápido**
+**Tiene que mostrar:** el examinador detrás, dando un giro **pequeño y rápido**
 a la cabeza del paciente. El paciente mira fijo adelante. El movimiento
 sugerido con líneas de velocidad **azules** cortas, no con un giro grande.
 
@@ -319,7 +319,7 @@ hovers over the orange spike in the right panel. Flat, schematic, no axes labels
 **Tiene que mostrar:** tres tarjetas en fila, cada una con una **tilde verde**
 en la esquina, que resumen lo que hay que mirar: (1) dos **barras** —una
 **azul** alta y una **violeta** baja— contra una línea de corte punteada;
-(2) un gráfico chico con la curva naranja y una **sacada marcada con un
+(2) un gráfico pequeño con la curva naranja y una **sacada marcada con un
 triángulo violeta**; (3) una lista de renglones grises, casi todos con una
 **cruz roja** y pocos con **tilde verde**.
 
@@ -361,7 +361,7 @@ ojo real y no como un ojo deforme o con dos iris.
 **Tiene que mostrar:** un **paciente sintético**: una cabeza de frente
 dibujada **con puntos**, como hecha de datos, sin rasgos de una persona real,
 con los ojos **naranjas**. De la cabeza salen tres líneas grises que llegan a
-**tres paneles chicos** apilados, cada uno con un pulso: uno **normal**
+**tres paneles pequeños** apilados, cada uno con un pulso: uno **normal**
 (curvas superpuestas), uno con una **sacada manifiesta** (triángulo **rojo**
 después del pulso) y uno con una **encubierta** (triángulo **violeta** en el
 pulso).
@@ -382,7 +382,7 @@ marker.
 
 ## Después de agregarlas
 
-1. Copiar cada `.webp` acá con el nombre exacto de la tabla.
+1. Copiar cada `.webp` aquí con el nombre exacto de la tabla.
 2. Cambiar la extensión en `js/tutorial-pasos.js` (de `.svg` a `.webp`) de las
    que se reemplazaron.
 3. Abrir **Aprender** en la barra (o `T`) y pasar por los paseos: ningún paso

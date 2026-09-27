@@ -2,7 +2,7 @@
 //
 // La versión vive en el mapa de importación de index.html, que es el único
 // lugar donde tiene que estar: de ahí salen los `?v=` de todos los módulos.
-// Acá se la lee para ponérsela a la hoja de estilo y al módulo de entrada, y
+// Aquí se la lee para ponérsela a la hoja de estilo y al módulo de entrada, y
 // para mostrarla en la página. Se sube con `./bump.sh`.
 //
 // Es un script clásico aparte y no en línea porque la política de seguridad
@@ -28,7 +28,7 @@
   document.head.appendChild(hoja);
 
   // Un `<script type="module">` en línea lo prohíbe la CSP: se inserta desde
-  // acá, con su `?v=`. Sus imports internos pasan por el mapa.
+  // aquí, con su `?v=`. Sus imports internos pasan por el mapa.
   const entrada = document.createElement('script');
   entrada.type = 'module';
   entrada.src = `js/app.js?v=${V}`;

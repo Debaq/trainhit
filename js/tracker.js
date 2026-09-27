@@ -24,7 +24,7 @@ export const IDX = {
  * Baja el modelo con progreso, leyendo el cuerpo de a pedazos.
  *
  * MediaPipe sabe bajarlo solo con `modelAssetPath`, pero de esa descarga no
- * informa nada: son varios MB con la pantalla congelada. Bajándolo acá se
+ * informa nada: son varios MB con la pantalla congelada. Bajándolo aquí se
  * puede contar lo que va llegando y pasárselo ya resuelto en
  * `modelAssetBuffer`.
  *
@@ -107,7 +107,7 @@ export async function crearLandmarker({ gpu = true, onProgreso } = {}) {
  * Tope de cuadros por segundo. Es un LÍMITE PUESTO A PROPÓSITO, no técnico.
  *
  * trainHIT es didáctico. Un vHIT de gafas corre a más de 250 Hz y el remoto
- * comercial más lento a 100 fps: con una cámara rápida los números de acá
+ * comercial más lento a 100 fps: con una cámara rápida los números de aquí
  * empezarían a parecerse a los de un equipo clínico sin tener ni la
  * validación ni el control de la distancia al objetivo que eso exige. El tope
  * quedó DEBAJO del equipo comercial más lento a propósito: a 60 fps ningún

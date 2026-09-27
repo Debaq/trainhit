@@ -244,7 +244,7 @@ const imagenes = {};
   imagenes['vor.svg'] = svg(s, 'Cabeza vista desde arriba girando hacia un lado (flecha azul) y los ojos girando hacia el otro (flechas naranjas), con la línea de mirada fija sobre un blanco.');
 }
 
-// ── 3. impulso: el examinador detrás gira la cabeza un ángulo chico y rápido ──
+// ── 3. impulso: el examinador detrás gira la cabeza un ángulo pequeño y rápido ──
 {
   const blanco = [800, 100];
   let s = punto(...blanco, 16);
@@ -261,10 +261,10 @@ const imagenes = {};
   s += `<path d="M${cx + 260},${cy + 220}Q${cx + 300},${cy + 40} ${cx + 150},${cy - 20}" stroke="${ROPA[2]}" stroke-width="54" fill="none" stroke-linecap="round"/>`;
   s += mano(cx - 118, cy - 40, 65, PIEL[3], 0.95);
   s += mano(cx + 118, cy - 40, -65, PIEL[3], 0.95);
-  // giro chico y rápido: arco corto con líneas de velocidad
+  // giro pequeño y rápido: arco corto con líneas de velocidad
   s += flecha(arco(cx, cy - 40, 245, -4, 16), C.head, 16, 'pa');
   for (let i = 0; i < 3; i++) s += `<path d="${arco(cx, cy - 40, 275 + i * 24, -10 + i * 2, 2 + i)}" stroke="${C.head}" stroke-width="6" stroke-opacity="${0.55 - i * 0.15}" fill="none" stroke-linecap="round"/>`;
-  imagenes['impulso.svg'] = svg(s, 'Examinador detrás del paciente girando su cabeza un ángulo chico y rápido; el paciente mira fijo un punto al frente.');
+  imagenes['impulso.svg'] = svg(s, 'Examinador detrás del paciente girando su cabeza un ángulo pequeño y rápido; el paciente mira fijo un punto al frente.');
 }
 
 // ── 4. montaje: cámara a la altura de los ojos, a un brazo, luz de frente ──
@@ -377,7 +377,7 @@ function laptopFrente(cx, y, ancho = 520) {
   return { s, pantalla: [cx - ancho / 2 + 22, y + 30, ancho - 44, alto - 52] };
 }
 
-/** Un gráfico chico como los paneles de la app: cabeza azul y ojo naranja. */
+/** Un gráfico pequeño como los paneles de la app: cabeza azul y ojo naranja. */
 function panelito(x, y, w, h, ganOjo, { sacada = null, marca = null } = {}) {
   const t0 = -20;
   const t1 = 420;

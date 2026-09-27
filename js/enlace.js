@@ -1,6 +1,6 @@
 // Enlace teléfono–PC: el teléfono hace de cabeza y el PC muestra la cara
-// dibujada y mide. Viene de Labyrinthus 3D (js/enlace.js de allá), que es el
-// que tiene el servidor: trainHIT usa el mismo, así que acá no hay PHP.
+// dibujada y mide. Viene de Labyrinthus 3D (js/enlace.js de allí), que es el
+// que tiene el servidor: trainHIT usa el mismo, así que aquí no hay PHP.
 //
 // La presentación pasa por el PHP de señalización de Labyrinthus 3D (el que
 // diga <meta name="enlace-senal">): el PC abre una sala y recibe un código
@@ -250,7 +250,7 @@ export class Sala {
     if (estado !== 200) throw new Error(json.error ?? tx('el servidor respondió {estado}', { estado }));
   }
 
-  /** `paso(texto)` recibe en qué anda, para mostrarlo. */
+  /** `paso(texto)` recibe en qué funciona, para mostrarlo. */
   async conecta(paso = () => {}) {
     this.cancelada = false;
     const pc = new RTCPeerConnection({ iceServers: STUN });

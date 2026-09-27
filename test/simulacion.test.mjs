@@ -1,6 +1,6 @@
 // El paciente simulado tiene que mostrar lo que dice su perfil, y dejar el
 // lado sano como estaba: si no, el docente elige «neuritis izquierda» y el
-// alumno ve otra cosa. Los pulsos «reales» acá son los sintéticos sanos del
+// alumno ve otra cosa. Los pulsos «reales» aquí son los sintéticos sanos del
 // caso A, que hacen de compañero sano frente a la cámara.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';

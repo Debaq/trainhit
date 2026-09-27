@@ -61,7 +61,7 @@ Los paneles de cada lado se normalizan con el impulso **hacia arriba** y la
 traza ocular invertida, que es la convención clínica: con VOR normal las dos
 curvas se superponen y la separación entre ellas es el hallazgo.
 
-En pantallas chicas la cámara pasa a un cuadrito con los ojos al lado y los dos
+En pantallas pequeñas la cámara pasa a un cuadrito con los ojos al lado y los dos
 paneles quedan igual lado a lado. Con el teléfono de costado se vuelve a dos
 columnas —cámara y controles a la izquierda, los paneles ocupando el resto— y se
 recogen la lista de pulsos y las lecturas, que es lo que sobra cuando falta
@@ -89,7 +89,7 @@ para los estudiantes que visitan el laboratorio con hambre de conocimiento.
 
 Las fotos son las de sus perfiles de GitHub ([@Debaq](https://github.com/Debaq),
 [@vanne11](https://github.com/vanne11), [@FernandandreaTM](https://github.com/FernandandreaTM)), guardadas en `img/equipo/` a 96 px:
-así la tarjeta anda sin red, la CSP no tiene que abrirse a otro dominio y la
+así la tarjeta funciona sin red, la CSP no tiene que abrirse a otro dominio y la
 página no le pide nada a GitHub al abrir. Si alguien cambia su foto, hay que
 volver a bajarla.
 
@@ -168,7 +168,7 @@ idioma de la interfaz.
 
 Los PDF no van en el repo: son assets del release
 [`manual`](https://github.com/Debaq/trainhit/releases/tag/manual) de GitHub, y
-la página los enlaza ahí (`MANUAL_URL` en `js/app.js`), así que el enlace anda
+la página los enlaza ahí (`MANUAL_URL` en `js/app.js`), así que el enlace funciona
 aunque la página se sirva desde otro servidor. El Markdown es la fuente; los
 PDF se regeneran con `python3 docs/manual/generar-pdf.py` (hace falta
 `markdown` y `weasyprint`) y se publican con

@@ -16,7 +16,7 @@
 //
 // Las dos alternativas obvias erran, y erran en sentidos opuestos.
 //
-// Aparte se acumula la rotación INCREMENTAL: los incrementos son chicos, así
+// Aparte se acumula la rotación INCREMENTAL: los incrementos son pequeños, así
 // que no hay límite de ±180 que cruzar ni ángulo que desenrollar.
 
 const deg = (r) => (r * 180) / Math.PI;
@@ -167,7 +167,7 @@ export class HeadTracker {
 /** Incremento de rotación entre dos orientaciones, proyectado sobre `axis`. */
 export function deltaDeg(previous, current, axis) {
   let d = quatMul(current, quatInverse(previous));
-  // q y -q son la misma rotación: se elige la de ángulo chico para no tomar el
+  // q y -q son la misma rotación: se elige la de ángulo pequeño para no tomar el
   // giro largo.
   if (d[3] < 0) d = d.map((c) => -c);
   const sin = Math.hypot(d[0], d[1], d[2]);

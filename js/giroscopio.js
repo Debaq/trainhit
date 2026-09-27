@@ -5,10 +5,10 @@
 // marco de la cabeza y da el yaw: el giro alrededor del eje vertical PROPIO
 // de la cabeza, el del canal lateral (ver head.js). La cuenta del marco y el
 // orden de los ejes viene de Labyrinthus 3D (js/canales.js y laberinto.js de
-// allá), donde el teléfono ya hacía de cabeza: la pantalla es la cara del
+// allí), donde el teléfono ya hacía de cabeza: la pantalla es la cara del
 // paciente y mira hacia quien lo sostiene, así que girar el teléfono hacia la
 // derecha de quien examina es girar la cabeza a la izquierda del paciente,
-// que es yaw positivo acá.
+// que es yaw positivo aquí.
 //
 // En el PC, `Remuestreo` pasa los eventos del teléfono —a 50, 100 o 200 Hz
 // según el aparato, y con los que se pierden en el camino— a cuadros parejos
@@ -179,7 +179,7 @@ export class SensorCabeza {
    * Pide el permiso (iOS lo exige, dentro del toque) y empieza a escuchar.
    * Falla con un mensaje si no hay permiso o no hay giroscopio.
    */
-  async prende() {
+  async enciende() {
     // Los dos pedidos salen juntos, dentro del mismo toque: iOS los rechaza
     // si el segundo espera al primero y el gesto ya pasó.
     const pedidos = [window.DeviceMotionEvent, window.DeviceOrientationEvent]
@@ -248,7 +248,7 @@ export class SensorCabeza {
 
 /**
  * Tipo del mensaje de la cabeza. Distinto del 1 de Labyrinthus 3D, que manda
- * la orientación entera: un teléfono de allá que llegara acá no se confunde.
+ * la orientación entera: un teléfono de allí que llegara aquí no se confunde.
  */
 export const MENSAJE_GIRO = 2;
 

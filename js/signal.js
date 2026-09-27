@@ -4,11 +4,11 @@
 // Derivar con (a - prev)/dt usando el reloj del bucle tiene dos problemas:
 //
 // 1. Un derivador puro amplifica el ruido del landmark linealmente con la
-//    frecuencia, y el ruido de MediaPipe en el centro del iris no es chico.
+//    frecuencia, y el ruido de MediaPipe en el centro del iris no es pequeño.
 // 2. El dt del bucle incluye el jitter de captura e inferencia, que no tiene
 //    nada que ver con cuándo se tomó realmente el frame.
 //
-// Acá se ajusta un polinomio por mínimos cuadrados sobre una ventana temporal y
+// Aquí se ajusta un polinomio por mínimos cuadrados sobre una ventana temporal y
 // se evalúan p y p' en el instante de interés: un Savitzky-Golay generalizado a
 // muestreo NO uniforme. Con los timestamps reales de cada frame, el jitter deja
 // de ser ruido y pasa a ser información sobre dónde cae cada punto.
@@ -67,7 +67,7 @@ export function lsqFit(pts, tEval, degree) {
   return { value: coeffs[0], slope: coeffs[1] / scale, rms: Math.sqrt(sq / pts.length) };
 }
 
-/** Eliminación gaussiana con pivoteo parcial, para sistemas chicos (m <= 4). */
+/** Eliminación gaussiana con pivoteo parcial, para sistemas pequeños (m <= 4). */
 function solveDense(a, b, m) {
   for (let col = 0; col < m; col++) {
     let pivot = col;

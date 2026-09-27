@@ -504,7 +504,7 @@ export const TEXTO = {
   // ── tablas de los módulos del motor (las revisa test/idioma.test.mjs) ──
   // RECHAZO_TEXT, analysis.js
   'CARA PERDIDA — quedarse en el encuadre': 'FACE LOST — stay in the frame',
-  'IRIS MUY CHICO — acercarse a la cámara': 'IRIS TOO SMALL — move closer to the camera',
+  'IRIS MUY PEQUEÑO — acercarse a la cámara': 'IRIS TOO SMALL — move closer to the camera',
   'MUY LENTO — impulso más fuerte': 'TOO SLOW — stronger impulse',
   'MUY RÁPIDO': 'TOO FAST',
   'MUY CORTO': 'TOO SHORT',

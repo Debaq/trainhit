@@ -101,7 +101,7 @@ test('las perillas hacen con los ejemplos lo que dicen los paseos', () => {
 });
 
 test('la perilla de parpadeo se recalcula sobre pulsos ya medidos', () => {
-  // «Probá subirlo a 0,90 y recalculá: el pulso con parpadeo pasa a aceptado».
+  // «Prueba subirlo a 0,90 y recalcula: el pulso con parpadeo pasa a aceptado».
   assert.ok(ejemplos().some((t) => t.rejected === 'parpadeo'));
   assert.ok(!ejemplos({ ...CONFIG, blinkScore: 0.9 }).some((t) => t.rejected === 'parpadeo'));
 });

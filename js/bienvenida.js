@@ -89,7 +89,7 @@ export function montaBienvenida() {
     .then((v) => (cuenta.textContent = v))
     .catch(() => (cuenta.textContent = '—'));
 
-  // «Ver el tutorial» lo cablea app.js, que es quien tiene el tutorial: acá
+  // «Ver el tutorial» lo cablea app.js, que es quien tiene el tutorial: aquí
   // solo se ofrece cerrar la bienvenida sin robarle el foco.
   const api = { abrir, cierra: () => abrir(false, { foco: false }) };
 

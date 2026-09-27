@@ -1,16 +1,16 @@
 // El teléfono como cabeza: el diálogo del enlace, en el PC y en el teléfono.
 //
 // El PC muestra un QR; el teléfono lo escanea, llega con `?cabeza=código`,
-// prende el giroscopio (giroscopio.js) y manda cada evento. El PC los pasa a
+// enciende el giroscopio (giroscopio.js) y manda cada evento. El PC los pasa a
 // app.js, que dibuja la cara (cara.js) y corre el motor. La conexión es la de
-// Labyrinthus 3D (enlace.js), y este ciclo de vida también viene de allá
+// Labyrinthus 3D (enlace.js), y este ciclo de vida también viene de allí
 // (laberinto.js): el ENLACE dura más que una conexión. Si la conexión se cae
 // —el teléfono se durmió, se cortó el wifi—, el PC reabre la misma sala y el
 // teléfono vuelve a entrar con el mismo código, solos, hasta que alguien
 // aprieta «Terminar». Para que no se caiga, el teléfono pide que la pantalla
 // no se apague (Wake Lock).
 //
-// El QR viejo del Laberinto, que llegaba acá con `?enlace=`, sigue yendo a
+// El QR viejo del Laberinto, que llegaba aquí con `?enlace=`, sigue yendo a
 // Labyrinthus 3D (app.js): por eso este usa otro nombre.
 
 import { Sala, uneSala } from './enlace.js';
@@ -34,7 +34,7 @@ export function codigoDeCabeza() {
 
 /**
  * Monta el diálogo. Lo que pasa en el PC se avisa a app.js:
- *   - `alEntrar()`: se abrió una sala; desde acá la pantalla es la cara.
+ *   - `alEntrar()`: se abrió una sala; desde aquí la pantalla es la cara.
  *   - `alGiro(tMs, yaw)`: un evento del teléfono.
  *   - `alSalir()`: se terminó el enlace.
  *   - `alCambiar()`: cambió el estado (para la barra).
@@ -166,7 +166,7 @@ export function montaTelefono({ alEntrar, alGiro, alSalir, alCambiar }) {
     // Primero los sensores: el permiso de iOS pide que sea dentro del toque.
     estadoEnlace(tx('Encendiendo el giroscopio…'));
     try {
-      await sensor.prende();
+      await sensor.enciende();
     } catch (e) {
       estadoEnlace(
         e.message === 'sin giroscopio'

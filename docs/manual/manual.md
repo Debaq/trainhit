@@ -28,7 +28,7 @@ Laboratorio TecMedHub · Universidad Austral de Chile, Sede Puerto Montt
 - [10. Casos a ciegas](#10-casos-a-ciegas)
 - [11. Paciente simulado](#11-paciente-simulado)
 - [12. Guardar y compartir datos](#12-guardar-y-compartir-datos)
-- [13. Idioma, pantallas chicas y uso sin red](#13-idioma-pantallas-chicas-y-uso-sin-red)
+- [13. Idioma, pantallas pequeñas y uso sin red](#13-idioma-pantallas-pequenas-y-uso-sin-red)
 - [14. Atajos de teclado](#14-atajos-de-teclado)
 - [15. Problemas frecuentes](#15-problemas-frecuentes)
 
@@ -108,7 +108,7 @@ doble clic no funciona, porque el navegador no da la cámara a un archivo local.
 
 La primera vez se baja el modelo de seguimiento de caras (unos 10 MB). Después
 queda guardado y la página funciona **sin red** (ver la
-[sección 13](#13-idioma-pantallas-chicas-y-uso-sin-red)).
+[sección 13](#13-idioma-pantallas-pequenas-y-uso-sin-red)).
 
 ### La bienvenida
 
@@ -176,7 +176,7 @@ Una buena medición depende más del montaje que del software.
 - La cámara **a la altura de los ojos**, con la cara de frente y centrada.
 - **A un brazo de distancia**, lo justo para que el iris se vea nítido en los
   ojos ampliados. Si queda muy lejos, el pulso sale rechazado por *IRIS MUY
-  CHICO*.
+  PEQUEÑO*.
 - Luz **de frente** o de costado. **Nunca una ventana detrás del paciente**:
   la cara queda en sombra y el modelo la pierde.
 - **Sin anteojos** si se puede, porque los reflejos tapan el iris.
@@ -292,7 +292,7 @@ el motivo. Los rechazados **no entran en la media**.
 | *MUY RÁPIDO* | Un impulso más suave; pasó el pico máximo. |
 | *PARPADEO en la ventana* | Repetirlo con los ojos abiertos. |
 | *CARA PERDIDA* | Quedarse en el encuadre y sacar las manos de la cara. |
-| *IRIS MUY CHICO* | Acercarse a la cámara o mejorar la luz. |
+| *IRIS MUY PEQUEÑO* | Acercarse a la cámara o mejorar la luz. |
 
 Un pulso medido **sin calibrar** sale marcado **s/c** y con la ganancia
 tachada: sirve para ver la forma, no el número.
@@ -530,7 +530,7 @@ Mientras alguna perilla no está en su valor de fábrica, la barra dice
 | **Umbral inicio / fin** | 60 / 40 °/s | Dónde empieza y termina el impulso, o sea la ventana sobre la que se calcula la ganancia. | Muévelos y mira **Último pulso**. |
 | **Pico mín / máx** | 120 / 300 °/s | Criterio para aceptar un pulso. No cambia ninguna ganancia; decide cuáles entran en la media. | Baja el mínimo a 80: el pulso lento del ejemplo pasa a aceptado. |
 | **Duración mín / máx** | 80 / 300 ms | Igual que el pico, pero con la duración. | — |
-| **Parpadeo** | 0,45 | Qué tan cerrado tiene que estar el ojo (0 abierto, 1 cerrado) para contar como parpadeo. | Subilo a 0,90: el pulso con parpadeo pasa a aceptado, con una ganancia calculada con el ojo cerrado. |
+| **Parpadeo** | 0,45 | Qué tan cerrado tiene que estar el ojo (0 abierto, 1 cerrado) para contar como parpadeo. | Súbelo a 0,90: el pulso con parpadeo pasa a aceptado, con una ganancia calculada con el ojo cerrado. |
 | **Iris mín** | 5 px | Radio del iris por debajo del cual se rechaza el pulso. | — |
 
 > El método es mover **una** perilla, recalcular, mirar qué cambió y volverla a
@@ -712,7 +712,7 @@ video, ni las mediciones, ni nada de la sesión. Hay un voto por navegador.
 
 ---
 
-## 13. Idioma, pantallas chicas y uso sin red
+## 13. Idioma, pantallas pequeñas y uso sin red
 
 ### Idioma
 
@@ -726,9 +726,9 @@ la sesión.
 
 ![La interfaz en inglés](img/25-ingles.png)
 
-### Pantallas chicas
+### Pantallas pequeñas
 
-En un teléfono, la cámara pasa a un cuadro chico con los ojos al lado. Con el
+En un teléfono, la cámara pasa a un cuadro pequeño con los ojos al lado. Con el
 teléfono de costado, la pantalla vuelve a dos columnas.
 
 ![En un teléfono, vertical](img/26-movil.png)
@@ -768,7 +768,7 @@ para el aula, donde el wifi falla.
 | La calibración sale rechazada | Girar más lento, sin soltar la mirada del punto rojo, y con un arco de ±20°. |
 | Todos los pulsos *MUY LENTO* | Los impulsos tienen que ser más rápidos: un giro corto y seco. |
 | Muchos *CARA PERDIDA* | Las manos tapan cejas o pómulos: toma la cabeza más arriba. |
-| *IRIS MUY CHICO* | El paciente está lejos o la cámara tiene poca resolución. Acércalo. |
+| *IRIS MUY PEQUEÑO* | El paciente está lejos o la cámara tiene poca resolución. Acércalo. |
 | Ganancias cerca de 1,9 | Falta calibrar (la barra dice **SIN CALIBRAR**), o quedó **k a mano** en 0. |
 | Ganancias mayores que 1 | Una sacada encubierta dentro del impulso infla la ganancia (ver el caso D). También pasa con impulsos que hace el propio paciente. |
 | La barra dice **PERILLAS CAMBIADAS** | Hay perillas fuera de su valor de fábrica. Herramientas › **Valores por defecto**. |
@@ -1067,7 +1067,7 @@ La llena el observador de la actividad 19.4, o el docente.
 
 > **El cuello del compañero es real.** Antes de dar impulsos, preguntar si
 > tiene alguna lesión, dolor o cirugía cervical, o vértigo en ese momento: en
-> ese caso no hace de paciente. Los impulsos son **chicos (10–20°)**, nunca
+> ese caso no hace de paciente. Los impulsos son **pequeños (10–20°)**, nunca
 > hasta el tope del giro, y se detienen si el paciente siente molestia.
 
 - **Es para aprender, no para diagnosticar.** Si un estudiante ve algo que le
@@ -1089,7 +1089,7 @@ La llena el observador de la actividad 19.4, o el docente.
 | Término | Significado |
 |---|---|
 | **VOR** | Reflejo vestíbulo-ocular: mueve los ojos al revés que la cabeza y a la misma velocidad, para que la mirada quede quieta. |
-| **Impulso cefálico** | Un giro de cabeza chico, rápido e impredecible, dado por el examinador. |
+| **Impulso cefálico** | Un giro de cabeza pequeño, rápido e impredecible, dado por el examinador. |
 | **Ganancia** | Cuánto giró el ojo por cada grado que giró la cabeza. 1 es compensación perfecta. |
 | **Sacada correctiva** | El salto rápido con que el ojo vuelve al blanco cuando el reflejo no alcanzó. |
 | **Encubierta / manifiesta** | La sacada que ocurre durante el giro / después del giro. |

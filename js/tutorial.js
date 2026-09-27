@@ -311,7 +311,7 @@ export function montaTutorial({ condiciones, acciones, instantanea = () => ({}),
   $('tuto-salir').addEventListener('click', cierra);
   raiz.querySelector('.tuto-fondo').addEventListener('click', cierra);
   window.addEventListener('resize', () => !raiz.hidden && actualiza());
-  // El scroll de la página mueve el objetivo; `capture` agarra también el de
+  // El scroll de la página mueve el objetivo; `capture` captura también el de
   // los contenedores con scroll propio (el cajón, las listas).
   document.addEventListener('scroll', () => !raiz.hidden && actualiza(), { capture: true, passive: true });
   // Abierto, se reescribe en el idioma nuevo sin moverse del paso. Una

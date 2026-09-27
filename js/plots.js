@@ -1,6 +1,6 @@
 // Gráficos en canvas. Nada de librerías.
 //
-// Los colores NO se escriben acá: salen de las fichas de `css/estilo.css`,
+// Los colores NO se escriben aquí: salen de las fichas de `css/estilo.css`,
 // que es donde vive la paleta de los dos temas. `leePaleta` las lee y llena
 // `COLOR`; los valores de abajo son los del tema oscuro, para lo que corre sin
 // página (los tests en node) o antes de la primera lectura.
@@ -69,7 +69,7 @@ const FICHAS = {
  * el tema; después hay que redibujar.
  *
  * No alcanza con `getPropertyValue('--c-head')`: una ficha sin registrar se
- * devuelve como está escrita, y acá están escritas como `light-dark(…)` o
+ * devuelve como está escrita, y aquí están escritas como `light-dark(…)` o
  * `color-mix(…)`, que el canvas no entiende. Se las hace resolver al
  * navegador poniéndolas de `color` de un elemento de prueba: el color
  * computado sale siempre como `rgb(…)`, ya con el tema que corresponde.
@@ -119,7 +119,7 @@ export function prepara(canvas) {
  * Marcas en valores REDONDOS, no en fracciones del rango.
  *
  * Repartir el rango en N partes iguales da ejes rotulados «-3.8, 98, 199»:
- * números que nadie usa para leer un gráfico. Acá el paso se elige entre
+ * números que nadie usa para leer un gráfico. Aquí el paso se elige entre
  * 1, 2 y 5 por la potencia de diez que corresponda.
  */
 function niceTicks(min, max, objetivo) {
@@ -284,7 +284,7 @@ function vacio(ctx, w, h, txt, color = COLOR.muted) {
  * Integrar velocidad da DESPLAZAMIENTO: el área bajo la traza de cabeza entre
  * dos instantes son los grados que giró la cabeza en ese tramo, y lo mismo
  * para el ojo. El cociente de las dos áreas es la ganancia de ESE tramo, que
- * es la misma cuenta que hace el motor sobre la ventana del impulso —acá con
+ * es la misma cuenta que hace el motor sobre la ventana del impulso —aquí con
  * la ventana que uno elija con el cursor—.
  *
  * Los extremos se interpolan: si el cursor cae entre dos muestras, el área no
@@ -397,7 +397,7 @@ function enMuestras(samples, t, campo) {
 /**
  * Pasa una posición del puntero a milisegundos del pulso.
  *
- * Igual que `tiempoEnVivo`, vive acá porque depende del `pad` y del rango.
+ * Igual que `tiempoEnVivo`, vive aquí porque depende del `pad` y del rango.
  */
 export function tiempoEnPulso(canvas, clientX, { x0, x1 }) {
   const pad = { l: 36, r: 6 };
@@ -411,7 +411,7 @@ export function tiempoEnPulso(canvas, clientX, { x0, x1 }) {
 /**
  * Cursor de medición: lee valores sobre una traza quieta.
  *
- * Es la herramienta que falta cuando alguien pregunta «¿cuánto vale acá?».
+ * Es la herramienta que falta cuando alguien pregunta «¿cuánto vale aquí?».
  * Sin esto solo se puede estimar a ojo contra la grilla, y la separación entre
  * cabeza y ojo —que es EL hallazgo— es justo lo que hay que poder medir.
  *
@@ -495,7 +495,7 @@ function cursorMedicion(ctx, w, h, pad, { px, py, x0, x1 }, med, series, unidadX
     colores.push(s.color);
   }
   // Ganancia del tramo: cociente de las áreas, la misma cuenta que hace el
-  // motor sobre la ventana del impulso, acá sobre la ventana elegida.
+  // motor sobre la ventana del impulso, aquí sobre la ventana elegida.
   const cab = vals.find((s) => s.ganancia === 'cabeza');
   const ojo = vals.find((s) => s.ganancia === 'ojo');
   if (cab?.area && ojo?.area && Math.abs(cab.area) > 1e-9) {
@@ -595,7 +595,7 @@ export function trazaViva(canvas, muestras, { segundos = SEGUNDOS_VIVO, escala =
 /**
  * Pasa una posición del puntero a coordenadas del gráfico en vivo.
  *
- * Vive acá porque depende del `pad` y del rango del eje, que son de este
+ * Vive aquí porque depende del `pad` y del rango del eje, que son de este
  * módulo: si el gráfico cambia de márgenes, el cursor no se despega.
  */
 export function tiempoEnVivo(canvas, clientX, { segundos = SEGUNDOS_VIVO } = {}) {
@@ -612,7 +612,7 @@ export function tiempoEnVivo(canvas, clientX, { segundos = SEGUNDOS_VIVO } = {})
  *
  * Solo aparece cuando el pulso se muestreó por encima del umbral de validez
  * (ver `FPS_VALIDADO` en analysis.js). En uso normal NO se dibuja nada: el
- * estudiante ve el gráfico limpio. Va acá adentro, en el mismo paso que dibuja
+ * estudiante ve el gráfico limpio. Va aquí adentro, en el mismo paso que dibuja
  * las trazas, y no como un cartel aparte en la interfaz, para que el resultado
  * y su rótulo viajen juntos —una captura de pantalla del gráfico se lleva la
  * marca puesta—.
@@ -716,7 +716,7 @@ export function velOjo(s) {
  *
  * Escalar por `peakHeadDegS` deja fuera la traza ocular y las sacádicas, que
  * suelen superar el pico de cabeza: la curva se iba contra el borde superior y
- * el recorte la cortaba. Acá se mide el máximo real de las dos series ya
+ * el recorte la cortaba. Aquí se mide el máximo real de las dos series ya
  * volteadas, se le suma aire y se redondea a múltiplos de 50.
  */
 function rangoPulsos(trials, flip, { minTop = 250, pisoRel = 0.35 } = {}) {
@@ -805,7 +805,7 @@ export function overlayLado(canvas, trials, side, cfg, seleccion, { promedio = f
   }
 
   // Banda de velocidad de pico aceptada, del lado donde cae el impulso
-  // dibujado. Ver `signoBanda`: equivocarse acá la pone enfrente del pulso.
+  // dibujado. Ver `signoBanda`: equivocarse aquí la pone enfrente del pulso.
   const banda = signoBanda(side);
   const bMax = py(cfg.accept.peakMaxDegS * banda);
   const bMin = py(cfg.accept.peakMinDegS * banda);
