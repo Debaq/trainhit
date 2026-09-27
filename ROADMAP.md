@@ -7,7 +7,8 @@ y qué hace el ojo. No usa la webcam: se mueve con mouse, dedo o el giroscopio
 del teléfono. Los detalles de cómo funciona están en el README, sección
 «Laberinto 3D».
 
-Rama: `feat/laberinto-3d`.
+Rama: `main` (se trabajó en `feat/laberinto-3d` y se unió el 2026-09-27).
+Publicado en https://tecmedhub.org/trainhit/.
 
 ## Hecho
 
@@ -73,7 +74,8 @@ Rama: `feat/laberinto-3d`.
   apague (Wake Lock).
 - «Centrar» en el PC recentra también el teléfono.
 - Probado con dos pestañas contra el PHP local, incluido cortar la conexión y
-  reengancharse.
+  reengancharse, y **con éxito con un teléfono y un PC reales** en
+  tecmedhub.org el 2026-09-27.
 
 ### Patología (`js/patologia.js`)
 
@@ -92,6 +94,9 @@ Rama: `feat/laberinto-3d`.
   era.
 - Ojos de cerca: cámara pegada a la cabeza, como un video-oculógrafo, con la
   traza horizontal, vertical y torsional.
+- Con la cabeza quieta en otra postura más de 1 s, los ojos vuelven a mirar al
+  frente con una sacada, como una persona; antes quedaban pegados mirando el
+  blanco viejo.
 - Canales enfermos en amarillo verdoso.
 
 ### Calidad
@@ -102,8 +107,9 @@ Rama: `feat/laberinto-3d`.
 
 ## Falta probar
 
-- El enlace con un teléfono y un PC de verdad, con el PHP subido a
-  tecmedhub.org, y la reconexión después de dormir el teléfono.
+- La reconexión después de dormir el teléfono, con aparatos reales.
+- Que los ojos ya no se queden pegados (vuelven al frente con la cabeza quieta
+  más de 1 s), con el teléfono como cabeza.
 
 - El diente de sierra del nistagmo y las sacadas en pantalla, a velocidad
   normal (los tests del modelo los cubren).
