@@ -36,6 +36,11 @@
 // El anterior, el lateral y el utrículo van por la rama superior del nervio;
 // el posterior y el sáculo, por la inferior: por eso la neuritis superior deja
 // el posterior y el cVEMP, y la inferior deja el oVEMP.
+// El flóculo (cerebelo) de cada lado recibe la visión —si hay un blanco que
+// fijar— e inhibe los núcleos vestibulares de su lado: con la mirada fija,
+// frena el desequilibrio de reposo que da el nistagmo espontáneo. Por eso lo
+// periférico se frena al fijar y, con el flóculo lesionado, no (el OFI).
+//
 // Las proyecciones inhibidoras (al mismo lado) no se dibujan, para que se lea
 // el camino; su efecto está en las tasas, que trabajan en empuje-tracción.
 //
@@ -56,7 +61,7 @@
 
 import { CANAL, CANALES, TASA_MAX, TASA_REPOSO, activacion, qInv, qMul } from './canales.js';
 import { OTOLITO, OTOLITOS, nucleosOtolitos } from './otolitos.js';
-import { PARES } from './patologia.js';
+import { FLOCULOS, PARES } from './patologia.js';
 import { tx } from './idioma.js';
 
 const otro = (lado) => (lado === 'izq' ? 'der' : 'izq');
@@ -107,6 +112,9 @@ export function musculosDe(id) {
   });
 }
 
+/** Cuánto suma al flóculo cada espiga/s que un lado le lleva de ventaja al otro en reposo. */
+const K_FLOCULO = 2;
+
 /** Cuánto suma a la motoneurona cada grado del ojo en la órbita y cada °/s. */
 const K_POSICION = 2;
 const K_VELOCIDAD = 1;
@@ -152,7 +160,7 @@ export function vectorRotacion(q) {
  * @param compensado  si la lesión está compensada en los núcleos
  * @returns {{ aferente, nucleo, motor }}, cada uno por id de canal
  */
-export function actividad(r, posOjo, velOjo, { compensado = true } = {}) {
+export function actividad(r, posOjo, velOjo, { compensado = true, fijacion = false, f = null } = {}) {
   const aferente = {};
   const nucleo = {};
   const motor = {};
@@ -176,6 +184,20 @@ export function actividad(r, posOjo, velOjo, { compensado = true } = {}) {
       nucleo[o.id] = acota(n[o.id]);
       if (o.tipo === 'saculo') motor[o.id] = nucleo[o.id];
     }
+  }
+  // El flóculo: le llega la visión si hay un blanco que fijar, y con ella
+  // frena lo que un lado de los núcleos le lleva al otro EN REPOSO —el
+  // desequilibrio que da el nistagmo espontáneo—, no lo que cambia al girar.
+  const reposo = { izq: 0, der: 0 };
+  for (const c of CANALES) {
+    const fc = r[c.id].f;
+    reposo[c.lado] += (fc + (compensado ? 1 - fc : 0)) * TASA_REPOSO;
+  }
+  for (const lado of ['izq', 'der']) {
+    const id = `floculo_${lado}`;
+    const exceso = Math.max(0, (reposo[lado] - reposo[otro(lado)]) / 3);
+    aferente[id] = fijacion ? TASA_REPOSO : 0;
+    nucleo[id] = acota((f?.[id] ?? 1) * (TASA_REPOSO + (fijacion ? K_FLOCULO * exceso : 0)));
   }
   return { aferente, nucleo, motor };
 }
@@ -216,6 +238,21 @@ const NUCLEOS = {
   VI: { u: 13, y: 62, w: 8, h: 6 },
   NV: { u: 25, y: 75, w: 22, h: 8 },
 };
+/** El flóculo, afuera y arriba de los núcleos vestibulares. */
+const FLOCULO = { u: 39, y: 63, w: 11, h: 5 };
+
+/**
+ * Los tramos del flóculo de un lado: la visión que le llega (con un blanco que
+ * fijar) y su salida, que inhibe los núcleos vestibulares de su lado.
+ */
+export function tramosFloculo(lado) {
+  const out = [
+    { tasa: 'aferente', puntos: [P(lado, 46, 54), P(lado, 43, 60.5)] },
+    { tasa: 'nucleo', puntos: [P(lado, 35, 65.5), P(lado, 31.5, 70.6)], inhibe: true },
+  ];
+  for (const s of out) s.largo = largo(s.puntos);
+  return out;
+}
 /** Por dónde entra y sale cada órgano de los núcleos vestibulares. */
 const U_NV = { utriculo: 16, anterior: 20, lateral: 25, posterior: 30, saculo: 34 };
 /** Dónde va cada órgano abajo: los de la rama superior adentro, los de la inferior afuera. */
@@ -360,6 +397,23 @@ function colorTasa(t) {
   return mezcla(GRIS, a >= 0 ? ROJO : AZUL, Math.sqrt(Math.abs(a)));
 }
 
+/** La marca de una lesión: una cruz si está muerto, una barra si funciona a medias. */
+function marcaLesion(ctx, x, y, d, muerto, grosor) {
+  ctx.strokeStyle = COLOR_LESION;
+  ctx.lineWidth = grosor;
+  ctx.beginPath();
+  if (muerto) {
+    ctx.moveTo(x - d, y - d);
+    ctx.lineTo(x + d, y + d);
+    ctx.moveTo(x + d, y - d);
+    ctx.lineTo(x - d, y + d);
+  } else {
+    ctx.moveTo(x - d, y + d);
+    ctx.lineTo(x + d, y - d);
+  }
+  ctx.stroke();
+}
+
 /**
  * El dibujo animado. Guarda los puntos que corren por cada tramo; `dibuja`
  * los avanza `dt` segundos de pantalla —no de física: en cámara lenta los
@@ -368,7 +422,9 @@ function colorTasa(t) {
 export class DibujoVia {
   constructor() {
     this.tramos = Object.fromEntries(
-      ORGANOS_VIA.map((id) => [id, tramos(id).map((s) => ({ ...s, espigas: [], fase: Math.random() }))]),
+      [...ORGANOS_VIA.map((id) => [id, tramos(id)]), ...FLOCULOS.map((id) => [id, tramosFloculo(id.slice(-3))])].map(
+        ([id, ts]) => [id, ts.map((s) => ({ ...s, espigas: [], fase: Math.random() }))],
+      ),
     );
   }
 
@@ -414,9 +470,11 @@ export class DibujoVia {
 
     // Tramos, con sus puntos.
     const rPunto = Math.max(1.7 * escala, 0.55 * k);
-    for (const id of ORGANOS_VIA) {
+    // El flóculo se ve con cualquier filtro: frena a todos los planos.
+    for (const id of [...ORGANOS_VIA, ...FLOCULOS]) {
       for (const s of this.tramos[id]) {
-        if (!(s.tasa === 'motor' ? motores.has(id) : visibles.has(id))) continue;
+        const vis = FLOCULOS.includes(id) || (s.tasa === 'motor' ? motores.has(id) : visibles.has(id));
+        if (!vis) continue;
         const tasa = ciego ? TASA_REPOSO : act[s.tasa][id];
         const color = ciego ? GRIS : colorTasa(tasa);
         const callado = !ciego && tasa < 3;
@@ -427,6 +485,16 @@ export class DibujoVia {
         s.puntos.forEach((p, i) => (i ? ctx.lineTo(...X(p)) : ctx.moveTo(...X(p))));
         ctx.stroke();
         ctx.setLineDash([]);
+        // Una salida inhibidora termina en una barra, no en punta.
+        if (s.inhibe) {
+          const [a, b] = s.puntos.slice(-2).map(X);
+          const l = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
+          const [nx, ny] = [(-(b[1] - a[1]) / l) * 1.6 * k, ((b[0] - a[0]) / l) * 1.6 * k];
+          ctx.beginPath();
+          ctx.moveTo(b[0] - nx, b[1] - ny);
+          ctx.lineTo(b[0] + nx, b[1] + ny);
+          ctx.stroke();
+        }
         const punto = estiloPunto(ciego ? 0 : activacion(tasa));
         this.avanza(s, ciego ? 0 : tasa, punto.vel, dt);
         ctx.fillStyle = rgb(punto.color, punto.alfa);
@@ -461,6 +529,27 @@ export class DibujoVia {
           ctx.fillText(tx('núcleos'), cx, cy - 1.5 * k);
           ctx.fillText(tx('vestibulares'), cx, cy + 1.5 * k);
         } else ctx.fillText(nombre, cx, cy);
+      }
+      // El flóculo, con su lesión si la hay.
+      {
+        const [cx, cy] = X(P(lado, FLOCULO.u, FLOCULO.y));
+        const bw = FLOCULO.w * k;
+        const bh = FLOCULO.h * k;
+        ctx.fillStyle = 'rgba(24,24,27,0.82)';
+        ctx.strokeStyle = '#52525b';
+        ctx.lineWidth = 1 * escala;
+        ctx.beginPath();
+        ctx.roundRect(cx - bw / 2, cy - bh / 2, bw, bh, 1.2 * k);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#a1a1aa';
+        ctx.font = letra(2.3, 600);
+        ctx.fillText(tx('flóculo'), cx, cy);
+        ctx.fillStyle = '#71717a';
+        ctx.font = letra(2.1);
+        ctx.fillText(tx('fijación'), ...X(P(lado, 45.5, 51.5)));
+        const fl = f[`floculo_${lado}`] ?? 1;
+        if (!ciego && fl < 1) marcaLesion(ctx, cx, cy, 1.8 * k, fl === 0, Math.max(2.5 * escala, 0.8 * k));
       }
       ctx.fillStyle = '#71717a';
       ctx.font = letra(2.2);
@@ -501,20 +590,7 @@ export class DibujoVia {
         const a = P(c.lado, U_ORGANO[c.tipo], Y_CANAL - 3);
         const b = P(c.lado, nervio.u, nervio.y);
         const [mx, my] = X([a[0] + (b[0] - a[0]) * 0.6, a[1] + (b[1] - a[1]) * 0.6]);
-        ctx.strokeStyle = COLOR_LESION;
-        ctx.lineWidth = Math.max(2.5 * escala, 0.8 * k);
-        const d = 1.8 * k;
-        ctx.beginPath();
-        if (f[id] === 0) {
-          ctx.moveTo(mx - d, my - d);
-          ctx.lineTo(mx + d, my + d);
-          ctx.moveTo(mx + d, my - d);
-          ctx.lineTo(mx - d, my + d);
-        } else {
-          ctx.moveTo(mx - d, my + d);
-          ctx.lineTo(mx + d, my - d);
-        }
-        ctx.stroke();
+        marcaLesion(ctx, mx, my, 1.8 * k, f[id] === 0, Math.max(2.5 * escala, 0.8 * k));
       }
       ctx.globalAlpha = 1;
     }

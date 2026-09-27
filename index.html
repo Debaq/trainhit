@@ -8,7 +8,7 @@
          jsdelivr (MediaPipe), y conexiones solo a lo que la página usa. -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-U9x4UJBNAyCgXl9iJe03Dpwg0b53tJ6Qndn5N4agzZE='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
+      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-fKVn1JzySzrfK6anMoFQV2nwwXOay7pqBHa/EtJaS5k='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
     />
     <meta
       name="description"
@@ -62,7 +62,7 @@
     />
     <!-- Mapa de importación: versiona los imports internos. Lo regenera
          bump.mjs junto con su hash en la CSP de arriba. Va antes del arranque. -->
-    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-27.63","./js/app.js":"./js/app.js?v=2026-09-27.63","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-27.63","./js/cabeza.js":"./js/cabeza.js?v=2026-09-27.63","./js/canales.js":"./js/canales.js?v=2026-09-27.63","./js/curve.js":"./js/curve.js?v=2026-09-27.63","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-27.63","./js/enlace.js":"./js/enlace.js?v=2026-09-27.63","./js/geom.js":"./js/geom.js?v=2026-09-27.63","./js/head.js":"./js/head.js?v=2026-09-27.63","./js/idioma.js":"./js/idioma.js?v=2026-09-27.63","./js/idioma-en.js":"./js/idioma-en.js?v=2026-09-27.63","./js/laberinto.js":"./js/laberinto.js?v=2026-09-27.63","./js/otolitos.js":"./js/otolitos.js?v=2026-09-27.63","./js/patologia.js":"./js/patologia.js?v=2026-09-27.63","./js/pipeline.js":"./js/pipeline.js?v=2026-09-27.63","./js/plots.js":"./js/plots.js?v=2026-09-27.63","./js/practica.js":"./js/practica.js?v=2026-09-27.63","./js/preguntas.js":"./js/preguntas.js?v=2026-09-27.63","./js/sesion.js":"./js/sesion.js?v=2026-09-27.63","./js/signal.js":"./js/signal.js?v=2026-09-27.63","./js/simulacion.js":"./js/simulacion.js?v=2026-09-27.63","./js/tracker.js":"./js/tracker.js?v=2026-09-27.63","./js/tutorial.js":"./js/tutorial.js?v=2026-09-27.63","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-27.63","./js/tutorial-pasos-en.js":"./js/tutorial-pasos-en.js?v=2026-09-27.63","./js/via.js":"./js/via.js?v=2026-09-27.63","three":"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"}}</script>
+    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-27.65","./js/app.js":"./js/app.js?v=2026-09-27.65","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-27.65","./js/cabeza.js":"./js/cabeza.js?v=2026-09-27.65","./js/canales.js":"./js/canales.js?v=2026-09-27.65","./js/curve.js":"./js/curve.js?v=2026-09-27.65","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-27.65","./js/enlace.js":"./js/enlace.js?v=2026-09-27.65","./js/geom.js":"./js/geom.js?v=2026-09-27.65","./js/head.js":"./js/head.js?v=2026-09-27.65","./js/idioma.js":"./js/idioma.js?v=2026-09-27.65","./js/idioma-en.js":"./js/idioma-en.js?v=2026-09-27.65","./js/laberinto.js":"./js/laberinto.js?v=2026-09-27.65","./js/otolitos.js":"./js/otolitos.js?v=2026-09-27.65","./js/patologia.js":"./js/patologia.js?v=2026-09-27.65","./js/pipeline.js":"./js/pipeline.js?v=2026-09-27.65","./js/plots.js":"./js/plots.js?v=2026-09-27.65","./js/practica.js":"./js/practica.js?v=2026-09-27.65","./js/preguntas.js":"./js/preguntas.js?v=2026-09-27.65","./js/sesion.js":"./js/sesion.js?v=2026-09-27.65","./js/signal.js":"./js/signal.js?v=2026-09-27.65","./js/simulacion.js":"./js/simulacion.js?v=2026-09-27.65","./js/tracker.js":"./js/tracker.js?v=2026-09-27.65","./js/tutorial.js":"./js/tutorial.js?v=2026-09-27.65","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-27.65","./js/tutorial-pasos-en.js":"./js/tutorial-pasos-en.js?v=2026-09-27.65","./js/via.js":"./js/via.js?v=2026-09-27.65","three":"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"}}</script>
     <script src="js/arranque.js"></script>
     <noscript><link rel="stylesheet" href="css/estilo.css" /></noscript>
   </head>
@@ -822,6 +822,7 @@
                 <span data-i18n="lab.pat.posterior">posterior</span><select data-canal="post_izq"></select><select data-canal="post_der"></select>
                 <span data-i18n="lab.pat.utriculo">utrículo</span><select data-canal="utr_izq"></select><select data-canal="utr_der"></select>
                 <span data-i18n="lab.pat.saculo">sáculo</span><select data-canal="sac_izq"></select><select data-canal="sac_der"></select>
+                <span class="lab-grilla-central" data-i18n="lab.pat.floculo">flóculo (cerebelo)</span><select data-canal="floculo_izq" class="lab-grilla-central"></select><select data-canal="floculo_der" class="lab-grilla-central"></select>
               </div>
               <label class="check"><input type="checkbox" id="lab-compensado" /> <span data-i18n="lab.pat.compensado">compensada (sin nistagmo espontáneo)</span></label>
               <label class="campo">
@@ -854,6 +855,10 @@
                   <span data-i18n="lab.mirada">la mirada</span>
                   <select id="lab-mirada">
                     <option value="pantalla" data-i18n="lab.mirada.pantalla">fija en el centro de la pantalla</option>
+                    <option value="derecha" data-i18n="lab.mirada.derecha">20° a la derecha del paciente</option>
+                    <option value="izquierda" data-i18n="lab.mirada.izquierda">20° a la izquierda del paciente</option>
+                    <option value="arriba" data-i18n="lab.mirada.arriba">20° arriba</option>
+                    <option value="abajo" data-i18n="lab.mirada.abajo">20° abajo</option>
                     <option value="cabeza" data-i18n="lab.mirada.cabeza">vuelve al frente de la cabeza</option>
                   </select>
                 </label>
@@ -902,6 +907,14 @@
               <div id="lab-barras" class="lab-barras"></div>
             </div>
             <p id="lab-tasas-ciego" class="ayuda" data-i18n="lab.tasas.ciego" hidden>A ciegas, las tasas quedan ocultas: mirá los ojos.</p>
+            <!-- Las tres leyes de Ewald, con lo que pasa ahora al lado de cada una
+                 (laberinto.js, pintaEwald). -->
+            <div id="lab-ewald" class="lab-ewald">
+              <h3 data-i18n="lab.ewald">Leyes de Ewald</h3>
+              <p><b>1.ª</b> <span data-i18n="lab.ewald.1">El ojo se mueve en el plano del canal estimulado.</span> <i data-ley="1"></i></p>
+              <p><b>2.ª</b> <span data-i18n="lab.ewald.2">La excitación puede más que la inhibición, que no baja de cero.</span> <i data-ley="2"></i></p>
+              <p><b>3.ª</b> <span data-i18n="lab.ewald.3">Al lateral lo excita el flujo hacia la ampolla (ampulípeto); a los verticales, el que se aleja (ampulífugo).</span> <i data-ley="3"></i></p>
+            </div>
             <p class="ayuda" data-i18n="lab.resp.ewald">
               En reposo cada nervio dispara unas 90 veces por segundo. Hacia arriba tiene margen; hacia
               abajo, no pasa de cero: con un giro rápido el canal inhibido se calla y todo el trabajo lo
@@ -942,6 +955,12 @@
               más lentos y más separados; <b class="exc">excitada</b>, rojos, rápidos y seguidos. El tramo toma el mismo color, y va
               punteado si calla. Una <b class="lesion">cruz</b> es un nervio muerto; una barra, uno con
               hipofunción.
+            </p>
+            <p class="ayuda" data-i18n="lab.via.floculo">
+              El <b>flóculo</b> (cerebelo) recibe la visión cuando hay un blanco que fijar e inhibe los
+              núcleos vestibulares del lado que dispara de más: así la fijación frena el nistagmo
+              periférico. Con el flóculo lesionado no lo frena: el <b>OFI</b> (fase lenta fijando ÷ sin
+              fijar) sube. Se prende con «fijando la mirada», en Patología.
             </p>
             <p class="ayuda" data-i18n="lab.via.comp">
               Con la lesión <b>compensada</b>, el nervio sigue callado pero su núcleo vuelve a disparar

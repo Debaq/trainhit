@@ -505,7 +505,9 @@ Cinco vistas:
   **La mirada** puede quedar fija en el centro de la pantalla —el ojo sigue
   mirándola aunque la cabeza quede girada, y si la pantalla queda fuera de la
   órbita se queda en el borde— o volver al frente de la cabeza cuando esta se
-  queda quieta. **Reiniciar**, en la barra, deja todo como al abrir.
+  queda quieta, o ir 20° a la derecha, a la izquierda, arriba o abajo, para
+  examinar la mirada excéntrica. **Reiniciar**, en la barra, deja todo como al
+  abrir.
 - **Vía**: el arco de tres neuronas de cada canal, en un esquema de frente al
   costado del modelo: nervio vestibular, núcleos vestibulares, el cruce al VI,
   IV o III (por el fascículo longitudinal medial) y los dos músculos que excita
@@ -519,7 +521,9 @@ Cinco vistas:
   Por el mismo nervio van el **utrículo** (rama superior), que llega a los
   músculos de los dos verticales de su lado —la contrarrotación ocular, la vía
   del oVEMP—, y el **sáculo** (rama inferior), que baja al esternocleidomastoideo
-  de su lado —la vía del cVEMP—. Está en `js/via.js`, con tests.
+  de su lado —la vía del cVEMP—. El **flóculo** (cerebelo) de cada lado
+  recibe la visión cuando hay un blanco que fijar e inhibe los núcleos del lado
+  que dispara de más: es el freno por fijación. Está en `js/via.js`, con tests.
 
 Los otolitos (`js/otolitos.js`) sienten la inclinación de la cabeza respecto de
 la gravedad: cada utrículo se excita al bajar su oreja y los dos trabajan en
@@ -538,7 +542,16 @@ muerto el giro rápido hacia su lado queda con ganancia 0,2 y hacia el otro con
 0,8. Si la lesión no está compensada, el reposo que falta se lee como un giro y
 aparece un nistagmo espontáneo que bate hacia el lado sano, en 3D: la neuritis
 superior sale horizontal con componente torsional y hacia arriba; la inferior,
-hacia abajo y torsional. La fijación lo frena al 30 %. Las sacadas salen del
+hacia abajo y torsional. La fijación lo frena al 30 %, y ese freno lo pone el
+flóculo: con uno lesionado queda en un 65 %, con los dos, nada. El texto del
+nistagmo da el OFI (fase lenta fijando ÷ sin fijar). El caso **infarto de la
+AICA** se lleva el laberinto y el flóculo del mismo lado: un nistagmo
+periférico que la fijación frena poco. Se cumple la **ley de Alexander**: el
+nistagmo bate más mirando hacia su fase rápida y menos al revés, y el texto da
+el grado (I, II o III) sin fijar y fijando. En Respuesta, las **leyes de
+Ewald** muestran lo que pasa: el plano en que se mueve el ojo, cuánto sube el
+canal excitado frente a cuánto baja su compañero, y si lo excita el flujo
+ampulípeto (lateral) o ampulífugo (verticales). Las sacadas salen del
 error de mirada: las encubiertas durante el giro (unos 80 ms), las abiertas al
 frenar (unos 270 ms) y las tardías después (unos 500 ms). El ojo se lee en el
 marco de los canales, que es el de sus músculos (Simpson y Graf, 1981). Las

@@ -36,11 +36,15 @@ import { OTOLITOS } from './otolitos.js';
 // ---------------------------------------------------------------- canales ---
 
 /**
- * Los órganos que pueden enfermar: los seis canales y los cuatro otolitos
- * (otolitos.js). Un otolito enfermo no cambia el VOR ni el nistagmo de los
- * canales: cambia la torsión de los ojos y su vía en «Vía».
+ * Lo que puede enfermar. Periférico: los seis canales y los cuatro otolitos
+ * (otolitos.js); un otolito enfermo no cambia el VOR ni el nistagmo de los
+ * canales, sino la torsión de los ojos y su vía en «Vía». Central: el flóculo
+ * de cada lado (cerebelo), que con la fijación frena el nistagmo
+ * (`frenoFijacion`).
  */
-export const ORGANOS = [...CANALES.map((c) => c.id), ...OTOLITOS.map((o) => o.id)];
+export const PERIFERICOS = [...CANALES.map((c) => c.id), ...OTOLITOS.map((o) => o.id)];
+export const FLOCULOS = ['floculo_izq', 'floculo_der'];
+export const ORGANOS = [...PERIFERICOS, ...FLOCULOS];
 
 /** Los estados de un órgano y su función. */
 export const ESTADOS = {
@@ -93,15 +97,32 @@ export const CASOS = [
     compensado: true,
   },
   {
+    // La arteria cerebelosa anteroinferior riega el laberinto y el flóculo
+    // del mismo lado: el nistagmo es periférico, pero la fijación lo frena
+    // poco. Es un ictus que se parece a una neuritis.
+    id: 'aica',
+    nombre: 'Infarto de la AICA (laberinto y flóculo)',
+    unilateral: true,
+    canales: {
+      lat_izq: 'arreflexia',
+      ant_izq: 'arreflexia',
+      post_izq: 'arreflexia',
+      utr_izq: 'arreflexia',
+      sac_izq: 'arreflexia',
+      floculo_izq: 'arreflexia',
+    },
+    compensado: false,
+  },
+  {
     id: 'hipofuncion_bilateral',
     nombre: 'Hipofunción bilateral (ototoxicidad)',
-    canales: Object.fromEntries(ORGANOS.map((id) => [id, 'hipofuncion'])),
+    canales: Object.fromEntries(PERIFERICOS.map((id) => [id, 'hipofuncion'])),
     compensado: true,
   },
   {
     id: 'arreflexia_bilateral',
     nombre: 'Arreflexia bilateral',
-    canales: Object.fromEntries(ORGANOS.map((id) => [id, 'arreflexia'])),
+    canales: Object.fromEntries(PERIFERICOS.map((id) => [id, 'arreflexia'])),
     compensado: true,
   },
 ];
@@ -168,8 +189,22 @@ export function velocidadVOR(omega, f) {
  * neuritis aguda se ve con 5–15 °/s en lentes de Frenzel.
  */
 export const VEL_NISTAGMO = 10;
-/** Cuánto queda del nistagmo periférico mirando un punto: la fijación lo frena. */
+/**
+ * Cuánto queda del nistagmo periférico mirando un punto, con el cerebelo
+ * sano: la fijación lo frena. El freno lo pone el flóculo.
+ */
 export const CON_FIJACION = 0.3;
+
+/**
+ * La fracción del nistagmo que queda al fijar la mirada: CON_FIJACION con los
+ * dos flóculos sanos, más cuanto peor funcionan, y todo (1) sin ninguno. Es
+ * el OFI (índice de fijación ocular: fase lenta fijando / sin fijar) que
+ * saldría de ese nistagmo: bajo en lo periférico, alto si falla el cerebelo.
+ */
+export function frenoFijacion(f) {
+  const floculo = FLOCULOS.reduce((s, id) => s + (f[id] ?? 1), 0) / FLOCULOS.length;
+  return 1 - (1 - CON_FIJACION) * floculo;
+}
 
 /**
  * La fase lenta del nistagmo espontáneo, como velocidad del ojo en la órbita
@@ -184,7 +219,7 @@ export function faseLentaEspontanea(f, { compensado = false, fijacion = false } 
     const falta = 1 - f[c.id];
     for (let i = 0; i < 3; i++) out[i] += falta * VEL_NISTAGMO * c.eje[i];
   }
-  const k = fijacion ? CON_FIJACION : 1;
+  const k = fijacion ? frenoFijacion(f) : 1;
   return out.map((v) => (Math.abs(v * k) < 1e-9 ? 0 : v * k));
 }
 
@@ -212,6 +247,52 @@ export function describeNistagmo(lenta) {
     .sort((a, b) => b[0] - a[0])
     .map(([, p]) => p);
   return { velocidad: v, partes };
+}
+
+// -------------------------------------------------------------- Alexander ---
+//
+// Ley de Alexander: el nistagmo periférico bate más mirando hacia su fase
+// rápida y menos mirando al revés. Acá, lineal con la posición del ojo: cada
+// ALEXANDER_DEG grados hacia la fase rápida suman otro tanto de fase lenta, y
+// al revés restan hasta apagarlo. El grado clínico sale solo: un nistagmo
+// fuerte se ve mirando a los tres lados (III), uno más débil al frente y hacia
+// la fase rápida (II), uno débil solo hacia la fase rápida (I).
+
+/** Grados de mirada hacia la fase rápida que duplican la fase lenta. */
+export const ALEXANDER_DEG = 30;
+/** Mirada excéntrica con que se examina, en grados. */
+export const MIRADA_EXCENTRICA = 20;
+/** Fase lenta, °/s, a partir de la cual el nistagmo se ve. */
+export const UMBRAL_VISIBLE = 3;
+
+/** La orientación como vector de rotación, en grados. */
+function vectorRot(q) {
+  const s = Math.hypot(q[0], q[1], q[2]);
+  if (s < 1e-12) return [0, 0, 0];
+  const k = ((q[3] < 0 ? -1 : 1) * 2 * Math.atan2(s, Math.abs(q[3])) * 180) / Math.PI / s;
+  return [q[0] * k, q[1] * k, q[2] * k];
+}
+
+/**
+ * Por cuánto se multiplica la fase lenta `lenta` con el ojo en `q` (órbita):
+ * 1 al frente, más mirando hacia la fase rápida (que gira el ojo contra
+ * `lenta`), menos al revés, nunca menos de cero.
+ */
+export function factorAlexander(q, lenta) {
+  const v = Math.hypot(...lenta);
+  if (v < 1e-9) return 1;
+  const r = vectorRot(q);
+  const haciaRapida = -(r[0] * lenta[0] + r[1] * lenta[1] + r[2] * lenta[2]) / v;
+  return Math.max(0, 1 + haciaRapida / ALEXANDER_DEG);
+}
+
+/** El grado de Alexander de un nistagmo de `v` °/s al frente: 0 si no se ve. */
+export function gradoAlexander(v) {
+  const mirando = (e) => v * Math.max(0, 1 + e / ALEXANDER_DEG);
+  if (mirando(-MIRADA_EXCENTRICA) >= UMBRAL_VISIBLE) return 3;
+  if (v >= UMBRAL_VISIBLE) return 2;
+  if (mirando(MIRADA_EXCENTRICA) >= UMBRAL_VISIBLE) return 1;
+  return 0;
 }
 
 // -------------------------------------------------------------------- ojo ---
@@ -365,12 +446,17 @@ export class Ojo {
     // la fase rápida de un giro largo.
     let destino;
     if (blanco) {
-      // El giro más corto que lleva la mirada de ahora al blanco (o al borde
-      // de la órbita en su dirección). No toca la torsión: el VOR de un giro
-      // sobre un eje inclinado deja algo, y corregirla daría una sacada
-      // aunque la mirada esté justo en el blanco.
-      const d = rota(mirarHacia(rota(qInv(qCabeza), blanco)), [0, 0, 1]);
-      destino = qMul(entre(rota(this.q, [0, 0, 1]), d), this.q);
+      // Hacia el blanco (o al borde de la órbita en su dirección). Sin
+      // nistagmo, el giro más corto que lleva la mirada de ahora ahí, sin tocar
+      // la torsión: el VOR de un giro sobre un eje inclinado deja algo, y
+      // corregirla daría una sacada aunque la mirada esté justo en el blanco.
+      // Con nistagmo, la orientación de Listing, torsión incluida: si no, la
+      // fase lenta torsional correría sin fase rápida que la devuelva.
+      const listing = mirarHacia(rota(qInv(qCabeza), blanco));
+      destino =
+        Math.hypot(...lenta) > 0.5
+          ? listing
+          : qMul(entre(rota(this.q, [0, 0, 1]), rota(listing, [0, 0, 1])), this.q);
       this.objetivo = qMul(qCabeza, destino);
     } else {
       destino = qMul(qInv(qCabeza), this.objetivo);
@@ -392,7 +478,8 @@ export class Ojo {
 
     // Fase lenta: VOR más el nistagmo espontáneo, en la órbita.
     const vor = velocidadVOR(giro, f);
-    const w = [vor[0] + lenta[0], vor[1] + lenta[1], vor[2] + lenta[2]];
+    const k = factorAlexander(this.q, lenta);
+    const w = [vor[0] + k * lenta[0], vor[1] + k * lenta[1], vor[2] + k * lenta[2]];
     const m = Math.hypot(...w);
     if (m > 1e-9) this.q = qMul(qEjeAngulo(w, m * dt), this.q);
 

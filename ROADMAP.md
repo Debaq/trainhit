@@ -148,10 +148,29 @@ Publicado en el servidor propio del proyecto (PHP y Node.js).
   Patología y en los casos según la rama del nervio. Un utrículo perdido sin
   compensar deja una torsión hacia su lado.
 
+### Cerebelo y OFI
+
+- El flóculo de cada lado es un órgano más (normal, hipofunción, lesión), en
+  una fila aparte de la grilla de Patología. El freno de la fijación depende de
+  él: sano deja el 30 % del nistagmo, uno lesionado el 65 %, los dos, todo.
+- El texto del nistagmo da la fase lenta sin fijar, fijando y el OFI.
+- Caso infarto de la AICA: laberinto y flóculo del mismo lado.
+- En la Vía, el flóculo recibe la visión (con la mirada fija) e inhibe los
+  núcleos del lado que dispara de más en reposo; lesionado, lleva la cruz.
+
+### Alexander y Ewald
+
+- La mirada puede ir 20° a cada lado y arriba o abajo; el nistagmo periférico
+  bate más mirando hacia su fase rápida y menos al revés, y el grado de
+  Alexander (I–III) sale solo, sin fijar y fijando.
+- Con nistagmo y la mirada fija en un blanco, las fases rápidas devuelven
+  también la torsión (antes la torsional corría sin freno).
+- En Respuesta, las tres leyes de Ewald con lo que pasa en vivo.
+
 ### Calidad
 
 - Tests en node de la física, la cabeza, el giroscopio, las patologías y la vía
-  (127 en total con el resto de trainHIT).
+  (145 en total con el resto de trainHIT).
 - Todo traducido al inglés.
 
 ## Falta probar
@@ -180,6 +199,22 @@ Publicado en el servidor propio del proyecto (PHP y Node.js).
   algo mayor que la horizontal.
 
 ## Pendiente
+
+- **Catálogo de nistagmos** (acordado el 2026-09-27), cada uno con su sitio de
+  lesión marcado en la Vía:
+  - periféricos: espontáneo (hecho), post-head-shaking, inducido por
+    vibración, por hiperventilación, de fístula;
+  - inducidos: calórico, rotatorio y postrotatorio, optocinético;
+  - centrales: evocado por la mirada y de rebote (integrador, cerebelo),
+    downbeat (flóculo) y upbeat, torsional puro, periódico alternante,
+    pendular adquirido, see-saw, convergencia-retracción, de Bruns,
+    posicional central, y el de abducción de la oftalmoplejía internuclear
+    (FLM; necesita ojos separados en el modelo);
+  - del desarrollo: infantil (congénito), latente y manifiesto latente.
+  Orden propuesto: evocado por la mirada y rebote, downbeat y upbeat,
+  oftalmoplejía internuclear; el resto después.
+- **El blanco de la mirada con MediaPipe**: que el modelo siga los dedos del
+  que examina (seguimiento lento y sacadas), sobre el blanco que ya existe.
 
 - **Nistagmo espontáneo con la cámara** (en trainHIT, no en el Laberinto): el
   paciente fija un blanco o el dedo, se registra el ojo 10 a 20 s y se detecta

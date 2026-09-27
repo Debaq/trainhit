@@ -10,7 +10,12 @@ import {
   CASOS,
   ORGANOS,
   Ojo,
+  CON_FIJACION,
+  FLOCULOS,
   avanzaCuadro,
+  factorAlexander,
+  gradoAlexander,
+  frenoFijacion,
   mirarHacia,
   describeNistagmo,
   espejo,
@@ -245,4 +250,55 @@ test('mirarHacia sigue la ley de Listing: sin torsión, eje en el plano frontal'
   const q = mirarHacia([s, 0, Math.cos(Math.PI / 9)]);
   assert.ok(Math.abs(q[2]) < 1e-12);
   assert.ok(Math.abs((2 * Math.acos(q[3]) * 180) / Math.PI - 20) < 1e-9);
+});
+
+test('el freno de la fijación lo pone el flóculo: OFI bajo en lo periférico, alto si falla', () => {
+  assert.ok(Math.abs(frenoFijacion(sano) - CON_FIJACION) < 1e-12);
+  assert.equal(frenoFijacion(funciones({ floculo_izq: 'arreflexia', floculo_der: 'arreflexia' })), 1);
+  const neuritis = funciones(CASO.neuritis_superior.canales);
+  const aica = funciones(CASO.aica.canales);
+  const ofi = (f) =>
+    Math.hypot(...faseLentaEspontanea(f, { fijacion: true })) / Math.hypot(...faseLentaEspontanea(f, { fijacion: false }));
+  assert.ok(ofi(neuritis) < 0.5, `neuritis: ${ofi(neuritis)}`);
+  assert.ok(ofi(aica) > 0.5, `AICA: ${ofi(aica)}`);
+});
+
+test('los casos bilaterales periféricos no tocan el cerebelo', () => {
+  for (const id of ['hipofuncion_bilateral', 'arreflexia_bilateral']) {
+    for (const fl of FLOCULOS) assert.equal(CASO[id].canales[fl], undefined, `${id}: ${fl}`);
+  }
+});
+
+test('ley de Alexander: mirando hacia la fase rápida bate más, al revés menos', () => {
+  const lenta = faseLentaEspontanea(funciones({ lat_izq: 'arreflexia' }));
+  // Con el lateral izquierdo muerto la fase rápida va a la derecha: mirar a
+  // la derecha es girar el ojo sobre −y.
+  const aLaDerecha = qEjeAngulo([0, -1, 0], 20);
+  const aLaIzquierda = qEjeAngulo([0, 1, 0], 20);
+  assert.ok(factorAlexander(aLaDerecha, lenta) > 1.4);
+  assert.ok(factorAlexander(aLaIzquierda, lenta) < 0.6);
+  assert.equal(factorAlexander([0, 0, 0, 1], lenta), 1);
+});
+
+test('el grado de Alexander sale de la intensidad: fuerte III, medio II, débil I', () => {
+  assert.equal(gradoAlexander(14), 3);
+  assert.equal(gradoAlexander(4), 2);
+  assert.equal(gradoAlexander(2), 1);
+  assert.equal(gradoAlexander(1), 0);
+});
+
+test('con la mirada a la derecha, una neuritis izquierda bate más veces que a la izquierda', () => {
+  const f = funciones(CASO.neuritis_superior.canales);
+  const lenta = faseLentaEspontanea(f);
+  const s = Math.sin(Math.PI / 9);
+  const c = Math.cos(Math.PI / 9);
+  const batidas = (blanco) => {
+    const ojo = new Ojo();
+    const q = [0, 0, 0, 1];
+    for (let t = 0; t < 6; t += 1 / 60) avanzaCuadro(ojo, q, q, 1 / 60, [0, 0, 0], { f, lenta, blanco });
+    return ojo.sacadas;
+  };
+  const derecha = batidas([-s, 0, c]);
+  const izquierda = batidas([s, 0, c]);
+  assert.ok(derecha > izquierda * 1.3, `derecha ${derecha}, izquierda ${izquierda}`);
 });

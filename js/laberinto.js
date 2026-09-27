@@ -60,10 +60,13 @@ import {
   ESTADOS,
   Ojo,
   SACADAS,
+  PARES,
   describeNistagmo,
   espejo,
   faseLentaEspontanea,
+  frenoFijacion,
   funciones,
+  gradoAlexander,
 } from './patologia.js';
 import { Sala, leeCabeza, leeControl, mensajeCabeza, mensajeControl, refControl, refValida, uneSala } from './enlace.js';
 import { DibujoVia, actividad, vectorRotacion, velocidadOrbita } from './via.js';
@@ -136,8 +139,20 @@ const TAU_TORSION_S = 0.15;
  */
 const TAU_OMEGA_S = 0.06;
 
-/** El centro de la pantalla con la cámara de frente: adelante, en el mundo. */
-const BLANCO_PANTALLA = [0, 0, 1];
+/**
+ * Los blancos de la mirada, en el mundo: el centro de la pantalla con la
+ * cámara de frente (adelante) y 20° hacia cada lado, para examinar la mirada
+ * excéntrica (ley de Alexander). La derecha del paciente es −x.
+ */
+const S20 = Math.sin((20 * Math.PI) / 180);
+const C20 = Math.cos((20 * Math.PI) / 180);
+const BLANCOS = {
+  pantalla: [0, 0, 1],
+  derecha: [-S20, 0, C20],
+  izquierda: [S20, 0, C20],
+  arriba: [0, S20, C20],
+  abajo: [0, -S20, C20],
+};
 
 /** Grados por píxel al arrastrar. */
 const GRADOS_POR_PX = 0.45;
@@ -420,9 +435,12 @@ export function montaLaberinto() {
     );
     selCaso.value = valor || st.pat.caso;
     const NOMBRE_ESTADO = { normal: tx('normal'), hipofuncion: tx('hipofunción'), arreflexia: tx('arreflexia') };
+    // En el flóculo no hay reflejo que perder: el peor estado es una lesión.
+    const NOMBRE_CENTRAL = { ...NOMBRE_ESTADO, arreflexia: tx('lesión') };
     for (const sel of selCanales) {
       const v = sel.value;
-      sel.replaceChildren(...Object.keys(ESTADOS).map((e) => new Option(NOMBRE_ESTADO[e], e)));
+      const nombres = sel.dataset.canal.startsWith('floculo') ? NOMBRE_CENTRAL : NOMBRE_ESTADO;
+      sel.replaceChildren(...Object.keys(ESTADOS).map((e) => new Option(nombres[e], e)));
       sel.value = v || 'normal';
     }
   }
@@ -445,7 +463,9 @@ export function montaLaberinto() {
   }
 
   function textoNistagmo() {
-    const d = describeNistagmo(st.lenta);
+    // Se describe el de lentes de Frenzel (sin fijar), y cuánto queda al fijar.
+    const sinFijar = faseLentaEspontanea(st.f, { compensado: st.pat.compensado, fijacion: false });
+    const d = describeNistagmo(sinFijar);
     if (!d) return tx('Sin nistagmo espontáneo.');
     const nombres = {
       izquierda: tx('a la izquierda'),
@@ -455,10 +475,21 @@ export function montaLaberinto() {
       torsional_derecha: tx('torsional hacia el oído derecho'),
       torsional_izquierda: tx('torsional hacia el oído izquierdo'),
     };
-    return tx('Nistagmo espontáneo: bate {dir}; fase lenta de {v} °/s.', {
+    const ofi = frenoFijacion(st.f);
+    const texto = tx('Nistagmo espontáneo: bate {dir}; fase lenta de {v} °/s sin fijar y {vf} °/s fijando la mirada (OFI {ofi} %: {freno}).', {
       dir: d.partes.map((p) => nombres[p]).join(', '),
       v: d.velocidad.toFixed(0),
+      vf: (d.velocidad * ofi).toFixed(0),
+      ofi: (100 * ofi).toFixed(0),
+      freno: ofi < 0.5 ? tx('la fijación lo frena, como en lo periférico') : tx('la fijación lo frena poco: falla el cerebelo'),
     });
+    // Ley de Alexander: en qué miradas se ve (ver «la mirada», 20° a cada lado).
+    const GRADO = [tx('no se ve'), 'I', 'II', 'III'];
+    const alexander = tx('Ley de Alexander: grado {g} sin fijar y {gf} fijando.', {
+      g: GRADO[gradoAlexander(d.velocidad)],
+      gf: GRADO[gradoAlexander(d.velocidad * ofi)],
+    });
+    return `${texto} ${alexander}`;
   }
 
   /** Pone la interfaz como dice `st.pat`. */
@@ -477,6 +508,7 @@ export function montaLaberinto() {
     $('lab-revelar').hidden = !p.ciego;
     $('lab-tasas').hidden = p.ciego;
     $('lab-tasas-ciego').hidden = !p.ciego;
+    $('lab-ewald').hidden = p.ciego;
     $('lab-via-ciego').hidden = !p.ciego;
     // A ciegas el nistagmo también se calla en texto: se lo tiene que ver.
     $('lab-nistagmo').textContent = p.ciego ? '' : textoNistagmo();
@@ -941,7 +973,7 @@ export function montaLaberinto() {
     // La mirada: fija en el centro de la pantalla (adelante en el mundo, donde
     // está la cámara al centrar) o, sin blanco, vuelve al frente de la cabeza
     // al quedar quieta. Más adelante el blanco puede ser un dedo.
-    const blanco = $('lab-mirada').value === 'pantalla' ? BLANCO_PANTALLA : null;
+    const blanco = BLANCOS[$('lab-mirada').value] ?? null;
     avanzaCuadro(st.ojo, qAntes, st.qCabeza, dtFisico, st.omega, { f: st.f, lenta: st.lenta, tipo: st.pat.sacadas, blanco });
 
     // 3) Los otolitos: con la cabeza inclinada, los utrículos piden una
@@ -995,7 +1027,11 @@ export function montaLaberinto() {
     if (!w || !h) return;
     if (lienzoVia.width !== w || lienzoVia.height !== h) Object.assign(lienzoVia, { width: w, height: h });
     st.via ??= new DibujoVia();
-    const act = actividad(r, vectorRotacion(st.qOjo), st.velOjo, { compensado: st.pat.compensado });
+    const act = actividad(r, vectorRotacion(st.qOjo), st.velOjo, {
+      compensado: st.pat.compensado,
+      fijacion: st.pat.fijacion,
+      f: st.f,
+    });
     const ultimo = st.traza[st.traza.length - 1];
     st.via.dibuja(lienzoVia.getContext('2d'), w, h, dt, {
       act,
@@ -1060,7 +1096,10 @@ export function montaLaberinto() {
         m.emissive.copy(a >= 0 ? exc : inh).multiplyScalar(0.35 * k);
       }
     }
-    if (st.vista === 'respuesta' && !ciego) pintaBarras(r);
+    if (st.vista === 'respuesta' && !ciego) {
+      pintaBarras(r);
+      pintaEwald(r);
+    }
     if (st.vista === 'respuesta' || st.vista === 'via') $('lab-vcab').textContent = Math.hypot(...st.omega).toFixed(0);
 
     // Cámara: en tres cuartos o de arriba, a `dist` del centro de la cabeza.
@@ -1172,6 +1211,51 @@ export function montaLaberinto() {
       st.traza.forEach((m, i) => (i ? ctx.lineTo(xDe(m[0]), yDe(m[k + 1])) : ctx.moveTo(xDe(m[0]), yDe(m[k + 1]))));
       ctx.stroke();
     });
+  }
+
+  /**
+   * Las leyes de Ewald con lo que pasa ahora: en qué plano se mueve el ojo, el
+   * canal que más se excita contra su compañero, y qué flujo lo excita. Con
+   * la cabeza y el ojo quietos, nada.
+   */
+  let ewaldPrevio = 0;
+  function pintaEwald(r) {
+    const ahora = performance.now();
+    if (ahora - ewaldPrevio < 120) return;
+    ewaldPrevio = ahora;
+    const ley = (n) => $('lab-ewald').querySelector(`[data-ley="${n}"]`);
+    // 1.ª: el par en cuyo plano gira más el ojo.
+    let par = null;
+    let mayor = 20;
+    for (const [a] of PARES) {
+      const n = CANAL[a].eje;
+      const d = Math.abs(st.velOjo[0] * n[0] + st.velOjo[1] * n[1] + st.velOjo[2] * n[2]);
+      if (d > mayor) [mayor, par] = [d, CANAL[a].par];
+    }
+    const NOMBRE_PAR = { lateral: tx('lateral'), larp: 'LARP', ralp: 'RALP' };
+    ley(1).textContent = par ? tx('ahora: plano {par}', { par: NOMBRE_PAR[par] }) : '';
+    // 2.ª y 3.ª: el canal que más sube sobre su reposo, y su compañero.
+    let c = null;
+    let sube = 5;
+    for (const k of CANALES) {
+      const d = r[k.id].tasa - r[k.id].f * TASA_REPOSO;
+      if (d > sube) [sube, c] = [d, k];
+    }
+    if (!c) {
+      ley(2).textContent = '';
+      ley(3).textContent = '';
+      return;
+    }
+    const p = PARES.find((x) => x.includes(c.id)).find((id) => id !== c.id);
+    const baja = r[p].f * TASA_REPOSO - r[p].tasa;
+    ley(2).textContent = tx('ahora: +{x} en {c}, −{y} en {p}', {
+      x: sube.toFixed(0),
+      c: NOMBRE_CANAL[c.id](),
+      y: Math.max(0, baja).toFixed(0),
+      p: NOMBRE_CANAL[p](),
+    });
+    ley(3).textContent =
+      c.tipo === 'lateral' ? tx('ahora: {c}, ampulípeto', { c: NOMBRE_CANAL[c.id]() }) : tx('ahora: {c}, ampulífugo', { c: NOMBRE_CANAL[c.id]() });
   }
 
   function pintaBarras(r) {

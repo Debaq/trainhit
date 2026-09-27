@@ -1075,6 +1075,12 @@ body.con-laberinto { overflow: hidden; }
 .lab-fila .reposo { position: absolute; top: -2px; bottom: -2px; width: 1px; background: var(--foreground); opacity: 0.7; }
 .lab-fila .valor { text-align: right; font-variant-numeric: tabular-nums; color: var(--foreground); font-weight: 500; }
 .lab-vcab { margin: 0; font-size: 12px; color: var(--muted-fg); }
+.lab-ewald { display: flex; flex-direction: column; gap: 4px; }
+.lab-ewald[hidden] { display: none; }
+.lab-ewald p { margin: 0; font-size: 12px; color: var(--muted-fg); }
+.lab-ewald p b { color: var(--foreground); }
+/* Lo que pasa ahora, al lado de cada ley. */
+.lab-ewald i { display: block; font-style: normal; color: var(--c-guide); min-height: 1.3em; }
 .lab-vcab b { color: var(--foreground); font-variant-numeric: tabular-nums; }
 
 /* Solo el visor: sin barra, panel ni ayuda de gestos. El botón de la esquina
@@ -1260,6 +1266,9 @@ body.con-laberinto { overflow: hidden; }
 .lab-grilla { display: grid; grid-template-columns: auto 1fr 1fr; gap: 4px 6px; align-items: center; font-size: 12px; }
 .lab-grilla b { font-weight: 600; color: var(--muted-fg); font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; }
 .lab-grilla select { max-width: none; width: 100%; padding: 4px 6px; font-size: 12px; }
+/* Lo central (el flóculo) separado de lo periférico por una raya. */
+.lab-grilla .lab-grilla-central { margin-top: 6px; }
+.lab-grilla span.lab-grilla-central { padding-top: 6px; border-top: 1px solid var(--border); }
 .lab-nistagmo { margin: 0; font-size: 12.5px; color: var(--foreground); }
 .lab-nistagmo:empty { display: none; }
 .lab-panel .practica { display: flex; flex-direction: column; gap: 6px; }

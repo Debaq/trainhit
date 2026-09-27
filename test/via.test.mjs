@@ -156,3 +156,18 @@ test('inhibido, los puntos quedan más separados que en reposo; y al inhibirse, 
   correr(20, 0.2);
   assert.ok(s.espigas.length < enReposo, `${s.espigas.length} vs ${enReposo}`);
 });
+
+test('el flóculo: con la mirada fija frena el lado de más; sin fijar no le llega nada; lesionado calla', () => {
+  const f = funciones({ lat_izq: 'arreflexia', ant_izq: 'arreflexia' });
+  const r = respuestas([0, 0, 0], null, f);
+  const fija = actividad(r, [0, 0, 0], [0, 0, 0], { compensado: false, fijacion: true, f });
+  // Con el izquierdo enfermo, el lado de más es el derecho.
+  assert.ok(fija.nucleo.floculo_der > fija.nucleo.floculo_izq + 20);
+  assert.equal(fija.aferente.floculo_izq, TASA_REPOSO);
+  const libre = actividad(r, [0, 0, 0], [0, 0, 0], { compensado: false, fijacion: false, f });
+  assert.equal(libre.aferente.floculo_der, 0);
+  assert.equal(libre.nucleo.floculo_der, TASA_REPOSO);
+  const sinFloculo = funciones({ lat_izq: 'arreflexia', floculo_der: 'arreflexia' });
+  const muerto = actividad(respuestas([0, 0, 0], null, sinFloculo), [0, 0, 0], [0, 0, 0], { fijacion: true, f: sinFloculo });
+  assert.equal(muerto.nucleo.floculo_der, 0);
+});
