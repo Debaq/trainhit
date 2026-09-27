@@ -213,6 +213,13 @@ Publicado en el servidor propio del proyecto (PHP y Node.js).
   - del desarrollo: infantil (congénito), latente y manifiesto latente.
   Orden propuesto: evocado por la mirada y rebote, downbeat y upbeat,
   oftalmoplejía internuclear; el resto después.
+- **Patología por sitio de lesión**: rearmar el panel —hoy una grilla de
+  órganos más el flóculo— por sitio: periférico (canal, nervio), núcleo
+  vestibular, cerebelo, FLM, integrador de la mirada; cada sitio con sus
+  nistagmos y su marca en la Vía (hoy solo se marcan el nervio y el flóculo).
+- **Ewald y Alexander en la Vía**: hoy están en el panel de Respuesta y en el
+  texto de Patología; falta mostrarlos sobre el esquema (el plano activo, el
+  grado de Alexander junto a los ojos).
 - **El blanco de la mirada con MediaPipe**: que el modelo siga los dedos del
   que examina (seguimiento lento y sacadas), sobre el blanco que ya existe.
 
@@ -223,9 +230,12 @@ Publicado en el servidor propio del proyecto (PHP y Node.js).
 
 - **VPPB**: partículas en los canales (canalitiasis), su nistagmo al cambiar de
   posición la cabeza y las maniobras (Dix-Hallpike, Epley, rolido).
-- **Disfunción cerebelosa**, como en aVOR.
-- **Referencia de fijación** cabeza o mundo, como en aVOR.
+- **Disfunción cerebelosa**, como en aVOR: el flóculo y su freno de la
+  fijación ya están; faltan sus nistagmos (downbeat, evocado por la mirada) y
+  el seguimiento lento.
 - Modelo definitivo de la diseñadora (`modelos/laberinto.glb`).
+- Volver a exportar `modelos/provisorio.glb`: tiene la cara de antes del
+  suavizado del 2026-09-27.
 
 ## Ideas
 
