@@ -47,6 +47,19 @@ function levanta([x, y, z]) {
 }
 
 /**
+ * Un vector de la cabeza derecha en el marco de los canales (la cabeza
+ * flexionada 30°): la inversa de `levanta`. Es el marco en que se lee el
+ * ojo —horizontal, vertical, torsional—, porque los músculos del ojo trabajan
+ * en los planos de los canales (Simpson y Graf, 1981): el horizontal del ojo
+ * es el plano de los laterales, no el del piso.
+ */
+export function aMarcoCanales([x, y, z]) {
+  const c = Math.cos(rad(INCLINACION_LATERAL_DEG));
+  const s = Math.sin(rad(INCLINACION_LATERAL_DEG));
+  return [x, y * c - z * s, y * s + z * c];
+}
+
+/**
  * Los seis canales. `par` es el plano que comparte con su compañero: cada par
  * trabaja en empuje-tracción, lo que excita a uno inhibe al otro. Los ejes se
  * escriben con la cabeza flexionada, donde son redondos, y se levantan.
@@ -82,13 +95,16 @@ export function tasa(w) {
 /**
  * La respuesta de los seis canales a una velocidad angular de la cabeza, en
  * °/s y en el marco de la cabeza. `ejes` permite cambiar los del modelo de
- * libro por los medidos en la malla.
+ * libro por los medidos en la malla. `funciones` (0 a 1 por canal, ver
+ * patologia.js) escala el nervio de un canal enfermo: dispara menos en reposo
+ * y responde menos al giro; muerto, calla.
  */
-export function respuestas(omega, ejes = null) {
+export function respuestas(omega, ejes = null, funciones = null) {
   const out = {};
   for (const c of CANALES) {
     const w = punto(omega, ejes?.[c.id] ?? c.eje);
-    out[c.id] = { w, tasa: tasa(w) };
+    const f = funciones?.[c.id] ?? 1;
+    out[c.id] = { w, f, tasa: f * tasa(w) };
   }
   return out;
 }
@@ -129,8 +145,12 @@ export const MOVIMIENTOS = [
 const suave = (u) => (u <= 0 ? 0 : u >= 1 ? 1 : u * u * (3 - 2 * u));
 const dSuave = (u) => (u <= 0 || u >= 1 ? 0 : 6 * u * (1 - u));
 
-/** Pausa en la posición final antes de volver, en segundos. */
-const PAUSA_S = 0.3;
+/**
+ * Pausa en la posición final antes de volver, en segundos. Larga como en el
+ * examen, donde la cabeza queda quieta después del impulso: es cuando salen
+ * las sacadas abiertas, y las tardías llegan a los 300–400 ms.
+ */
+export const PAUSA_S = 0.6;
 /** La vuelta es este tanto más lenta que la ida, como en el examen. */
 const VUELTA_LENTA = 3;
 

@@ -7,6 +7,7 @@ import {
   CANAL,
   CANALES,
   MOVIMIENTOS,
+  PAUSA_S,
   TASA_MAX,
   TASA_REPOSO,
   activacion,
@@ -104,7 +105,7 @@ test('el impulso llega al pico pedido, se queda y vuelve', () => {
   assert.ok(Math.abs(pico.velocidad - v) < 1e-9);
   assert.ok(Math.abs(pico.angulo - A / 2) < 1e-9);
   assert.equal(perfilImpulso(ida + 0.1, A, v).angulo, A);
-  const vuelta = perfilImpulso(ida + 0.3 + ida * 1.5, A, v);
+  const vuelta = perfilImpulso(ida + PAUSA_S + ida * 1.5, A, v);
   assert.ok(vuelta.velocidad < 0 && vuelta.velocidad > -v);
   const fin = perfilImpulso(10, A, v);
   assert.ok(fin.fin && Math.abs(fin.angulo) < 1e-9);

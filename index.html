@@ -8,7 +8,7 @@
          jsdelivr (MediaPipe), y conexiones solo a lo que la página usa. -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-WqwqhoLvalxiJfGRc0CSjJNpdyPOvr/9IfkiF7qqXMs='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
+      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-mK2QRxkcSYM4uzCZ7A7IfeSHbV+YN3JVrQZ/01SE60I='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
     />
     <meta
       name="description"
@@ -52,7 +52,7 @@
     />
     <!-- Mapa de importación: versiona los imports internos. Lo regenera
          bump.mjs junto con su hash en la CSP de arriba. Va antes del arranque. -->
-    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-27.25","./js/app.js":"./js/app.js?v=2026-09-27.25","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-27.25","./js/cabeza.js":"./js/cabeza.js?v=2026-09-27.25","./js/canales.js":"./js/canales.js?v=2026-09-27.25","./js/curve.js":"./js/curve.js?v=2026-09-27.25","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-27.25","./js/geom.js":"./js/geom.js?v=2026-09-27.25","./js/head.js":"./js/head.js?v=2026-09-27.25","./js/idioma.js":"./js/idioma.js?v=2026-09-27.25","./js/idioma-en.js":"./js/idioma-en.js?v=2026-09-27.25","./js/laberinto.js":"./js/laberinto.js?v=2026-09-27.25","./js/pipeline.js":"./js/pipeline.js?v=2026-09-27.25","./js/plots.js":"./js/plots.js?v=2026-09-27.25","./js/practica.js":"./js/practica.js?v=2026-09-27.25","./js/preguntas.js":"./js/preguntas.js?v=2026-09-27.25","./js/sesion.js":"./js/sesion.js?v=2026-09-27.25","./js/signal.js":"./js/signal.js?v=2026-09-27.25","./js/simulacion.js":"./js/simulacion.js?v=2026-09-27.25","./js/tracker.js":"./js/tracker.js?v=2026-09-27.25","./js/tutorial.js":"./js/tutorial.js?v=2026-09-27.25","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-27.25","./js/tutorial-pasos-en.js":"./js/tutorial-pasos-en.js?v=2026-09-27.25","three":"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"}}</script>
+    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-27.32","./js/app.js":"./js/app.js?v=2026-09-27.32","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-27.32","./js/cabeza.js":"./js/cabeza.js?v=2026-09-27.32","./js/canales.js":"./js/canales.js?v=2026-09-27.32","./js/curve.js":"./js/curve.js?v=2026-09-27.32","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-27.32","./js/geom.js":"./js/geom.js?v=2026-09-27.32","./js/head.js":"./js/head.js?v=2026-09-27.32","./js/idioma.js":"./js/idioma.js?v=2026-09-27.32","./js/idioma-en.js":"./js/idioma-en.js?v=2026-09-27.32","./js/laberinto.js":"./js/laberinto.js?v=2026-09-27.32","./js/patologia.js":"./js/patologia.js?v=2026-09-27.32","./js/pipeline.js":"./js/pipeline.js?v=2026-09-27.32","./js/plots.js":"./js/plots.js?v=2026-09-27.32","./js/practica.js":"./js/practica.js?v=2026-09-27.32","./js/preguntas.js":"./js/preguntas.js?v=2026-09-27.32","./js/sesion.js":"./js/sesion.js?v=2026-09-27.32","./js/signal.js":"./js/signal.js?v=2026-09-27.32","./js/simulacion.js":"./js/simulacion.js?v=2026-09-27.32","./js/tracker.js":"./js/tracker.js?v=2026-09-27.32","./js/tutorial.js":"./js/tutorial.js?v=2026-09-27.32","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-27.32","./js/tutorial-pasos-en.js":"./js/tutorial-pasos-en.js?v=2026-09-27.32","three":"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"}}</script>
     <script src="js/arranque.js"></script>
     <noscript><link rel="stylesheet" href="css/estilo.css" /></noscript>
   </head>
@@ -661,12 +661,14 @@
           <button role="tab" data-vista="canales" aria-selected="true" data-i18n="lab.v.canales">Canales</button>
           <button role="tab" data-vista="ejes" aria-selected="false" data-i18n="lab.v.ejes">Ejes</button>
           <button role="tab" data-vista="respuesta" aria-selected="false" data-i18n="lab.v.respuesta">Respuesta</button>
+          <button role="tab" data-vista="patologia" aria-selected="false" data-i18n="lab.v.patologia">Patología</button>
         </nav>
         <div class="lab-modos" role="radiogroup" aria-label="dónde van los laberintos" data-i18n-aria-label="lab.modos.aria">
           <button role="radio" data-modo-lab="lados" aria-checked="true" title="afuera de la cabeza, a cada lado y agrandados" data-i18n-title="lab.modo.lados.t" data-i18n="lab.modo.lados">A los lados</button>
           <button role="radio" data-modo-lab="lugar" aria-checked="false" title="en su posición anatómica, agrandados cuatro veces" data-i18n-title="lab.modo.lugar.t" data-i18n="lab.modo.lugar">En su lugar</button>
           <button role="radio" data-modo-lab="real" aria-checked="false" title="en su posición anatómica y a tamaño real" data-i18n-title="lab.modo.real.t" data-i18n="lab.modo.real">Tamaño real</button>
         </div>
+        <span id="lab-pat-badge" class="badge sim" hidden></span>
         <span class="espacio"></span>
         <button id="lab-sensores" aria-pressed="false" hidden>Mover con el teléfono</button>
         <button id="lab-centrar" title="cabeza y ojos al frente (doble toque, 0)" data-i18n-title="lab.centrar.t" data-i18n="lab.centrar">Centrar</button>
@@ -677,6 +679,16 @@
           <canvas id="lab-canvas"></canvas>
           <div id="lab-rotulos" class="lab-rotulos" aria-hidden="true"></div>
           <p id="lab-estado" class="lab-estado" aria-live="polite" hidden></p>
+          <!-- Los ojos de cerca: la vista de arriba la pinta three.js en este
+               hueco con una cámara pegada a la cabeza, como un video-
+               oculógrafo; abajo, la posición del ojo en el tiempo. -->
+          <div id="lab-ojos" class="lab-ojos" hidden>
+            <div id="lab-ojos-vista" class="lab-ojos-vista"></div>
+            <canvas id="lab-traza" class="lab-traza" role="img" aria-label="posición del ojo derecho en el tiempo" data-i18n-aria-label="lab.traza.aria"></canvas>
+            <p class="lab-traza-leyenda" data-i18n="lab.traza.leyenda">
+              <i class="h">horizontal</i> <i class="v">vertical</i> <i class="t">torsional</i> · ↑ derecha, arriba, polo sup. a la der. · 4 s
+            </p>
+          </div>
           <p class="lab-gestos" data-i18n="lab.gestos">
             arrastrar: girar · clic derecho o Mayús: rolar · rueda o pellizco: acercar · dos dedos:
             mover · doble toque: centrar
@@ -718,6 +730,49 @@
             <label class="check par-ralp"><input type="checkbox" id="lab-plano-ralp" /> <span data-i18n="lab.plano.ralp">plano RALP</span></label>
             <button id="lab-cenital" aria-pressed="true" data-i18n="lab.cenital">Vista de arriba</button>
           </section>
+          <section data-panel="patologia" hidden>
+            <p class="ayuda" data-i18n="lab.pat.ayuda">
+              Cada canal puede estar <b>normal</b>, con <b>hipofunción</b> (responde a la mitad) o en
+              <b>arreflexia</b> (no responde). De eso sale todo: las tasas, el reflejo de cada plano, el
+              nistagmo espontáneo si la lesión no está compensada y las sacadas correctivas. Para verlo,
+              los impulsos de <b>Respuesta</b> o mover la cabeza.
+            </p>
+            <div id="lab-pat-controles" class="lab-pat-controles">
+              <label class="campo">
+                <span data-i18n="lab.pat.caso">Caso</span>
+                <select id="lab-caso"></select>
+              </label>
+              <label class="check"><input type="checkbox" id="lab-pat-der" /> <span data-i18n="lab.pat.der">del lado derecho</span></label>
+              <div class="lab-grilla" role="group" aria-label="estado de cada canal" data-i18n-aria-label="lab.pat.grilla">
+                <span></span><b data-i18n="lab.pat.izq">izquierdo</b><b data-i18n="lab.pat.dercol">derecho</b>
+                <span data-i18n="lab.pat.lateral">lateral</span><select data-canal="lat_izq"></select><select data-canal="lat_der"></select>
+                <span data-i18n="lab.pat.anterior">anterior</span><select data-canal="ant_izq"></select><select data-canal="ant_der"></select>
+                <span data-i18n="lab.pat.posterior">posterior</span><select data-canal="post_izq"></select><select data-canal="post_der"></select>
+              </div>
+              <label class="check"><input type="checkbox" id="lab-compensado" /> <span data-i18n="lab.pat.compensado">compensada (sin nistagmo espontáneo)</span></label>
+              <label class="campo">
+                <span data-i18n="lab.pat.sacadas">Sacadas correctivas</span>
+                <select id="lab-sacadas">
+                  <option value="encubiertas" data-i18n="lab.pat.s.encubiertas">encubiertas (durante el giro)</option>
+                  <option value="abiertas" data-i18n="lab.pat.s.abiertas">abiertas (al frenar)</option>
+                  <option value="tardias" data-i18n="lab.pat.s.tardias">abiertas tardías</option>
+                  <option value="mixtas" data-i18n="lab.pat.s.mixtas">mixtas</option>
+                </select>
+              </label>
+            </div>
+            <p id="lab-ciego" class="sim-info" data-i18n="lab.pat.ciego" hidden>
+              Paciente <b>a ciegas</b>: los canales no muestran nada y las tasas quedan ocultas. Examinalo
+              con los impulsos de Respuesta y mirando los ojos.
+            </p>
+            <label class="check"><input type="checkbox" id="lab-fijacion" /> <span data-i18n="lab.pat.fijacion">fijando la mirada (sin lentes de Frenzel)</span></label>
+            <label class="check"><input type="checkbox" id="lab-ojos-ver" checked /> <span data-i18n="lab.pat.ojos">ojos de cerca</span></label>
+            <p id="lab-nistagmo" class="lab-nistagmo" aria-live="polite"></p>
+            <div class="practica">
+              <button id="lab-azar" class="primario" data-i18n="lab.pat.azar">Paciente al azar (a ciegas)</button>
+              <button id="lab-revelar" data-i18n="lab.pat.revelar" hidden>Revelar</button>
+              <p id="lab-revelado" class="sim-info" hidden></p>
+            </div>
+          </section>
           <section data-panel="respuesta" hidden>
             <p class="ayuda" data-i18n="lab.resp.ayuda">
               Un canal <b class="exc">se excita</b> cuando la cabeza gira alrededor de su eje y
@@ -738,8 +793,11 @@
                 <option value="10">×10</option>
               </select>
             </label>
-            <h3 data-i18n="lab.tasa">Disparo del nervio <small>(espigas/s)</small></h3>
-            <div id="lab-barras" class="lab-barras"></div>
+            <div id="lab-tasas" class="lab-tasas">
+              <h3 data-i18n="lab.tasa">Disparo del nervio <small>(espigas/s)</small></h3>
+              <div id="lab-barras" class="lab-barras"></div>
+            </div>
+            <p id="lab-tasas-ciego" class="ayuda" data-i18n="lab.tasas.ciego" hidden>A ciegas, las tasas quedan ocultas: mirá los ojos.</p>
             <p class="lab-vcab"><span data-i18n="lab.vcab">cabeza</span> <b id="lab-vcab">0</b> °/s</p>
             <p class="ayuda" data-i18n="lab.resp.ewald">
               En reposo cada nervio dispara unas 90 veces por segundo. Hacia arriba tiene margen; hacia

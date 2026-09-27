@@ -421,7 +421,7 @@ frente), **en su lugar** agrandados cuatro veces (con la cámara en tres
 cuartos), o en su lugar a **tamaño real**. En las tres giran con la cabeza, y
 el paso de una a otra se anima.
 
-Tres vistas:
+Cuatro vistas:
 
 - **Canales**: los seis, pintados por par coplanar (laterales, LARP, RALP), con
   rótulos.
@@ -433,6 +433,32 @@ Tres vistas:
   Cada canal se pinta de rojo si se excita y de azul si se inhibe, las barras
   muestran la tasa de disparo, y los ojos contragiran (VOR de ganancia 1, con
   fase rápida al llegar al borde de la órbita).
+- **Patología**: cada canal normal, con hipofunción o en arreflexia, a mano en
+  una grilla o con casos armados (neuritis vestibular superior e inferior,
+  pérdida unilateral, hipofunción lateral, hipofunción y arreflexia
+  bilaterales), de uno u otro lado; compensada o no; con sacadas correctivas
+  encubiertas, abiertas, abiertas tardías o mixtas; y fijando o no la mirada
+  (sin o con lentes de Frenzel). **Paciente al azar** lo esconde todo —colores,
+  tasas, nombre— y solo quedan los ojos para descubrirlo; **Revelar** dice qué
+  era. Los canales enfermos van en amarillo verdoso, como en aVOR. En
+  Patología y en Respuesta, **ojos de cerca** muestra los ojos con una cámara
+  pegada a la cabeza, como un video-oculógrafo, y debajo su posición en el
+  tiempo: horizontal, vertical y torsional, donde el nistagmo es un diente de
+  sierra.
+
+El modelo de patologías (`js/patologia.js`) no tiene guiones por
+enfermedad: todo sale de la función de cada canal. El nervio de un canal
+enfermo dispara menos en reposo y responde menos. En cada par manda el canal
+excitado, más cuanto más rápido es el giro (Ewald II), así que con un canal
+muerto el giro rápido hacia su lado queda con ganancia 0,2 y hacia el otro con
+0,8. Si la lesión no está compensada, el reposo que falta se lee como un giro y
+aparece un nistagmo espontáneo que bate hacia el lado sano, en 3D: la neuritis
+superior sale horizontal con componente torsional y hacia arriba; la inferior,
+hacia abajo y torsional. La fijación lo frena al 30 %. Las sacadas salen del
+error de mirada: las encubiertas durante el giro (unos 80 ms), las abiertas al
+frenar (unos 270 ms) y las tardías después (unos 500 ms). El ojo se lee en el
+marco de los canales, que es el de sus músculos (Simpson y Graf, 1981). Las
+constantes son para enseñar, con los órdenes de magnitud de la clínica.
 
 El modelo de canales es el de libro: tres ortogonales por lado, el conjunto
 levantado 30° adelante. La tasa sale de 90 espigas/s en reposo más 0,5 por °/s
@@ -665,6 +691,7 @@ js/tutorial.js  «Aprender a usar»: el menú de paseos; el contenido, en js/tut
 js/ejemplo.js   el paciente sintético de los paseos
 js/canales.js   los seis canales: ejes, tasa de disparo, impulsos (sin DOM)
 js/cabeza.js    la cabeza provisoria como superficie implícita (sin DOM)
+js/patologia.js canales enfermos: VOR, nistagmo espontáneo y sacadas (sin DOM)
 js/laberinto.js el Laberinto 3D: escena three.js, modelo, gestos y sensores
 ```
 

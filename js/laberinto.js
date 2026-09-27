@@ -36,6 +36,7 @@ import {
   DetectorOrden,
   ORDENES_GIRO,
   aMarco,
+  aMarcoCanales,
   arribaDesdeOrientacion,
   integraGiro,
   marcoDesdeArriba,
@@ -49,6 +50,17 @@ import {
   velocidadAngular,
 } from './canales.js';
 import { OJO, mallaCabeza } from './cabeza.js';
+import {
+  CASO,
+  CASOS,
+  ESTADOS,
+  Ojo,
+  SACADAS,
+  describeNistagmo,
+  espejo,
+  faseLentaEspontanea,
+  funciones,
+} from './patologia.js';
 import { alCambiarIdioma, tx } from './idioma.js';
 
 const $ = (id) => document.getElementById(id);
@@ -97,10 +109,14 @@ const MODOS_LABERINTO = {
 /** Constante de tiempo del paso de una forma a otra, en segundos. */
 const TAU_MODO_S = 0.12;
 
-/** Hasta dónde gira el ojo en la órbita antes de una fase rápida, en grados. */
-const LIMITE_OJO_DEG = 40;
-/** Constante de tiempo de la fase rápida que devuelve el ojo al centro. */
-const TAU_SACADA_S = 0.025;
+/** Paso máximo con que se avanza el ojo, en segundos físicos: sus sacadas duran 30 ms. */
+const PASO_OJO_S = 0.004;
+/** Lo que se ve de la traza de los ojos, en segundos, y su escala en grados. */
+const TRAZA_S = 4;
+const TRAZA_GRADOS = 15;
+/** Ancho de cara que entra en «ojos de cerca» y a qué distancia va esa cámara. */
+const OJOS_ANCHO = 0.11;
+const OJOS_DIST = 0.2;
 /** Suavizado de la velocidad medida de a cuadros (mouse, dedo, teléfono). */
 const TAU_OMEGA_S = 0.06;
 
@@ -125,6 +141,8 @@ const COLOR_REPOSO = 0x8a8a93;
 const GIRO_PARA_GRIS = 15;
 const COLOR_EXCITADO = 0xe0302a;
 const COLOR_INHIBIDO = 0x2e7dd6;
+/** Un canal enfermo, como en aVOR: amarillo verdoso, más cuanto peor funciona. */
+const COLOR_LESION = 0xa8c83a;
 
 const NOMBRE_CANAL = {
   lat_izq: () => tx('lateral izq.'),
@@ -136,25 +154,6 @@ const NOMBRE_CANAL = {
 };
 
 const Q1 = () => [0, 0, 0, 1];
-
-/** Esférica entre dos cuaterniones [x, y, z, w]. */
-function qSlerp(a, b, t) {
-  let d = a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3];
-  const bb = d < 0 ? b.map((v) => -v) : b;
-  d = Math.abs(d);
-  if (d > 0.9995) {
-    const q = a.map((v, i) => v + (bb[i] - v) * t);
-    const n = Math.hypot(...q);
-    return q.map((v) => v / n);
-  }
-  const th = Math.acos(d);
-  const s = Math.sin(th);
-  const ka = Math.sin((1 - t) * th) / s;
-  const kb = Math.sin(t * th) / s;
-  return a.map((v, i) => ka * v + kb * bb[i]);
-}
-
-const anguloDe = (q) => (2 * Math.acos(Math.min(1, Math.abs(q[3])))) * (180 / Math.PI);
 
 export function montaLaberinto() {
   const st = {
@@ -172,9 +171,13 @@ export function montaLaberinto() {
     sensor: sensorApagado(),
     qCabeza: Q1(),
     qPrevia: Q1(),
-    // Hacia dónde mira el ojo en el mundo. Con VOR perfecto no se mueve.
-    qMirada: Q1(),
-    faseRapida: false,
+    // El ojo, con su VOR, su nistagmo y sus sacadas (patologia.js).
+    ojo: new Ojo(),
+    // La patología puesta: estados por canal y cómo se la ve.
+    pat: { caso: 'sano', der: false, canales: {}, compensado: true, fijacion: false, sacadas: 'encubiertas', ciego: false },
+    f: funciones(),
+    lenta: [0, 0, 0],
+    traza: [],
     omega: [0, 0, 0],
     impulso: null,
     dist: DIST_INICIAL,
@@ -266,9 +269,10 @@ export function montaLaberinto() {
     for (const r of rotulos.children) r.textContent = NOMBRE_CANAL[r.dataset.canal]();
     pintaVpico();
     pintaSensores();
+    llenaSelects();
+    pintaPatologia();
   }
   alCambiarIdioma(traduce);
-  traduce();
 
   function pintaVpico() {
     $('lab-vpico-valor').textContent = `${$('lab-vpico').value} °/s`;
@@ -288,7 +292,159 @@ export function montaLaberinto() {
     st.cenital = v === 'ejes';
     $('lab-cenital').setAttribute('aria-pressed', String(st.cenital));
     aplicaVista();
+    pintaOjosVisibles();
   }
+
+  function pintaOjosVisibles() {
+    $('lab-ojos').hidden = !ojosVisibles();
+  }
+
+  // ------------------------------------------------------------- patología ---
+  //
+  // La patología vive en `st.pat`; de ahí salen las funciones de los canales
+  // (`st.f`) y la fase lenta espontánea (`st.lenta`), que el cuadro usa para
+  // las tasas, los colores y el ojo. Ver patologia.js.
+
+  const selCaso = $('lab-caso');
+  const selCanales = [...seccion.querySelectorAll('.lab-grilla select')];
+
+  const mayuscula = (t) => t.charAt(0).toUpperCase() + t.slice(1);
+
+  function nombreCaso(id, der) {
+    const c = CASO[id];
+    if (!c) return tx('a medida');
+    if (!c.unilateral) return tx(c.nombre);
+    return der ? tx('{caso} derecha', { caso: tx(c.nombre) }) : tx('{caso} izquierda', { caso: tx(c.nombre) });
+  }
+
+  function llenaSelects() {
+    const valor = selCaso.value;
+    selCaso.replaceChildren(
+      ...CASOS.map((c) => new Option(mayuscula(c.unilateral ? `${tx(c.nombre)}…` : tx(c.nombre)), c.id)),
+      new Option(tx('a medida'), 'medida'),
+    );
+    selCaso.value = valor || st.pat.caso;
+    const NOMBRE_ESTADO = { normal: tx('normal'), hipofuncion: tx('hipofunción'), arreflexia: tx('arreflexia') };
+    for (const sel of selCanales) {
+      const v = sel.value;
+      sel.replaceChildren(...Object.keys(ESTADOS).map((e) => new Option(NOMBRE_ESTADO[e], e)));
+      sel.value = v || 'normal';
+    }
+  }
+
+  function ponCaso(id, der = st.pat.der) {
+    const c = CASO[id];
+    st.pat.caso = id;
+    st.pat.der = der;
+    if (c) {
+      st.pat.canales = der && c.unilateral ? espejo(c.canales) : { ...c.canales };
+      st.pat.compensado = c.compensado;
+    }
+    aplicaPatologia();
+  }
+
+  function aplicaPatologia() {
+    st.f = funciones(st.pat.canales);
+    st.lenta = faseLentaEspontanea(st.f, { compensado: st.pat.compensado, fijacion: st.pat.fijacion });
+    pintaPatologia();
+  }
+
+  function textoNistagmo() {
+    const d = describeNistagmo(st.lenta);
+    if (!d) return tx('Sin nistagmo espontáneo.');
+    const nombres = {
+      izquierda: tx('a la izquierda'),
+      derecha: tx('a la derecha'),
+      arriba: tx('hacia arriba'),
+      abajo: tx('hacia abajo'),
+      torsional_derecha: tx('torsional hacia el oído derecho'),
+      torsional_izquierda: tx('torsional hacia el oído izquierdo'),
+    };
+    return tx('Nistagmo espontáneo: bate {dir}; fase lenta de {v} °/s.', {
+      dir: d.partes.map((p) => nombres[p]).join(', '),
+      v: d.velocidad.toFixed(0),
+    });
+  }
+
+  /** Pone la interfaz como dice `st.pat`. */
+  function pintaPatologia() {
+    const p = st.pat;
+    selCaso.value = CASO[p.caso] ? p.caso : 'medida';
+    $('lab-pat-der').checked = p.der;
+    $('lab-pat-der').disabled = !CASO[p.caso]?.unilateral;
+    for (const sel of selCanales) sel.value = p.canales[sel.dataset.canal] ?? 'normal';
+    $('lab-compensado').checked = p.compensado;
+    $('lab-fijacion').checked = p.fijacion;
+    $('lab-sacadas').value = p.sacadas;
+    $('lab-pat-controles').hidden = p.ciego;
+    $('lab-ciego').hidden = !p.ciego;
+    $('lab-azar').hidden = p.ciego;
+    $('lab-revelar').hidden = !p.ciego;
+    $('lab-tasas').hidden = p.ciego;
+    $('lab-tasas-ciego').hidden = !p.ciego;
+    // A ciegas el nistagmo también se calla en texto: se lo tiene que ver.
+    $('lab-nistagmo').textContent = p.ciego ? '' : textoNistagmo();
+    const badge = $('lab-pat-badge');
+    const hayAlgo = Object.values(p.canales).some((e) => e !== 'normal');
+    badge.hidden = !p.ciego && !hayAlgo;
+    badge.textContent = p.ciego ? tx('PACIENTE A CIEGAS') : nombreCaso(p.caso, p.der).toUpperCase();
+  }
+
+  selCaso.addEventListener('change', () => {
+    if (selCaso.value === 'medida') {
+      st.pat.caso = 'medida';
+      pintaPatologia();
+    } else ponCaso(selCaso.value);
+    $('lab-revelado').hidden = true;
+  });
+  $('lab-pat-der').addEventListener('change', (e) => ponCaso(st.pat.caso, e.target.checked));
+  for (const sel of selCanales) {
+    sel.addEventListener('change', () => {
+      st.pat.canales = { ...st.pat.canales, [sel.dataset.canal]: sel.value };
+      st.pat.caso = 'medida';
+      aplicaPatologia();
+    });
+  }
+  $('lab-compensado').addEventListener('change', (e) => {
+    st.pat.compensado = e.target.checked;
+    aplicaPatologia();
+  });
+  $('lab-fijacion').addEventListener('change', (e) => {
+    st.pat.fijacion = e.target.checked;
+    aplicaPatologia();
+  });
+  $('lab-sacadas').addEventListener('change', (e) => (st.pat.sacadas = e.target.value));
+  $('lab-ojos-ver').addEventListener('change', pintaOjosVisibles);
+
+  // A ciegas: un caso al azar, de un lado al azar, compensado o no y con un
+  // tipo de sacada al azar. Revelar muestra qué era.
+  const alAzar = (lista) => lista[Math.floor(Math.random() * lista.length)];
+  $('lab-azar').addEventListener('click', () => {
+    const c = alAzar(CASOS);
+    ponCaso(c.id, c.unilateral && Math.random() < 0.5);
+    // La neuritis puede llegar aguda o ya compensada.
+    if (c.id.startsWith('neuritis')) st.pat.compensado = Math.random() < 0.5;
+    st.pat.sacadas = alAzar(Object.keys(SACADAS));
+    st.pat.ciego = true;
+    $('lab-revelado').hidden = true;
+    st.ojo.centra();
+    aplicaPatologia();
+  });
+  $('lab-revelar').addEventListener('click', () => {
+    const p = st.pat;
+    p.ciego = false;
+    aplicaPatologia();
+    const partes = [nombreCaso(p.caso, p.der)];
+    if (p.caso !== 'sano') {
+      partes.push(p.compensado ? tx('compensada') : tx('sin compensar'));
+      partes.push(tx('sacadas {tipo}', { tipo: $('lab-sacadas').selectedOptions[0].textContent }));
+    }
+    const r = $('lab-revelado');
+    r.textContent = tx('Era: {caso}.', { caso: partes.join(' · ') });
+    r.hidden = false;
+  });
+
+  traduce();
 
   // ------------------------------------------------------ abrir y cerrar ---
 
@@ -392,7 +548,12 @@ export function montaLaberinto() {
     // La cabeza: todo lo que gira con ella cuelga de acá.
     const cabeza = new T.Group();
     escena.add(cabeza);
-    st.r = { renderer, escena, camara, cabeza };
+    // Los laberintos, flechas y planos van en la capa 1: la cámara principal
+    // ve las dos, la de los ojos de cerca solo la 0.
+    camara.layers.enable(1);
+    const camOjos = new T.PerspectiveCamera(12, 2.4, 0.01, 1);
+    cabeza.add(camOjos);
+    st.r = { renderer, escena, camara, cabeza, camOjos };
   }
 
   // -------------------------------------------------------------- modelo ---
@@ -502,6 +663,15 @@ export function montaLaberinto() {
     );
 
     st.escena = { ojos, laberintos, canales, piel, ...ejesYPlanos(T, laberintos) };
+    for (const g of [...Object.values(laberintos), ...Object.values(st.escena.planos)]) g.traverse((o) => o.layers.set(1));
+    // La cámara de los ojos de cerca, delante de la cara, a la altura de los
+    // ojos y mirando hacia atrás (−z de la cabeza, que es su −z propio).
+    const centroOjos = new T.Vector3();
+    const listaOjos = Object.values(ojos);
+    for (const o of listaOjos) centroOjos.add(o.obj.getWorldPosition(new T.Vector3()));
+    if (listaOjos.length) cabeza.worldToLocal(centroOjos.divideScalar(listaOjos.length));
+    else centroOjos.set(0, OJO.y, OJO.z);
+    st.r.camOjos.position.set(0, centroOjos.y, centroOjos.z + OJOS_DIST);
     ubicaLaberintos(1);
     aplicaVista();
     if (!glb) console.info('laberinto: modelo provisorio (no hay %s)', MODELO_URL);
@@ -609,6 +779,8 @@ export function montaLaberinto() {
     st.raf = requestAnimationFrame(cuadro);
     const dt = Math.min(0.1, Math.max(1e-3, (ahora - st.tPrevio) / 1000));
     st.tPrevio = ahora;
+    // En cámara lenta el ojo avanza en tiempo físico, como la cabeza.
+    const dtFisico = dt / (st.impulso?.lentitud ?? 1);
 
     // 1) Dónde está la cabeza y a qué velocidad gira.
     let omegaExacta = null;
@@ -643,20 +815,32 @@ export function montaLaberinto() {
     st.distBase = st.distBase === null ? base : st.distBase + (base - st.distBase) * (1 - Math.exp(-dt / TAU_MODO_S));
     st.dist = st.distBase * st.zoom;
 
-    // 2) Los ojos: VOR de ganancia 1, la mirada queda quieta en el mundo.
-    // Si el ojo llega al borde de la órbita, una fase rápida lo recentra: con
-    // un giro sostenido eso es un nistagmo.
-    let enOrbita = qMul(qInv(st.qCabeza), st.qMirada);
-    if (anguloDe(enOrbita) > LIMITE_OJO_DEG) st.faseRapida = true;
-    if (st.faseRapida) {
-      st.qMirada = qSlerp(st.qMirada, st.qCabeza, 1 - Math.exp(-dt / TAU_SACADA_S));
-      enOrbita = qMul(qInv(st.qCabeza), st.qMirada);
-      if (anguloDe(enOrbita) < 1) st.faseRapida = false;
-    }
+    // 2) Los ojos: VOR, nistagmo espontáneo y sacadas, con la patología
+    // puesta. Sano, la mirada queda quieta en el mundo; si el ojo llega al
+    // borde de la órbita, una fase rápida lo recentra.
+    const pasos = Math.max(1, Math.ceil(dtFisico / PASO_OJO_S));
+    const opciones = { f: st.f, lenta: st.lenta, tipo: st.pat.sacadas };
+    for (let i = 0; i < pasos; i++) st.ojo.paso(dtFisico / pasos, st.qCabeza, st.omega, opciones);
+    anotaTraza(ahora, st.ojo.q);
 
     // 3) Tasa de cada canal.
-    const r = respuestas(st.omega, st.ejesMedidos);
-    pinta(enOrbita, r);
+    const r = respuestas(st.omega, st.ejesMedidos, st.f);
+    pinta(st.ojo.q, r);
+  }
+
+  /**
+   * La posición del ojo en la órbita, en grados: derecha, arriba y torsión,
+   * leídas en el marco de los canales, que es el de los músculos del ojo.
+   */
+  function anotaTraza(ahora, q) {
+    const s = Math.hypot(q[0], q[1], q[2]);
+    const ang = s > 1e-9 ? (2 * Math.atan2(s, q[3]) * 180) / Math.PI : 0;
+    const k = s > 1e-9 ? ang / s : 0;
+    const [x, y, z] = aMarcoCanales([q[0] * k, q[1] * k, q[2] * k]);
+    // Girar alrededor de −y lleva la mirada a la derecha; de −x, arriba; de
+    // +z, el polo superior hacia la derecha del paciente.
+    st.traza.push([ahora, -y, -x, z]);
+    while (st.traza.length && ahora - st.traza[0][0] > TRAZA_S * 1000) st.traza.shift();
   }
 
   function pinta(enOrbita, r) {
@@ -675,21 +859,30 @@ export function montaLaberinto() {
     // color de su par (en Respuesta, siempre gris). La intensidad va con la
     // raíz de la activación para que un giro lento ya se note; el número
     // exacto está en las barras.
+    //
+    // Un canal enfermo va amarillo verdoso y se colorea en proporción a lo
+    // que todavía responde: muerto, no cambia. La activación se mide contra su
+    // propio reposo, que en una hipofunción es más bajo. A ciegas no se pinta
+    // nada: la lesión se tiene que descubrir por los ojos.
     const exc = new T.Color(COLOR_EXCITADO);
     const inh = new T.Color(COLOR_INHIBIDO);
     const gris = new T.Color(COLOR_REPOSO);
+    const lesion = new T.Color(COLOR_LESION);
     const base = new T.Color();
-    const moviendo = st.vista === 'respuesta' ? 1 : Math.min(1, Math.hypot(...st.omega) / GIRO_PARA_GRIS);
+    const ciego = st.pat.ciego;
+    const moviendo = ciego ? 0 : st.vista === 'respuesta' ? 1 : Math.min(1, Math.hypot(...st.omega) / GIRO_PARA_GRIS);
     for (const [id, c] of Object.entries(st.escena.canales)) {
-      const a = activacion(r[id].tasa);
-      const k = Math.sqrt(Math.abs(a));
-      base.setHex(COLOR_PAR[CANAL[id].par]).lerp(gris, moviendo);
+      const f = ciego ? 1 : r[id].f;
+      const a = ciego || f === 0 ? 0 : activacion(r[id].tasa / f);
+      const k = Math.sqrt(Math.abs(a)) * f;
+      base.setHex(COLOR_PAR[CANAL[id].par]).lerp(gris, moviendo).lerp(lesion, 1 - f);
       for (const m of c.materiales) {
         m.color.lerpColors(base, a >= 0 ? exc : inh, k);
         m.emissive.copy(a >= 0 ? exc : inh).multiplyScalar(0.35 * k);
       }
     }
-    if (st.vista === 'respuesta') pintaBarras(r);
+    if (st.vista === 'respuesta' && !ciego) pintaBarras(r);
+    if (st.vista === 'respuesta') $('lab-vcab').textContent = Math.hypot(...st.omega).toFixed(0);
 
     // Cámara: en tres cuartos o de arriba, a `dist` del centro de la cabeza.
     if (st.cenital) {
@@ -711,17 +904,75 @@ export function montaLaberinto() {
     escena.updateMatrixWorld();
     renderer.render(escena, camara);
     if (st.rotulos) ubicaRotulos();
+    if (ojosVisibles()) pintaOjosDeCerca();
+  }
+
+  function ojosVisibles() {
+    return $('lab-ojos-ver').checked && (st.vista === 'patologia' || st.vista === 'respuesta');
+  }
+
+  /**
+   * Los ojos de cerca, con una cámara pegada a la cabeza —como un video-
+   * oculógrafo: la cabeza no se ve moverse, el ojo en la órbita sí— pintada en
+   * el hueco de #lab-ojos-vista del mismo lienzo. Esa cámara no ve los
+   * laberintos (capa 1). Abajo, la traza.
+   */
+  function pintaOjosDeCerca() {
+    const { renderer, escena, camOjos } = st.r;
+    const hueco = $('lab-ojos-vista').getBoundingClientRect();
+    const todo = lienzo.getBoundingClientRect();
+    const x = hueco.left - todo.left;
+    const y = todo.bottom - hueco.bottom;
+    camOjos.aspect = hueco.width / Math.max(1, hueco.height);
+    camOjos.fov = (2 * Math.atan(OJOS_ANCHO / 2 / (OJOS_DIST * camOjos.aspect)) * 180) / Math.PI;
+    camOjos.updateProjectionMatrix();
+    renderer.setScissorTest(true);
+    renderer.setScissor(x, y, hueco.width, hueco.height);
+    renderer.setViewport(x, y, hueco.width, hueco.height);
+    renderer.render(escena, camOjos);
+    renderer.setScissorTest(false);
+    renderer.setViewport(0, 0, todo.width, todo.height);
+    pintaTraza();
+  }
+
+  function pintaTraza() {
+    const lienzoTraza = $('lab-traza');
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const w = Math.round(lienzoTraza.clientWidth * dpr);
+    const h = Math.round(lienzoTraza.clientHeight * dpr);
+    if (lienzoTraza.width !== w || lienzoTraza.height !== h) Object.assign(lienzoTraza, { width: w, height: h });
+    const ctx = lienzoTraza.getContext('2d');
+    ctx.clearRect(0, 0, w, h);
+    ctx.strokeStyle = 'rgba(250,250,250,0.18)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, h / 2);
+    ctx.lineTo(w, h / 2);
+    ctx.stroke();
+    if (st.traza.length < 2) return;
+    const fin = st.traza[st.traza.length - 1][0];
+    const xDe = (t) => w - ((fin - t) / (TRAZA_S * 1000)) * w;
+    const yDe = (g) => h / 2 - (Math.max(-TRAZA_GRADOS, Math.min(TRAZA_GRADOS, g)) / TRAZA_GRADOS) * (h / 2 - 2);
+    const colores = ['#e8721c', '#4db6e8', '#9b51d0'];
+    ctx.lineWidth = 1.5 * dpr;
+    for (let k = 0; k < 3; k++) {
+      ctx.strokeStyle = colores[k];
+      ctx.beginPath();
+      st.traza.forEach((m, i) => (i ? ctx.lineTo(xDe(m[0]), yDe(m[k + 1])) : ctx.moveTo(xDe(m[0]), yDe(m[k + 1]))));
+      ctx.stroke();
+    }
   }
 
   function pintaBarras(r) {
     for (const c of CANALES) {
-      const f = filas[c.id];
-      const t = r[c.id].tasa;
-      f.relleno.style.width = `${(100 * t) / TASA_MAX}%`;
-      f.relleno.className = `relleno ${t > TASA_REPOSO + 2 ? 'exc' : t < TASA_REPOSO - 2 ? 'inh' : ''}`;
-      f.valor.textContent = t.toFixed(0);
+      const fila = filas[c.id];
+      const { tasa: t, f } = r[c.id];
+      // Excitado o inhibido respecto de SU reposo, que enfermo es más bajo.
+      const reposo = f * TASA_REPOSO;
+      fila.relleno.style.width = `${(100 * t) / TASA_MAX}%`;
+      fila.relleno.className = `relleno ${f === 0 ? 'muerto' : t > reposo + 2 ? 'exc' : t < reposo - 2 ? 'inh' : ''}`;
+      fila.valor.textContent = t.toFixed(0);
     }
-    $('lab-vcab').textContent = Math.hypot(...st.omega).toFixed(0);
   }
 
   function ubicaRotulos() {
@@ -766,9 +1017,8 @@ export function montaLaberinto() {
     st.qSensor = Q1();
     st.qCabeza = Q1();
     st.qPrevia = Q1();
-    st.qMirada = Q1();
+    st.ojo.centra();
     st.omega = [0, 0, 0];
-    st.faseRapida = false;
     st.pan = [0, 0, 0];
     st.zoom = 1;
     st.camara = CAMARA_FRENTE;

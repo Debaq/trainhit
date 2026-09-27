@@ -1071,10 +1071,45 @@ body.con-laberinto { overflow: hidden; }
 .lab-fila .relleno { position: absolute; inset: 0 auto 0 0; background: #8a8a93; }
 .lab-fila .relleno.exc { background: #e0302a; }
 .lab-fila .relleno.inh { background: #2e7dd6; }
+.lab-fila .relleno.muerto { background: #a8c83a; }
 .lab-fila .reposo { position: absolute; top: -2px; bottom: -2px; width: 1px; background: var(--foreground); opacity: 0.7; }
 .lab-fila .valor { text-align: right; font-variant-numeric: tabular-nums; color: var(--foreground); font-weight: 500; }
 .lab-vcab { margin: 0; font-size: 12px; color: var(--muted-fg); }
 .lab-vcab b { color: var(--foreground); font-variant-numeric: tabular-nums; }
+
+/* Ojos de cerca: arriba a la izquierda de la escena. El hueco de arriba lo
+   pinta three.js en el mismo lienzo (por eso es transparente); abajo, la
+   traza. No captura el puntero: el arrastre pasa al modelo. */
+.lab-ojos {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 280px;
+  border: 1px solid var(--accent);
+  border-radius: var(--r-window);
+  background: rgba(9, 9, 11, 0.6);
+  overflow: hidden;
+  pointer-events: none;
+}
+.lab-ojos[hidden] { display: none; }
+.lab-ojos-vista { aspect-ratio: 2.2; }
+.lab-traza { display: block; width: 100%; height: 70px; border-top: 1px solid var(--accent); }
+.lab-traza-leyenda { margin: 0; padding: 2px 6px 4px; font-size: 10px; color: var(--muted-fg); }
+.lab-traza-leyenda i { font-style: normal; font-weight: 600; }
+.lab-traza-leyenda .h { color: #e8721c; }
+.lab-traza-leyenda .v { color: #4db6e8; }
+.lab-traza-leyenda .t { color: #9b51d0; }
+
+.lab-pat-controles { display: flex; flex-direction: column; gap: 8px; }
+.lab-pat-controles[hidden],
+.lab-tasas[hidden] { display: none; }
+.lab-grilla { display: grid; grid-template-columns: auto 1fr 1fr; gap: 4px 6px; align-items: center; font-size: 12px; }
+.lab-grilla b { font-weight: 600; color: var(--muted-fg); font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; }
+.lab-grilla select { max-width: none; width: 100%; padding: 4px 6px; font-size: 12px; }
+.lab-nistagmo { margin: 0; font-size: 12.5px; color: var(--foreground); }
+.lab-nistagmo:empty { display: none; }
+.lab-panel .practica { display: flex; flex-direction: column; gap: 6px; }
+.lab-barra .badge { font-size: 11px; }
 
 /* Teléfono o ventana angosta: el panel pasa abajo y el modelo queda arriba. */
 @media (max-width: 780px) {
@@ -1084,9 +1119,9 @@ body.con-laberinto { overflow: hidden; }
   .lab-gestos { display: none; }
   /* Con el panel abajo y corto, lo primero que se ve son las barras: es lo
      que se mira mientras se gira el teléfono. */
-  .lab-panel h3,
-  .lab-barras,
+  .lab-tasas,
   .lab-vcab { order: -1; }
+  .lab-ojos { width: 200px; top: 6px; left: 6px; }
 }
 /* Teléfono de costado: panel al costado otra vez, más angosto. */
 @media (orientation: landscape) and (max-height: 560px) {
