@@ -6,7 +6,7 @@ vHIT didáctico en el navegador, con la webcam del equipo.
 
 **Autor:** Nicolás Baier Quezada<br>
 **Fecha:** 26 de septiembre de 2026<br>
-**Versión de trainHIT documentada:** 2026-09-26.2
+**Versión de trainHIT documentada:** 2026-09-27.1
 
 Laboratorio TecMedHub · Universidad Austral de Chile, Sede Puerto Montt
 
@@ -119,6 +119,9 @@ Al abrir aparece la bienvenida: qué mide trainHIT, sus límites y dos botones.
 - **Aprender a usar** abre el menú de paseos guiados
   ([sección 9](#9-aprender-a-usar-los-paseos)). Es lo recomendado la primera vez.
 - **Empezar** va directo a la pantalla de medición.
+
+Al lado de **Quiénes lo hacemos**, **Manual y guía docente (PDF)** baja este
+documento en el idioma de la interfaz.
 
 El **?** de la barra vuelve a abrir esta bienvenida cuando se quiera. El enlace
 **Quiénes lo hacemos**, igual que la firma **TecMedHub** de la barra, abre la
@@ -496,6 +499,9 @@ el banco de preguntas de Moodle. Trae:
   emparejamiento de métodos.
 
 Sale en el idioma de la interfaz.
+
+Al lado, **Manual de uso y guía docente (PDF)** baja este documento, también en
+el idioma de la interfaz.
 
 ---
 

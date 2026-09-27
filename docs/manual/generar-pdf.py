@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Pasa manual.md (manual de uso y guía docente) a manual.pdf.
+"""Pasa el manual de uso y guía docente de Markdown a PDF, en los dos idiomas:
+manual.md → manual.pdf y manual.en.md → manual.en.pdf.
 
     python3 docs/manual/generar-pdf.py
 
@@ -15,11 +16,12 @@ from weasyprint import HTML
 AQUI = Path(__file__).resolve().parent
 
 CSS = """
+@page { @top-right { content: '%(encabezado)s'; } @bottom-left { content: '%(pie)s'; } }
 @page {
   size: A4;
   margin: 2cm 1.8cm 2.2cm;
-  @top-right { content: 'trainHIT · Manual de uso y guía docente'; font: 8pt 'Noto Sans', sans-serif; color: #999; }
-  @bottom-left { content: 'TecMedHub · Universidad Austral de Chile, Sede Puerto Montt'; font: 8pt 'Noto Sans', sans-serif; color: #777; }
+  @top-right { font: 8pt 'Noto Sans', sans-serif; color: #999; }
+  @bottom-left { font: 8pt 'Noto Sans', sans-serif; color: #777; }
   @bottom-right { content: counter(page); font: 9pt 'Noto Sans', sans-serif; color: #777; }
 }
 @page :first { @top-right { content: none; } @bottom-right { content: none; } }
@@ -61,13 +63,35 @@ def figuras(html: str) -> str:
     )
 
 
+IDIOMAS = {
+    'es': {
+        'fuente': 'manual.md',
+        'salida': 'manual.pdf',
+        'titulo': 'trainHIT · Manual de uso y guía docente',
+        'pie': 'TecMedHub · Universidad Austral de Chile, Sede Puerto Montt',
+    },
+    'en': {
+        'fuente': 'manual.en.md',
+        'salida': 'manual.en.pdf',
+        'titulo': 'trainHIT · User manual and teacher’s guide',
+        'pie': 'TecMedHub · Universidad Austral de Chile, Puerto Montt campus',
+    },
+}
+
+
 def main() -> None:
-    md = (AQUI / 'manual.md').read_text(encoding='utf-8')
-    cuerpo = markdown.markdown(md, extensions=['tables', 'fenced_code', 'toc', 'sane_lists', 'md_in_html'])
-    html = f'<!doctype html><html lang="es"><head><meta charset="utf-8"><title>trainHIT · Manual de uso y guía docente</title><style>{CSS}</style></head><body>{figuras(cuerpo)}</body></html>'
-    salida = AQUI / 'manual.pdf'
-    HTML(string=html, base_url=str(AQUI)).write_pdf(salida)
-    print(salida)
+    for lang, d in IDIOMAS.items():
+        md = (AQUI / d['fuente']).read_text(encoding='utf-8')
+        cuerpo = markdown.markdown(md, extensions=['tables', 'fenced_code', 'toc', 'sane_lists', 'md_in_html'])
+        # El % de CSS no es un formato: solo se reemplazan las dos claves.
+        css = CSS.replace('%(encabezado)s', d['titulo']).replace('%(pie)s', d['pie'])
+        html = (
+            f'<!doctype html><html lang="{lang}"><head><meta charset="utf-8">'
+            f'<title>{d["titulo"]}</title><style>{css}</style></head><body>{figuras(cuerpo)}</body></html>'
+        )
+        salida = AQUI / d['salida']
+        HTML(string=html, base_url=str(AQUI)).write_pdf(salida)
+        print(salida)
 
 
 if __name__ == '__main__':

@@ -1,0 +1,1112 @@
+# trainHIT
+
+**User manual and teacher’s guide**
+
+A teaching vHIT in the browser, with the computer’s webcam.
+
+**Author:** Nicolás Baier Quezada<br>
+**Date:** September 26, 2026<br>
+**trainHIT version documented:** 2026-09-27.1
+
+TecMedHub Lab · Universidad Austral de Chile, Puerto Montt campus
+
+## Contents
+
+<div class="indice" markdown="1">
+
+**Part I · User manual**
+
+- [1. What trainHIT is](#1-what-trainhit-is)
+- [2. Before you start](#2-before-you-start)
+- [3. The screen](#3-the-screen)
+- [4. Preparing the session](#4-preparing-the-session)
+- [5. The first measurement](#5-the-first-measurement)
+- [6. Reading the plots](#6-reading-the-plots)
+- [7. Tools](#7-tools)
+- [8. The engine settings](#8-the-engine-settings)
+- [9. Learn: the guided tours](#9-learn-the-guided-tours)
+- [10. Blind cases](#10-blind-cases)
+- [11. Simulated patient](#11-simulated-patient)
+- [12. Saving and sharing data](#12-saving-and-sharing-data)
+- [13. Language, small screens and offline use](#13-language-small-screens-and-offline-use)
+- [14. Keyboard shortcuts](#14-keyboard-shortcuts)
+- [15. Troubleshooting](#15-troubleshooting)
+
+**Part II · Teacher’s guide: ideas for teaching**
+
+- [16. What for and for whom](#16-what-for-and-for-whom)
+- [17. Learning outcomes](#17-learning-outcomes)
+- [18. Suggested class sequences](#18-suggested-class-sequences)
+- [19. Activities](#19-activities)
+- [20. Assessment](#20-assessment)
+- [21. Common mistakes and discussion questions](#21-common-mistakes-and-discussion-questions)
+- [22. Care in the classroom](#22-care-in-the-classroom)
+
+**Appendix**
+
+- [23. Glossary](#23-glossary)
+
+</div>
+
+---
+
+## 1. What trainHIT is
+
+> **trainHIT is not a medical device.** It is for *learning* how the
+> vestibulo-ocular reflex is measured, not for diagnosing. An ordinary webcam
+> delivers 30 frames per second, the distance to the target is not fixed and
+> the gain it reports is not desaccaded, so the values are for teaching. On top
+> of that, the page processes at most 60 frames per second even if the camera
+> delivers more: the cap is there on purpose.
+
+trainHIT measures the **vestibulo-ocular reflex (VOR)** with the computer’s
+camera. Frame by frame it tracks the head and the iris, and computes the
+**gain** of each head impulse: how much the eye turned for every degree the
+head turned.
+
+Unlike a clinical device, trainHIT puts **every step of the computation in
+plain sight**, and you can touch it. You can see the parallax line, the impulse
+window, the three gain methods and the engine settings. The point is to
+understand why it gives what it gives.
+
+The camera is **remote, with no goggles**: it stays fixed and is not mounted
+on the patient’s head. This is not an incomplete vHIT but a different method,
+which already has published norms with a remote camera (Wiener-Vacher &
+Wiener, 2017). Everything is processed in the browser and **the video never
+leaves the computer**.
+
+### What it is not
+
+- **It does not diagnose.** A 30 fps webcam, without fixing the distance to
+  the target, gives teaching values.
+- **It does not desaccade.** A covert saccade stays inside the gain and raises
+  it, precisely in the patient with a deficit. The bias is toward **false
+  negatives**.
+- **It only measures the lateral canal.** The vertical canals (RALP/LARP) need
+  the vertical movement of the eye, which the eyelid hides and a webcam
+  measures poorly.
+
+---
+
+## 2. Before you start
+
+### What you need
+
+- A computer with a **webcam** and a modern browser (Chrome, Edge, Firefox).
+- To practice for real, **two people**: one plays the patient and the other
+  the examiner. On your own you can learn the tool, but the reflex is not
+  measured: a turn you make yourself is predictable and the brain anticipates
+  it.
+
+### Opening the page
+
+If trainHIT is published at a web address, just open it. To run it on your own
+computer, from the project folder:
+
+```
+python3 -m http.server 8080
+```
+
+and open <http://localhost:8080>. A server is needed; opening `index.html`
+with a double click does not work, because the browser does not give the camera
+to a local file.
+
+The first time, the face tracking model is downloaded (about 10 MB). After
+that it stays stored and the page works **offline** (see
+[section 13](#13-language-small-screens-and-offline-use)).
+
+### The welcome screen
+
+When the page opens, the welcome screen shows what trainHIT measures, its
+limits and two buttons.
+
+![Welcome screen](img/en/01-bienvenida.png)
+
+- **Learn how to use it** opens the menu of guided tours
+  ([section 9](#9-learn-the-guided-tours)). Recommended the first time.
+- **Start** goes straight to the measurement screen.
+
+Next to **Who we are**, **Manual and teacher’s guide (PDF)** downloads this
+document in the interface language.
+
+The **?** in the bar reopens this welcome screen at any time. The **Who we
+are** link, like the **TecMedHub** signature in the bar, opens the team card:
+
+![The «Who we are» card](img/en/02-acerca.png)
+
+---
+
+## 3. The screen
+
+![Main screen, still without camera or impulses](img/en/03-principal-vacia.png)
+
+The screen has four areas:
+
+| Area | What is there |
+|---|---|
+| **Top bar** | Calibration status (**NOT CALIBRATED** / **CALIBRATED k=…**), status message, frames per second (**FPS**), whether there is a **FACE** in the frame, head velocity, the **♥** (like), the language switch and the **Learn**, **?**, **Simulator** and **Tools** buttons. |
+| **Left column** | The video with the tracking points, both eyes magnified, the measurement buttons and the live readouts. |
+| **Center** | One panel per side: **Rightward impulses** and **Leftward impulses**. Each one has all the impulses overlaid, the mean gain ± SD and the list of impulses. |
+| **Bottom** | **Live velocity**: the head in blue and the eye (inverted) in orange, over the last 8 seconds. On the right, the **asymmetry**. |
+
+**Colors used throughout the page:**
+
+- **Blue:** the head.
+- **Orange:** the eye.
+- **Violet triangle:** covert saccade.
+- **Red triangle:** overt saccade.
+
+**«Right» and «left» always mean the patient’s**, not the screen’s. An impulse
+toward the patient’s right lands in the right panel.
+
+### The measurement buttons
+
+| Button | What it does |
+|---|---|
+| **Turn on camera** / **Stop** | Turns the camera on or off. The selector below picks which camera to use if there is more than one. |
+| **Pause** (`Space`) | Freezes the analysis and the trace below so it can be measured. The camera stays on. |
+| **Calibrate** (`C`) | Calibrates the parallax for 10 s. It is **mandatory before trusting the gain**. |
+| **Discard** (`D`) | Discards the last impulse. `Z` brings it back. |
+| **Delete all** (`R`) | Deletes the session and asks for confirmation. |
+| **Export CSV** / **Import CSV** | Saves the session to a file or opens a saved one. |
+
+---
+
+## 4. Preparing the session
+
+A good measurement depends more on the setup than on the software.
+
+### Camera and light
+
+- The camera **at eye level**, with the face straight on and centered.
+- **At arm’s length**, just close enough for the iris to look sharp in the
+  magnified eyes. If it is too far, the impulse is rejected with *IRIS TOO
+  SMALL*.
+- Light **from the front** or from the side. **Never a window behind the
+  patient**: the face ends up in shadow and the model loses it.
+- **No glasses** if possible, because the reflections hide the iris.
+
+### Posture and target
+
+- The patient seated, with the head **flexed about 30° down**. That way the
+  lateral canal lies horizontal. The **tilt** readout shows it live.
+- The target to look at is **the camera itself**, or a dot stuck next to the
+  lens. The parallax model assumes the target is next to the camera, and
+  looking at something else changes the gain.
+
+### The examiner’s hands
+
+The examiner stands **behind** the patient and holds the head **from above**,
+with the hands away from the eyes, eyebrows and cheekbones. The model tracks
+the whole face: a finger over an eyebrow is enough to lose tracking (*FACE
+LOST*).
+
+---
+
+## 5. The first measurement
+
+### Step 1: Turn on the camera
+
+Press **Turn on camera**. The first time, the browser asks for permission to
+use the camera. Go on when the bar says **FACE yes**.
+
+![Camera on: the face with the tracking points and the magnified eyes](img/en/28-camara-encendida.png)
+
+The points on the face are what the model tracks. Below the video, the two
+magnified eyes show the outline of the iris and its center:
+
+![The viewer: video, magnified eyes and buttons](img/en/29-visor.png)
+
+If the iris does not look sharp in the magnified eyes, move closer to the
+camera or improve the light **before going on**. Everything else is computed
+from there.
+
+### Step 2: Check the readouts
+
+Below the buttons are the live numbers:
+
+![Live readouts](img/en/35-lecturas.png)
+
+The ones that matter while preparing:
+
+- **iris:** the iris radius in pixels. Below the minimum (5 px by default) the
+  impulse is rejected.
+- **tilt:** the head flexion; aim for about 30°.
+- **blink:** a blink inside the impulse invalidates it.
+
+Each number explains what it is when you hover over it. On touch screens,
+**What each number means** (below the readouts) says the same in plain view.
+
+### Step 3: Calibrate the parallax
+
+Press **Calibrate** (or `C`). At the top center, next to the camera, a **red
+dot** appears. The patient looks at it **without letting go** and turns the
+head **slowly** from side to side, about ±20°, for 10 seconds. A countdown
+shows how much time is left and the range of rotation reached. The Tools
+drawer opens by itself, so you can watch the fit points come in.
+
+![Calibration in progress: the red fixation dot and the countdown](img/en/30-calibrando.png)
+
+**Why it is needed:** the eye’s center of rotation lies behind the eye
+corners. When the head turns, the iris shifts in the image even if the eye does
+not move, and that shift is **as large as the signal**. Without calibration, a
+perfect reflex reads ~1.9.
+
+When it finishes, the bar says **CALIBRATED k=…** in green. If the calibration
+is rejected, the status message says what to do differently (turn more slowly,
+hold the gaze better, and so on). In **Tools** you can see the fit: if the
+patient held the gaze well, the points fall on a line.
+
+![The parallax line from a real calibration](img/en/31-recta-calibracion.png)
+
+### Step 4: Deliver the impulses
+
+Each impulse is a **short (10–20°) and fast (150–300 °/s)** turn to one side,
+and **the head stays still there**. Then it goes back slowly to the center, you
+wait, and the next one goes to a side the patient cannot guess.
+
+In the trace below each impulse shows up as a **blue** peak (head). The
+**orange** one is the eye, drawn inverted: with a normal reflex the two curves
+cover each other.
+
+![Live velocity during the impulses](img/en/32-traza-vivo.png)
+
+**Good technique:** a short, fast, unpredictable turn. **Poor technique:** a
+wide (more than 40°) and slow turn, or always to the same side.
+
+### Step 5: Read the result
+
+Each impulse lands in the panel for its side:
+
+![Result of a session measured with the camera](img/en/33-medido.png)
+
+- **At the top** of each panel, all the impulses overlaid. The green band is
+  the accepted range of peak velocity.
+- **The mean gain ± SD**, in green or red against the 0.80 cutoff. That cutoff
+  comes from devices that do desaccade, so here it is a reference, not a
+  criterion. Without calibration it stays gray.
+- **The count** of accepted and rejected impulses.
+- **The list**, one impulse per row: number, peak velocity, duration, gain,
+  saccades (▼) and status. **✕** discards that impulse.
+
+A rejected impulse says why, and a dashed red box with the reason appears on
+the plot. Rejected impulses **do not enter the mean**.
+
+| Reason | What to do |
+|---|---|
+| *TOO SLOW* | Deliver a stronger impulse. |
+| *TOO FAST* | A gentler impulse; it went past the maximum peak. |
+| *BLINK in the window* | Repeat it with the eyes open. |
+| *FACE LOST* | Stay in the frame and keep the hands off the face. |
+| *IRIS TOO SMALL* | Move closer to the camera or improve the light. |
+
+An impulse measured **without calibration** is marked **n/c** and its gain is
+struck through: it is useful to see the shape, not the number.
+
+### Step 6: Pause to measure the trace
+
+**Pause** (or `Space`) freezes the trace below. The camera stays on; what stops
+is the analysis. Once frozen, the trace is measured with the ruler
+([section 6](#6-reading-the-plots)).
+
+![Live trace frozen with Pause](img/en/34-traza-pausada.png)
+
+---
+
+## 6. Reading the plots
+
+This section needs no camera: you can load the **example impulses**, from a
+synthetic patient with a healthy right canal and a left canal with a deficit.
+They are loaded from **Learn › Reading the plots › Load example impulses**.
+
+![Example impulses: the healthy right side (~0.96) and the left side with a deficit and saccades](img/en/06-principal-ejemplo.png)
+
+The examples go through the same engine as a measured impulse. They replace
+the session, are marked **ex**, and the bar says **EXAMPLE k=…**. They go away
+by themselves when the camera is turned on or with **Delete all**.
+
+### The ruler on the plot
+
+When the pointer moves over a panel, a vertical line marks the instant and a
+label gives the head and eye velocity at that point.
+
+**A click sets a reference.** From there, moving the pointer shows:
+
+- **Δt** and the jump of each curve;
+- the **area** of each curve over the span, shaded. It is the displacement:
+  the degrees the head turned and the ones the eye moved;
+- the **gain of the span**: the ratio of the two areas.
+
+Another click releases the reference.
+
+![The ruler: reference set at 0 ms and measured up to 150 ms](img/en/07-regla.png)
+
+With a finger, on touch screens: one tap places the cursor, another sets the
+reference, dragging sideways measures, and another tap releases it.
+
+> Try measuring only the rise of the impulse and then the whole impulse: the
+> gain changes with the span, and the engine uses only one.
+
+### Looking at a single impulse
+
+A click on a row of the list **highlights** that impulse in the panel. Hovering
+over the row shows its other gains (at 60 ms, at the peak) and the settings it
+was computed with. If it is rejected, the dashed red box with the reason
+appears:
+
+![An impulse rejected for a blink, selected](img/en/08-rechazado.png)
+
+### The saccades
+
+Each saccade has a triangle over its peak:
+
+- **Violet: covert.** It started while the head was still turning.
+- **Red: overt.** It came after the turn.
+
+In the list, the triangle column says the same impulse by impulse. The **up to
+the saccade ≈** gain (in the row’s label) is the gain cut before the first
+covert saccade, and it is usually quite a bit lower than the reported one.
+
+### The asymmetry
+
+Bottom right: **(right − left) / (right + left)**, in %. Zero is symmetric, and
+the sign tells which side has the deficit: with the examples it is positive
+because the left side is the weak one.
+
+> **An asymmetry close to zero is not a normal result.** If both sides fail
+> equally (bilateral deficit), the asymmetry is zero. Each mean has to be read
+> on its own.
+
+### The mean curve
+
+In **Tools › Display › Mean curve per side**, each panel adds the mean of its
+accepted impulses, as a thicker line. The noise goes away and the shape
+remains.
+
+![Mean curve for each side](img/en/17-promedio.png)
+
+### Panel orientation
+
+In **Tools › Display › Orientation**:
+
+- **Compare sides** (default): both panels with the impulse pointing up and the
+  eye inverted. With a normal reflex the curves cover each other, and what you
+  read is the **gap** between them.
+- **Real direction:** each impulse toward its own side (right up, left down)
+  and the eye not inverted. It is the same thing, drawn as it happens.
+
+![«Real direction» orientation](img/en/18-orientacion-real.png)
+
+### Smoothing
+
+**Smooth the traces** joins the samples with a monotone curve, which never
+draws a peak higher than the one measured. Even so, it makes a 30 fps signal
+**look** more precise; that is why, while it is on, the dots mark the real
+samples. Turn it off to see how many samples an impulse really has.
+
+---
+
+## 7. Tools
+
+**Tools** (or `H`) opens a drawer on the right with every step of the
+computation in plain sight. Nothing inside is needed to measure: it is there
+to understand.
+
+![The Tools drawer open](img/en/09-herramientas.png)
+
+### Display
+
+![Display options](img/en/10-h-presentacion.png)
+
+- **Mirror the video:** with the mirror on, the patient’s right eye appears on
+  the right of the screen.
+- **Smooth the traces**, **Mark saccades**, **Mean curve per side** and
+  **Orientation:** see [section 6](#6-reading-the-plots).
+
+### Parallax calibration
+
+![Parallax calibration with the example impulses](img/en/11-h-calib.png)
+
+Each point is a frame of the calibration: the iris shift against the sine of
+the head turn. If the patient held the gaze well, the points fall on a
+**line** with slope −k. Seeing the line is the proof that what was measured is
+parallax and not the gaze wandering.
+
+**Manual k:** with the slider and **use this k** you can force a value of k.
+The experiment that explains everything is setting **k = 0** and pressing
+**Recompute**: the gains on the healthy side go to ~1.9. Nobody has a reflex of
+1.9; what you see is the uncorrected parallax.
+
+![With k = 0 and Recompute, the healthy side reads ~1.9; the previous values are struck through](img/en/19-recalcular-k0.png)
+
+Unchecking **use this k** restores the calibrated k.
+
+### Last impulse
+
+![The last impulse with its window](img/en/12-h-pulso.png)
+
+The selected impulse (or the last one), large. The **shading** is the impulse
+window, the span over which the gain is computed. The dotted lines are the
+start and end thresholds that bound it.
+
+### Gain vs peak, and the methods
+
+![Gain against peak and the table of methods](img/en/13-h-ganancias.png)
+
+There is one point per impulse: the head’s peak velocity against the gain.
+Blue for the right side, violet for the left; rejected ones are faded. A
+healthy reflex gives a **flat, tight cloud**, because the gain does not depend
+on how strong the impulse was.
+
+The **Method** selector and the table show the same gains computed four ways:
+
+| Method | What it computes |
+|---|---|
+| **Area** | How much the eye turned over how much the head turned during the whole impulse. **This is the one reported.** |
+| **60 ms** | The ratio of velocities at a single instant. At 30 fps it rests on two frames. |
+| **Peaks** | The eye’s maximum over the head’s maximum, even if they do not happen at the same time. |
+| **Up to the saccade ≈** | The area cut before the first covert saccade: an approximate desaccading, for comparison, not for reporting. |
+
+With the same impulses, the means and the asymmetry change with the method.
+That is why **a gain without its method cannot be compared with another**
+(Zamaro et al., 2020).
+
+After a **Recompute**, each old point is joined to the new one:
+
+![The gain cloud after recomputing with k = 0](img/en/20-nube-k0.png)
+
+### How it measures, and references
+
+![How it measures and what it does not do](img/en/15-h-como.png)
+
+The engine’s five decisions:
+
+1. the iris as a ruler;
+2. the spherical angle;
+3. the head measured by increments;
+4. the derivative by polynomial fit;
+5. the gain computed with positions.
+
+Below are what the method does **not** do and the references for each number.
+
+### For teachers
+
+![The section for teachers](img/en/16-h-docentes.png)
+
+**Questions for Moodle (GIFT)** downloads a `.txt` file ready to import into a
+Moodle question bank. It includes:
+
+- one question for each blind case, with the numbers the engine gets from each
+  one;
+- a bank of concepts: parallax, saccades, false negatives, canals, asymmetry,
+  calibration, rejections, a numerical question, a true/false and a matching
+  question on the methods.
+
+It comes out in the interface language.
+
+Next to it, **User manual and teacher’s guide (PDF)** downloads this document,
+also in the interface language.
+
+---
+
+## 8. The engine settings
+
+They are at the bottom of the Tools drawer.
+
+![The engine settings](img/en/14-h-perillas.png)
+
+A changed setting applies to the **following** impulses. Each impulse keeps
+its raw samples, so **Recompute the impulses with these settings** runs the
+whole engine again over the impulses already there. After recomputing:
+
+- the previous gain stays struck through next to the new one;
+- the panels show the previous mean;
+- **Remove comparison** clears the struck-through values.
+
+While any setting is not at its factory value, the bar says **SETTINGS
+CHANGED**: those impulses are not comparable with others. **Default values**
+puts everything back.
+
+| Setting | Default | What it does | To try |
+|---|---|---|---|
+| **Differentiator window** | 50 ms | Velocity comes from fitting a parabola to the samples in this window. Wider means less noise, but a flatter peak. | Set 200 ms and recompute: the peaks drop and several impulses become *TOO SLOW*. |
+| **Fit degree** | 2 | 1 fits a line and flattens the peak; 3 also follows the noise. | Try it with the window at 50 and at 100 ms. |
+| **Start / End threshold** | 60 / 40 °/s | Where the impulse starts and ends, that is, the window over which the gain is computed. | Move them and watch **Last impulse**. |
+| **Min / Max peak** | 120 / 300 °/s | Criterion for accepting an impulse. It changes no gain; it decides which ones enter the mean. | Lower the minimum to 80: the slow example impulse becomes accepted. |
+| **Min / Max duration** | 80 / 300 ms | Like the peak, but with duration. | — |
+| **Blink** | 0.45 | How closed the eye has to be (0 open, 1 closed) to count as a blink. | Raise it to 0.90: the impulse with a blink becomes accepted, with a gain computed with the eye closed. |
+| **Min iris** | 5 px | Iris radius below which the impulse is rejected. | — |
+
+> The method is to move **one** setting, recompute, look at what changed and
+> put it back.
+
+---
+
+## 9. Learn: the guided tours
+
+**Learn** (in the bar, or `T`) opens a menu of short guided tours. They can be
+taken in any order; if it is your first time, from top to bottom. A ✓ marks the
+finished tours.
+
+![The menu of tours](img/en/04-menu-aprender.png)
+
+| Tour | What it covers | Camera? |
+|---|---|---|
+| **What a vHIT measures** | The reflex, the impulse, the six canals, the gain, the saccades, the patterns to look for and the limits. | No |
+| **Preparing the session** | Camera, light, posture and the examiner’s hands. | No |
+| **The first measurement** | Calibrating, delivering impulses, reading panels and list, CSV. | Yes |
+| **Reading the plots** | The ruler, rejected impulses, saccades, asymmetry, mean curve, smoothing, orientation and pause. | No (uses examples) |
+| **Blind cases** | Five synthetic patients with no diagnosis. | No |
+| **Simulated patient** | In pairs, a pathology added by the engine. | Yes |
+| **Inside the tools** | The parallax line, the last impulse, the cloud, the methods and the manual k. | No (uses examples) |
+| **The engine settings** | Each setting, tried with Recompute. | No (uses examples) |
+
+Reading cards appear in the center with the background darkened:
+
+![A card from the «What a vHIT measures» tour](img/en/05-paseo-tarjeta.png)
+
+The other cards light up the part of the screen they talk about and leave the
+page usable, because what is pointed at has to be clickable. Some steps wait
+for something (the face, a calibration, impulses, a recompute), but waiting
+never blocks: the button says **Skip** until the condition is met.
+
+---
+
+## 10. Blind cases
+
+Five synthetic patients, each with a letter and **without saying what they
+have**. They are loaded from **Learn › Blind cases**. You look at the panels
+and choose the pattern from a list, which is the same for every case: if each
+case brought its own options, the list would give the answer away.
+
+![How to read a case](img/en/21-casos-intro.png)
+
+What to look at:
+
+- the **mean ± SD** on each side and how many impulses were accepted;
+- the **asymmetry**;
+- the **shape** of the orange curves: a narrow peak that pulls away from the
+  blue one is a saccade;
+- how many impulses were **rejected**, and why.
+
+![Case B loaded: the right side low and with overt saccades](img/en/22-caso-b.png)
+
+A wrong answer shows a hint and you can try again. A right answer shows the
+explanation:
+
+![Case B answered: right-sided deficit](img/en/23-caso-b-respuesta.png)
+
+| Case | What it teaches |
+|---|---|
+| A | The reference: what normal looks like. |
+| B | The textbook neuritis, and the sign of the asymmetry. |
+| C | An asymmetry of zero is not a normal result. |
+| D | A normal mean (even >1!) can hide a deficit with covert saccades: the false negative. |
+| E | Without enough accepted impulses no conclusion is drawn: the test is repeated. |
+
+---
+
+## 11. Simulated patient
+
+The **Simulator** (in the bar, or `S`) puts a pathology on top of **real**
+impulses. A healthy classmate plays the patient and the student delivers real
+impulses, with their own technique, rebounds and hands on the face. The engine
+adds the deficit: the gaze is dragged along with the head in whatever the
+reflex does not compensate, and saccades bring it back. You practice
+**examining and reading at the same time**.
+
+![The Simulator drawer](img/en/36-simulador-cajon.png)
+
+| Profile | What it adds |
+|---|---|
+| Right / left vestibular neuritis | Gain 0.35–0.55 on that side, with overt saccades. |
+| Right / left compensated deficit | Gain 0.40–0.55 with clustered covert saccades: **it reads normal**. |
+| Bilateral vestibulopathy | Both sides 0.30–0.50, with overt saccades. |
+| No pathology (control) | Nothing: the impulses are marked as simulated, but they are the real ones. |
+
+### I’m feeling lucky
+
+The whole practice in one click.
+
+**1.** Turn on the camera and **calibrate** with the classmate, as always.
+
+**2.** Open **Simulator** and press **I’m feeling lucky**. A patient is drawn
+at random (the healthy control included) and stays **blind**.
+
+**3.** The drawer **closes** to leave both panels in view. In the bar, next to
+**SIMULATED**, a counter keeps track of the accepted impulses on each side.
+Clicking the counter opens the drawer again.
+
+![Examining: the drawer closed, both panels in view and the counter in the bar](img/en/37-suerte-examinando.png)
+
+![The counter of accepted impulses in the bar](img/en/37b-barra-contador.png)
+
+**4.** Deliver impulses. The trace below already shows the pathology during
+the exam. In the magnified eyes, a **violet ring** marks where the simulated
+iris would be. The video is the real one and does not move.
+
+![The violet ring: where the iris would be with the pathology](img/43-anillo-violeta.png)
+
+**5.** With **three accepted impulses per side** the drawer opens by itself and
+**I know what it has** becomes available.
+
+![Three impulses per side: the drawer opens to answer](img/en/38-suerte-listo.png)
+
+**6.** Three questions appear in the order of clinical reasoning: which side is
+affected, which saccades appear and which pattern it shows.
+
+![The three questions](img/en/39-suerte-preguntas.png)
+
+![The chosen answers](img/en/40-suerte-respondido.png)
+
+**7.** **Reveal** grades each question: green for the right answer, red for the
+chosen one if it was wrong. It also gives the score and says which profile it
+was.
+
+![Grading: green the right answer, red the chosen one if it was wrong](img/en/41-suerte-revelado.png)
+
+**8.** **See the real thing** recomputes each impulse without the pathology:
+what the classmate actually produced, with the simulated values struck through
+next to it. The plots then say **NOT SIMULATED**.
+
+![See the real thing: the healthy classmate’s impulses, with the simulated values struck through](img/en/42-ver-lo-real.png)
+
+**Another random patient** starts over.
+
+### Choosing the patient by hand
+
+Outside the practice, whoever plays the teacher can choose the profile under
+**Patient** and check **blind**. The selector then hides and the screen does
+not say which one it is. **Reveal** shows it at the end.
+
+### The simulated never passes as real
+
+- The bar says **SIMULATED**.
+- Every impulse carries the **sim** mark.
+- The plots carry a watermark, so a screenshot carries it too.
+- The CSV has a `simulado` column (`oculto` while blind).
+- **Changing the patient deletes the impulses:** mixing two patients would
+  give a mean that belongs to nobody.
+
+---
+
+## 12. Saving and sharing data
+
+### Export CSV
+
+**Export CSV** downloads a file with the whole session:
+
+- one impulse per row, with its gain and the settings it was computed with;
+- one sample per row, to redo the computations in a spreadsheet;
+- the raw frames.
+
+The CSV always stays in Spanish, because it is a data format.
+
+### Import CSV
+
+**Import CSV** opens that file on another computer or another day and
+**recomputes each impulse from the raw data**. It is useful to hand out a
+measured case and have each student look at it with their own settings. The
+imported session replaces the current one, and the bar shows that the
+calibration is the file’s.
+
+### The «like»
+
+The **♥** in the bar adds a vote to a public, anonymous counter. Neither the
+video, nor the measurements, nor anything from the session is sent. One vote
+per browser.
+
+---
+
+## 13. Language, small screens and offline use
+
+### Language
+
+trainHIT comes in **Spanish and English**. It starts in the browser’s
+language, or in the one given in the address (`?lang=en`, handy for a course
+link). The **EN** / **ES** button in the bar switches language live, without
+reloading and without losing the session.
+
+![The interface in Spanish](img/en/25-espanol.png)
+
+### Small screens
+
+On a phone, the camera becomes a small box with the eyes beside it. With the
+phone sideways, the screen goes back to two columns.
+
+![On a phone, upright](img/en/26-movil.png)
+
+![On a phone, sideways](img/en/27-movil-horizontal.png)
+
+### Offline
+
+After the first load, the page and the tracking model stay stored in the
+browser, and trainHIT opens and measures **without a connection**. It is meant
+for the classroom, where the wifi fails.
+
+---
+
+## 14. Keyboard shortcuts
+
+| Key | What it does |
+|---|---|
+| `C` | Calibrate the parallax (10 s). |
+| `Space` or `P` | Pause and freeze the trace below (the camera stays on). |
+| `D` | Discard the last impulse. |
+| `Z` | Bring back the last discarded one. |
+| `R` | Delete all impulses. |
+| `H` | Open or close Tools. |
+| `S` | Open or close the Simulator. |
+| `T` | Open or close «Learn». |
+
+---
+
+## 15. Troubleshooting
+
+| Problem | Likely cause and fix |
+|---|---|
+| The camera does not turn on | The browser has no permission: grant it from the padlock in the address bar. If `index.html` was opened with a double click, a server is needed (see [section 2](#2-before-you-start)). |
+| **FACE no** | Little light, light from behind or face out of the frame. Put the light in front and center the face. |
+| Very low **FPS** (under 20) | The computer is struggling. Close other tabs and programs using the camera or the GPU. |
+| The calibration is rejected | Turn more slowly, without taking the eyes off the red dot, with a ±20° arc. |
+| Every impulse *TOO SLOW* | The impulses have to be faster: a short, sharp turn. |
+| Many *FACE LOST* | The hands cover eyebrows or cheekbones: hold the head higher. |
+| *IRIS TOO SMALL* | The patient is far away or the camera has low resolution. Move closer. |
+| Gains around 1.9 | Calibration is missing (the bar says **NOT CALIBRATED**), or **manual k** was left at 0. |
+| Gains above 1 | A covert saccade inside the impulse inflates the gain (see case D). It also happens with impulses the patients make themselves. |
+| The bar says **SETTINGS CHANGED** | Some settings are off their factory value. Tools › **Default values**. |
+
+---
+
+## 16. What for and for whom
+
+This second part gathers **ideas for using trainHIT in class**. It is not a
+closed program: they are activities, sequences and rubrics that each teacher
+can adapt to the course, the time available and the equipment at hand.
+
+### For whom
+
+Students in health programs that cover the **vestibular system** and its
+assessment: speech and hearing sciences, medical technology, medicine,
+physiotherapy and nursing. It also works in workshops and lab visits, to show
+how a clinical number comes out of an image.
+
+### What it adds compared with a clinical device
+
+A clinical vHIT gives the gain and the saccades, but does not show how they
+were computed. trainHIT does, and that makes it possible to teach three things
+that stay a black box with a closed device:
+
+- **How it is measured:** from the video to the eye angle, from there to the
+  velocity and from there to the gain, with every step in view.
+- **Why the number can mislead:** parallax, covert saccades, the computation
+  method and the acceptance criteria all change the result.
+- **How the exam is done:** the examiner’s technique decides whether there are
+  impulses to read, and that shows in the rejections.
+
+### What the room needs
+
+- **A computer with a webcam per group** of 2 or 3 students. Without a camera
+  you can still do the tours, the blind cases and the settings.
+- **A projector** for demonstrations and discussion.
+- **Network only the first time.** Open the page on each computer before
+  class: after that it works offline.
+- **A chair without wheels** for the patient, with room behind it for the
+  examiner.
+
+---
+
+## 17. Learning outcomes
+
+After the activities, the student is expected to be able to:
+
+1. **Explain** the vestibulo-ocular reflex and why the head impulse tests a
+   semicircular canal.
+2. **Perform** a head impulse with proper technique: amplitude, velocity,
+   unpredictability and hand position.
+3. **Interpret** the plots of a vHIT: gain per side, asymmetry, covert and
+   overt saccades, and rejected impulses.
+4. **Recognize** the normal, unilateral deficit and bilateral deficit
+   patterns, and the deficit hidden by covert saccades.
+5. **Justify** why a gain depends on the calibration, the computation method
+   and the acceptance criteria.
+6. **Recognize the limits** of a measurement: when no conclusion can be drawn
+   and why this tool cannot be used to diagnose.
+
+---
+
+## 18. Suggested class sequences
+
+### A 90-minute practical session
+
+For a course that has already covered the physiology of the VOR in theory.
+
+| Time | Activity | With | Output |
+|---|---|---|---|
+| 0–15 min | Framing: what a vHIT measures and what it does not | **What a vHIT measures** tour, projected | Open questions from the class |
+| 15–30 min | Preparing the session and calibrating | **Preparing the session** and **The first measurement** tours | Each group with an accepted calibration |
+| 30–50 min | Blind cases | **Blind cases** tour, in groups | Each group’s answer to each case |
+| 50–80 min | Simulated patient in pairs | **Simulator › I’m feeling lucky**, rotating roles | Practice score and technique rubric |
+| 80–90 min | Wrap-up | Discussion of case D and of the limits | One idea each student takes away |
+
+### A 45-minute session, no camera
+
+For a lecture with a projector, or when there are no webcams.
+
+1. **10 min:** the **What a vHIT measures** tour.
+2. **15 min:** **Blind cases** A to E, with a show of hands before revealing
+   each one.
+3. **15 min:** the parallax experiment (activity 19.2) and the three methods
+   (activity 19.6).
+4. **5 min:** wrap-up with the question “why does case D read normal?”.
+
+### A lab in two sessions
+
+- **Session 1, technique.** Preparation, calibration and exams in pairs
+  without the simulator. The goal is the **acceptance rate** (activity 19.8).
+- **Session 2, reading.** Blind simulator, settings and work on a shared CSV
+  (activity 19.7). It ends with a short report.
+
+---
+
+## 19. Activities
+
+Each activity says what it aims for, how it is done and what to discuss at the
+end.
+
+### 19.1 From the plot to the number
+
+**Aim:** the gain stops being a magic number.
+
+1. Load the **example impulses** (Learn › Reading the plots).
+2. With the **ruler**, measure the head and eye areas of an impulse on the
+   right side, from the start to the end of the impulse.
+3. Divide the areas by hand and compare with the gain in the list.
+4. Repeat, measuring only the rise of the impulse.
+
+**To discuss:** why does the gain change with the span? Which span does the
+engine use, and why that one?
+
+### 19.2 The parallax experiment
+
+**Aim:** understand what calibration is for.
+
+1. With the example impulses, open **Tools › Parallax calibration**.
+2. Set **manual k to 0**, check **use this k** and press **Recompute**.
+3. Write down the gain of the healthy side (~1.9) and go back to the
+   calibrated k.
+
+**To discuss:** no reflex has a gain of 1.9. Where does that number come from?
+What would happen in the clinic with a badly calibrated device?
+
+### 19.3 Blind cases in groups
+
+**Aim:** read a whole vHIT, not just a number.
+
+1. Each group loads cases A to E and decides the pattern **before** answering
+   on the page.
+2. The teacher asks each group for its answer and only then is it revealed.
+3. The cases with disagreement are discussed.
+
+**To discuss:** in case C, why is an asymmetry of zero not normal? In case D,
+what would you have to look at so as not to stop at the mean?
+
+### 19.4 Simulated patient with rotating roles
+
+**Aim:** examine and read at the same time, with an unknown pathology.
+
+Groups of three, with three roles that rotate each round:
+
+- **Patient:** a healthy classmate in front of the camera.
+- **Examiner:** delivers the impulses and answers the questions.
+- **Observer:** fills in the technique rubric (section 20).
+
+Each round is an **I’m feeling lucky**: examine until there are 3 accepted
+impulses per side, answer, **Reveal** and look at **See the real thing**.
+
+**To discuss:** were the examiner’s rejected impulses due to technique or to
+the patient? What changed between the first round and the last?
+
+### 19.5 One setting per group
+
+**Aim:** understand the criteria behind a result.
+
+1. Each group gets a setting: differentiator window, thresholds, minimum peak,
+   blink or minimum iris.
+2. With the example impulses, they change only that setting, press
+   **Recompute** and write down what changed: gains, accepted and rejected.
+3. Each group presents its finding in 2 minutes.
+
+**To discuss:** lowering the minimum peak lets the slow impulse in, and raising
+the blink threshold accepts measurements with the eye closed. Which criterion
+would you relax in the clinic, and which never?
+
+### 19.6 Three methods, one impulse
+
+**Aim:** a gain is never compared without its method.
+
+1. With case D loaded, open **Tools › Gain vs peak**.
+2. Compare the means and the asymmetry of each method in the table.
+3. Look at the **up to the saccade ≈** row on the left side.
+
+**To discuss:** which of the methods “is right”? Why, in case D, does the area
+gain come out at ~1 and the one cut at the saccade at ~0.5?
+
+### 19.7 One case for everyone
+
+**Aim:** the whole class analyzes the same measurement, each with their own
+criteria.
+
+1. The teacher measures a volunteer (or builds a case with the simulator) and
+   saves the session with **Export CSV**.
+2. The file is shared through the virtual classroom.
+3. Each student opens it with **Import CSV**, analyzes it and writes a short
+   report: gain per side, asymmetry, saccades, rejected impulses and a
+   conclusion, or “inconclusive” if that is the case.
+
+The CSV can also be opened in a spreadsheet to redo the computations.
+
+### 19.8 The acceptance rate
+
+**Aim:** improve technique with an objective measure.
+
+Each examiner delivers 10 impulses and counts how many were **accepted** and
+the reasons for the rejected ones (*TOO SLOW*, *TOO FAST*, *FACE LOST*,
+*BLINK*). It is repeated after correcting the technique, and compared.
+
+**To discuss:** which rejection reason was the most common in the class, and
+what fixes it?
+
+### 19.9 What this is not
+
+**Aim:** critical thinking about clinical technology.
+
+In groups, with the **What a vHIT measures › What this is not** tour step and
+the **Tools › How it measures** section, list the differences between trainHIT
+and a clinical vHIT: frames per second, desaccading, distance to the target,
+vertical canals and validation.
+
+**To discuss:** what would it take for a tool like this to be used with
+patients? Why does it have a 60 frames per second cap on purpose?
+
+---
+
+## 20. Assessment
+
+### Formative assessment, within the page itself
+
+- **Blind cases:** each answer gives a hint if wrong and an explanation if
+  right. It works as self-assessment.
+- **I’m feeling lucky:** on reveal, the page gives the score (“2 of 3
+  correct”). A screenshot serves as evidence.
+
+### Quiz in Moodle
+
+**Tools › For teachers › Questions for Moodle (GIFT)** downloads a file ready to
+import into the course’s **question bank** (Question bank › Import › GIFT
+format). It includes:
+
+- one question for each blind case, with the case’s numbers;
+- concept questions: parallax, saccades, false negatives, canals, asymmetry,
+  calibration and rejections;
+- a numerical gain question, a true/false and a matching question on methods.
+
+With that bank you can build an entry quiz (before the practical) and an exit
+quiz (after it) to compare.
+
+### Examiner technique rubric
+
+Filled in by the observer in activity 19.4, or by the teacher.
+
+| Criterion | Achieved | Developing | Not achieved |
+|---|---|---|---|
+| **Preparation** | Camera at eye level, light from the front, tilt ~30° | One element missing | Several elements wrong |
+| **Calibration** | Accepted on the first try | Accepted on the second or third try | Cannot calibrate |
+| **Hands** | Above the head, face clear | Sometimes covers the face | Often loses the face (*FACE LOST*) |
+| **Amplitude and velocity** | Short, fast turns, peak between 150 and 300 °/s | Some *TOO SLOW* or *TOO FAST* | Most rejected |
+| **Unpredictability** | Alternates sides with no pattern | Pattern sometimes predictable | Always alternates the same way |
+| **Return** | Returns slowly to the center and waits | Sometimes returns fast | Abrupt return, chained impulses |
+| **Acceptance rate** | 8 or more out of 10 | 5 to 7 out of 10 | Fewer than 5 out of 10 |
+
+### Guide for the short report (activity 19.7)
+
+| Element | What is expected |
+|---|---|
+| Measurement data | Accepted and rejected impulses per side, and reasons |
+| Results | Mean gain ± SD per side, with the method, and asymmetry |
+| Saccades | Kind (covert or overt) and side |
+| Interpretation | The pattern shown, justified with the plots |
+| Limits | What cannot be concluded from this measurement and why |
+
+---
+
+## 21. Common mistakes and discussion questions
+
+### Common student mistakes
+
+| Mistake | How to address it |
+|---|---|
+| Reading only the asymmetry | Case C: both sides low give an asymmetry of zero. |
+| Stopping at the mean without looking at the curves | Case D: the covert saccade inflates the gain. Select an impulse and look at it. |
+| Confusing the side with the screen’s | Right and left are the patient’s: an impulse to their right lands in the right panel. |
+| Thinking a gain above 1 is “better” | Show case D and the uncalibrated impulses: above 1 is usually an artifact. |
+| Forgetting to calibrate | The bar says **NOT CALIBRATED** and the impulses are marked **n/c**. Repeat the parallax experiment (19.2). |
+| Wide, slow impulses | Look at the peak in the list and the *TOO SLOW* rejections; practice short turns. |
+| Interpreting with two or three impulses | Case E: without enough accepted impulses no conclusion is drawn. |
+| Taking the result as a diagnosis | Go back to «What it is not» and to activity 19.9. |
+
+### Questions to open the discussion
+
+- Why does the impulse have to be unpredictable?
+- If the reflex is perfect, what does the plot show? And if there is no
+  reflex?
+- What information does a saccade give that the gain does not?
+- Why can a normal vHIT in acute vertigo be a warning sign?
+- What weighs more in the result: the patient, the examiner or the equipment?
+- What would change if the camera delivered 250 frames per second instead of
+  30?
+
+---
+
+## 22. Care in the classroom
+
+> **The classmate’s neck is real.** Before delivering impulses, ask whether
+> they have any neck injury, pain or surgery, or vertigo at the moment: if so,
+> they do not play the patient. Impulses are **small (10–20°)**, never to the
+> end of the range, and stop if the patient feels discomfort.
+
+- **It is for learning, not for diagnosing.** If a student sees something
+  worrying in their own measurement, the most likely causes are the technique,
+  the light or the 30 fps. Even so, any real symptom is taken to a
+  professional, not to this page.
+- **The video never leaves the computer.** trainHIT processes everything in
+  the browser and does not store or send images.
+- **The CSV files carry no names**, but they are measurements of a person.
+  When sharing them in the virtual classroom, it is better not to identify the
+  volunteer.
+- **Test before class.** Open the page, turn on the camera and calibrate on
+  each computer beforehand: the model gets stored and any permission or light
+  problems show up before class, not during it.
+
+---
+
+## 23. Glossary
+
+| Term | Meaning |
+|---|---|
+| **VOR** | Vestibulo-ocular reflex: it moves the eyes opposite to the head and at the same speed, so the gaze stays still. |
+| **Head impulse** | A small, fast, unpredictable head turn, delivered by the examiner. |
+| **Gain** | How much the eye turned for every degree the head turned. 1 is perfect compensation. |
+| **Corrective saccade** | The quick jump with which the eye returns to the target when the reflex fell short. |
+| **Covert / overt** | The saccade that happens during the turn / after the turn. |
+| **Desaccading** | Removing the saccades from the signal before computing the gain. trainHIT does not do it. |
+| **Parallax (k)** | The shift of the iris in the image when the head turns, even if the eye does not move. Calibration measures it. |
+| **Asymmetry** | (right − left) / (right + left), in %. |
+| **Impulse window** | The span between the start and end of the impulse, over which the gain is computed. |
+| **RALP / LARP** | The pairs of vertical canals. trainHIT does not measure them. |
+
+---
+
+*trainHIT is free software (Apache-2.0), developed at the TecMedHub Lab of the
+Universidad Austral de Chile, Puerto Montt campus. The code and every decision
+in the computation are explained in the repository.*
