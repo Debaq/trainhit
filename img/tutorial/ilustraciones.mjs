@@ -156,16 +156,30 @@ function sentadaPerfil(x, y, { piel = PIEL[0], ropa = ROPA[0], d = -1, flexion =
   return { s, cabeza: [hx, hy] };
 }
 
-/** Cabeza de perfil; `flexion` inclina la cara hacia abajo. */
+/**
+ * Cuánto se rota la cabeza de perfil, en grados de `rotate()` de SVG (horario
+ * en pantalla). Con la cara a la derecha (d = 1), bajar la cara es horario; a
+ * la izquierda, antihorario: por eso lleva el signo de `d`.
+ */
+const giroPerfil = (d, flexion) => d * flexion;
+
+/** Cabeza de perfil; `flexion` positiva baja el mentón y negativa lo sube. */
 function cabezaPerfil(cx, cy, r, { piel = PIEL[0], d = -1, flexion = 0 } = {}) {
-  const a = d * flexion; // hacia abajo del lado de la cara
-  let s = `<g transform="rotate(${-a} ${cx} ${cy})">`;
+  let s = `<g transform="rotate(${giroPerfil(d, flexion)} ${cx} ${cy})">`;
   s += `<ellipse cx="${cx}" cy="${cy}" rx="${r}" ry="${r * 1.12}" fill="${piel}"/>`;
   s += `<path d="M${cx - d * r * 0.95},${cy + r * 0.1}Q${cx - d * r * 1.05},${cy - r * 1.2} ${cx + d * r * 0.3},${cy - r * 1.1}Q${cx + d * r * 0.9},${cy - r * 0.95} ${cx + d * r * 0.95},${cy - r * 0.45}Q${cx + d * r * 0.2},${cy - r * 0.7} ${cx - d * r * 0.2},${cy - r * 0.2}Z" fill="${C.pelo}"/>`;
   s += `<path d="M${cx + d * r * 0.95},${cy - r * 0.05}L${cx + d * r * 1.22},${cy + r * 0.2}L${cx + d * r * 0.95},${cy + r * 0.3}Z" fill="${piel}"/>`;
   s += `<ellipse cx="${cx - d * r * 0.1}" cy="${cy + r * 0.05}" rx="${r * 0.13}" ry="${r * 0.22}" fill="#00000026"/>`;
   s += `<circle cx="${cx + d * r * 0.66}" cy="${cy - r * 0.18}" r="${r * 0.08}" fill="${C.eye}"/>`;
   return `${s}</g>`;
+}
+
+/** Dónde queda el ojo de `cabezaPerfil`, con la flexión ya aplicada. */
+function ojoPerfil(cx, cy, r, d, flexion) {
+  const a = rad(giroPerfil(d, flexion));
+  const x = d * r * 0.66;
+  const y = -r * 0.18;
+  return [f(cx + x * Math.cos(a) - y * Math.sin(a)), f(cy + x * Math.sin(a) + y * Math.cos(a))];
 }
 
 /** Recuadro de «bien» o «mal», con su tilde o su cruz: sin texto. */
@@ -208,7 +222,8 @@ const imagenes = {};
   s += `<path d="M${ex - 60},380Q${ex - 170},330 ${hx + 60},${hy - 70}" stroke="${ROPA[0]}" stroke-width="44" fill="none" stroke-linecap="round"/>`;
   s += pac.s;
   s += mano(hx + 10, hy - 78, -100, PIEL[2], 0.8);
-  s += `<line x1="${lap.cam[0]}" y1="${lap.cam[1]}" x2="${hx - 60}" y2="${hy - 10}" stroke="${C.eye}" stroke-width="4" stroke-dasharray="14 12" stroke-opacity="0.7"/>`;
+  const ojo = ojoPerfil(hx, hy, 78, -1, 20);
+  s += `<line x1="${lap.cam[0]}" y1="${lap.cam[1]}" x2="${ojo[0]}" y2="${ojo[1]}" stroke="${C.eye}" stroke-width="4" stroke-dasharray="14 12" stroke-opacity="0.7"/>`;
   // La portada se ve recortada a 16:5 (la franja de y 200 a 700): se achica
   // y se baja para que las cabezas y las manos queden adentro.
   s = `<g transform="translate(160 150) scale(0.8)">${s}</g>`;
@@ -297,7 +312,7 @@ const imagenes = {};
   s += `<line x1="${cx + 30}" y1="${cy + 40}" x2="${f(cx + 30 - Math.sin(a) * 370)}" y2="${f(cy + 40 - Math.cos(a) * 370)}" stroke="${C.head}" stroke-width="6"/>`;
   s += flecha(arco(cx + 30, cy + 40, 300, -1, -27), C.head, 8, 'pa');
   // la mirada a la cámara
-  const ojo = [cx - 105, cy - 20];
+  const ojo = ojoPerfil(cx, cy, 150, -1, 30);
   s += `<line x1="${ojo[0]}" y1="${ojo[1]}" x2="${lap.cam[0]}" y2="${lap.cam[1]}" stroke="${C.eye}" stroke-width="5" stroke-dasharray="14 12"/>`;
   s += punto(lap.cam[0], lap.cam[1] - 26, 9);
   imagenes['postura.svg'] = svg(s, 'Vista de perfil: la cabeza del paciente flexionada unos 30° hacia abajo, con la mirada puesta en la cámara.');
@@ -614,16 +629,15 @@ function plano(cx, cy, ang, largo, estilo) {
 // ── 17. verticales-impulso: de perfil, cabeza abajo y ojo arriba; y al revés ──
 {
   let s = '';
-  // En `cabezaPerfil` la cara mira a la derecha con d = 1, y una flexión
-  // positiva la levanta: el mentón baja con la flexión negativa.
+  // En `cabezaPerfil` la cara mira a la derecha con d = 1.
   const cuadro = (x, abajo) => {
     const cx = x + 330;
     const cy = 470;
     let c = `<rect x="${cx - 70}" y="${cy + 150}" width="140" height="250" rx="60" fill="${ROPA[2]}"/>`;
     c += `<rect x="${cx - 25}" y="${cy + 100}" width="50" height="80" fill="${PIEL[2]}"/>`;
-    c += cabezaPerfil(cx, cy, 150, { piel: PIEL[2], d: 1, flexion: abajo ? -18 : 18 });
+    c += cabezaPerfil(cx, cy, 150, { piel: PIEL[2], d: 1, flexion: abajo ? 18 : -18 });
     // el blanco, adelante a la altura de los ojos, y la mirada que no se mueve
-    const ojo = [cx + 99, cy - 27];
+    const ojo = ojoPerfil(cx, cy, 150, 1, abajo ? 18 : -18);
     const blanco = [x + 690, cy - 40];
     c += punto(...blanco, 14);
     c += `<line x1="${ojo[0]}" y1="${ojo[1]}" x2="${blanco[0]}" y2="${blanco[1]}" stroke="${C.eye}" stroke-width="4" stroke-dasharray="14 12" stroke-opacity="0.8"/>`;
