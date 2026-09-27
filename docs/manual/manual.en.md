@@ -5,8 +5,8 @@
 A teaching vHIT in the browser, with the computer’s webcam.
 
 **Author:** Nicolás Baier Quezada<br>
-**Date:** September 26, 2026<br>
-**trainHIT version documented:** 2026-09-27.1
+**Date:** September 27, 2026<br>
+**trainHIT version documented:** 2026-09-27.76
 
 TecMedHub Lab · Universidad Austral de Chile, Puerto Montt campus
 
@@ -689,6 +689,51 @@ not say which one it is. **Reveal** shows it at the end.
 - **Changing the patient deletes the impulses:** mixing two patients would
   give a mean that belongs to nobody.
 
+### No camera: the phone as the head
+
+With **Phone** (next to **Turn on camera**) you can practice without a webcam
+and without a classmate. The phone acts as the patient’s head: its gyroscope
+gives the turn, and a **drawn face** that turns with it appears in the camera
+box. The eye comes from the model: healthy, with the gaze still on the target,
+or with the pathology chosen in the Simulator. Everything else —the trace, the
+impulses, the gains, the settings and **I’m feeling lucky**— works as with the
+camera.
+
+**1.** On the PC, press **Phone** and then **Show the QR**.
+
+![The QR to link the phone, with its code](img/en/44-telefono-qr.png)
+
+**2.** Scan the QR with the phone camera and tap **Use this phone as the
+head**. The phone screen is the patient’s face and it looks at the examiner:
+turning the phone to the examiner’s right turns the head to the patient’s left.
+
+![The phone, linked](img/en/46-telefono-pantalla.png)
+
+**3.** On the PC, the bar says **PHONE LINKED** and the calibration badge
+**PHONE k=0.95**: no calibration is needed, because the parallax of the drawn
+face is known. **Center** takes the current position as straight ahead.
+
+**4.** Give impulses with the phone as with a head: short, abrupt, 10 to 20°,
+and a slow return. It feels more real with the phone strapped with tape or a
+rubber band to something with weight —a ball, a stuffed toy, a box—, with the
+screen facing the examiner.
+
+![With left neuritis: the left side with low gain and saccades, the right one at 1](img/en/45-telefono-cara.png)
+
+The face shows what an exam shows: with a healthy reflex the iris keeps looking
+ahead while the head turns; with a deficit it goes along with the head, and a
+saccade brings it back.
+
+![The head has already turned and the eye went with it: the neuritis drag, before the saccade](img/en/47-telefono-arrastre.png)
+
+- Phone impulses carry the **ph** mark and are deleted when the camera is turned
+  on: they are not mixed with measured impulses.
+- The link goes through the Labyrinthus 3D server only to introduce the two
+  devices; the gyroscope goes straight to the PC. If the network does not let
+  them connect directly, it goes through the server and the bar says so
+  (**VIA THE SERVER**).
+- The phone needs a gyroscope and permission to read its sensors.
+
 ---
 
 ## 12. Saving and sharing data
@@ -777,6 +822,7 @@ for the classroom, where the wifi fails.
 | *IRIS TOO SMALL* | The patient is far away or the camera has low resolution. Move closer. |
 | Gains around 1.9 | Calibration is missing (the bar says **NOT CALIBRATED**), or **manual k** was left at 0. |
 | Gains above 1 | A covert saccade inside the impulse inflates the gain (see case D). It also happens with impulses the patients make themselves. |
+| The phone does not link | Both devices need internet to introduce themselves. If the bar stays at **WAITING FOR THE PHONE…**, try with both on the same wifi network, or with the PC connected to the phone hotspot. |
 | The bar says **SETTINGS CHANGED** | Some settings are off their factory value. Tools › **Default values**. |
 
 ---
@@ -862,6 +908,9 @@ For a lecture with a projector, or when there are no webcams.
 3. **15 min:** the parallax experiment (activity 19.2) and the three methods
    (activity 19.6).
 4. **5 min:** wrap-up with the question “why does case D read normal?”.
+
+With a phone at hand, step 3 can be hands-on: the phone as the head (section
+11) with a Simulator profile, projected for the whole class.
 
 ### A lab in two sessions
 

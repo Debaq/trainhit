@@ -401,6 +401,35 @@ A 30 fps una encubierta temprana se superpone con el arrastre y a veces no
 llega al umbral del detector de sacadas: puede quedar sin triángulo. Es la
 misma limitación que con un paciente de verdad, y queda a la vista.
 
+## El teléfono como cabeza
+
+**Teléfono**, junto a **Encender cámara**, deja practicar sin webcam y sin
+compañero. El PC muestra un QR; el teléfono lo escanea, llega con
+`?cabeza=código` y su giroscopio pasa a ser la cabeza del paciente. En el
+recuadro de la cámara aparece una **cara dibujada** que gira con él, y el ojo
+lo pone el modelo: sano, con la mirada quieta en el blanco, o con el perfil
+del Simulador encima, igual que un pulso de la webcam. Traza, pulsos,
+perillas y **Voy a tener suerte** funcionan igual.
+
+- `js/giroscopio.js` integra el giroscopio en el yaw de la cabeza, alrededor
+  de su propio eje vertical (el del canal lateral, como en `js/head.js`), y
+  en el PC pasa los eventos —a 50, 100 o 200 Hz según el teléfono— a cuadros
+  parejos de 60 Hz con la hora del teléfono: lo que tarde la red no mueve las
+  muestras.
+- `js/cara.js` dibuja la cara con la **misma geometría que el motor invierte**
+  (`offset = R·sin(mirada) − k·R·sin(H)`): las comisuras y el iris que se ven
+  son los que el motor habría medido. `test/telefono.test.mjs` lo comprueba,
+  y que un impulso del teléfono con el ojo sano dé ganancia 1.
+- `js/telefono.js` y `js/enlace.js` son el enlace de Labyrinthus 3D, con su
+  servidor en tecmedhub.org (metas `enlace-senal` y `enlace-relevo` de
+  `index.html`): trainHIT no tiene PHP propio.
+
+Es todo simulado, así que el tope de fps no viene al caso; los 60 Hz son para
+que el motor se comporte igual que con la cámara. Los pulsos quedan marcados
+**tel** y, como los ejemplos, se borran al encender la cámara. Mover un
+teléfono no se siente como mover una cabeza: el diálogo recomienda sujetarlo a
+algo con peso.
+
 ## Laberinto 3D
 
 El **Laberinto 3D** —cabeza, ojos y los dos laberintos para ver qué siente cada

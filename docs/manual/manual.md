@@ -5,8 +5,8 @@
 vHIT didáctico en el navegador, con la webcam del equipo.
 
 **Autor:** Nicolás Baier Quezada<br>
-**Fecha:** 26 de septiembre de 2026<br>
-**Versión de trainHIT documentada:** 2026-09-27.1
+**Fecha:** 27 de septiembre de 2026<br>
+**Versión de trainHIT documentada:** 2026-09-27.76
 
 Laboratorio TecMedHub · Universidad Austral de Chile, Sede Puerto Montt
 
@@ -638,7 +638,7 @@ Un clic en el contador vuelve a abrir el cajón.
 
 ![El contador de pulsos aceptados en la barra](img/37b-barra-contador.png)
 
-**4.** Dale impulsos. La traza de abajo ya muestra la patología mientras se
+**4.** Da impulsos. La traza de abajo ya muestra la patología mientras se
 examina. En los ojos ampliados, un **anillo violeta** marca dónde estaría el
 iris simulado. El video es el real y no se mueve.
 
@@ -683,6 +683,51 @@ dice cuál es. **Revelar** lo muestra al final.
 - El CSV tiene la columna `simulado` (`oculto` mientras es a ciegas).
 - **Cambiar de paciente borra los pulsos:** mezclar dos pacientes daría una
   media que no es de nadie.
+
+### Sin cámara: el teléfono como cabeza
+
+Con **Teléfono** (junto a **Encender cámara**) se practica sin webcam y sin
+compañero. El teléfono hace de cabeza del paciente: su giroscopio da el giro, y
+en el recuadro de la cámara aparece una **cara dibujada** que gira con él. El
+ojo lo pone el modelo: sano, con la mirada quieta en el blanco, o con la
+patología que se elija en el Simulador. Todo lo demás —la traza, los pulsos,
+las ganancias, las perillas y **Voy a tener suerte**— funciona igual que con la
+cámara.
+
+**1.** En el PC, presiona **Teléfono** y después **Mostrar el QR**.
+
+![El QR para enlazar el teléfono, con su código](img/44-telefono-qr.png)
+
+**2.** Escanea el QR con la cámara del teléfono y toca **Usar este teléfono
+como cabeza**. La pantalla del teléfono es la cara del paciente y mira hacia
+quien examina: girar el teléfono hacia la derecha de quien examina es girar la
+cabeza a la izquierda del paciente.
+
+![El teléfono enlazado](img/46-telefono-pantalla.png)
+
+**3.** En el PC, la barra dice **TELÉFONO ENLAZADO** y la calibración,
+**TELÉFONO k=0.95**: no hace falta calibrar, porque el paralaje de la cara
+dibujada es conocido. **Centrar** toma la posición de ahora como frente.
+
+**4.** Da impulsos con el teléfono como con una cabeza: cortos, bruscos, de 10
+a 20°, y la vuelta lenta. Se siente más real si el teléfono va sujeto con cinta
+o un elástico a algo con peso —una pelota, un peluche, una caja—, con la
+pantalla hacia quien examina.
+
+![Con neuritis izquierda: el lado izquierdo con ganancia baja y sacadas, el derecho en 1](img/45-telefono-cara.png)
+
+En la cara se ve lo mismo que en un examen: con el reflejo sano el iris se
+queda mirando al frente mientras la cabeza gira; con déficit se va con la
+cabeza, y una sacada lo trae de vuelta.
+
+![La cabeza ya giró y el ojo se fue con ella: el arrastre de la neuritis, antes de la sacada](img/47-telefono-arrastre.png)
+
+- Los pulsos del teléfono llevan la marca **tel** y se borran al encender la
+  cámara: no se mezclan con pulsos medidos.
+- El enlace pasa por el servidor de Labyrinthus 3D solo para presentarse; el
+  giroscopio va directo al PC. Si la red no deja conectarlos directo, pasa por
+  el servidor y la barra lo dice (**POR EL SERVIDOR**).
+- El teléfono tiene que tener giroscopio y dar permiso para leer los sensores.
 
 ---
 
@@ -771,6 +816,7 @@ para el aula, donde el wifi falla.
 | *IRIS MUY PEQUEÑO* | El paciente está lejos o la cámara tiene poca resolución. Acércalo. |
 | Ganancias cerca de 1,9 | Falta calibrar (la barra dice **SIN CALIBRAR**), o quedó **k a mano** en 0. |
 | Ganancias mayores que 1 | Una sacada encubierta dentro del impulso infla la ganancia (ver el caso D). También pasa con impulsos que hace el propio paciente. |
+| El teléfono no se enlaza | Los dos aparatos necesitan internet para presentarse. Si la barra se queda en **ESPERANDO AL TELÉFONO…**, probar con los dos en la misma red wifi, o con el PC conectado al punto de acceso del teléfono. |
 | La barra dice **PERILLAS CAMBIADAS** | Hay perillas fuera de su valor de fábrica. Herramientas › **Valores por defecto**. |
 
 ---
@@ -856,6 +902,9 @@ Sirve para una clase teórica con proyector, o cuando no hay webcams.
 3. **15 min:** el experimento del paralaje (actividad 19.2) y los tres métodos
    (actividad 19.6).
 4. **5 min:** cierre con la pregunta "¿por qué el caso D se lee normal?".
+
+Con un teléfono a mano, el paso 3 puede ser práctico: el teléfono como cabeza
+(sección 11) con un perfil del Simulador, proyectado para todo el curso.
 
 ### Laboratorio en dos sesiones
 

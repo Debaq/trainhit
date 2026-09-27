@@ -29,9 +29,13 @@ Falta, del lado de trainHIT:
 ## Pendiente
 
 - **Pasada completa del manual** (`docs/manual/`): rehacer las capturas, que
-  son anteriores al botón **Laberinto 3D ↗** de la barra y al tema claro (solo
-  `04-menu-aprender.png` está al día, del 2026-09-27); revisar el texto contra
-  la interfaz de hoy, regenerar los PDF y subirlos al release `manual`.
+  son anteriores al botón **Laberinto 3D ↗** de la barra, al tema claro y al
+  español neutro (al día: `04-menu-aprender.png` y las del teléfono, `44` a
+  `47`, del 2026-09-27). Las de cámara necesitan grabar de nuevo al paciente:
+  los `.y4m` de la primera pasada se perdieron. El texto ya está en español
+  neutro, con la sección del teléfono, y los PDF se subieron el 2026-09-27.
+- **Probar el teléfono como cabeza con un teléfono de verdad**, Android e iOS:
+  solo se probó en Chromium de escritorio con el giroscopio simulado.
 - **Nistagmo espontáneo con la cámara**: el paciente fija un blanco o el dedo,
   se registra el ojo 10 a 20 s y se detecta el diente de sierra, con la
   dirección de la fase rápida y la velocidad de la fase lenta; también con el
