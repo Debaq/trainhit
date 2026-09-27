@@ -1127,22 +1127,12 @@ body.con-laberinto { overflow: hidden; }
 .lab-enlace-tarjeta .ayuda { margin: 0; font-size: 12.5px; }
 .lab-enlace-codigo { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 8px; }
 .lab-enlace-codigo[hidden] { display: none; }
-.lab-enlace-codigo b { font: 700 34px/1 ui-monospace, monospace; letter-spacing: 6px; color: var(--c-guide); }
-#lab-enlace-qr { width: 180px; height: 180px; image-rendering: pixelated; background: #fff; border-radius: 6px; }
-.lab-enlace-unirse { display: flex; gap: 8px; }
-.lab-enlace-unirse input {
-  flex: 1;
-  min-width: 0;
-  padding: 6px 10px;
-  font: 600 22px ui-monospace, monospace;
-  letter-spacing: 4px;
-  color: var(--foreground);
-  background: var(--input);
-  border: 1px solid var(--border);
-  border-radius: var(--r-widget);
-}
+#lab-enlace-qr { width: 200px; height: 200px; image-rendering: pixelated; background: #fff; border-radius: 6px; }
+.lab-enlace-tarjeta section[hidden] { display: none; }
+.lab-enlace-tarjeta section > button.primario { width: 100%; padding: 10px; }
 .lab-enlace-estado { margin: 0; min-height: 1.4em; font-size: 13px; color: var(--c-warn); }
-.lab-enlace-pie { display: flex; justify-content: flex-end; }
+.lab-enlace-pie { display: flex; justify-content: flex-end; gap: 8px; }
+.lab-remota-estado { margin: 0; min-height: 1.4em; color: var(--c-warn); font-size: 15px; }
 .lab-remota { flex-direction: column; gap: 14px; text-align: center; background: var(--background); }
 .lab-remota .grande { margin: 0; font-size: 20px; font-weight: 600; color: var(--c-guide); }
 .lab-remota .ayuda { margin: 0; max-width: 320px; font-size: 14px; }

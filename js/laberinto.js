@@ -61,7 +61,7 @@ import {
   faseLentaEspontanea,
   funciones,
 } from './patologia.js';
-import { abreSala, leeCabeza, mensajeCabeza, uneSala } from './enlace.js';
+import { Sala, leeCabeza, mensajeCabeza, uneSala } from './enlace.js';
 import { alCambiarIdioma, tx } from './idioma.js';
 
 const $ = (id) => document.getElementById(id);
@@ -499,7 +499,7 @@ export function montaLaberinto() {
     $('btn-laberinto').setAttribute('aria-pressed', 'false');
     cancelAnimationFrame(st.raf);
     st.raf = 0;
-    cortaEnlace();
+    terminaEnlace();
     apagaSensores();
     soloVisor(false);
     $('btn-laberinto').focus();
@@ -1054,7 +1054,7 @@ export function montaLaberinto() {
 
   function centra() {
     // El teléfono enlazado también toma su posición como frente nuevo.
-    if (st.remoto?.rol === 'visor' && st.remoto.canal.readyState === 'open') st.remoto.canal.send('centrar');
+    if (st.remoto?.rol === 'visor' && st.remoto.canal?.readyState === 'open') st.remoto.canal.send('centrar');
     st.impulso = null;
     st.qManual = Q1();
     st.qSensor = Q1();
@@ -1289,7 +1289,7 @@ export function montaLaberinto() {
     st.qSensor = integraGiro(st.qSensor, enCabeza, dt);
     // Este teléfono es la cabeza de un PC: se le manda cada evento.
     const enlace = st.remoto;
-    if (enlace?.rol === 'cabeza' && enlace.canal.readyState === 'open') {
+    if (enlace?.rol === 'cabeza' && enlace.canal?.readyState === 'open') {
       enlace.canal.send(mensajeCabeza(qMul(st.qManual, st.qSensor), enCabeza));
     }
   }
@@ -1300,27 +1300,41 @@ export function montaLaberinto() {
   // después hablan directo. El PC es el `visor`: muestra el modelo y usa la
   // cabeza que le llega. El teléfono es la `cabeza`: prende sus sensores,
   // manda lo que mide y deja de dibujar para ahorrar batería.
+  //
+  // `st.remoto` vive mientras dura el ENLACE, que es más que una conexión: si
+  // la conexión se cae —el teléfono se durmió, se cortó el wifi—, el PC
+  // reabre la misma sala y el teléfono vuelve a entrar con el mismo código,
+  // solos, hasta que alguien aprieta «Terminar» o «Desconectar». Para que no
+  // se caiga, el teléfono pide que la pantalla no se apague (Wake Lock).
+
+  /** Tiempo de gracia de una conexión «desconectada» antes de darla por caída. */
+  const GRACIA_MS = 3000;
+  /** Cada cuánto reintenta el que se quedó sin conexión. */
+  const REINTENTO_MS = 2000;
 
   function estadoEnlace(texto) {
     $('lab-enlace-estado').textContent = texto;
   }
 
-  /** Abre el diálogo; con `codigo`, ya puesto para entrar como cabeza. */
+  /**
+   * Abre el diálogo. En el PC muestra el botón del QR; con `codigo` —el
+   * teléfono llegó por el QR—, solo el botón para ser la cabeza, que hace
+   * falta porque el permiso de los sensores tiene que salir de un toque.
+   */
   function abreEnlace(codigo = '') {
     $('lab-enlace').hidden = false;
-    if (codigo) $('lab-enlace-entrada').value = codigo;
-    estadoEnlace(codigo ? tx('Apretá «Conectar» para usar este teléfono como cabeza.') : '');
+    if (codigo) st.codigoQr = codigo;
+    $('lab-enlace-visor').hidden = Boolean(codigo);
+    $('lab-enlace-cabeza').hidden = !codigo;
+    $('lab-enlace-terminar').hidden = !st.remoto;
+    if (!st.remoto) estadoEnlace('');
     (codigo ? $('lab-enlace-unirse') : $('lab-enlace-crear')).focus();
   }
 
   function cierraDialogoEnlace() {
     $('lab-enlace').hidden = true;
-    // Una sala abierta que nadie usó se cancela al cerrar.
-    if (st.salaPendiente) {
-      st.salaPendiente.cancela();
-      st.salaPendiente = null;
-      $('lab-enlace-codigo').hidden = true;
-    }
+    // Una sala que nadie usó todavía se cancela al cerrar.
+    if (st.remoto?.rol === 'visor' && !st.remoto.algunaVez) terminaEnlace();
   }
 
   async function dibujaQr(texto) {
@@ -1339,105 +1353,207 @@ export function montaLaberinto() {
     for (let f = 0; f < n; f++) for (let c = 0; c < n; c++) if (qr.isDark(f, c)) ctx.fillRect(c + margen, f + margen, 1, 1);
   }
 
+  const pausa = (ms) => new Promise((ok) => setTimeout(ok, ms));
+
+  function pintaEnlace() {
+    const r = st.remoto;
+    const badge = $('lab-enlace-badge');
+    badge.hidden = r?.rol !== 'visor' || !r.algunaVez;
+    badge.textContent = r?.conectado ? tx('TELÉFONO ENLAZADO') : tx('ESPERANDO AL TELÉFONO…');
+    badge.className = `badge ${r?.conectado ? 'ok' : 'warn'}`;
+    $('lab-remota').hidden = r?.rol !== 'cabeza';
+    $('lab-remota-estado').textContent = r?.rol === 'cabeza' && !r.conectado ? tx('Reconectando…') : '';
+    $('lab-enlace-terminar').hidden = !r;
+  }
+
+  // ---- el PC ----
+
   async function creaCodigo() {
-    cortaEnlace();
-    if (st.salaPendiente) st.salaPendiente.cancela();
+    terminaEnlace();
     $('lab-enlace-codigo').hidden = true;
     estadoEnlace(tx('Abriendo la sala…'));
+    let sala;
     try {
-      const sala = await abreSala();
-      st.salaPendiente = sala;
-      $('lab-enlace-numero').textContent = sala.codigo;
-      $('lab-enlace-codigo').hidden = false;
-      const url = new URL(location.href);
-      url.search = '';
-      url.hash = '';
-      url.searchParams.set('enlace', sala.codigo);
-      dibujaQr(url.href).catch((e) => console.warn('laberinto: QR', e));
-      estadoEnlace(tx('Esperando al teléfono…'));
-      const canal = await sala.canal;
-      st.salaPendiente = null;
-      conecta('visor', sala.pc, canal);
+      sala = await Sala.crea();
     } catch (e) {
-      if (e.message !== 'cancelado') estadoEnlace(tx('No se pudo enlazar: {msg}', { msg: e.message }));
+      estadoEnlace(tx('No se pudo enlazar: {msg}', { msg: e.message }));
+      return;
+    }
+    const r = { rol: 'visor', sala, q: Q1(), w: [0, 0, 0], t: 0, conectado: false, algunaVez: false };
+    st.remoto = r;
+    $('lab-enlace-codigo').hidden = false;
+    const url = new URL(location.href);
+    url.search = '';
+    url.hash = '';
+    url.searchParams.set('enlace', sala.codigo);
+    dibujaQr(url.href).catch((e) => console.warn('laberinto: QR', e));
+    estadoEnlace(tx('Esperando al teléfono…'));
+    pintaEnlace();
+    esperaTelefono(r);
+  }
+
+  /** Deja una oferta y espera al teléfono; si falla y el enlace sigue, reintenta. */
+  async function esperaTelefono(r) {
+    while (st.remoto === r) {
+      try {
+        const { pc, canal } = await r.sala.conecta();
+        if (st.remoto !== r) return pc.close();
+        engancha(r, pc, canal);
+        return;
+      } catch (e) {
+        if (st.remoto !== r || e.message === 'cancelado') return;
+        // Sin haberse conectado nunca, es un error de verdad: se avisa.
+        if (!r.algunaVez) {
+          estadoEnlace(tx('No se pudo enlazar: {msg}', { msg: e.message }));
+          terminaEnlace();
+          return;
+        }
+        await pausa(REINTENTO_MS);
+        try {
+          await r.sala.reabre();
+        } catch (e2) {
+          console.warn('laberinto: reabrir la sala', e2);
+        }
+      }
     }
   }
 
+  // ---- el teléfono ----
+
   async function uneComoCabeza() {
-    const codigo = $('lab-enlace-entrada').value.replace(/\D/g, '');
-    if (codigo.length !== 6) {
-      estadoEnlace(tx('El código tiene 6 dígitos.'));
-      return;
-    }
+    const codigo = st.codigoQr;
+    if (!codigo) return;
     // Primero los sensores: el permiso de iOS pide que sea dentro del toque.
     await prendeSensores();
     if (!st.sensor.activo) {
       estadoEnlace(tx('Sin los sensores del teléfono no se puede ser la cabeza.'));
       return;
     }
-    cortaEnlace();
+    terminaEnlace();
     estadoEnlace(tx('Conectando…'));
-    try {
-      const { pc, canal } = await uneSala(codigo);
-      conecta('cabeza', pc, canal);
-    } catch (e) {
-      estadoEnlace(tx('No se pudo enlazar: {msg}', { msg: e.message }));
+    const r = { rol: 'cabeza', codigo, conectado: false, algunaVez: false, despierta: null };
+    st.remoto = r;
+    buscaPC(r);
+  }
+
+  /** Entra a la sala del PC; mientras el PC la está (re)abriendo, reintenta. */
+  async function buscaPC(r) {
+    for (let intentos = 0; st.remoto === r; intentos++) {
+      try {
+        const { pc, canal } = await uneSala(r.codigo);
+        if (st.remoto !== r) return pc.close();
+        engancha(r, pc, canal);
+        return;
+      } catch (e) {
+        if (st.remoto !== r) return;
+        // La primera vez, una sala que no existe es un QR vencido.
+        if (!r.algunaVez && !e.todavia && intentos > 1) {
+          estadoEnlace(tx('No se pudo enlazar: {msg}', { msg: e.message }));
+          terminaEnlace();
+          return;
+        }
+        // Se espera, o hasta que la página vuelva a verse (el teléfono despertó).
+        await Promise.race([pausa(REINTENTO_MS), new Promise((ok) => (r.despierta = ok))]);
+      }
     }
   }
 
-  function conecta(rol, pc, canal) {
-    st.remoto = { rol, pc, canal, q: Q1(), w: [0, 0, 0], t: 0 };
+  async function pideNoDormir(r) {
+    try {
+      r.wakeLock = await navigator.wakeLock?.request('screen');
+    } catch (e) {
+      console.warn('laberinto: la pantalla se puede apagar', e);
+    }
+  }
+
+  // ---- los dos ----
+
+  function engancha(r, pc, canal) {
+    Object.assign(r, { pc, canal, conectado: true, algunaVez: true });
     centra();
+    const caida = () => seCae(r, pc);
+    let gracia = 0;
     pc.addEventListener('connectionstatechange', () => {
-      if (['failed', 'closed', 'disconnected'].includes(pc.connectionState) && st.remoto?.pc === pc) {
-        cortaEnlace();
-        avisa(tx('Se cortó el enlace con el otro aparato.'));
-      }
+      clearTimeout(gracia);
+      if (pc.connectionState === 'failed' || pc.connectionState === 'closed') caida();
+      // «disconnected» a veces se arregla solo: se espera un poco.
+      else if (pc.connectionState === 'disconnected') gracia = setTimeout(caida, GRACIA_MS);
     });
-    if (rol === 'visor') {
+    canal.addEventListener('close', caida);
+    if (r.rol === 'visor') {
       canal.addEventListener('message', (e) => {
         const m = leeCabeza(e.data);
-        if (m && st.remoto?.canal === canal) Object.assign(st.remoto, m, { t: performance.now() });
+        if (m && st.remoto === r) Object.assign(r, m, { t: performance.now() });
       });
-      $('lab-enlace-badge').hidden = false;
     } else {
       canal.addEventListener('message', (e) => e.data === 'centrar' && centra());
       // El teléfono no dibuja: su pantalla no la mira nadie.
       cancelAnimationFrame(st.raf);
       st.raf = 0;
-      $('lab-remota').hidden = false;
+      pideNoDormir(r);
     }
     estadoEnlace('');
     $('lab-enlace').hidden = true;
+    pintaEnlace();
   }
 
-  function cortaEnlace() {
+  /** La conexión se cayó pero el enlace sigue: a reconectar. */
+  function seCae(r, pc) {
+    if (st.remoto !== r || r.pc !== pc || !r.conectado) return;
+    r.conectado = false;
+    pc.close();
+    pintaEnlace();
+    if (r.rol === 'visor') {
+      r.sala.reabre().catch((e) => console.warn('laberinto: reabrir la sala', e)).finally(() => esperaTelefono(r));
+    } else buscaPC(r);
+  }
+
+  /** Termina el enlace: nada de reconectar. */
+  function terminaEnlace() {
     const r = st.remoto;
     if (!r) return;
     st.remoto = null;
-    r.pc.close();
+    r.sala?.cancela();
+    r.pc?.close();
+    r.wakeLock?.release().catch(() => {});
     // Lo que se había girado queda donde estaba.
     if (r.rol === 'visor') st.qManual = st.qCabeza;
-    $('lab-enlace-badge').hidden = true;
-    $('lab-remota').hidden = true;
+    $('lab-enlace-codigo').hidden = true;
+    pintaEnlace();
     if (r.rol === 'cabeza' && st.abierta && st.listo && !st.raf) {
       st.tPrevio = performance.now();
       st.raf = requestAnimationFrame(cuadro);
     }
   }
 
+  // El teléfono vuelve de dormir: la pantalla se volvió a ver. El Wake Lock se
+  // suelta solo al ocultarse y hay que pedirlo de nuevo; y si la conexión no
+  // sobrevivió, se reintenta ya, sin esperar el turno.
+  document.addEventListener('visibilitychange', () => {
+    const r = st.remoto;
+    if (document.visibilityState !== 'visible' || r?.rol !== 'cabeza') return;
+    pideNoDormir(r);
+    if (r.conectado && r.pc?.connectionState !== 'connected') seCae(r, r.pc);
+    r.despierta?.();
+  });
+
   $('lab-enlazar').addEventListener('click', () => abreEnlace());
+  $('lab-enlace-badge').addEventListener('click', () => abreEnlace());
   $('lab-enlace-cerrar').addEventListener('click', cierraDialogoEnlace);
+  $('lab-enlace-terminar').addEventListener('click', () => {
+    terminaEnlace();
+    estadoEnlace(tx('Enlace terminado.'));
+  });
   $('lab-enlace-crear').addEventListener('click', creaCodigo);
   $('lab-enlace-unirse').addEventListener('click', uneComoCabeza);
-  $('lab-enlace-entrada').addEventListener('keydown', (e) => e.key === 'Enter' && uneComoCabeza());
   $('lab-remota-centrar').addEventListener('click', () => centra());
   $('lab-remota-soltar').addEventListener('click', () => {
-    cortaEnlace();
+    terminaEnlace();
     apagaSensores();
   });
 
-  return { abre, cierra, abierto: () => st.abierta, enlaza: abreEnlace };
+  // `estado` es para revolver desde la consola (window.trainhit.laberinto).
+  return { abre, cierra, abierto: () => st.abierta, enlaza: abreEnlace, estado: st };
 }
 
 // ------------------------------------------------------ modelo provisorio ---

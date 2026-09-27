@@ -1886,4 +1886,4 @@ marcaEstado('encender la cámara');
 
 // Enganche de consola: `trainhit.estado`, `trainhit.cfg`. Es un repo para
 // enseñar — poder revolver el estado desde la consola es parte del punto.
-window.trainhit = { estado, cfg, pintaListas, analyzeTrial, procesaCrudo, recalculaTodos, importaSesion };
+window.trainhit = { estado, cfg, pintaListas, analyzeTrial, procesaCrudo, recalculaTodos, importaSesion, laberinto };

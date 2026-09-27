@@ -63,14 +63,17 @@ Rama: `feat/laberinto-3d`.
 
 - El teléfono hace de cabeza y el PC muestra el modelo, con la patología
   elegida en el PC.
-- El PC crea un código de 6 dígitos con su QR; el teléfono lo escribe o abre el
-  QR.
-- La presentación pasa por un PHP de un solo archivo en el servidor propio:
-  sala de 10 minutos en archivos temporales, sin base de datos.
-- Después, el giroscopio va directo por WebRTC.
+- El PC muestra un QR y el teléfono lo escanea; no hay código a mano.
+- La presentación pasa por un PHP de un solo archivo en
+  `https://tecmedhub.org/trainhit/servidor/senal.php`, sin base de datos; el
+  giroscopio va después directo por WebRTC.
+- Reconexión sola si el teléfono se duerme o se corta la red: el PC reabre la
+  misma sala con su llave secreta y el teléfono vuelve a entrar al despertar.
+  Mientras hace de cabeza, el teléfono no dibuja y pide que la pantalla no se
+  apague (Wake Lock).
 - «Centrar» en el PC recentra también el teléfono.
-- El teléfono, como cabeza, no dibuja, para ahorrar batería.
-- Probado con dos pestañas contra el PHP local.
+- Probado con dos pestañas contra el PHP local, incluido cortar la conexión y
+  reengancharse.
 
 ### Patología (`js/patologia.js`)
 
@@ -99,9 +102,8 @@ Rama: `feat/laberinto-3d`.
 
 ## Falta probar
 
-- El enlace con un teléfono y un PC de verdad, con el PHP en el servidor propio.
-  Hay que poner su dirección en `<meta name="trainhit-senal">` y en
-  `connect-src` de la CSP.
+- El enlace con un teléfono y un PC de verdad, con el PHP subido a
+  tecmedhub.org, y la reconexión después de dormir el teléfono.
 
 - El diente de sierra del nistagmo y las sacadas en pantalla, a velocidad
   normal (los tests del modelo los cubren).

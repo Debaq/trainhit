@@ -7,6 +7,10 @@
 // la oferta y la respuesta de WebRTC. Después el canal de datos va directo
 // entre los dos aparatos: el giroscopio no pasa por el servidor.
 //
+// Si la conexión se cae (el teléfono se durmió), el PC reabre la misma sala
+// con su llave y el teléfono vuelve a entrar con el mismo código: ver
+// `Sala` y laberinto.js.
+//
 // Las ofertas van enteras, con todos los candidatos ICE ya juntados (sin
 // «trickle»), para que la sala tenga un solo mensaje por lado. En la misma
 // red alcanza con los candidatos locales; el STUN de Google es para cuando el
@@ -28,16 +32,22 @@ const ICE_MS = 3000;
 
 export const MENSAJE_CABEZA = 1;
 
-/** La dirección del PHP de señalización. */
+/**
+ * La dirección del PHP de señalización: la de la meta, o la relativa con
+ * `?senal=local` (para probar con `php -S` en la raíz del repo).
+ */
 export function servidorSenal() {
+  const local = new URLSearchParams(location.search).get('senal') === 'local';
   const meta = document.querySelector('meta[name="trainhit-senal"]')?.content;
-  return new URL(meta || 'servidor/senal.php', location.href).href;
+  return new URL(local || !meta ? 'servidor/senal.php' : meta, location.href).href;
 }
 
-async function pide(accion, { codigo, cuerpo } = {}) {
+async function pide(accion, { codigo, llave, n, cuerpo } = {}) {
   const url = new URL(servidorSenal());
   url.searchParams.set('accion', accion);
   if (codigo) url.searchParams.set('codigo', codigo);
+  if (llave) url.searchParams.set('llave', llave);
+  if (n !== undefined) url.searchParams.set('n', n);
   // text/plain: pedido «simple», sin la consulta previa de CORS.
   const r = await fetch(url, cuerpo === undefined ? {} : { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: cuerpo });
   const json = await r.json().catch(() => ({}));
@@ -67,53 +77,71 @@ function canalAbierto(canal) {
 }
 
 /**
- * El lado del PC: abre una sala. Devuelve el código apenas lo hay y, en
- * `canal`, la promesa del canal abierto cuando el teléfono entra. `cancela()`
- * deja de esperar y cierra.
+ * El lado del PC: una sala con su código, que se puede reabrir con la misma
+ * llave si la conexión se cae. `conecta()` deja una oferta nueva y espera al
+ * teléfono; devuelve la conexión y el canal abierto. `cancela()` deja de
+ * esperar.
  */
-export async function abreSala() {
-  const pc = new RTCPeerConnection({ iceServers: STUN });
-  // Sin orden ni reenvíos: un dato viejo no sirve, mejor el siguiente.
-  const canal = pc.createDataChannel('cabeza', { ordered: false, maxRetransmits: 0 });
-  canal.binaryType = 'arraybuffer';
-  const { estado, json } = await pide('crear', { cuerpo: '' });
-  if (estado !== 200) throw new Error(json.error ?? tx('el servidor respondió {estado}', { estado }));
-  const codigo = json.codigo;
-  await pc.setLocalDescription(await pc.createOffer());
-  await iceCompleto(pc);
-  const escrito = await pide('oferta', { codigo, cuerpo: JSON.stringify(pc.localDescription) });
-  if (escrito.estado !== 200) throw new Error(escrito.json.error ?? tx('el servidor respondió {estado}', { estado: escrito.estado }));
+export class Sala {
+  static async crea() {
+    const { estado, json } = await pide('crear', { cuerpo: '' });
+    if (estado !== 200) throw new Error(json.error ?? tx('el servidor respondió {estado}', { estado }));
+    return new Sala(json.codigo, json.llave);
+  }
 
-  let cancelado = false;
-  const esperaRespuesta = async () => {
+  constructor(codigo, llave) {
+    this.codigo = codigo;
+    this.llave = llave;
+    this.pc = null;
+    this.cancelada = false;
+  }
+
+  /** Vuelve a abrir la sala, vacía, para una conexión nueva. */
+  async reabre() {
+    const { estado, json } = await pide('reabrir', { codigo: this.codigo, llave: this.llave, cuerpo: '' });
+    if (estado !== 200) throw new Error(json.error ?? tx('el servidor respondió {estado}', { estado }));
+  }
+
+  async conecta() {
+    this.cancelada = false;
+    const pc = new RTCPeerConnection({ iceServers: STUN });
+    this.pc = pc;
+    // Sin orden ni reenvíos: un dato viejo no sirve, mejor el siguiente.
+    const canal = pc.createDataChannel('cabeza', { ordered: false, maxRetransmits: 0 });
+    canal.binaryType = 'arraybuffer';
+    await pc.setLocalDescription(await pc.createOffer());
+    await iceCompleto(pc);
+    const escrito = await pide('oferta', { codigo: this.codigo, llave: this.llave, cuerpo: JSON.stringify(pc.localDescription) });
+    if (escrito.estado !== 200) throw new Error(escrito.json.error ?? tx('el servidor respondió {estado}', { estado: escrito.estado }));
     for (;;) {
-      if (cancelado) throw new Error('cancelado');
-      const r = await pide('respuesta', { codigo });
-      if (r.estado === 200) return JSON.parse(r.json.sdp);
-      if (r.json.error === 'no hay sala con ese código') throw new Error(tx('la sala venció: crear otro código'));
+      if (this.cancelada) throw new Error('cancelado');
+      const r = await pide('respuesta', { codigo: this.codigo, llave: this.llave });
+      if (r.estado === 200) {
+        await pc.setRemoteDescription(JSON.parse(r.json.sdp));
+        return { pc, canal: await canalAbierto(canal) };
+      }
+      if (r.estado !== 404 || r.json.error !== 'todavía no') throw new Error(tx('la sala venció: crear otro código'));
       await new Promise((ok) => setTimeout(ok, CONSULTA_MS));
     }
-  };
-  const abierto = (async () => {
-    await pc.setRemoteDescription(await esperaRespuesta());
-    return canalAbierto(canal);
-  })();
-  return {
-    codigo,
-    pc,
-    canal: abierto,
-    cancela() {
-      cancelado = true;
-      pc.close();
-    },
-  };
+  }
+
+  cancela() {
+    this.cancelada = true;
+    this.pc?.close();
+  }
 }
 
-/** El lado del teléfono: entra a la sala del código y espera el canal. */
+/**
+ * El lado del teléfono: entra a la sala del código y espera el canal. Si el
+ * PC todavía no dejó su oferta —recién la abrió o la está reabriendo—, falla
+ * con `todavia: true` para que quien llama pruebe de nuevo.
+ */
 export async function uneSala(codigo) {
   const { estado, json } = await pide('oferta', { codigo });
   if (estado === 404) {
-    throw new Error(json.error === 'todavía no' ? tx('el PC todavía no terminó de abrir la sala') : tx('no hay sala con ese código'));
+    const e = new Error(json.error === 'todavía no' ? tx('el PC todavía no terminó de abrir la sala') : tx('no hay sala con ese código'));
+    e.todavia = json.error === 'todavía no';
+    throw e;
   }
   if (estado !== 200) throw new Error(json.error ?? tx('el servidor respondió {estado}', { estado }));
   const pc = new RTCPeerConnection({ iceServers: STUN });
@@ -121,9 +149,19 @@ export async function uneSala(codigo) {
   await pc.setRemoteDescription(JSON.parse(json.sdp));
   await pc.setLocalDescription(await pc.createAnswer());
   await iceCompleto(pc);
-  const escrito = await pide('respuesta', { codigo, cuerpo: JSON.stringify(pc.localDescription) });
+  const escrito = await pide('respuesta', { codigo, n: json.n, cuerpo: JSON.stringify(pc.localDescription) });
+  if (escrito.estado === 409) {
+    // Otra oferta ganó en el medio (el PC reabrió): probar de nuevo.
+    pc.close();
+    const e = new Error(tx('el PC todavía no terminó de abrir la sala'));
+    e.todavia = true;
+    throw e;
+  }
   if (escrito.estado !== 200) throw new Error(escrito.json.error ?? tx('el servidor respondió {estado}', { estado: escrito.estado }));
-  const canal = await llega;
+  const canal = await Promise.race([
+    llega,
+    new Promise((_, falla) => setTimeout(() => falla(Object.assign(new Error(tx('el canal se cerró')), { todavia: true })), 15000)),
+  ]);
   canal.binaryType = 'arraybuffer';
   return { pc, canal: await canalAbierto(canal) };
 }

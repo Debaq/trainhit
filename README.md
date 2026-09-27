@@ -417,16 +417,25 @@ Sydney, solo iOS), que ya no está disponible.
 
 **Enlazar** usa un teléfono como cabeza del modelo que se ve en el PC: se lo
 mueve como una cabeza y en el PC se ven los canales, los ojos y la patología
-puesta. El PC crea un código de 6 dígitos (y un QR con el enlace); el teléfono
-lo escribe, o abre el QR, y queda como cabeza —sin dibujar, para ahorrar
-batería—. La presentación pasa por `servidor/senal.php`, un PHP de un solo
-archivo sin base de datos que guarda cada sala 10 minutos en el directorio
-temporal; después el giroscopio va directo entre los dos aparatos por WebRTC,
-sin pasar por el servidor. Dónde está ese PHP lo dice
-`<meta name="trainhit-senal">` en index.html: relativo si la página se sirve
-desde un servidor con PHP (para probar: `php -S localhost:8095` en la raíz), o
-la dirección completa, con su origen en `connect-src` de la CSP. El PHP, a su
-vez, lista en `ORIGENES` desde dónde se lo puede llamar.
+puesta. El PC muestra un QR; el teléfono lo escanea con su cámara, aprieta
+«Usar este teléfono como cabeza» (el permiso de los sensores tiene que salir de
+un toque) y queda como cabeza, sin dibujar, para ahorrar batería, y con la
+pantalla encendida (Wake Lock). Si igual la conexión se cae —el teléfono se
+durmió, se cortó el wifi—, el PC reabre la misma sala y el teléfono vuelve a
+entrar solo al despertar, hasta que alguien aprieta «Terminar enlace» o
+«Desconectar».
+
+La presentación pasa por `servidor/senal.php`, un PHP de un solo archivo sin
+base de datos que guarda cada sala en el directorio temporal mientras se usa
+(vence a los 10 minutos quieta). La sala tiene un código de 6 dígitos, que va
+dentro del QR, y una llave que solo tiene el PC para reabrirla; cada oferta va
+numerada y el teléfono contesta la vigente. Después el giroscopio va directo
+entre los dos aparatos por WebRTC, sin pasar por el servidor. La dirección del
+PHP la dice `<meta name="trainhit-senal">` en index.html
+(`https://tecmedhub.org/trainhit/servidor/senal.php`, con su origen en
+`connect-src` de la CSP); el PHP, a su vez, lista en `ORIGENES` desde dónde se
+lo puede llamar. Para probar en local: `php -S localhost:8095` en la raíz y
+abrir la página con `?senal=local`.
 
 El botón de la esquina (o `H`) esconde la barra y el panel y deja solo el
 visor, en pantalla completa donde el navegador la permite; `Esc` o el mismo

@@ -8,7 +8,7 @@
          jsdelivr (MediaPipe), y conexiones solo a lo que la página usa. -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-p2/+Gm5iKzUVbllF9SFfb7nFa6ipkJhkt8jGCGnFR7E='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
+      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-rb9diiRHMwF9/NIogdXn3DU5fwsa855jErWnxPuetW4='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev https://tecmedhub.org; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
     />
     <meta
       name="description"
@@ -16,10 +16,10 @@
     />
     <meta name="theme-color" content="#09090b" />
     <!-- Dónde está el PHP que presenta al teléfono con el PC en el Laberinto
-         3D (servidor/senal.php). Relativo si la página se sirve desde un
-         servidor con PHP; si no, la dirección completa, y su origen agregado a
-         connect-src en la CSP de arriba. -->
-    <meta name="trainhit-senal" content="servidor/senal.php" />
+         3D (servidor/senal.php): la dirección completa, con su origen en
+         connect-src de la CSP de arriba. Para probar con un servidor PHP
+         local, `?senal=local` usa el relativo servidor/senal.php. -->
+    <meta name="trainhit-senal" content="https://tecmedhub.org/trainhit/servidor/senal.php" />
     <!-- Tarjeta de enlace: lo que ven WhatsApp, Slack, X o un LMS cuando se
          pega el link. La URL de `og:image` tiene que ser ABSOLUTA —los
          scrapers no resuelven rutas relativas de forma confiable—, así que si
@@ -57,7 +57,7 @@
     />
     <!-- Mapa de importación: versiona los imports internos. Lo regenera
          bump.mjs junto con su hash en la CSP de arriba. Va antes del arranque. -->
-    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-27.36","./js/app.js":"./js/app.js?v=2026-09-27.36","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-27.36","./js/cabeza.js":"./js/cabeza.js?v=2026-09-27.36","./js/canales.js":"./js/canales.js?v=2026-09-27.36","./js/curve.js":"./js/curve.js?v=2026-09-27.36","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-27.36","./js/enlace.js":"./js/enlace.js?v=2026-09-27.36","./js/geom.js":"./js/geom.js?v=2026-09-27.36","./js/head.js":"./js/head.js?v=2026-09-27.36","./js/idioma.js":"./js/idioma.js?v=2026-09-27.36","./js/idioma-en.js":"./js/idioma-en.js?v=2026-09-27.36","./js/laberinto.js":"./js/laberinto.js?v=2026-09-27.36","./js/patologia.js":"./js/patologia.js?v=2026-09-27.36","./js/pipeline.js":"./js/pipeline.js?v=2026-09-27.36","./js/plots.js":"./js/plots.js?v=2026-09-27.36","./js/practica.js":"./js/practica.js?v=2026-09-27.36","./js/preguntas.js":"./js/preguntas.js?v=2026-09-27.36","./js/sesion.js":"./js/sesion.js?v=2026-09-27.36","./js/signal.js":"./js/signal.js?v=2026-09-27.36","./js/simulacion.js":"./js/simulacion.js?v=2026-09-27.36","./js/tracker.js":"./js/tracker.js?v=2026-09-27.36","./js/tutorial.js":"./js/tutorial.js?v=2026-09-27.36","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-27.36","./js/tutorial-pasos-en.js":"./js/tutorial-pasos-en.js?v=2026-09-27.36","three":"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"}}</script>
+    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-27.40","./js/app.js":"./js/app.js?v=2026-09-27.40","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-27.40","./js/cabeza.js":"./js/cabeza.js?v=2026-09-27.40","./js/canales.js":"./js/canales.js?v=2026-09-27.40","./js/curve.js":"./js/curve.js?v=2026-09-27.40","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-27.40","./js/enlace.js":"./js/enlace.js?v=2026-09-27.40","./js/geom.js":"./js/geom.js?v=2026-09-27.40","./js/head.js":"./js/head.js?v=2026-09-27.40","./js/idioma.js":"./js/idioma.js?v=2026-09-27.40","./js/idioma-en.js":"./js/idioma-en.js?v=2026-09-27.40","./js/laberinto.js":"./js/laberinto.js?v=2026-09-27.40","./js/patologia.js":"./js/patologia.js?v=2026-09-27.40","./js/pipeline.js":"./js/pipeline.js?v=2026-09-27.40","./js/plots.js":"./js/plots.js?v=2026-09-27.40","./js/practica.js":"./js/practica.js?v=2026-09-27.40","./js/preguntas.js":"./js/preguntas.js?v=2026-09-27.40","./js/sesion.js":"./js/sesion.js?v=2026-09-27.40","./js/signal.js":"./js/signal.js?v=2026-09-27.40","./js/simulacion.js":"./js/simulacion.js?v=2026-09-27.40","./js/tracker.js":"./js/tracker.js?v=2026-09-27.40","./js/tutorial.js":"./js/tutorial.js?v=2026-09-27.40","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-27.40","./js/tutorial-pasos-en.js":"./js/tutorial-pasos-en.js?v=2026-09-27.40","three":"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"}}</script>
     <script src="js/arranque.js"></script>
     <noscript><link rel="stylesheet" href="css/estilo.css" /></noscript>
   </head>
@@ -674,10 +674,10 @@
           <button role="radio" data-modo-lab="real" aria-checked="false" title="en su posición anatómica y a tamaño real" data-i18n-title="lab.modo.real.t" data-i18n="lab.modo.real">Tamaño real</button>
         </div>
         <span id="lab-pat-badge" class="badge sim" hidden></span>
-        <span id="lab-enlace-badge" class="badge ok" hidden data-i18n="lab.enlace.badge">TELÉFONO ENLAZADO</span>
+        <button id="lab-enlace-badge" class="badge ok" hidden>TELÉFONO ENLAZADO</button>
         <span class="espacio"></span>
         <button id="lab-sensores" aria-pressed="false" hidden>Mover con el teléfono</button>
-        <button id="lab-enlazar" title="mover la cabeza con un teléfono enlazado, o usar este teléfono como cabeza de un PC" data-i18n-title="lab.enlazar.t" data-i18n="lab.enlazar">Enlazar</button>
+        <button id="lab-enlazar" title="mover la cabeza con un teléfono, enlazado con un QR" data-i18n-title="lab.enlazar.t" data-i18n="lab.enlazar">Enlazar</button>
         <button id="lab-centrar" title="cabeza y ojos al frente (doble toque, 0)" data-i18n-title="lab.centrar.t" data-i18n="lab.centrar">Centrar</button>
         <button id="lab-salir" class="ghost" title="volver a trainHIT (Esc)" data-i18n-title="lab.salir.t" data-i18n="lab.salir">✕ Salir</button>
       </header>
@@ -690,24 +690,23 @@
             canales y los ojos, con la patología que esté puesta. Los dos tienen que tener abierta esta
             página a la vez.
           </p>
-          <section>
-            <h3 data-i18n="lab.enlace.visor">Este aparato muestra el modelo</h3>
-            <button id="lab-enlace-crear" class="primario" data-i18n="lab.enlace.crear">Crear código</button>
+          <!-- En el PC: el QR. El teléfono lo escanea con su cámara y llega con
+               `?enlace=código`: ahí se ve solo la otra sección. -->
+          <section id="lab-enlace-visor">
+            <button id="lab-enlace-crear" class="primario" data-i18n="lab.enlace.crear">Mostrar el QR</button>
             <div id="lab-enlace-codigo" class="lab-enlace-codigo" hidden>
-              <b id="lab-enlace-numero"></b>
               <canvas id="lab-enlace-qr" role="img" aria-label="QR con el enlace para el teléfono" data-i18n-aria-label="lab.enlace.qr"></canvas>
-              <p class="ayuda" data-i18n="lab.enlace.como">En el teléfono: escanear el QR con la cámara, o abrir el Laberinto 3D, «Enlazar» y escribir el código.</p>
+              <p class="ayuda" data-i18n="lab.enlace.como">Escanealo con la cámara del teléfono.</p>
             </div>
           </section>
-          <section>
-            <h3 data-i18n="lab.enlace.cabeza">Este teléfono es la cabeza</h3>
-            <div class="lab-enlace-unirse">
-              <input id="lab-enlace-entrada" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="000000" aria-label="código de 6 dígitos" data-i18n-aria-label="lab.enlace.entrada" />
-              <button id="lab-enlace-unirse" data-i18n="lab.enlace.unirse">Conectar</button>
-            </div>
+          <section id="lab-enlace-cabeza" hidden>
+            <button id="lab-enlace-unirse" class="primario" data-i18n="lab.enlace.unirse">Usar este teléfono como cabeza</button>
           </section>
           <p id="lab-enlace-estado" class="lab-enlace-estado" aria-live="polite"></p>
-          <div class="lab-enlace-pie"><button id="lab-enlace-cerrar" class="ghost" data-i18n="lab.enlace.cerrar">Cerrar</button></div>
+          <div class="lab-enlace-pie">
+            <button id="lab-enlace-terminar" class="peligro" data-i18n="lab.enlace.terminar" hidden>Terminar enlace</button>
+            <button id="lab-enlace-cerrar" class="ghost" data-i18n="lab.enlace.cerrar">Cerrar</button>
+          </div>
         </div>
       </div>
       <!-- El teléfono, mientras es la cabeza: no dibuja el modelo (ahorra
@@ -715,6 +714,7 @@
       <div id="lab-remota" class="lab-remota" hidden>
         <p class="grande" data-i18n="lab.remota.titulo">Este teléfono es la cabeza</p>
         <p class="ayuda" data-i18n="lab.remota.ayuda">Sostenelo parado frente a vos y movelo como una cabeza: el modelo se ve en el PC.</p>
+        <p id="lab-remota-estado" class="lab-remota-estado" aria-live="polite"></p>
         <button id="lab-remota-centrar" class="primario" data-i18n="lab.remota.centrar">Centrar</button>
         <button id="lab-remota-soltar" data-i18n="lab.remota.soltar">Desconectar</button>
       </div>
