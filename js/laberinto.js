@@ -843,14 +843,16 @@ export function montaLaberinto() {
     if (st.impulso) {
       const im = st.impulso;
       const t = (ahora - im.t0) / 1000 / im.lentitud;
-      const p = perfilImpulso(t, AMPLITUD_IMPULSO, im.vPico);
+      const p = perfilImpulso(t, AMPLITUD_IMPULSO, im.vPico, { vuelve: im.vuelve });
       st.qCabeza = qMul(im.qBase, qEjeAngulo(im.eje, p.angulo));
       // La velocidad del impulso es la física, no la de la pantalla: en cámara
       // lenta el canal siente el impulso real.
       omegaExacta = im.eje.map((v) => v * p.velocidad);
       if (p.fin) {
+        // La cabeza queda donde terminó: de vuelta en la base, o en la
+        // posición nueva si el impulso no vuelve.
         st.impulso = null;
-        st.qManual = qMul(im.qBase, qInv(qFuente()));
+        st.qManual = qMul(qMul(im.qBase, qEjeAngulo(im.eje, p.angulo)), qInv(qFuente()));
       }
     } else if (st.remoto?.rol === 'visor') {
       // La cabeza la mueve el teléfono enlazado, y su giroscopio da la
@@ -902,7 +904,9 @@ export function montaLaberinto() {
     // 4) Tasa de cada canal.
     const r = respuestas(st.omega, st.ejesMedidos, st.f);
     pinta(st.qOjo, r);
-    if (st.vista === 'via') pintaVia({ ...r, ...ro }, dt);
+    // Los puntos de la vía corren en tiempo físico, como el ojo: en cámara
+    // lenta se frenan con todo lo demás.
+    if (st.vista === 'via') pintaVia({ ...r, ...ro }, dtFisico);
   }
 
   /**
@@ -994,7 +998,7 @@ export function montaLaberinto() {
       }
     }
     if (st.vista === 'respuesta' && !ciego) pintaBarras(r);
-    if (st.vista === 'respuesta') $('lab-vcab').textContent = Math.hypot(...st.omega).toFixed(0);
+    if (st.vista === 'respuesta' || st.vista === 'via') $('lab-vcab').textContent = Math.hypot(...st.omega).toFixed(0);
 
     // Cámara: en tres cuartos o de arriba, a `dist` del centro de la cabeza.
     if (st.cenital) {
@@ -1156,6 +1160,7 @@ export function montaLaberinto() {
       t0: performance.now(),
       vPico: Number($('lab-vpico').value),
       lentitud: Number($('lab-lentitud').value),
+      vuelve: $('lab-volver').checked,
     };
   }
 

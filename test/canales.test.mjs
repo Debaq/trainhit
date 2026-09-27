@@ -111,6 +111,15 @@ test('el impulso llega al pico pedido, se queda y vuelve', () => {
   assert.ok(fin.fin && Math.abs(fin.angulo) < 1e-9);
 });
 
+test('sin vuelta, el impulso termina al llegar y se queda en la amplitud', () => {
+  const A = 20;
+  const v = 200;
+  const ida = (1.5 * A) / v;
+  assert.equal(perfilImpulso(ida / 2, A, v, { vuelve: false }).fin, false);
+  const llego = perfilImpulso(ida + 1e-6, A, v, { vuelve: false });
+  assert.ok(llego.fin && llego.angulo === A && llego.velocidad === 0);
+});
+
 test('normalDePlano encuentra el eje de un anillo inclinado', () => {
   const n = CANAL.ant_izq.eje;
   // Dos vectores del plano del canal.

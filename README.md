@@ -473,6 +473,8 @@ Cinco vistas:
   apagados porque encima de todo lo demás confunden.
 - **Respuesta**: impulsos armados —horizontales, de nariz, de oreja y
   diagonales en LARP y RALP— con velocidad pico y cámara lenta, o giro libre.
+  Con «volver después del impulso» apagado, la cabeza se queda donde llegó y
+  el impulso siguiente sale de ahí, para encadenar posiciones.
   Cada canal se pinta de rojo si se excita y de azul si se inhibe, las barras
   muestran la tasa de disparo, y los ojos contragiran (VOR de ganancia 1, con
   fase rápida al llegar al borde de la órbita).

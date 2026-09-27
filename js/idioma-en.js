@@ -364,6 +364,8 @@ export const HTML = {
     'A canal <b class="exc">is excited</b> when the head turns around its axis and <b class="inh">is inhibited</b> when it turns the other way. The eyes counter-rotate so that gaze does not move: that is the vestibulo-ocular reflex.',
   'lab.vpico': 'peak velocity',
   'lab.lentitud': 'slow motion',
+  'lab.volver': 'return after the impulse',
+  'lab.volver.ayuda': 'Without returning, the head stays where it arrived and the next impulse starts from there: positions can be chained without going through the centre. «Center» brings it back.',
   'lab.lentitud.1': 'no (real time)',
   'lab.tasa': 'Nerve firing <small>(spikes/s)</small>',
   'lab.vcab': 'head',

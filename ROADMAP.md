@@ -43,7 +43,8 @@ Publicado en el servidor propio del proyecto (PHP y Node.js).
 - Los canales se pintan de rojo (excitado) o azul (inhibido) al mover la cabeza,
   en todas las vistas; quietos, con el color de su par.
 - Impulsos armados en los planos de examen (lateral, nariz, oreja, LARP, RALP),
-  con velocidad pico y cámara lenta en tiempo físico.
+  con velocidad pico y cámara lenta en tiempo físico. Pueden no volver: la
+  cabeza se queda donde llegó y se encadenan posiciones.
 - Vista Ejes: flechas del eje excitador (regla de la mano derecha) y planos de
   examen opcionales.
 
@@ -120,7 +121,9 @@ Publicado en el servidor propio del proyecto (PHP y Node.js).
   con la posición y la velocidad reales del ojo (sacadas incluidas).
 - La lesión va como cruz (arreflexia) o barra (hipofunción) en el nervio.
 - Filtro por plano (laterales, LARP, RALP o los tres). Los impulsos armados
-  están también en su panel. A ciegas no muestra actividad ni lesión.
+  están también en su panel, con la velocidad de la cabeza. Los puntos corren
+  en tiempo físico: la cámara lenta los frena. A ciegas no muestra actividad
+  ni lesión.
 - Los ojos del esquema se mueven con el ojo del modelo.
 - **Utrículo y sáculo** (`js/otolitos.js`): sienten la inclinación respecto de
   la gravedad. El utrículo, por la rama superior, llega a RS y OS de su ojo y

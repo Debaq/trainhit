@@ -159,11 +159,16 @@ const VUELTA_LENTA = 3;
  * y la vuelta lenta. Con la curva suave (smoothstep) el pico es 1,5 veces la
  * velocidad media, así que la ida dura 1,5·A/vPico. Devuelve el ángulo y la
  * velocidad en el instante `t` (s, tiempo físico), y si ya terminó.
+ *
+ * Con `vuelve: false` termina al llegar y la cabeza se queda ahí: así se
+ * encadenan posiciones —girar a la izquierda y después bajar la nariz— sin
+ * pasar por el centro.
  */
-export function perfilImpulso(t, amplitud, vPico) {
+export function perfilImpulso(t, amplitud, vPico, { vuelve = true } = {}) {
   const ida = (1.5 * amplitud) / vPico;
   const vuelta = VUELTA_LENTA * ida;
   if (t < ida) return { angulo: amplitud * suave(t / ida), velocidad: (amplitud / ida) * dSuave(t / ida), fin: false };
+  if (!vuelve) return { angulo: amplitud, velocidad: 0, fin: true };
   if (t < ida + PAUSA_S) return { angulo: amplitud, velocidad: 0, fin: false };
   const u = (t - ida - PAUSA_S) / vuelta;
   return { angulo: amplitud * (1 - suave(u)), velocidad: -(amplitud / vuelta) * dSuave(u), fin: u >= 1 };
