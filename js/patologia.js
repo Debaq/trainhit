@@ -224,6 +224,17 @@ const UMBRAL_NISTAGMO = 3;
 const LATENCIA_ENCUBIERTA = 0.07;
 /** Tiempo mínimo entre dos sacadas. */
 const REFRACTARIO = 0.1;
+/**
+ * Con la cabeza quieta en una postura nueva, la persona vuelve a mirar al
+ * frente: si pasa este tiempo y el blanco quedó a más de RECENTRA_DEG del
+ * centro de la órbita, el blanco pasa a ser el frente de la cabeza y una
+ * sacada lleva el ojo ahí. Sin esto, con el teléfono como cabeza —que nunca
+ * queda justo como se lo centró— los ojos quedaban pegados arriba o a un
+ * costado. Es más largo que la pausa de un impulso (canales.js, PAUSA_S), así
+ * que no se mete con las sacadas correctivas.
+ */
+const RECENTRA_S = 1;
+const RECENTRA_DEG = 8;
 /** Cabeza en movimiento por encima de esto, quieta por debajo de lo otro. */
 const V_MOVIENDO = 40;
 const V_QUIETA = 15;
@@ -292,7 +303,8 @@ export class Ojo {
     // salirse de la órbita, el objetivo pasa a ser el frente de la cabeza: es
     // la fase rápida de un giro largo.
     let destino = qMul(qInv(qCabeza), this.objetivo);
-    if (anguloDe(destino) > LIMITE_ORBITA) {
+    const recentra = this.tQuieta > RECENTRA_S && anguloDe(destino) > RECENTRA_DEG;
+    if (anguloDe(destino) > LIMITE_ORBITA || recentra) {
       this.objetivo = qCabeza;
       destino = [0, 0, 0, 1];
     }

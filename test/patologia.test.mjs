@@ -130,3 +130,19 @@ test('nistagmo con la cabeza quieta: diente de sierra alrededor del blanco', () 
   assert.ok(ojo.sacadas >= 5 && ojo.sacadas <= 14, `${ojo.sacadas} batidas`);
   assert.ok(maxError < 4.5, `error ${maxError}`);
 });
+
+test('con la cabeza quieta en otra postura, el ojo vuelve a mirar al frente', () => {
+  // Nariz abajo 25° y quieta: el VOR deja el ojo arriba, y al rato una sacada
+  // lo trae al centro de la órbita.
+  const ojo = new Ojo();
+  const eje = [1, 0, 0];
+  const angulo = (q) => (2 * Math.acos(Math.min(1, Math.abs(q[3]))) * 180) / Math.PI;
+  for (let t = 0; t < 0.25; t += 0.001) {
+    const g = Math.min(25, 100 * t);
+    ojo.paso(0.001, qEjeAngulo(eje, g), escala(eje, t < 0.25 ? 100 : 0), { f: sano });
+  }
+  for (let t = 0; t < 0.5; t += 0.001) ojo.paso(0.001, qEjeAngulo(eje, 25), [0, 0, 0], { f: sano });
+  assert.ok(angulo(ojo.q) > 20, `todavía fijando: ${angulo(ojo.q)}`);
+  for (let t = 0; t < 1; t += 0.001) ojo.paso(0.001, qEjeAngulo(eje, 25), [0, 0, 0], { f: sano });
+  assert.ok(angulo(ojo.q) < 2, `al frente: ${angulo(ojo.q)}`);
+});
