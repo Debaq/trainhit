@@ -26,9 +26,18 @@ import { tx } from './idioma.js';
 
 const STUN = [{ urls: 'stun:stun.l.google.com:19302' }];
 /** Cada cuánto se pregunta en la sala si el otro ya escribió, en ms. */
-const CONSULTA_MS = 700;
+const CONSULTA_MS = 1000;
 /** Tope para juntar candidatos ICE antes de mandar la oferta. */
 const ICE_MS = 3000;
+/** Tope de cada pedido al PHP. */
+const PEDIDO_MS = 10000;
+/**
+ * Tope para que se abra la conexión directa una vez que los dos se
+ * presentaron. Si no se abre, la red no deja hablar directo a los aparatos:
+ * teléfono con datos móviles y PC en otra red, o un wifi con aislamiento de
+ * clientes, que es común en redes institucionales.
+ */
+const CANAL_MS = 15000;
 
 export const MENSAJE_CABEZA = 1;
 
@@ -49,9 +58,32 @@ async function pide(accion, { codigo, llave, n, cuerpo } = {}) {
   if (llave) url.searchParams.set('llave', llave);
   if (n !== undefined) url.searchParams.set('n', n);
   // text/plain: pedido «simple», sin la consulta previa de CORS.
-  const r = await fetch(url, cuerpo === undefined ? {} : { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: cuerpo });
-  const json = await r.json().catch(() => ({}));
-  return { estado: r.status, json };
+  const opciones = cuerpo === undefined ? {} : { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: cuerpo };
+  if (typeof AbortSignal.timeout === 'function') opciones.signal = AbortSignal.timeout(PEDIDO_MS);
+  opciones.cache = 'no-store';
+  const r = await fetch(url, opciones);
+  const texto = await r.text();
+  try {
+    return { estado: r.status, json: JSON.parse(texto) };
+  } catch {
+    // Algo en el medio (un antirrobots del hosting, un aviso de PHP) contestó
+    // otra cosa: se lo dice así, no como un JSON roto más adelante.
+    console.warn(`enlace: ${accion} respondió ${r.status} sin JSON:`, texto.slice(0, 300));
+    throw new Error(tx('el servidor respondió algo que no es JSON ({estado})', { estado: r.status }));
+  }
+}
+
+/** El SDP que vino de la sala, o un error claro si no vino. */
+function sdpDe(json) {
+  if (typeof json.sdp !== 'string') throw new Error(tx('la sala respondió sin los datos de conexión'));
+  return JSON.parse(json.sdp);
+}
+
+/** Qué rutas de red encontró este aparato, para la consola. */
+function cuentaCandidatos(pc, quien) {
+  const sdp = pc.localDescription?.sdp ?? '';
+  const n = (tipo) => (sdp.match(new RegExp(`typ ${tipo}`, 'g')) ?? []).length;
+  console.info(`enlace (${quien}): candidatos host ${n('host')}, srflx ${n('srflx')}, relay ${n('relay')}`);
 }
 
 /** Espera a que ICE junte sus candidatos, con tope. */
@@ -68,11 +100,23 @@ function iceCompleto(pc) {
   });
 }
 
-function canalAbierto(canal) {
+/** Error de cuando los dos se presentaron pero la red no deja hablar directo. */
+function sinRuta() {
+  return Object.assign(new Error(tx('la red no deja conectar directo a los dos aparatos')), { sinRuta: true });
+}
+
+function canalAbierto(canal, pc) {
   if (canal.readyState === 'open') return Promise.resolve(canal);
   return new Promise((listo, falla) => {
-    canal.addEventListener('open', () => listo(canal), { once: true });
-    canal.addEventListener('close', () => falla(new Error(tx('el canal se cerró'))), { once: true });
+    const plazo = setTimeout(() => falla(sinRuta()), CANAL_MS);
+    canal.addEventListener('open', () => (clearTimeout(plazo), listo(canal)), { once: true });
+    canal.addEventListener('close', () => (clearTimeout(plazo), falla(new Error(tx('el canal se cerró')))), { once: true });
+    pc?.addEventListener('iceconnectionstatechange', () => {
+      if (pc.iceConnectionState === 'failed') {
+        clearTimeout(plazo);
+        falla(sinRuta());
+      }
+    });
   });
 }
 
@@ -102,7 +146,8 @@ export class Sala {
     if (estado !== 200) throw new Error(json.error ?? tx('el servidor respondió {estado}', { estado }));
   }
 
-  async conecta() {
+  /** `paso(texto)` recibe en qué anda, para mostrarlo. */
+  async conecta(paso = () => {}) {
     this.cancelada = false;
     const pc = new RTCPeerConnection({ iceServers: STUN });
     this.pc = pc;
@@ -111,14 +156,16 @@ export class Sala {
     canal.binaryType = 'arraybuffer';
     await pc.setLocalDescription(await pc.createOffer());
     await iceCompleto(pc);
+    cuentaCandidatos(pc, 'PC');
     const escrito = await pide('oferta', { codigo: this.codigo, llave: this.llave, cuerpo: JSON.stringify(pc.localDescription) });
     if (escrito.estado !== 200) throw new Error(escrito.json.error ?? tx('el servidor respondió {estado}', { estado: escrito.estado }));
     for (;;) {
       if (this.cancelada) throw new Error('cancelado');
       const r = await pide('respuesta', { codigo: this.codigo, llave: this.llave });
       if (r.estado === 200) {
-        await pc.setRemoteDescription(JSON.parse(r.json.sdp));
-        return { pc, canal: await canalAbierto(canal) };
+        paso(tx('El teléfono respondió; abriendo la conexión directa…'));
+        await pc.setRemoteDescription(sdpDe(r.json));
+        return { pc, canal: await canalAbierto(canal, pc) };
       }
       if (r.estado !== 404 || r.json.error !== 'todavía no') throw new Error(tx('la sala venció: crear otro código'));
       await new Promise((ok) => setTimeout(ok, CONSULTA_MS));
@@ -136,7 +183,8 @@ export class Sala {
  * PC todavía no dejó su oferta —recién la abrió o la está reabriendo—, falla
  * con `todavia: true` para que quien llama pruebe de nuevo.
  */
-export async function uneSala(codigo) {
+export async function uneSala(codigo, paso = () => {}) {
+  paso(tx('Leyendo la sala…'));
   const { estado, json } = await pide('oferta', { codigo });
   if (estado === 404) {
     const e = new Error(json.error === 'todavía no' ? tx('el PC todavía no terminó de abrir la sala') : tx('no hay sala con ese código'));
@@ -146,9 +194,11 @@ export async function uneSala(codigo) {
   if (estado !== 200) throw new Error(json.error ?? tx('el servidor respondió {estado}', { estado }));
   const pc = new RTCPeerConnection({ iceServers: STUN });
   const llega = new Promise((listo) => pc.addEventListener('datachannel', (e) => listo(e.channel), { once: true }));
-  await pc.setRemoteDescription(JSON.parse(json.sdp));
+  await pc.setRemoteDescription(sdpDe(json));
   await pc.setLocalDescription(await pc.createAnswer());
+  paso(tx('Respondiendo al PC…'));
   await iceCompleto(pc);
+  cuentaCandidatos(pc, 'teléfono');
   const escrito = await pide('respuesta', { codigo, n: json.n, cuerpo: JSON.stringify(pc.localDescription) });
   if (escrito.estado === 409) {
     // Otra oferta ganó en el medio (el PC reabrió): probar de nuevo.
@@ -158,12 +208,13 @@ export async function uneSala(codigo) {
     throw e;
   }
   if (escrito.estado !== 200) throw new Error(escrito.json.error ?? tx('el servidor respondió {estado}', { estado: escrito.estado }));
-  const canal = await Promise.race([
-    llega,
-    new Promise((_, falla) => setTimeout(() => falla(Object.assign(new Error(tx('el canal se cerró')), { todavia: true })), 15000)),
-  ]);
+  paso(tx('Abriendo la conexión directa…'));
+  const fallaIce = new Promise((_, falla) =>
+    pc.addEventListener('iceconnectionstatechange', () => pc.iceConnectionState === 'failed' && falla(sinRuta())),
+  );
+  const canal = await Promise.race([llega, fallaIce, new Promise((_, falla) => setTimeout(() => falla(sinRuta()), CANAL_MS))]);
   canal.binaryType = 'arraybuffer';
-  return { pc, canal: await canalAbierto(canal) };
+  return { pc, canal: await canalAbierto(canal, pc) };
 }
 
 /** Empaqueta la cabeza para mandarla. */

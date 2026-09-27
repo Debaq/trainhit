@@ -677,4 +677,13 @@ export const TEXTO = {
   'ESPERANDO AL TELÉFONO…': 'WAITING FOR THE PHONE…',
   'Reconectando…': 'Reconnecting…',
   'Enlace terminado.': 'Link ended.',
+  'Probá con los dos en la misma red wifi, o con el PC conectado al punto de acceso del teléfono.':
+    'Try with both on the same wifi network, or with the PC connected to the phone hotspot.',
+  'el servidor respondió algo que no es JSON ({estado})': 'the server answered something that is not JSON ({estado})',
+  'la sala respondió sin los datos de conexión': 'the room answered without the connection data',
+  'la red no deja conectar directo a los dos aparatos': 'the network does not let the two devices connect directly',
+  'El teléfono respondió; abriendo la conexión directa…': 'The phone answered; opening the direct connection…',
+  'Leyendo la sala…': 'Reading the room…',
+  'Respondiendo al PC…': 'Answering the PC…',
+  'Abriendo la conexión directa…': 'Opening the direct connection…',
 };

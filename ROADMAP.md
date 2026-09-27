@@ -108,6 +108,10 @@ Publicado en https://tecmedhub.org/trainhit/.
 ## Falta probar
 
 - La reconexión después de dormir el teléfono, con aparatos reales.
+- El enlace en redes que no dejan conectar directo (teléfono con datos móviles,
+  wifi institucional con aislamiento de clientes): a una colega no le
+  conectó. Ahora avisa en vez de quedar esperando; si hace falta que funcione
+  igual, se necesita un servidor TURN que retransmita.
 - Que los ojos ya no se queden pegados (vuelven al frente con la cabeza quieta
   más de 1 s), con el teléfono como cabeza.
 

@@ -24,13 +24,24 @@ self.addEventListener('activate', (e) => {
     caches
       .keys()
       .then((ks) => Promise.all(ks.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then(borraPhpGuardado)
       .then(() => self.clients.claim()),
   );
 });
 
+/** Respuestas del PHP que una versión anterior llegó a guardar: fuera. */
+async function borraPhpGuardado() {
+  const cache = await caches.open(CACHE);
+  for (const k of await cache.keys()) if (new URL(k.url).pathname.endsWith('.php')) await cache.delete(k);
+}
+
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET') return;
+  // Lo dinámico no se guarda nunca: el PHP del enlace teléfono–PC contesta
+  // distinto cada vez, y una respuesta vieja de la caché arma un enlace con
+  // una oferta que ya no existe.
+  if (url.pathname.endsWith('.php')) return;
   if (PESADO(url)) e.respondWith(cachePrimero(e.request));
   else if (PROPIO(url)) e.respondWith(redPrimero(e.request));
   // Lo demás (el contador) va derecho a la red.

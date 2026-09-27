@@ -1316,6 +1316,12 @@ export function montaLaberinto() {
     $('lab-enlace-estado').textContent = texto;
   }
 
+  /** El mensaje de un enlace que no se pudo armar, con qué probar si es la red. */
+  function errorEnlace(e) {
+    const msg = tx('No se pudo enlazar: {msg}', { msg: e.message });
+    return e.sinRuta ? `${msg}. ${tx('Probá con los dos en la misma red wifi, o con el PC conectado al punto de acceso del teléfono.')}` : msg;
+  }
+
   /**
    * Abre el diálogo. En el PC muestra el botón del QR; con `codigo` —el
    * teléfono llegó por el QR—, solo el botón para ser la cabeza, que hace
@@ -1376,7 +1382,7 @@ export function montaLaberinto() {
     try {
       sala = await Sala.crea();
     } catch (e) {
-      estadoEnlace(tx('No se pudo enlazar: {msg}', { msg: e.message }));
+      estadoEnlace(errorEnlace(e));
       return;
     }
     const r = { rol: 'visor', sala, q: Q1(), w: [0, 0, 0], t: 0, conectado: false, algunaVez: false };
@@ -1396,7 +1402,7 @@ export function montaLaberinto() {
   async function esperaTelefono(r) {
     while (st.remoto === r) {
       try {
-        const { pc, canal } = await r.sala.conecta();
+        const { pc, canal } = await r.sala.conecta((texto) => st.remoto === r && !r.algunaVez && estadoEnlace(texto));
         if (st.remoto !== r) return pc.close();
         engancha(r, pc, canal);
         return;
@@ -1404,8 +1410,9 @@ export function montaLaberinto() {
         if (st.remoto !== r || e.message === 'cancelado') return;
         // Sin haberse conectado nunca, es un error de verdad: se avisa.
         if (!r.algunaVez) {
-          estadoEnlace(tx('No se pudo enlazar: {msg}', { msg: e.message }));
           terminaEnlace();
+          $('lab-enlace').hidden = false;
+          estadoEnlace(errorEnlace(e));
           return;
         }
         await pausa(REINTENTO_MS);
@@ -1440,16 +1447,22 @@ export function montaLaberinto() {
   async function buscaPC(r) {
     for (let intentos = 0; st.remoto === r; intentos++) {
       try {
-        const { pc, canal } = await uneSala(r.codigo);
+        const { pc, canal } = await uneSala(r.codigo, (texto) => {
+          if (st.remoto !== r) return;
+          if (r.algunaVez) $('lab-remota-estado').textContent = texto;
+          else estadoEnlace(texto);
+        });
         if (st.remoto !== r) return pc.close();
         engancha(r, pc, canal);
         return;
       } catch (e) {
         if (st.remoto !== r) return;
-        // La primera vez, una sala que no existe es un QR vencido.
-        if (!r.algunaVez && !e.todavia && intentos > 1) {
-          estadoEnlace(tx('No se pudo enlazar: {msg}', { msg: e.message }));
+        // La primera vez, una sala que no existe es un QR vencido, y una red
+        // que no deja conectar directo no se arregla reintentando.
+        if (!r.algunaVez && (e.sinRuta || (!e.todavia && intentos > 1))) {
           terminaEnlace();
+          $('lab-enlace').hidden = false;
+          estadoEnlace(errorEnlace(e));
           return;
         }
         // Se espera, o hasta que la página vuelva a verse (el teléfono despertó).
