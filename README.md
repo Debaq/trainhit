@@ -157,6 +157,21 @@ los mismos botones que en español. Lo que falte se ve en español, no rompe.
 
 El CSV exportado queda siempre en español: es un formato de datos, no texto.
 
+### Tema
+
+Claro, oscuro o automático. El botón de la barra da la vuelta **◐**
+automático (el del sistema operativo, y cambia con él) → **☀** claro → **☾**
+oscuro, y muestra el tema en que está. La elección se guarda en el navegador.
+
+Toda la paleta vive en el bloque `:root` de `css/estilo.css`, escrita una sola
+vez con `light-dark(claro, oscuro)`; `js/tema.js` solo decide qué
+`color-scheme` rige (`data-theme` en `<html>`). `js/arranque.js` pone el tema
+guardado antes de que cargue la hoja de estilo, para que la página no aparezca
+un instante con el otro. El canvas no lee CSS solo: `plots.leePaleta()` vuelve
+a leer las fichas al cambiar de tema y se redibuja todo. Los colores clínicos
+son los mismos en los dos temas; el video y los ojos ampliados van siempre
+sobre negro.
+
 ### Manual y guía docente
 
 `docs/manual/` tiene el **manual de uso y guía docente** —ideas de uso

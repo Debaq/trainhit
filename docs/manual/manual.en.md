@@ -28,7 +28,7 @@ TecMedHub Lab · Universidad Austral de Chile, Puerto Montt campus
 - [10. Blind cases](#10-blind-cases)
 - [11. Simulated patient](#11-simulated-patient)
 - [12. Saving and sharing data](#12-saving-and-sharing-data)
-- [13. Language, small screens and offline use](#13-language-small-screens-and-offline-use)
+- [13. Language, theme, small screens and offline use](#13-language-theme-small-screens-and-offline-use)
 - [14. Keyboard shortcuts](#14-keyboard-shortcuts)
 - [15. Troubleshooting](#15-troubleshooting)
 
@@ -113,7 +113,7 @@ to a local file.
 
 The first time, the face tracking model is downloaded (about 10 MB). After
 that it stays stored and the page works **offline** (see
-[section 13](#13-language-small-screens-and-offline-use)).
+[section 13](#13-language-theme-small-screens-and-offline-use)).
 
 ### The welcome screen
 
@@ -144,7 +144,7 @@ The screen has four areas:
 
 | Area | What is there |
 |---|---|
-| **Top bar** | Calibration status (**NOT CALIBRATED** / **CALIBRATED k=…**), status message, frames per second (**FPS**), whether there is a **FACE** in the frame, head velocity, the **♥** (like), the language switch and the **Learn**, **?**, **Simulator** and **Tools** buttons. |
+| **Top bar** | Calibration status (**NOT CALIBRATED** / **CALIBRATED k=…**), status message, frames per second (**FPS**), whether there is a **FACE** in the frame, head velocity, the **♥** (like), the language switch, the theme switch (**◐** / **☀** / **☾**) and the **Learn**, **?**, **Simulator**, **3D Labyrinth ↗** and **Tools** buttons. |
 | **Left column** | The video with the tracking points, both eyes magnified, the measurement buttons and the live readouts. |
 | **Center** | One panel per side: **Rightward impulses** and **Leftward impulses**. Each one has all the impulses overlaid, the mean gain ± SD and the list of impulses. |
 | **Bottom** | **Live velocity**: the head in blue and the eye (inverted) in orange, over the last 8 seconds. On the right, the **asymmetry**. |
@@ -164,6 +164,7 @@ toward the patient’s right lands in the right panel.
 | Button | What it does |
 |---|---|
 | **Turn on camera** / **Stop** | Turns the camera on or off. The selector below picks which camera to use if there is more than one. |
+| **Phone** | Uses a phone as the head, no camera (see [section 11](#11-simulated-patient)). |
 | **Pause** (`Space`) | Freezes the analysis and the trace below so it can be measured. The camera stays on. |
 | **Calibrate** (`C`) | Calibrates the parallax for 10 s. It is **mandatory before trusting the gain**. |
 | **Discard** (`D`) | Discards the last impulse. `Z` brings it back. |
@@ -764,7 +765,7 @@ per browser.
 
 ---
 
-## 13. Language, small screens and offline use
+## 13. Language, theme, small screens and offline use
 
 ### Language
 
@@ -776,6 +777,24 @@ first. The **EN** / **ES** button in the bar switches language live, without
 reloading and without losing the session.
 
 ![The interface in Spanish](img/en/25-espanol.png)
+
+### Light or dark theme
+
+The theme button, in the bar next to the language one, cycles through three
+options:
+
+| Button | Theme |
+|---|---|
+| **◐** | **Automatic:** the operating system’s. If the system switches on its own —night mode turning on at dusk—, the page switches with it. This is the default. |
+| **☀** | **Light**, always: for projecting in a lit room. |
+| **☾** | **Dark**, always. |
+
+The button shows the theme it is in, not the next one. The choice is saved in
+the browser. The clinical colors —blue head, orange eye, the saccades— are the
+same in both themes, and the video and magnified eyes stay on a black
+background, because they are images.
+
+![The screen in light theme](img/en/48-tema-claro.png)
 
 ### Small screens
 

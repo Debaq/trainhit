@@ -28,7 +28,7 @@ Laboratorio TecMedHub · Universidad Austral de Chile, Sede Puerto Montt
 - [10. Casos a ciegas](#10-casos-a-ciegas)
 - [11. Paciente simulado](#11-paciente-simulado)
 - [12. Guardar y compartir datos](#12-guardar-y-compartir-datos)
-- [13. Idioma, pantallas pequeñas y uso sin red](#13-idioma-pantallas-pequenas-y-uso-sin-red)
+- [13. Idioma, tema, pantallas pequeñas y uso sin red](#13-idioma-tema-pantallas-pequenas-y-uso-sin-red)
 - [14. Atajos de teclado](#14-atajos-de-teclado)
 - [15. Problemas frecuentes](#15-problemas-frecuentes)
 
@@ -108,7 +108,7 @@ doble clic no funciona, porque el navegador no da la cámara a un archivo local.
 
 La primera vez se baja el modelo de seguimiento de caras (unos 10 MB). Después
 queda guardado y la página funciona **sin red** (ver la
-[sección 13](#13-idioma-pantallas-pequenas-y-uso-sin-red)).
+[sección 13](#13-idioma-tema-pantallas-pequenas-y-uso-sin-red)).
 
 ### La bienvenida
 
@@ -139,7 +139,7 @@ La pantalla tiene cuatro zonas:
 
 | Zona | Qué hay |
 |---|---|
-| **Barra de arriba** | Estado de la calibración (**SIN CALIBRAR** / **CALIBRADO k=…**), mensaje de estado, cuadros por segundo (**FPS**), si hay **CARA** en el encuadre, velocidad de la cabeza, el **♥** (me gusta), el cambio de idioma y los botones **Aprender**, **?**, **Simulador** y **Herramientas**. |
+| **Barra de arriba** | Estado de la calibración (**SIN CALIBRAR** / **CALIBRADO k=…**), mensaje de estado, cuadros por segundo (**FPS**), si hay **CARA** en el encuadre, velocidad de la cabeza, el **♥** (me gusta), el cambio de idioma, el del tema (**◐** / **☀** / **☾**) y los botones **Aprender**, **?**, **Simulador**, **Laberinto 3D ↗** y **Herramientas**. |
 | **Columna izquierda** | El video con los puntos de seguimiento, los dos ojos ampliados, los botones de medición y las lecturas en vivo. |
 | **Centro** | Un panel por lado: **Impulsos derecha** e **Impulsos izquierda**. Cada uno tiene todos los impulsos superpuestos, la ganancia media ± DE y la lista de pulsos. |
 | **Abajo** | **Velocidad en vivo**: la cabeza en azul y el ojo (invertido) en naranja, los últimos 8 segundos. A la derecha, la **asimetría**. |
@@ -159,6 +159,7 @@ pantalla. Un impulso hacia la derecha del paciente cae en el panel derecho.
 | Botón | Qué hace |
 |---|---|
 | **Encender cámara** / **Detener** | Enciende o apaga la cámara. El selector de abajo elige qué cámara usar si hay más de una. |
+| **Teléfono** | Usa un teléfono como cabeza, sin cámara (ver la [sección 11](#11-paciente-simulado)). |
 | **Pausar** (`Espacio`) | Congela el análisis y la traza de abajo para poder medirla. La cámara sigue encendida. |
 | **Calibrar** (`C`) | Calibra el paralaje durante 10 s. Es **obligatorio antes de creerle a la ganancia**. |
 | **Descartar** (`D`) | Descarta el último pulso. `Z` lo devuelve. |
@@ -757,7 +758,7 @@ video, ni las mediciones, ni nada de la sesión. Hay un voto por navegador.
 
 ---
 
-## 13. Idioma, pantallas pequeñas y uso sin red
+## 13. Idioma, tema, pantallas pequeñas y uso sin red
 
 ### Idioma
 
@@ -770,6 +771,24 @@ la vez anterior. El botón
 la sesión.
 
 ![La interfaz en inglés](img/25-ingles.png)
+
+### Tema claro u oscuro
+
+El botón del tema, en la barra junto al del idioma, da la vuelta entre tres
+opciones:
+
+| Botón | Tema |
+|---|---|
+| **◐** | **Automático:** el del sistema operativo. Si el sistema cambia solo —el modo noche que se enciende al atardecer—, la página cambia con él. Es el de fábrica. |
+| **☀** | **Claro**, siempre: para proyectar en una sala con luz. |
+| **☾** | **Oscuro**, siempre. |
+
+El botón muestra el tema en que está, no el que sigue. La elección queda
+guardada en el navegador. Los colores clínicos —la cabeza azul, el ojo naranja,
+las sacadas— son los mismos en los dos temas, y el video y los ojos ampliados
+siguen sobre fondo negro, porque son imagen.
+
+![La pantalla en tema claro](img/48-tema-claro.png)
 
 ### Pantallas pequeñas
 
