@@ -437,6 +437,16 @@ PHP la dice `<meta name="trainhit-senal">` en index.html
 lo puede llamar. Para probar en local: `php -S localhost:8095` en la raíz y
 abrir la página con `?senal=local`.
 
+Si la conexión directa no se abre en unos segundos —la red no la deja:
+teléfono con datos móviles, wifi con aislamiento de clientes—, los dos aparatos
+pasan solos al **relevo** (`servidor/relevo/relevo.js`), una tubería por
+WebSocket en el mismo servidor, y la barra dice «TELÉFONO ENLAZADO · POR EL
+SERVIDOR». Se encuentran ahí con una contraseña al azar que el PC pone dentro de
+su oferta. Es una aplicación Node.js de un archivo, sin dependencias, que se
+carga con «Setup Node.js App» de cPanel: los pasos están en
+`servidor/relevo/LEEME.md`. Su dirección va en `<meta name="trainhit-relevo">`.
+Con `?forzar=relevo` en el PC se salta la conexión directa, para probarlo.
+
 El botón de la esquina (o `H`) esconde la barra y el panel y deja solo el
 visor, en pantalla completa donde el navegador la permite; `Esc` o el mismo
 botón los traen de vuelta.

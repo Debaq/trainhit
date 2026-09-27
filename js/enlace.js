@@ -7,6 +7,14 @@
 // la oferta y la respuesta de WebRTC. Después el canal de datos va directo
 // entre los dos aparatos: el giroscopio no pasa por el servidor.
 //
+// Si la conexión directa no se abre —la red no la deja: teléfono con datos
+// móviles, wifi con aislamiento de clientes—, los dos pasan al RELEVO
+// (servidor/relevo/relevo.js), una tubería por WebSocket en el mismo
+// servidor, que dice <meta name="trainhit-relevo">. Se encuentran ahí con
+// una contraseña al azar que el PC puso dentro de su oferta, así que solo
+// entra quien escaneó el QR. Con `?forzar=relevo` en el PC se salta la
+// conexión directa, para probar el relevo.
+//
 // Si la conexión se cae (el teléfono se durmió), el PC reabre la misma sala
 // con su llave y el teléfono vuelve a entrar con el mismo código: ver
 // `Sala` y laberinto.js.
@@ -100,6 +108,97 @@ function iceCompleto(pc) {
   });
 }
 
+/**
+ * La dirección del relevo por WebSocket, o null si no hay: la de la meta, o
+ * la local con `?relevo=local` (`node servidor/relevo/relevo.js`).
+ */
+export function servidorRelevo() {
+  const param = new URLSearchParams(location.search).get('relevo');
+  if (param === 'local') return 'ws://localhost:3001/';
+  return document.querySelector('meta[name="trainhit-relevo"]')?.content || null;
+}
+
+const forzarRelevo = () => new URLSearchParams(location.search).get('forzar') === 'relevo';
+
+/** Contraseña de sala para el relevo: 32 hexadecimales al azar. */
+function contrasena() {
+  return [...crypto.getRandomValues(new Uint8Array(16))].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+const PAR = '\u0000par';
+const SOLO = '\u0000solo';
+/** Tope para que el otro aparato llegue al relevo. */
+const RELEVO_MS = 20000;
+
+/**
+ * Un canal por el relevo que se usa igual que el canal de datos de WebRTC:
+ * `send`, `readyState`, y los eventos `message` y `close`. Si el otro se va,
+ * se cierra: el enlace lo trata como cualquier caída y reconecta.
+ */
+class CanalRelevo extends EventTarget {
+  constructor(ws) {
+    super();
+    this.ws = ws;
+    this.pareado = false;
+    this.cerrado = false;
+    ws.addEventListener('message', (e) => {
+      if (e.data === PAR) {
+        this.pareado = true;
+        this.dispatchEvent(new Event('par'));
+      } else if (e.data === SOLO) this.close();
+      else this.dispatchEvent(new MessageEvent('message', { data: e.data }));
+    });
+    ws.addEventListener('close', () => this.avisaCierre());
+    ws.addEventListener('error', () => this.avisaCierre());
+  }
+
+  get readyState() {
+    return this.ws.readyState === WebSocket.OPEN && this.pareado && !this.cerrado ? 'open' : 'closed';
+  }
+
+  send(datos) {
+    if (this.ws.readyState === WebSocket.OPEN) this.ws.send(datos);
+  }
+
+  close() {
+    this.ws.close();
+    this.avisaCierre();
+  }
+
+  avisaCierre() {
+    if (this.cerrado) return;
+    this.cerrado = true;
+    this.dispatchEvent(new Event('close'));
+  }
+}
+
+/** Entra al relevo con la contraseña y espera al otro aparato. */
+function abreRelevo(t, rol) {
+  const base = servidorRelevo();
+  if (!base) return Promise.reject(sinRuta());
+  const url = new URL(base);
+  url.searchParams.set('t', t);
+  url.searchParams.set('rol', rol);
+  const ws = new WebSocket(url);
+  ws.binaryType = 'arraybuffer';
+  const canal = new CanalRelevo(ws);
+  return new Promise((listo, falla) => {
+    const plazo = setTimeout(() => {
+      canal.close();
+      falla(new Error(tx('el otro aparato no llegó al servidor')));
+    }, RELEVO_MS);
+    canal.addEventListener('par', () => (clearTimeout(plazo), listo(canal)), { once: true });
+    canal.addEventListener(
+      'close',
+      () => {
+        clearTimeout(plazo);
+        falla(new Error(tx('no se pudo usar el servidor de relevo')));
+      },
+      { once: true },
+    );
+  });
+}
+
 /** Error de cuando los dos se presentaron pero la red no deja hablar directo. */
 function sinRuta() {
   return Object.assign(new Error(tx('la red no deja conectar directo a los dos aparatos')), { sinRuta: true });
@@ -138,6 +237,8 @@ export class Sala {
     this.llave = llave;
     this.pc = null;
     this.cancelada = false;
+    // Para encontrarse en el relevo; viaja dentro de la oferta.
+    this.relevo = contrasena();
   }
 
   /** Vuelve a abrir la sala, vacía, para una conexión nueva. */
@@ -157,15 +258,28 @@ export class Sala {
     await pc.setLocalDescription(await pc.createOffer());
     await iceCompleto(pc);
     cuentaCandidatos(pc, 'PC');
-    const escrito = await pide('oferta', { codigo: this.codigo, llave: this.llave, cuerpo: JSON.stringify(pc.localDescription) });
+    const soloRelevo = forzarRelevo() && Boolean(servidorRelevo());
+    const oferta = { ...pc.localDescription.toJSON(), relevo: this.relevo, soloRelevo };
+    const escrito = await pide('oferta', { codigo: this.codigo, llave: this.llave, cuerpo: JSON.stringify(oferta) });
     if (escrito.estado !== 200) throw new Error(escrito.json.error ?? tx('el servidor respondió {estado}', { estado: escrito.estado }));
     for (;;) {
       if (this.cancelada) throw new Error('cancelado');
       const r = await pide('respuesta', { codigo: this.codigo, llave: this.llave });
       if (r.estado === 200) {
-        paso(tx('El teléfono respondió; abriendo la conexión directa…'));
-        await pc.setRemoteDescription(sdpDe(r.json));
-        return { pc, canal: await canalAbierto(canal, pc) };
+        if (!soloRelevo) {
+          paso(tx('El teléfono respondió; abriendo la conexión directa…'));
+          await pc.setRemoteDescription(sdpDe(r.json));
+          try {
+            return { pc, canal: await canalAbierto(canal, pc) };
+          } catch (e) {
+            if (!e.sinRuta || !servidorRelevo()) throw e;
+          }
+        }
+        // La red no deja: por el relevo.
+        pc.close();
+        this.pc = null;
+        paso(tx('La red no deja conectar directo: pasando por el servidor…'));
+        return { pc: null, canal: await abreRelevo(this.relevo, 'visor'), relevo: true };
       }
       if (r.estado !== 404 || r.json.error !== 'todavía no') throw new Error(tx('la sala venció: crear otro código'));
       await new Promise((ok) => setTimeout(ok, CONSULTA_MS));
@@ -194,7 +308,8 @@ export async function uneSala(codigo, paso = () => {}) {
   if (estado !== 200) throw new Error(json.error ?? tx('el servidor respondió {estado}', { estado }));
   const pc = new RTCPeerConnection({ iceServers: STUN });
   const llega = new Promise((listo) => pc.addEventListener('datachannel', (e) => listo(e.channel), { once: true }));
-  await pc.setRemoteDescription(sdpDe(json));
+  const oferta = sdpDe(json);
+  await pc.setRemoteDescription({ type: oferta.type, sdp: oferta.sdp });
   await pc.setLocalDescription(await pc.createAnswer());
   paso(tx('Respondiendo al PC…'));
   await iceCompleto(pc);
@@ -208,13 +323,24 @@ export async function uneSala(codigo, paso = () => {}) {
     throw e;
   }
   if (escrito.estado !== 200) throw new Error(escrito.json.error ?? tx('el servidor respondió {estado}', { estado: escrito.estado }));
+  const porRelevo = async () => {
+    pc.close();
+    paso(tx('La red no deja conectar directo: pasando por el servidor…'));
+    return { pc: null, canal: await abreRelevo(oferta.relevo, 'cabeza'), relevo: true };
+  };
+  if (oferta.soloRelevo) return porRelevo();
   paso(tx('Abriendo la conexión directa…'));
-  const fallaIce = new Promise((_, falla) =>
-    pc.addEventListener('iceconnectionstatechange', () => pc.iceConnectionState === 'failed' && falla(sinRuta())),
-  );
-  const canal = await Promise.race([llega, fallaIce, new Promise((_, falla) => setTimeout(() => falla(sinRuta()), CANAL_MS))]);
-  canal.binaryType = 'arraybuffer';
-  return { pc, canal: await canalAbierto(canal, pc) };
+  try {
+    const fallaIce = new Promise((_, falla) =>
+      pc.addEventListener('iceconnectionstatechange', () => pc.iceConnectionState === 'failed' && falla(sinRuta())),
+    );
+    const canal = await Promise.race([llega, fallaIce, new Promise((_, falla) => setTimeout(() => falla(sinRuta()), CANAL_MS))]);
+    canal.binaryType = 'arraybuffer';
+    return { pc, canal: await canalAbierto(canal, pc) };
+  } catch (e) {
+    if (!e.sinRuta || !oferta.relevo || !servidorRelevo()) throw e;
+    return porRelevo();
+  }
 }
 
 /** Empaqueta la cabeza para mandarla. */

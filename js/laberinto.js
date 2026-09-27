@@ -1365,7 +1365,11 @@ export function montaLaberinto() {
     const r = st.remoto;
     const badge = $('lab-enlace-badge');
     badge.hidden = r?.rol !== 'visor' || !r.algunaVez;
-    badge.textContent = r?.conectado ? tx('TELÉFONO ENLAZADO') : tx('ESPERANDO AL TELÉFONO…');
+    badge.textContent = !r?.conectado
+      ? tx('ESPERANDO AL TELÉFONO…')
+      : r.relevo
+        ? tx('TELÉFONO ENLAZADO · POR EL SERVIDOR')
+        : tx('TELÉFONO ENLAZADO');
     badge.className = `badge ${r?.conectado ? 'ok' : 'warn'}`;
     $('lab-remota').hidden = r?.rol !== 'cabeza';
     $('lab-remota-estado').textContent = r?.rol === 'cabeza' && !r.conectado ? tx('Reconectando…') : '';
@@ -1402,9 +1406,9 @@ export function montaLaberinto() {
   async function esperaTelefono(r) {
     while (st.remoto === r) {
       try {
-        const { pc, canal } = await r.sala.conecta((texto) => st.remoto === r && !r.algunaVez && estadoEnlace(texto));
-        if (st.remoto !== r) return pc.close();
-        engancha(r, pc, canal);
+        const { pc, canal, relevo } = await r.sala.conecta((texto) => st.remoto === r && !r.algunaVez && estadoEnlace(texto));
+        if (st.remoto !== r) return pc?.close() ?? canal.close();
+        engancha(r, pc, canal, relevo);
         return;
       } catch (e) {
         if (st.remoto !== r || e.message === 'cancelado') return;
@@ -1447,13 +1451,13 @@ export function montaLaberinto() {
   async function buscaPC(r) {
     for (let intentos = 0; st.remoto === r; intentos++) {
       try {
-        const { pc, canal } = await uneSala(r.codigo, (texto) => {
+        const { pc, canal, relevo } = await uneSala(r.codigo, (texto) => {
           if (st.remoto !== r) return;
           if (r.algunaVez) $('lab-remota-estado').textContent = texto;
           else estadoEnlace(texto);
         });
-        if (st.remoto !== r) return pc.close();
-        engancha(r, pc, canal);
+        if (st.remoto !== r) return pc?.close() ?? canal.close();
+        engancha(r, pc, canal, relevo);
         return;
       } catch (e) {
         if (st.remoto !== r) return;
@@ -1481,12 +1485,16 @@ export function montaLaberinto() {
 
   // ---- los dos ----
 
-  function engancha(r, pc, canal) {
-    Object.assign(r, { pc, canal, conectado: true, algunaVez: true });
+  /**
+   * Engancha un canal abierto: el de datos de WebRTC (con su `pc`) o el del
+   * relevo (`pc` nulo, `relevo` true), que se usan igual.
+   */
+  function engancha(r, pc, canal, relevo = false) {
+    Object.assign(r, { pc, canal, relevo, conectado: true, algunaVez: true });
     centra();
-    const caida = () => seCae(r, pc);
+    const caida = () => seCae(r, canal);
     let gracia = 0;
-    pc.addEventListener('connectionstatechange', () => {
+    pc?.addEventListener('connectionstatechange', () => {
       clearTimeout(gracia);
       if (pc.connectionState === 'failed' || pc.connectionState === 'closed') caida();
       // «disconnected» a veces se arregla solo: se espera un poco.
@@ -1511,10 +1519,11 @@ export function montaLaberinto() {
   }
 
   /** La conexión se cayó pero el enlace sigue: a reconectar. */
-  function seCae(r, pc) {
-    if (st.remoto !== r || r.pc !== pc || !r.conectado) return;
+  function seCae(r, canal) {
+    if (st.remoto !== r || r.canal !== canal || !r.conectado) return;
     r.conectado = false;
-    pc.close();
+    r.pc?.close();
+    canal.close();
     pintaEnlace();
     if (r.rol === 'visor') {
       r.sala.reabre().catch((e) => console.warn('laberinto: reabrir la sala', e)).finally(() => esperaTelefono(r));
@@ -1528,6 +1537,7 @@ export function montaLaberinto() {
     st.remoto = null;
     r.sala?.cancela();
     r.pc?.close();
+    r.canal?.close();
     r.wakeLock?.release().catch(() => {});
     // Lo que se había girado queda donde estaba.
     if (r.rol === 'visor') st.qManual = st.qCabeza;
@@ -1546,7 +1556,7 @@ export function montaLaberinto() {
     const r = st.remoto;
     if (document.visibilityState !== 'visible' || r?.rol !== 'cabeza') return;
     pideNoDormir(r);
-    if (r.conectado && r.pc?.connectionState !== 'connected') seCae(r, r.pc);
+    if (r.conectado && r.canal?.readyState !== 'open') seCae(r, r.canal);
     r.despierta?.();
   });
 

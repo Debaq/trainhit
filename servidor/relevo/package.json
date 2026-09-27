@@ -1,0 +1,9 @@
+{
+  "name": "trainhit-relevo",
+  "private": true,
+  "description": "Relevo por WebSocket del enlace teléfono–PC de trainHIT",
+  "main": "relevo.js",
+  "type": "commonjs",
+  "scripts": { "start": "node relevo.js" },
+  "engines": { "node": ">=18" }
+}

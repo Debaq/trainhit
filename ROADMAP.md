@@ -72,6 +72,10 @@ Publicado en https://tecmedhub.org/trainhit/.
   misma sala con su llave secreta y el teléfono vuelve a entrar al despertar.
   Mientras hace de cabeza, el teléfono no dibuja y pide que la pantalla no se
   apague (Wake Lock).
+- Si la red no deja conectar directo, **relevo por WebSocket** en el mismo
+  servidor (`servidor/relevo/relevo.js`, Node.js sin dependencias, cargado con
+  «Setup Node.js App» de cPanel: ver su LEEME.md). Probado en local, también
+  con caída y reconexión; `?forzar=relevo` lo prueba en producción.
 - «Centrar» en el PC recentra también el teléfono.
 - Probado con dos pestañas contra el PHP local, incluido cortar la conexión y
   reengancharse, y **con éxito con un teléfono y un PC reales** en
@@ -108,10 +112,10 @@ Publicado en https://tecmedhub.org/trainhit/.
 ## Falta probar
 
 - La reconexión después de dormir el teléfono, con aparatos reales.
-- El enlace en redes que no dejan conectar directo (teléfono con datos móviles,
-  wifi institucional con aislamiento de clientes): a una colega no le
-  conectó. Ahora avisa en vez de quedar esperando; si hace falta que funcione
-  igual, se necesita un servidor TURN que retransmita.
+- El relevo cargado en tecmedhub.org (`/trainhit-relevo/`): que el hosting
+  deje pasar WebSocket a la aplicación Node. Si no, plan B: tubería por el PHP.
+- El enlace en la red de la colega a la que no le conectó (teléfono con datos
+  móviles o wifi con aislamiento de clientes), ya con el relevo.
 - Que los ojos ya no se queden pegados (vuelven al frente con la cabeza quieta
   más de 1 s), con el teléfono como cabeza.
 

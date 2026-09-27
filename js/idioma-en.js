@@ -686,4 +686,8 @@ export const TEXTO = {
   'Leyendo la sala…': 'Reading the room…',
   'Respondiendo al PC…': 'Answering the PC…',
   'Abriendo la conexión directa…': 'Opening the direct connection…',
+  'TELÉFONO ENLAZADO · POR EL SERVIDOR': 'PHONE LINKED · THROUGH THE SERVER',
+  'La red no deja conectar directo: pasando por el servidor…': 'The network does not allow a direct connection: going through the server…',
+  'el otro aparato no llegó al servidor': 'the other device did not reach the server',
+  'no se pudo usar el servidor de relevo': 'the relay server could not be used',
 };
