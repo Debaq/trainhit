@@ -78,12 +78,13 @@ const DIST_MAX = 1.6;
 /** Altura del punto al que mira la cámara: entre los ojos y los oídos. */
 const MIRA_Y = 0.015;
 /**
- * La cámara no va de frente sino en tres cuartos, desde la izquierda del
- * paciente y un poco arriba: de frente los laberintos quedan detrás de los
- * ojos y no se distingue un canal del otro. Grados.
+ * Al abrir, la cámara va en tres cuartos, desde la izquierda del paciente y
+ * un poco arriba: de frente los laberintos quedan detrás de los ojos y no se
+ * distingue un canal del otro. «Centrar» la pone de frente, cara a cara, que
+ * es como se piensa la mirada al frente. Grados.
  */
-const CAMARA_AZIMUT = 32;
-const CAMARA_ELEVACION = 14;
+const CAMARA_TRES_CUARTOS = { az: 32, el: 14 };
+const CAMARA_FRENTE = { az: 0, el: 0 };
 
 /** Amplitud de los impulsos armados, en grados: la de un impulso de vHIT. */
 const AMPLITUD_IMPULSO = 20;
@@ -147,6 +148,7 @@ export function montaLaberinto() {
     omega: [0, 0, 0],
     impulso: null,
     dist: DIST_INICIAL,
+    camara: CAMARA_TRES_CUARTOS,
     pan: [0, 0, 0],
     tPrevio: 0,
     raf: 0,
@@ -620,8 +622,8 @@ export function montaLaberinto() {
       camara.position.set(0, st.dist, 0);
       camara.lookAt(0, 0, 0);
     } else {
-      const az = (CAMARA_AZIMUT * Math.PI) / 180;
-      const el = (CAMARA_ELEVACION * Math.PI) / 180;
+      const az = (st.camara.az * Math.PI) / 180;
+      const el = (st.camara.el * Math.PI) / 180;
       camara.up.set(0, 1, 0);
       camara.position.set(
         st.dist * Math.cos(el) * Math.sin(az),
@@ -694,6 +696,9 @@ export function montaLaberinto() {
     st.faseRapida = false;
     st.pan = [0, 0, 0];
     st.dist = DIST_INICIAL;
+    st.camara = CAMARA_FRENTE;
+    st.cenital = false;
+    $('lab-cenital').setAttribute('aria-pressed', 'false');
     if (st.sensor.q) st.sensor.qRef = st.sensor.q;
   }
 
