@@ -41,6 +41,7 @@ import {
   respuestas,
   velocidadAngular,
 } from './canales.js';
+import { OJO, mallaCabeza } from './cabeza.js';
 import { alCambiarIdioma, tx } from './idioma.js';
 
 const $ = (id) => document.getElementById(id);
@@ -426,17 +427,32 @@ export function montaLaberinto() {
     // La piel: lo de la cabeza que no es ojo ni laberinto, translúcido.
     // Los laberintos ya se mudaron a sus grupos; los ojos pueden seguir
     // colgando de la cabeza y se los saltea.
-    const piel = [];
+    //
+    // Los ojos no se ven a través de la piel sino por la hendidura de los
+    // párpados. Para eso la piel se dibuja dos veces: primero invisible, solo
+    // en el z-buffer, y recién después los ojos, que quedan tapados salvo
+    // donde la piel tiene el hueco. Los laberintos van antes que todo eso y
+    // se siguen viendo a través. El orden: laberintos (0), piel en el z-buffer
+    // (1), ojos (2), y la piel translúcida al final, que es transparente.
     const esOjo = (m) => {
       for (let o = m; o && o !== cab; o = o.parent) if (/^ojo_/.test(o.name)) return true;
       return false;
     };
+    const mallasPiel = [];
     cab?.traverse((m) => {
-      if (!m.isMesh || esOjo(m)) return;
+      if (m.isMesh && !esOjo(m)) mallasPiel.push(m);
+    });
+    const piel = [];
+    const soloProfundidad = new T.MeshBasicMaterial({ colorWrite: false });
+    for (const m of mallasPiel) {
       m.material = m.material.clone();
       Object.assign(m.material, { transparent: true, opacity: 0.22, depthWrite: false });
+      const oclusor = new T.Mesh(m.geometry, soloProfundidad);
+      oclusor.renderOrder = 1;
+      m.add(oclusor);
       piel.push(m);
-    });
+    }
+    for (const o of Object.values(ojos)) o.obj.traverse((m) => (m.renderOrder = 2));
 
     // Rótulos: uno por canal, en HTML encima del lienzo.
     rotulos.replaceChildren(
@@ -507,6 +523,8 @@ export function montaLaberinto() {
           opacity: 0.1,
           side: T.DoubleSide,
           depthWrite: false,
+          // Sin esto la piel, que ya está en el z-buffer, los tapaba.
+          depthTest: false,
         }),
       );
       // El círculo nace en el plano xy, mirando a +z: se lo gira a la normal.
@@ -854,16 +872,14 @@ export function montaLaberinto() {
 
 // ------------------------------------------------------ modelo provisorio ---
 //
-// Primitivas con las medidas aproximadas de un adulto, en metros, con los
-// nombres del contrato. Es para trabajar mientras llega el modelo de verdad:
+// Medidas aproximadas de un adulto, en metros, con los nombres del contrato.
+// La cabeza sale de cabeza.js; ojos y laberintos son primitivas. Es para trabajar mientras llega el modelo de verdad:
 // lo que importa es que los canales estén en sus planos, no la anatomía fina.
 // Exportado a `modelos/provisorio.glb`, es también la referencia para quien
 // haga el de verdad: se importa en Blender y muestra nombres, escala y ejes.
 
 /** Centro de cada laberinto: a la altura del conducto auditivo, hacia adentro. */
 const X_LABERINTO = 0.038;
-/** Centro de rotación de cada ojo. */
-const OJO = { x: 0.032, y: 0.022, z: 0.078, radio: 0.012 };
 /** Radio de un canal (de su eje al centro del tubo) y del tubo óseo. */
 const R_CANAL = 0.0032;
 const R_TUBO = 0.00042;
@@ -872,23 +888,15 @@ export function modeloProvisorio(T) {
   const raiz = new T.Group();
   raiz.name = 'provisorio';
 
-  // Cabeza: cráneo, nariz, orejas y cuello, lo justo para saber hacia dónde
-  // mira. Translúcida desde armaModelo.
-  const piel = new T.MeshStandardMaterial({ color: 0xd9b89c, roughness: 0.8 });
-  const cabeza = new T.Group();
+  // Cabeza: una sola piel, de la superficie implícita de cabeza.js.
+  // Translúcida desde armaModelo.
+  const m = mallaCabeza();
+  const geo = new T.BufferGeometry();
+  geo.setAttribute('position', new T.BufferAttribute(m.posiciones, 3));
+  geo.setAttribute('normal', new T.BufferAttribute(m.normales, 3));
+  geo.setIndex(new T.BufferAttribute(m.indices, 1));
+  const cabeza = new T.Mesh(geo, new T.MeshStandardMaterial({ color: 0xd9b89c, roughness: 0.75 }));
   cabeza.name = NOMBRES.cabeza;
-  const pieza = (geo, x, y, z, sx = 1, sy = 1, sz = 1) => {
-    const m = new T.Mesh(geo, piel);
-    m.position.set(x, y, z);
-    m.scale.set(sx, sy, sz);
-    cabeza.add(m);
-    return m;
-  };
-  pieza(new T.SphereGeometry(1, 48, 32), 0, 0.035, 0.004, 0.076, 0.105, 0.098);
-  const nariz = pieza(new T.ConeGeometry(0.013, 0.036, 20), 0, -0.004, 0.106);
-  nariz.rotation.x = Math.PI / 2;
-  for (const s of [1, -1]) pieza(new T.SphereGeometry(1, 20, 16), s * 0.078, 0.004, -0.004, 0.007, 0.03, 0.017);
-  pieza(new T.CylinderGeometry(0.045, 0.05, 0.08, 32), 0, -0.09, -0.018);
   raiz.add(cabeza);
 
   // Ojos: esclera, iris, pupila y una marca a las 12 para ver la torsión.
@@ -974,17 +982,25 @@ function canalProvisorio(T, c, centro, s) {
   return grupo;
 }
 
-/** Cóclea: dos vueltas y media de espiral cónica, adelante y adentro del vestíbulo. */
+/**
+ * Cóclea: dos vueltas y media de espiral cónica, adelante, adentro y un poco
+ * abajo del vestíbulo, con el ápice hacia adelante y afuera. La vuelta basal
+ * nace del vestíbulo mismo, como en el hueso: no es una pieza suelta al lado.
+ */
 function cocleaProvisoria(T, mat, centro, s, nombre) {
   const eje = new T.Vector3(s * 0.7, -0.35, 0.6).normalize();
-  const base = centro.clone().add(new T.Vector3(-s * 0.0025, -0.0025, 0.0045));
+  const base = centro.clone().add(new T.Vector3(-s * 0.0022, -0.0018, 0.0042));
   const a = new T.Vector3(0, 1, 0).cross(eje).normalize();
   const b = new T.Vector3().crossVectors(eje, a);
-  const pts = [];
+  // La espiral arranca en el punto de la vuelta basal que mira al vestíbulo.
+  const hacia = centro.clone().sub(base);
+  hacia.addScaledVector(eje, -hacia.dot(eje));
+  const th0 = Math.atan2(hacia.dot(b), hacia.dot(a));
+  const pts = [centro.clone()];
   const vueltas = 2.5;
   for (let i = 0; i <= 80; i++) {
     const t = i / 80;
-    const th = s * t * vueltas * 2 * Math.PI;
+    const th = th0 + s * t * vueltas * 2 * Math.PI;
     const r = 0.003 * (1 - 0.7 * t);
     pts.push(
       base
@@ -994,7 +1010,7 @@ function cocleaProvisoria(T, mat, centro, s, nombre) {
         .addScaledVector(eje, 0.003 * t),
     );
   }
-  const m = new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(pts), 160, 0.00055, 10), mat);
+  const m = new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(pts), 180, 0.00065, 10), mat);
   m.name = nombre;
   return m;
 }

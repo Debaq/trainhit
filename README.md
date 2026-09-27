@@ -430,8 +430,14 @@ fija.
 
 ### El modelo
 
-Si existe `modelos/laberinto.glb` se usa ese; si no, uno provisorio armado con
-primitivas. Para hacer el de verdad en Blender:
+Si existe `modelos/laberinto.glb` se usa ese; si no, uno provisorio. Su cabeza
+(`js/cabeza.js`) es una superficie implícita: cráneo, cara, mandíbula, nariz,
+labios, cejas y orejas fundidos con uniones suaves, las hendiduras de los
+párpados talladas, y la malla sacada con *surface nets* (unos 300 ms, una vez).
+Ojos y laberintos son primitivas, con la cóclea saliendo del vestíbulo. La piel
+se dibuja primero en el z-buffer, así los ojos se ven solo por los párpados y
+los laberintos, que van antes, a través de la piel. Para hacer el de verdad en
+Blender:
 
 - Exportar a **glTF Binary (.glb)**, con **+Y Up**, sin compresión Draco.
 - **Metros y tamaño real** (cabeza de unos 0,18–0,20 m), la **cara mirando a −Y**
@@ -641,6 +647,7 @@ js/app.js       el cableado y la interfaz
 js/tutorial.js  «Aprender a usar»: el menú de paseos; el contenido, en js/tutorial-pasos.js
 js/ejemplo.js   el paciente sintético de los paseos
 js/canales.js   los seis canales: ejes, tasa de disparo, impulsos (sin DOM)
+js/cabeza.js    la cabeza provisoria como superficie implícita (sin DOM)
 js/laberinto.js el Laberinto 3D: escena three.js, modelo, gestos y sensores
 ```
 
