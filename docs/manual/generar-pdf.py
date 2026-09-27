@@ -54,6 +54,9 @@ hr { display: none; }
 ol, ul { padding-left: 16pt; }
 li { margin: 2pt 0; }
 .indice ul { list-style: none; padding-left: 8pt; }
+/* Los logos del laboratorio y de la universidad, al pie de la portada. */
+.logos { display: flex; align-items: center; gap: 1.6cm; margin-top: 3.2cm; }
+.logos img { height: 2.6cm; width: auto; }
 """
 
 

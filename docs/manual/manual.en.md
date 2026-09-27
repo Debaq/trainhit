@@ -10,6 +10,11 @@ A teaching vHIT in the browser, with the computer’s webcam.
 
 TecMedHub Lab · Universidad Austral de Chile, Puerto Montt campus
 
+<div class="logos">
+<img src="img/logos/tecmedhub.png" alt="TecMedHub" height="90">
+<img src="img/logos/uach.png" alt="Universidad Austral de Chile" height="90">
+</div>
+
 ## Contents
 
 <div class="indice" markdown="1">
