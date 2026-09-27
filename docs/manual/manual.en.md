@@ -1211,9 +1211,8 @@ Filled in by the observer in activity 19.4, or by the teacher.
 | **RALP / LARP** | The pairs of vertical canals. trainHIT does not measure them. |
 
 
-*trainHIT is free software (Apache-2.0), developed at the TecMedHub Lab of the
-Universidad Austral de Chile, Puerto Montt campus. The code and every decision
-in the computation are explained in the repository.*
+*trainHIT was developed at the TecMedHub Lab of the Universidad Austral de
+Chile, Puerto Montt campus.*
 
 ---
 
@@ -1317,14 +1316,12 @@ year in the text; each one carries a line on what it is used for here.
 
 ### Software
 
-- **trainHIT**, open source (Apache-2.0): <https://github.com/Debaq/trainhit>
 - **MediaPipe** (Google, Apache-2.0), the face tracking model:
   <https://github.com/google-ai-edge/mediapipe>
-- **Labyrinthus 3D**, from the same lab, where the phone link comes from: <https://github.com/Debaq/labyrinthus3d>
+- **Labyrinthus 3D**, from the same lab, where the phone link comes from.
 
 ### How to cite trainHIT
 
 > Baier-Quezada N, Uribe-Hernández V, López-Moncada F. trainHIT: a teaching
 > vHIT in the browser [software]. Version 2026-09-27.77. Puerto Montt:
-> TecMedHub Lab, Universidad Austral de Chile; 2026. Available at:
-> https://github.com/Debaq/trainhit
+> TecMedHub Lab, Universidad Austral de Chile; 2026.
