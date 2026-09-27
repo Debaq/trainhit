@@ -723,9 +723,11 @@ per browser.
 
 ### Language
 
-trainHIT comes in **Spanish and English**. It starts in the browser’s
-language, or in the one given in the address (`?lang=en`, handy for a course
-link). The **EN** / **ES** button in the bar switches language live, without
+trainHIT comes in **Spanish and English**. It starts in Spanish if the browser
+is in Spanish, in any variant, and in English if it is in any other language;
+the browser usually takes the operating system’s language. The one given in the
+address (`?lang=en`, handy for a course link) and the one chosen last time come
+first. The **EN** / **ES** button in the bar switches language live, without
 reloading and without losing the session.
 
 ![The interface in Spanish](img/en/25-espanol.png)

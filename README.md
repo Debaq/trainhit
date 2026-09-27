@@ -138,9 +138,13 @@ puede ser externo, así que va autorizado por su hash sha256 en la CSP;
 
 ### Idiomas
 
-Español e inglés. Arranca en el idioma del navegador —o el de `?lang=en` en la
-dirección, útil para un enlace de curso— y el botón **EN**/**ES** de la barra
-lo cambia en vivo, sin recargar: la sesión medida queda.
+Español e inglés. Arranca en español si el navegador está en español, en
+cualquier variante (`es`, `es-CL`, `es-AR`…), y en inglés si está en cualquier
+otro idioma. El navegador toma el del sistema operativo salvo que se lo cambie;
+una página web no puede leer el del sistema directamente. Mandan antes el
+`?lang=en` de la dirección, útil para un enlace de curso, y el idioma elegido la
+vez anterior. El botón **EN**/**ES** de la barra lo cambia en vivo, sin
+recargar: la sesión medida queda.
 
 El español es la fuente y se escribe como siempre, en `index.html` y en el
 código. Lo que se traduce va marcado: en el HTML con `data-i18n="clave"` (o

@@ -716,8 +716,11 @@ video, ni las mediciones, ni nada de la sesión. Hay un voto por navegador.
 
 ### Idioma
 
-trainHIT está en **español e inglés**. Arranca en el idioma del navegador, o en
-el que diga la dirección (`?lang=en`, útil para un enlace de curso). El botón
+trainHIT está en **español e inglés**. Arranca en español si el navegador está
+en español, en cualquier variante, y en inglés si está en cualquier otro idioma;
+el navegador suele tomar el idioma del sistema operativo. Mandan antes el que
+diga la dirección (`?lang=en`, útil para un enlace de curso) y el que se eligió
+la vez anterior. El botón
 **EN** / **ES** de la barra cambia el idioma en vivo, sin recargar y sin perder
 la sesión.
 

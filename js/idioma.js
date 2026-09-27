@@ -58,7 +58,11 @@ export function tx(texto, vars) {
 /**
  * El idioma con que arranca: el `?lang=` de la dirección —un enlace armado
  * para un curso manda—, si no el elegido antes en este navegador, si no el
- * primero de los del navegador que haya.
+ * del navegador (que salvo que se lo cambie es el del sistema operativo):
+ * español si su idioma preferido es cualquier variante del español, y si no
+ * inglés. Se mira solo el PRIMERO: un navegador en francés que tenga el
+ * español más abajo en la lista arranca en inglés, que es lo que se entiende
+ * en más lugares.
  */
 export function idiomaInicial() {
   const valido = (l) => (l && l in IDIOMAS ? l : null);
@@ -69,8 +73,8 @@ export function idiomaInicial() {
     /* sin almacenamiento: se elige de nuevo en cada carga */
   }
   const url = new URLSearchParams(location.search).get('lang');
-  const nav = (navigator.languages ?? [navigator.language]).map((l) => valido(l?.slice(0, 2)));
-  return valido(url) ?? valido(guardado) ?? nav.find(Boolean) ?? 'es';
+  const preferido = (navigator.languages?.[0] ?? navigator.language ?? '').toLowerCase();
+  return valido(url) ?? valido(guardado) ?? (preferido.startsWith('es') ? 'es' : 'en');
 }
 
 export function ponIdioma(l, { guarda = true } = {}) {
