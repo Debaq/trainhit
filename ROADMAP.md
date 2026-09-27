@@ -30,7 +30,7 @@ Falta, del lado de trainHIT:
 
 - **Pasada completa del manual** (`docs/manual/`): rehacer las capturas, que
   son anteriores al botón **Laberinto 3D ↗** de la barra, al tema claro y al
-  español neutro (al día: `04-menu-aprender.png` y las del teléfono, `44` a
+  español neutro (al día: `01-bienvenida`, `02-acerca`, `04-menu-aprender` y las del teléfono, `44` a
   `47`, del 2026-09-27). Las de cámara necesitan grabar de nuevo al paciente:
   los `.y4m` de la primera pasada se perdieron. El texto ya está en español
   neutro, con la sección del teléfono, y los PDF se subieron el 2026-09-27.
