@@ -18,7 +18,7 @@ with a phone as the head.
 
 **Author:** Nicolás Baier Quezada<br>
 **Date:** September 27, 2026<br>
-**trainHIT version documented:** 2026-09-27.77
+**trainHIT version documented:** 2026-09-27.78
 
 TecMedHub Lab · Universidad Austral de Chile, Puerto Montt campus
 
@@ -1323,5 +1323,5 @@ year in the text; each one carries a line on what it is used for here.
 ### How to cite trainHIT
 
 > Baier-Quezada N, Uribe-Hernández V, López-Moncada F. trainHIT: a teaching
-> vHIT in the browser [software]. Version 2026-09-27.77. Puerto Montt:
+> vHIT in the browser [software]. Version 2026-09-27.78. Puerto Montt:
 > TecMedHub Lab, Universidad Austral de Chile; 2026.

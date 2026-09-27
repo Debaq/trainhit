@@ -57,7 +57,7 @@ export const HTML = {
   'acerca.lab': 'TecMedHub Lab',
   'acerca.sede': 'Universidad Austral de Chile · Puerto Montt campus',
   'acerca.aviso':
-    'Teaching tool: it is not a medical device. The code is open (Apache-2.0) and every decision in the computation is explained in <a href="https://github.com/Debaq/trainhit" target="_blank" rel="noopener">the repository</a>.',
+    'Teaching tool: it is not a medical device. Every decision in the computation is in plain sight under <b>Tools</b>.',
   'acerca.volver': 'Back',
 
   // ── tutorial ──
@@ -271,7 +271,6 @@ export const HTML = {
               — gain and PR score in peripheral vestibular disorders. <i>Acta Otolaryngol.</i>
             </li>
           `,
-  'h.refs.ganancias': 'Full comparison against the literature: <code>GANANCIAS.md</code> in the main repository (in Spanish).',
 
   // ── simulador ──
   'sim.titulo': 'Simulated patient',
