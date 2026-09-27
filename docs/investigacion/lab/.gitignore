@@ -1,0 +1,9 @@
+# Los datos de las grabaciones no van al repo: son caras de personas.
+*.mkv
+*.json
+*.csv
+*.png
+fases*.txt
+cuadros/
+node_modules/
+package*.json

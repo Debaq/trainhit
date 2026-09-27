@@ -1,0 +1,41 @@
+<!doctype html><meta charset="utf-8"><title>lab</title>
+<script type="module">
+import { crearLandmarker } from './js/tracker.js';
+// Los puntos que se guardan: iris, comisuras y contorno de párpados de cada ojo.
+const PUNTOS = [
+  ...Array.from({ length: 10 }, (_, i) => 468 + i),
+  33, 133, 246, 161, 160, 159, 158, 157, 173, 7, 163, 144, 145, 153, 154, 155,
+  362, 263, 466, 388, 387, 386, 385, 384, 398, 249, 390, 373, 374, 380, 381, 382,
+  1, 4, 10, 152, 234, 454,
+];
+window.PUNTOS = PUNTOS;
+window.prepara = async (gpu) => {
+  const { landmarker, delegate } = await crearLandmarker({ gpu });
+  window.lm = landmarker;
+  return delegate;
+};
+const carga = (src) => new Promise((ok, mal) => { const i = new Image(); i.onload = () => ok(i); i.onerror = mal; i.src = src; });
+// Procesa un tramo de cuadros: [{src, t}] -> [{t, w, h, p: {idx: [x,y,z]}, m}]
+window.procesa = async (cuadros) => {
+  const out = [];
+  for (const { src, t } of cuadros) {
+    const img = await carga(src);
+    const r = window.lm.detectForVideo(img, t * 1000);
+    const l = r.faceLandmarks?.[0];
+    if (!l) { out.push({ t, cara: false }); continue; }
+    const m = Array.from(r.facialTransformationMatrixes[0].data);
+    if (window.TODOS) {
+      // los 478 puntos, planos: x0,y0,z0,x1,…
+      const a = new Array(l.length * 3);
+      l.forEach((q, i) => { a[3 * i] = +q.x.toFixed(6); a[3 * i + 1] = +q.y.toFixed(6); a[3 * i + 2] = +q.z.toFixed(5); });
+      out.push({ t, w: img.naturalWidth, h: img.naturalHeight, a, m });
+      continue;
+    }
+    const p = {};
+    for (const i of PUNTOS) p[i] = [l[i].x, l[i].y, l[i].z];
+    out.push({ t, w: img.naturalWidth, h: img.naturalHeight, p, m });
+  }
+  return out;
+};
+window.listo = true;
+</script>

@@ -36,12 +36,21 @@ Falta, del lado de trainHIT:
   se registra el ojo 10 a 20 s y se detecta el diente de sierra, con la
   dirección de la fase rápida y la velocidad de la fase lenta; también con el
   blanco a los lados, para el evocado por la mirada.
-- **Canales verticales**, diferidos a propósito el 2026-09-22. El paseo
-  didáctico ya está (2026-09-27). Falta el VOR vertical en cabeceo (anteriores
-  y posteriores juntos, rotulado «no es RALP/LARP»), probado con cámara real
-  antes de mostrar ganancias. La cabeza ya está resuelta (`CANAL_AXIS` en
-  `js/head.js`); falta el ojo vertical: primero medir si el sesgo del párpado
-  deja usar la componente vertical del iris.
+- **Sesgo de la ganancia lateral** (prioridad): con un blanco que se mueve
+  con la cabeza (ganancia 0 real) la app da ~0,5, porque las comisuras de
+  MediaPipe acompañan al iris y se ve la mitad del giro del ojo. Las ganancias
+  bajas se leen altas. Falta confirmarlo con un láser sujeto a la cabeza y
+  elegir el arreglo (referencia rígida o segunda calibración con supresión);
+  mientras tanto, avisarlo en la app y en el README. Todo en
+  [docs/investigacion/verticales-y-supresion.md](docs/investigacion/verticales-y-supresion.md).
+- **Canales verticales**: el paseo didáctico está (2026-09-27). Medirlos con
+  los puntos de MediaPipe quedó **descartado** el mismo día: el iris casi no
+  refleja el giro vertical del ojo, lo tapa el párpado. Las opciones a futuro
+  (detector propio de pupila, más resolución, infrarrojo, estimadores de
+  mirada) están en el mismo documento.
+- **`CANAL_AXIS.ralp/larp` en `js/head.js` está mal**: `[±√½, √½, 0]` mezcla el
+  eje lateral con el vertical; el de un plano vertical es horizontal,
+  `[±√½, 0, √½]`. Nadie lo usa todavía.
 
 ## Ideas
 
