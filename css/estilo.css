@@ -93,6 +93,20 @@ button.enlace {
   cursor: pointer;
 }
 button.enlace:hover { background: none; color: var(--foreground); }
+a.enlace-manual { color: var(--c-guide); text-underline-offset: 3px; }
+a.enlace-manual:hover { color: var(--foreground); }
+/* Un enlace con cara de botón: el manual se baja, no es una acción. */
+a.boton {
+  display: inline-block;
+  background: var(--muted);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--r-widget);
+  padding: 6px 10px;
+  font-size: 13px;
+  text-decoration: none;
+}
+a.boton:hover { background: var(--accent); color: var(--foreground); }
 
 /* ── acerca de ───────────────────────────────────────────────────────────── */
 

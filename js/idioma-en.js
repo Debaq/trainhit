@@ -42,6 +42,7 @@ export const HTML = {
   'bienvenida.calibrar': 'Calibrate the parallax with <kbd>C</kbd> before measuring.',
   'bienvenida.credito': 'Developed at <b>TecMedHub</b>, Universidad Austral de Chile.',
   'bienvenida.acerca': 'Who we are',
+  'bienvenida.manual': 'Manual and teacher’s guide (PDF)',
   'bienvenida.tutorial': 'Learn how to use it',
   'bienvenida.empezar': 'Start',
   version: 'version',
@@ -211,6 +212,7 @@ export const HTML = {
   'h.docentes.ayuda':
     'Self-assessment questions in GIFT format, for the Moodle question bank: one for each blind case —with the numbers the engine gets from each— and others on the concepts of the tours. A measured session is shared with <b>Export CSV</b> and each student opens it with <b>Import CSV</b>.',
   'h.gift': 'Questions for Moodle (GIFT)',
+  'h.manual': 'User manual and teacher’s guide (PDF)',
   'h.refs': 'Where the numbers come from',
   'h.refs.lista': `
             <li>
@@ -423,7 +425,7 @@ export const TEXTO = {
   'Aceptados: derecha {d}/{min} · izquierda {i}/{min}': 'Accepted: right {d}/{min} · left {i}/{min}',
   'der {d}/{min} · izq {i}/{min}': 'R {d}/{min} · L {i}/{min}',
   'pulsos aceptados de cada lado; con {min} y {min} se contesta en el Simulador':
-    'accepted pulses on each side; with {min} and {min}, answer in the Simulator',
+    'accepted impulses on each side; with {min} and {min}, answer in the Simulator',
   'Ya sé qué tiene': 'I know what it has',
   'Hacen falta {min} pulsos aceptados de cada lado.': '{min} accepted impulses are needed on each side.',
   Revelar: 'Reveal',

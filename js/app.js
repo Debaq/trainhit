@@ -1779,6 +1779,12 @@ function montaIdioma() {
     boton.textContent = otro().toUpperCase();
     boton.title = IDIOMAS[otro()];
     boton.lang = otro();
+    // El manual, en el idioma de la interfaz.
+    const en = idioma() === 'en';
+    for (const a of document.querySelectorAll('.enlace-manual')) {
+      a.href = en ? 'docs/manual/manual.en.pdf' : 'docs/manual/manual.pdf';
+      a.download = en ? 'trainhit-manual-en.pdf' : 'trainhit-manual.pdf';
+    }
   };
   boton.addEventListener('click', () => ponIdioma(otro()));
   alCambiarIdioma(() => {

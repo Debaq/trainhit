@@ -152,6 +152,16 @@ los mismos botones que en español. Lo que falte se ve en español, no rompe.
 
 El CSV exportado queda siempre en español: es un formato de datos, no texto.
 
+### Manual y guía docente
+
+`docs/manual/` tiene el **manual de uso y guía docente** —ideas de uso
+pedagógico: resultados de aprendizaje, secuencias de clase, actividades,
+rúbrica— en español (`manual.md`) y en inglés (`manual.en.md`), con capturas
+de la página en cada idioma (`img/` e `img/en/`). La página lo ofrece para
+bajar en PDF desde la bienvenida y desde Herramientas › Para docentes, en el
+idioma de la interfaz. El Markdown es la fuente; los PDF se regeneran con
+`python3 docs/manual/generar-pdf.py` (hace falta `markdown` y `weasyprint`).
+
 ## Aprender a usar
 
 **Aprender**, en la barra (o `T`, o el botón de la bienvenida), abre un menú de

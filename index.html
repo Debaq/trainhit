@@ -8,7 +8,7 @@
          jsdelivr (MediaPipe), y conexiones solo a lo que la página usa. -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-ZA1bbvS2bZM92R0+co616UFKnUI4BRzu9dOTf6wQ0YM='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
+      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-is9tJbu66EYWurHrZnFko8xtf6YFdc7ic4/KWAxYHp0='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
     />
     <meta
       name="description"
@@ -52,7 +52,7 @@
     />
     <!-- Mapa de importación: versiona los imports internos. Lo regenera
          bump.mjs junto con su hash en la CSP de arriba. Va antes del arranque. -->
-    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-26.2","./js/app.js":"./js/app.js?v=2026-09-26.2","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-26.2","./js/curve.js":"./js/curve.js?v=2026-09-26.2","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-26.2","./js/geom.js":"./js/geom.js?v=2026-09-26.2","./js/head.js":"./js/head.js?v=2026-09-26.2","./js/idioma.js":"./js/idioma.js?v=2026-09-26.2","./js/idioma-en.js":"./js/idioma-en.js?v=2026-09-26.2","./js/pipeline.js":"./js/pipeline.js?v=2026-09-26.2","./js/plots.js":"./js/plots.js?v=2026-09-26.2","./js/practica.js":"./js/practica.js?v=2026-09-26.2","./js/preguntas.js":"./js/preguntas.js?v=2026-09-26.2","./js/sesion.js":"./js/sesion.js?v=2026-09-26.2","./js/signal.js":"./js/signal.js?v=2026-09-26.2","./js/simulacion.js":"./js/simulacion.js?v=2026-09-26.2","./js/tracker.js":"./js/tracker.js?v=2026-09-26.2","./js/tutorial.js":"./js/tutorial.js?v=2026-09-26.2","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-26.2","./js/tutorial-pasos-en.js":"./js/tutorial-pasos-en.js?v=2026-09-26.2"}}</script>
+    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-27.1","./js/app.js":"./js/app.js?v=2026-09-27.1","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-27.1","./js/curve.js":"./js/curve.js?v=2026-09-27.1","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-27.1","./js/geom.js":"./js/geom.js?v=2026-09-27.1","./js/head.js":"./js/head.js?v=2026-09-27.1","./js/idioma.js":"./js/idioma.js?v=2026-09-27.1","./js/idioma-en.js":"./js/idioma-en.js?v=2026-09-27.1","./js/pipeline.js":"./js/pipeline.js?v=2026-09-27.1","./js/plots.js":"./js/plots.js?v=2026-09-27.1","./js/practica.js":"./js/practica.js?v=2026-09-27.1","./js/preguntas.js":"./js/preguntas.js?v=2026-09-27.1","./js/sesion.js":"./js/sesion.js?v=2026-09-27.1","./js/signal.js":"./js/signal.js?v=2026-09-27.1","./js/simulacion.js":"./js/simulacion.js?v=2026-09-27.1","./js/tracker.js":"./js/tracker.js?v=2026-09-27.1","./js/tutorial.js":"./js/tutorial.js?v=2026-09-27.1","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-27.1","./js/tutorial-pasos-en.js":"./js/tutorial-pasos-en.js?v=2026-09-27.1"}}</script>
     <script src="js/arranque.js"></script>
     <noscript><link rel="stylesheet" href="css/estilo.css" /></noscript>
   </head>
@@ -147,6 +147,7 @@
         <p class="ayuda credito">
           <span data-i18n="bienvenida.credito">Desarrollado en <b>TecMedHub</b>, Universidad Austral de Chile.</span>
           <button id="btn-acerca-bienvenida" class="enlace" data-i18n="bienvenida.acerca">Quiénes lo hacemos</button>
+          · <a class="enlace-manual" href="docs/manual/manual.pdf" download data-i18n="bienvenida.manual">Manual y guía docente (PDF)</a>
         </p>
         <div class="acciones">
           <button id="btn-tutorial" class="primario" data-i18n="bienvenida.tutorial">Aprender a usar</button>
@@ -530,7 +531,12 @@
             conceptos de los paseos. Una sesión medida se reparte con <b>Exportar CSV</b> y cada
             alumno la abre con <b>Importar CSV</b>.
           </p>
-          <button id="btn-gift" data-i18n="h.gift">Preguntas para Moodle (GIFT)</button>
+          <div class="acciones-perillas">
+            <button id="btn-gift" data-i18n="h.gift">Preguntas para Moodle (GIFT)</button>
+            <!-- El PDF va en el idioma de la interfaz: el href lo pone app.js
+                 al cambiar de idioma. Fuente y generador en docs/manual/. -->
+            <a class="boton enlace-manual" href="docs/manual/manual.pdf" download data-i18n="h.manual">Manual de uso y guía docente (PDF)</a>
+          </div>
         </section>
 
         <section id="h-refs">
