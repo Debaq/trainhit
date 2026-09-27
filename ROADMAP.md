@@ -32,11 +32,12 @@ Falta, del lado de trainHIT:
   se registra el ojo 10 a 20 s y se detecta el diente de sierra, con la
   dirección de la fase rápida y la velocidad de la fase lenta; también con el
   blanco a los lados, para el evocado por la mirada.
-- **Canales verticales**, diferidos a propósito el 2026-09-22: primero un paseo
-  didáctico y después el VOR vertical en cabeceo (anteriores y posteriores
-  juntos, rotulado «no es RALP/LARP»), probado con cámara real antes de mostrar
-  ganancias. La cabeza ya está resuelta (`CANAL_AXIS` en `js/head.js`); falta
-  el ojo vertical.
+- **Canales verticales**, diferidos a propósito el 2026-09-22. El paseo
+  didáctico ya está (2026-09-27). Falta el VOR vertical en cabeceo (anteriores
+  y posteriores juntos, rotulado «no es RALP/LARP»), probado con cámara real
+  antes de mostrar ganancias. La cabeza ya está resuelta (`CANAL_AXIS` en
+  `js/head.js`); falta el ojo vertical: primero medir si el sesgo del párpado
+  deja usar la componente vertical del iris.
 
 ## Ideas
 
