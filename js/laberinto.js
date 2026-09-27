@@ -114,6 +114,8 @@ const AMPLITUD_IMPULSO = 20;
 // inhibido, que es lo que se lee en «respuesta».
 const COLOR_PAR = { lateral: 0x4db6e8, larp: 0xd18800, ralp: 0x9b51d0 };
 const COLOR_REPOSO = 0x8a8a93;
+/** Con este giro, en °/s, los canales ya dejaron el color de par por el gris. */
+const GIRO_PARA_GRIS = 15;
 const COLOR_EXCITADO = 0xe0302a;
 const COLOR_INHIBIDO = 0x2e7dd6;
 
@@ -593,14 +595,6 @@ export function montaLaberinto() {
     const enEjes = st.vista === 'ejes';
     for (const f of st.escena.flechas) f.visible = enEjes && $('lab-flechas').checked;
     for (const [par, p] of Object.entries(st.escena.planos)) p.visible = enEjes && $(`lab-plano-${par}`).checked;
-    if (st.vista !== 'respuesta') {
-      for (const [id, c] of Object.entries(st.escena.canales)) {
-        for (const m of c.materiales) {
-          m.color.setHex(COLOR_PAR[CANAL[id].par]);
-          m.emissive.setHex(0x000000);
-        }
-      }
-    }
   }
 
   // -------------------------------------------------------------- cuadro ---
@@ -668,19 +662,29 @@ export function montaLaberinto() {
     const qo = new T.Quaternion(...enOrbita);
     for (const o of Object.values(st.escena.ojos)) o.obj.quaternion.copy(qo).multiply(o.reposo);
 
-    if (st.vista === 'respuesta') {
-      const reposo = new T.Color(COLOR_REPOSO);
-      const exc = new T.Color(COLOR_EXCITADO);
-      const inh = new T.Color(COLOR_INHIBIDO);
-      for (const [id, c] of Object.entries(st.escena.canales)) {
-        const a = activacion(r[id].tasa);
-        for (const m of c.materiales) {
-          m.color.lerpColors(reposo, a >= 0 ? exc : inh, Math.abs(a));
-          m.emissive.copy(a >= 0 ? exc : inh).multiplyScalar(0.35 * Math.abs(a));
-        }
+    // Cada canal se pinta de rojo si se excita y de azul si se inhibe, en
+    // todas las vistas: mover la cabeza a mano tiene que mostrarlo igual que
+    // un impulso armado. Mezclado con el color del par no se leía (el lateral
+    // celeste inhibido era otro azul), así que en cuanto la cabeza se mueve
+    // todos pasan a gris y de ahí a rojo o azul; quieta, cada uno vuelve al
+    // color de su par (en Respuesta, siempre gris). La intensidad va con la
+    // raíz de la activación para que un giro lento ya se note; el número
+    // exacto está en las barras.
+    const exc = new T.Color(COLOR_EXCITADO);
+    const inh = new T.Color(COLOR_INHIBIDO);
+    const gris = new T.Color(COLOR_REPOSO);
+    const base = new T.Color();
+    const moviendo = st.vista === 'respuesta' ? 1 : Math.min(1, Math.hypot(...st.omega) / GIRO_PARA_GRIS);
+    for (const [id, c] of Object.entries(st.escena.canales)) {
+      const a = activacion(r[id].tasa);
+      const k = Math.sqrt(Math.abs(a));
+      base.setHex(COLOR_PAR[CANAL[id].par]).lerp(gris, moviendo);
+      for (const m of c.materiales) {
+        m.color.lerpColors(base, a >= 0 ? exc : inh, k);
+        m.emissive.copy(a >= 0 ? exc : inh).multiplyScalar(0.35 * k);
       }
-      pintaBarras(r);
     }
+    if (st.vista === 'respuesta') pintaBarras(r);
 
     // Cámara: en tres cuartos o de arriba, a `dist` del centro de la cabeza.
     if (st.cenital) {
@@ -787,8 +791,12 @@ export function montaLaberinto() {
 
   lienzo.addEventListener('contextmenu', (e) => e.preventDefault());
   lienzo.addEventListener('pointerdown', (e) => {
-    lienzo.setPointerCapture(e.pointerId);
     punteros.set(e.pointerId, { x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY });
+    try {
+      lienzo.setPointerCapture(e.pointerId);
+    } catch {
+      /* un puntero que ya se soltó: se sigue sin captura */
+    }
     gesto = null;
   });
   lienzo.addEventListener('pointermove', (e) => {

@@ -299,7 +299,7 @@ export const HTML = {
   'lab.gestos':
     'drag: turn · right click or Shift: roll · wheel or pinch: zoom · two fingers: move · double tap: center',
   'lab.canales.ayuda':
-    'Three canals per side, nearly at right angles to each other. Each one has a <b>partner in the same plane</b> on the other side, and the color is the pair: the two laterals, left anterior with right posterior (<b>LARP</b>) and right anterior with left posterior (<b>RALP</b>). What excites one inhibits the other.',
+    'Three canals per side, nearly at right angles to each other. Each one has a <b>partner in the same plane</b> on the other side, and the color is the pair: the two laterals, left anterior with right posterior (<b>LARP</b>) and right anterior with left posterior (<b>RALP</b>). What excites one inhibits the other: when the head turns, the excited one turns <b class="exc">red</b> and the inhibited one <b class="inh">blue</b>.',
   'lab.par.lateral': 'laterals',
   'lab.par.larp': 'LARP',
   'lab.par.ralp': 'RALP',
