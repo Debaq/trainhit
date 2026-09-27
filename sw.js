@@ -38,9 +38,9 @@ async function borraPhpGuardado() {
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET') return;
-  // Lo dinámico no se guarda nunca: el PHP del enlace teléfono–PC contesta
-  // distinto cada vez, y una respuesta vieja de la caché arma un enlace con
-  // una oferta que ya no existe.
+  // Lo dinámico no se guarda nunca: un PHP contesta distinto cada vez. (El
+  // del enlace teléfono–PC se fue con el Laberinto a Labyrinthus 3D; esto
+  // queda por si vuelve a haber uno.)
   if (url.pathname.endsWith('.php')) return;
   if (PESADO(url)) e.respondWith(cachePrimero(e.request));
   else if (PROPIO(url)) e.respondWith(redPrimero(e.request));

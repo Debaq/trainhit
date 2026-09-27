@@ -133,7 +133,7 @@ puede ser externo, así que va autorizado por su hash sha256 en la CSP;
 | `H` | Abrir o cerrar las herramientas |
 | `S` | Abrir o cerrar el simulador (paciente simulado) |
 | `T` | Abrir o cerrar «Aprender a usar» |
-| `L` | Abrir el Laberinto 3D (`Esc` lo cierra; ahí adentro, flechas y `Q`/`E` giran la cabeza, `0` la centra y `H` deja solo el visor) |
+| `L` | Abrir el Laberinto 3D, que vive en su propio sitio ([Labyrinthus 3D](https://tecmedhub.org/labyrinthus3d/)), en otra pestaña |
 | `Espacio` o `P` | Pausar y congelar la traza de abajo para medirla (la cámara sigue) |
 
 ### Idiomas
@@ -398,203 +398,19 @@ misma limitación que con un paciente de verdad, y queda a la vista.
 
 ## Laberinto 3D
 
-**Laberinto 3D**, en la barra (o `L`), toma la pantalla entera con un modelo de
-cabeza, ojos y los dos laberintos. No usa la cámara: la cabeza se gira con el
-mouse o el dedo, o —en un teléfono, con **Mover con el teléfono**— con el
-teléfono mismo, que hace de cabeza: girarlo a la izquierda gira la cabeza a
-*su* izquierda. Se lee el **giroscopio** (`devicemotion`), que da la velocidad
-angular —lo que sienten los canales— y se integra para la orientación; los
-ángulos de `deviceorientation` se traban con el teléfono parado frente a la
-cara. De `deviceorientation` se usa solo beta y gamma, para saber dónde está
-arriba: al prender o al centrar se arma el marco de la cabeza con la gravedad,
-así que girar de costado a costado es girar la cabeza con el teléfono parado,
-apaisado o inclinado. Y como no todos los navegadores entregan `rotationRate`
-en el mismo orden de ejes, el orden se detecta en el primer segundo de
-movimiento comparándolo con la orientación. Necesita HTTPS (en `localhost` no)
-y, en iPhone, el permiso que Safari pide al apretar el botón; «Centrar» corrige
-la deriva. Es una recreación de lo que hacía la app aVOR (Universidad de
-Sydney, solo iOS), que ya no está disponible.
+El **Laberinto 3D** —cabeza, ojos y los dos laberintos para ver qué siente cada
+canal con cada giro y qué hace el ojo, con patologías, la vía del reflejo y el
+teléfono como cabeza— nació acá y se mudó el 2026-09-27 a su propio proyecto,
+**Labyrinthus 3D**, con su historia de commits, para crecer hacia la
+fisiología completa del oído interno: canales, otolitos, cóclea y vía
+auditiva.
 
-**Enlazar** usa un teléfono como cabeza del modelo que se ve en el PC: se lo
-mueve como una cabeza y en el PC se ven los canales, los ojos y la patología
-puesta. El PC muestra un QR; el teléfono lo escanea con su cámara, aprieta
-«Usar este teléfono como cabeza» (el permiso de los sensores tiene que salir de
-un toque) y queda como cabeza, sin dibujar, para ahorrar batería, y con la
-pantalla encendida (Wake Lock). Si igual la conexión se cae —el teléfono se
-durmió, se cortó el wifi—, el PC reabre la misma sala y el teléfono vuelve a
-entrar solo al despertar, hasta que alguien aprieta «Terminar enlace» o
-«Desconectar».
+- Sitio: <https://tecmedhub.org/labyrinthus3d/>
+- Código: <https://github.com/Debaq/labyrinthus3d>
 
-El enlace necesita un servidor con PHP (y, para el relevo, con aplicaciones
-Node.js): en GitHub Pages u otro hosting estático el resto de trainHIT anda,
-pero Enlazar no.
-
-La presentación pasa por `servidor/senal.php`, un PHP de un solo archivo sin
-base de datos que guarda cada sala en el directorio temporal mientras se usa
-(vence a los 10 minutos quieta). La sala tiene un código de 6 dígitos, que va
-dentro del QR, y una llave que solo tiene el PC para reabrirla; cada oferta va
-numerada y el teléfono contesta la vigente. Después el giroscopio va directo
-entre los dos aparatos por WebRTC, sin pasar por el servidor. Las direcciones
-del PHP y del relevo las dicen `<meta name="trainhit-senal">` y
-`<meta name="trainhit-relevo">` en index.html; son relativas
-(`servidor/senal.php` y `servidor/relevo/`), así que alcanza con subir
-trainHIT completo a un servidor con PHP y cargar el relevo en esa misma carpeta.
-Si estuvieran en otro sitio, van las direcciones completas y su origen en
-`connect-src` de la CSP; el PHP y el relevo, a su vez, listan en `ORIGENES`
-desde qué otros sitios se los puede llamar. Para probar en local:
-`php -S localhost:8095` en la raíz y abrir la página con `?senal=local`.
-
-Si la conexión directa no se abre en unos segundos —la red no la deja:
-teléfono con datos móviles, wifi con aislamiento de clientes—, los dos aparatos
-pasan solos al **relevo** (`servidor/relevo/relevo.js`), una tubería por
-WebSocket en el mismo servidor, y la barra dice «TELÉFONO ENLAZADO · POR EL
-SERVIDOR». Se encuentran ahí con una contraseña al azar que el PC pone dentro de
-su oferta. Es una aplicación Node.js de un archivo, sin dependencias, que se
-carga con «Setup Node.js App» de cPanel: los pasos están en
-`servidor/relevo/LEEME.md`. Su dirección va en `<meta name="trainhit-relevo">`.
-Con `?forzar=relevo` en el PC se salta la conexión directa, para probarlo.
-
-Enlazado, el teléfono es además el **control remoto** del PC: debajo de
-Centrar y Desconectar muestra las pestañas y el panel del Laberinto, y lo que
-se toca ahí se aplica en el PC, no en el teléfono. El PC contesta cómo quedó y
-el teléfono se pinta igual, así que manda uno solo (el paciente al azar lo
-sortea el PC). «Mover la cabeza con el teléfono» se puede apagar para usarlo
-solo de control. **En la pantalla del PC** elige qué se ve allá: el Laberinto
-con su panel, o —sin barra ni panel, para proyectar— solo la cabeza, la cabeza
-y la vía, la cabeza con los ojos de cerca y sus curvas, o todo junto. `Esc` en
-el PC vuelve al Laberinto con su panel. Los mensajes van por el mismo canal
-(`js/enlace.js`): la cabeza en binario y el control en JSON; el PC acepta solo
-controles del panel, nombrados por id o por su atributo de datos.
-
-El botón de la esquina (o `H`) esconde la barra y el panel y deja solo el
-visor, en pantalla completa donde el navegador la permite; `Esc` o el mismo
-botón los traen de vuelta.
-
-Los laberintos se ven de tres formas, como en aVOR, elegidas en la barra de la
-sección: **a los lados** de la cabeza y grandes (la de entrada, con la cámara de
-frente), **en su lugar** agrandados cuatro veces (con la cámara en tres
-cuartos), o en su lugar a **tamaño real**. En las tres giran con la cabeza, y
-el paso de una a otra se anima.
-
-Cinco vistas:
-
-- **Canales**: los seis, pintados por par coplanar (laterales, LARP, RALP), con
-  rótulos.
-- **Ejes**: vista de arriba, con la flecha del eje que excita a cada canal
-  (regla de la mano derecha). Los tres planos de examen se pueden prender; van
-  apagados porque encima de todo lo demás confunden.
-- **Respuesta**: impulsos armados —horizontales, de nariz, de oreja y
-  diagonales en LARP y RALP— con velocidad pico y cámara lenta, o giro libre.
-  Con «volver después del impulso» apagado, la cabeza se queda donde llegó y
-  el impulso siguiente sale de ahí, para encadenar posiciones.
-  Cada canal se pinta de rojo si se excita y de azul si se inhibe, las barras
-  muestran la tasa de disparo, y los ojos contragiran (VOR de ganancia 1, con
-  fase rápida al llegar al borde de la órbita).
-- **Patología**: cada canal normal, con hipofunción o en arreflexia, a mano en
-  una grilla o con casos armados (neuritis vestibular superior e inferior,
-  pérdida unilateral, hipofunción lateral, hipofunción y arreflexia
-  bilaterales), de uno u otro lado; compensada o no; con sacadas correctivas
-  encubiertas, abiertas, abiertas tardías o mixtas; y fijando o no la mirada
-  (sin o con lentes de Frenzel). **Paciente al azar** lo esconde todo —colores,
-  tasas, nombre— y solo quedan los ojos para descubrirlo; **Revelar** dice qué
-  era. Los canales enfermos van en amarillo verdoso, como en aVOR. En
-  Patología y en Respuesta, **ojos de cerca** muestra un ojo —el derecho o el
-  izquierdo, a elección— con una cámara pegada a la cabeza, como un
-  video-oculógrafo, y debajo su posición en el tiempo: horizontal, vertical y
-  torsional, cada una en su franja, donde el nistagmo es un diente de sierra.
-  **La mirada** puede quedar fija en el centro de la pantalla —el ojo sigue
-  mirándola aunque la cabeza quede girada, y si la pantalla queda fuera de la
-  órbita se queda en el borde— o volver al frente de la cabeza cuando esta se
-  queda quieta, o ir 20° a la derecha, a la izquierda, arriba o abajo, para
-  examinar la mirada excéntrica. **Reiniciar**, en la barra, deja todo como al
-  abrir.
-- **Vía**: el arco de tres neuronas de cada canal, en un esquema de frente al
-  costado del modelo: nervio vestibular, núcleos vestibulares, el cruce al VI,
-  IV o III (por el fascículo longitudinal medial) y los dos músculos que excita
-  cada canal, uno de cada ojo. Por cada tramo corren puntos al ritmo de su
-  neurona, uno cada 15 espigas, y se pone rojo o azul según dispare más o menos
-  que en reposo. Anda con los impulsos armados, el mouse o el teléfono enlazado,
-  y con la patología puesta: el nervio enfermo lleva una cruz o una barra, y con
-  la lesión compensada su núcleo vuelve a disparar (la compensación central).
-  Las tasas del núcleo suman la comisura del compañero coplanar; las de la
-  motoneurona salen de la posición y la velocidad del ojo, sacadas incluidas.
-  Por el mismo nervio van el **utrículo** (rama superior), que llega a los
-  músculos de los dos verticales de su lado —la contrarrotación ocular, la vía
-  del oVEMP—, y el **sáculo** (rama inferior), que baja al esternocleidomastoideo
-  de su lado —la vía del cVEMP—. El **flóculo** (cerebelo) de cada lado
-  recibe la visión cuando hay un blanco que fijar e inhibe los núcleos del lado
-  que dispara de más: es el freno por fijación. Está en `js/via.js`, con tests.
-
-Los otolitos (`js/otolitos.js`) sienten la inclinación de la cabeza respecto de
-la gravedad: cada utrículo se excita al bajar su oreja y los dos trabajan en
-empuje-tracción; los sáculos, con la inclinación adelante-atrás. Los utrículos
-piden la contrarrotación ocular (unos 7° con la oreja 30° abajo), que se suma a
-los ojos. Un utrículo perdido sin compensar deja una torsión quieta hacia su
-lado, la de la reacción de inclinación ocular. En Patología se los enferma como
-a los canales, y los casos los llevan según la rama del nervio: la neuritis
-superior pierde el utrículo y la inferior el sáculo.
-
-El modelo de patologías (`js/patologia.js`) no tiene guiones por
-enfermedad: todo sale de la función de cada canal. El nervio de un canal
-enfermo dispara menos en reposo y responde menos. En cada par manda el canal
-excitado, más cuanto más rápido es el giro (Ewald II), así que con un canal
-muerto el giro rápido hacia su lado queda con ganancia 0,2 y hacia el otro con
-0,8. Si la lesión no está compensada, el reposo que falta se lee como un giro y
-aparece un nistagmo espontáneo que bate hacia el lado sano, en 3D: la neuritis
-superior sale horizontal con componente torsional y hacia arriba; la inferior,
-hacia abajo y torsional. La fijación lo frena al 30 %, y ese freno lo pone el
-flóculo: con uno lesionado queda en un 65 %, con los dos, nada. El texto del
-nistagmo da el OFI (fase lenta fijando ÷ sin fijar). El caso **infarto de la
-AICA** se lleva el laberinto y el flóculo del mismo lado: un nistagmo
-periférico que la fijación frena poco. Se cumple la **ley de Alexander**: el
-nistagmo bate más mirando hacia su fase rápida y menos al revés, y el texto da
-el grado (I, II o III) sin fijar y fijando. En Respuesta, las **leyes de
-Ewald** muestran lo que pasa: el plano en que se mueve el ojo, cuánto sube el
-canal excitado frente a cuánto baja su compañero, y si lo excita el flujo
-ampulípeto (lateral) o ampulífugo (verticales). Las sacadas salen del
-error de mirada: las encubiertas durante el giro (unos 80 ms), las abiertas al
-frenar (unos 270 ms) y las tardías después (unos 500 ms). El ojo se lee en el
-marco de los canales, que es el de sus músculos (Simpson y Graf, 1981). Las
-constantes son para enseñar, con los órdenes de magnitud de la clínica.
-
-El modelo de canales es el de libro: tres ortogonales por lado, el conjunto
-levantado 30° adelante. La tasa sale de 90 espigas/s en reposo más 0,5 por °/s
-en el eje del canal, entre 0 y 400: que la inhibición toque fondo en cero y la
-excitación siga es la segunda ley de Ewald, y en las barras se ve. La física
-está en `js/canales.js` y la prueban los tests.
-
-three.js se baja de jsdelivr recién al abrir la sección (unos 2 MB, después
-queda en el service worker). Va en el mapa de importación como `three` porque
-sus agregados lo importan con ese nombre: `bump.mjs` lo agrega, con la versión
-fija.
-
-### El modelo
-
-Si existe `modelos/laberinto.glb` se usa ese; si no, uno provisorio. Su cabeza
-(`js/cabeza.js`) es una superficie implícita: cráneo, cara, mandíbula, nariz,
-labios, cejas y orejas fundidos con uniones suaves, las hendiduras de los
-párpados talladas, y la malla sacada con *surface nets* (unos 300 ms, una vez).
-Ojos y laberintos son primitivas, con la cóclea saliendo del vestíbulo. La piel
-se dibuja primero en el z-buffer, así los ojos se ven solo por los párpados y
-los laberintos, que van antes, a través de la piel. Para hacer el de verdad en
-Blender:
-
-- Exportar a **glTF Binary (.glb)**, con **+Y Up**, sin compresión Draco.
-- **Metros y tamaño real** (cabeza de unos 0,18–0,20 m), la **cara mirando a −Y**
-  de Blender, escala y rotación aplicadas (`Ctrl+A`).
-- Objetos separados con estos nombres: `cabeza`; `ojo_izq`, `ojo_der` con el
-  **origen en el centro de rotación del ojo** (unos 13 mm detrás de la córnea) y
-  el iris hacia adelante; `vestibulo_izq`, `vestibulo_der`, `coclea_izq`,
-  `coclea_der`; y los seis canales **cada uno por separado**: `canal_lat_izq`,
-  `canal_ant_izq`, `canal_post_izq`, `canal_lat_der`, `canal_ant_der`,
-  `canal_post_der`.
-- Unos 2–3 MB como mucho: los materiales pueden ser simples, porque los colores
-  de canales y piel los pone el código.
-
-Con ese modelo el eje de cada canal ya no sale del libro sino de la malla: se
-ajusta el plano de sus vértices (`normalDePlano`) y, si se aparta más de 35° del
-de libro, la consola lo avisa. `modelos/provisorio.glb` es el modelo provisorio
-exportado: se importa en Blender y muestra nombres, escala y posiciones.
+El botón **Laberinto 3D ↗** de la barra (o `L`) lo abre en otra pestaña. Un QR
+del enlace teléfono–PC hecho antes de la mudanza trae `?enlace=` y apunta a
+trainHIT: se lo reenvía allá con el mismo código.
 
 ## Tres métodos de ganancia
 
@@ -786,13 +602,6 @@ js/plots.js     los cuatro gráficos, en canvas y sin librerías
 js/app.js       el cableado y la interfaz
 js/tutorial.js  «Aprender a usar»: el menú de paseos; el contenido, en js/tutorial-pasos.js
 js/ejemplo.js   el paciente sintético de los paseos
-js/canales.js   los seis canales: ejes, tasa de disparo, impulsos (sin DOM)
-js/cabeza.js    la cabeza provisoria como superficie implícita (sin DOM)
-js/patologia.js canales enfermos: VOR, nistagmo espontáneo y sacadas (sin DOM)
-js/otolitos.js  utrículo y sáculo: inclinación, tasas y contrarrotación (sin DOM)
-js/via.js       la vía del reflejo, del canal al músculo: tasas y dibujo (sin DOM)
-js/enlace.js    enlace teléfono–PC: sala en servidor/senal.php y canal WebRTC
-js/laberinto.js el Laberinto 3D: escena three.js, modelo, gestos y sensores
 ```
 
 Las cinco decisiones que importan, resumidas:

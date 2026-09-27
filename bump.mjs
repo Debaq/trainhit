@@ -25,13 +25,9 @@ export function modulos() {
     .sort();
 }
 
-// Módulos de afuera con nombre pelado. three.js va acá y no con su URL en el
-// import porque sus agregados (GLTFLoader) importan `three` a secas: sin esta
-// entrada, el navegador no sabe qué es. La versión va fija en la URL.
-export const EXTERNOS = {
-  three: 'https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js',
-  'three/addons/': 'https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/',
-};
+// Módulos de afuera con nombre pelado, con la versión fija en la URL. Hoy no
+// hay ninguno: three.js se fue con el Laberinto 3D a Labyrinthus 3D.
+export const EXTERNOS = {};
 
 export function mapaJson(version) {
   return JSON.stringify({

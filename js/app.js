@@ -18,7 +18,12 @@ import { textoGift } from './preguntas.js';
 import { PERFILES, arrastre, offsetConMirada, parametrosPulso, simulaCrudo } from './simulacion.js';
 import { IDIOMAS, alCambiarIdioma, idioma, idiomaInicial, ponIdioma, tx } from './idioma.js';
 import { MIN_POR_LADO, corrige, preguntasPractica } from './practica.js';
-import { montaLaberinto } from './laberinto.js';
+
+/**
+ * El Laberinto 3D, que nació acá, vive en su propio sitio: Labyrinthus 3D
+ * (github.com/Debaq/labyrinthus3d). trainHIT solo lo enlaza.
+ */
+const LABYRINTHUS_URL = 'https://tecmedhub.org/labyrinthus3d/';
 
 const $ = (id) => document.getElementById(id);
 const fmt = (v, d = 2) => (v === null || v === undefined || Number.isNaN(v) ? '—' : v.toFixed(d));
@@ -1341,8 +1346,6 @@ function atajos() {
     // Ctrl+C es copiar, Ctrl+D marcador, Ctrl+R recargar: no son atajos de acá.
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (!$('bienvenida').hidden || !$('acerca').hidden || tutorial.bloqueaAtajos()) return;
-    // El laberinto tiene sus propias teclas; las de acá no lo atraviesan.
-    if (laberinto.abierto()) return;
     const k = e.key.toLowerCase();
     if (k === 't') tutorial.abierto() ? tutorial.cierra() : tutorial.abre();
     else if (k === 'c') empiezaCalibracion();
@@ -1351,7 +1354,7 @@ function atajos() {
     else if (k === 'z') deshaceDescarte();
     else if (k === 'h') abreHerramientas($('herramientas').hidden);
     else if (k === 's') abreSimulador($('simulador').hidden);
-    else if (k === 'l') laberinto.abre();
+    else if (k === 'l') window.open(LABYRINTHUS_URL, '_blank', 'noopener');
     else if (k === ' ' || k === 'p') {
       // `preventDefault` acá no es solo para que la página no haga scroll: si
       // el foco quedó en un botón —y queda, apenas se aprieta «Encender
@@ -1736,19 +1739,11 @@ $('btn-herramientas').addEventListener('click', () => abreHerramientas($('herram
 $('btn-cerrar').addEventListener('click', () => abreHerramientas(false));
 $('btn-simulador').addEventListener('click', () => abreSimulador($('simulador').hidden));
 $('btn-cerrar-sim').addEventListener('click', () => abreSimulador(false));
-const laberinto = montaLaberinto();
-$('btn-laberinto').addEventListener('click', () => laberinto.abre());
-// El QR del enlace trae `?enlace=código`: el teléfono va directo al Laberinto
-// con el código puesto. Se lo saca de la dirección para no reusarlo al recargar.
+// Un QR del enlace teléfono–PC hecho antes de la mudanza trae `?enlace=código`
+// y apunta acá: se lo manda a Labyrinthus 3D con el mismo código.
 {
-  const url = new URL(location.href);
-  const codigo = url.searchParams.get('enlace');
-  if (codigo) {
-    url.searchParams.delete('enlace');
-    history.replaceState(null, '', url);
-    laberinto.abre();
-    laberinto.enlaza(codigo.replace(/\D/g, '').slice(0, 6));
-  }
+  const codigo = new URLSearchParams(location.search).get('enlace');
+  if (codigo) location.replace(`${LABYRINTHUS_URL}?enlace=${encodeURIComponent(codigo.replace(/\D/g, '').slice(0, 6))}`);
 }
 $('btn-pausa').addEventListener('click', () => ponPausa(!estado.pausado));
 $('metodo-gan').addEventListener('change', () => (sucio.pulsos = true));
@@ -1886,4 +1881,4 @@ marcaEstado('encender la cámara');
 
 // Enganche de consola: `trainhit.estado`, `trainhit.cfg`. Es un repo para
 // enseñar — poder revolver el estado desde la consola es parte del punto.
-window.trainhit = { estado, cfg, pintaListas, analyzeTrial, procesaCrudo, recalculaTodos, importaSesion, laberinto };
+window.trainhit = { estado, cfg, pintaListas, analyzeTrial, procesaCrudo, recalculaTodos, importaSesion };

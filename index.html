@@ -8,23 +8,13 @@
          jsdelivr (MediaPipe), y conexiones solo a lo que la página usa. -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-fKVn1JzySzrfK6anMoFQV2nwwXOay7pqBHa/EtJaS5k='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
+      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-o84RZzXRstaxmHcuZCXkV3Ln2D0jtqM26+4wtXOCbkA='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
     />
     <meta
       name="description"
       content="vHIT didáctico en el navegador: mide la ganancia del reflejo vestíbulo-ocular con la webcam, con cada paso del cálculo a la vista. No es un equipo médico."
     />
     <meta name="theme-color" content="#09090b" />
-    <!-- Dónde está el PHP que presenta al teléfono con el PC en el Laberinto
-         3D. Relativo: el de servidor/senal.php, subido junto con la página a
-         un servidor con PHP. Si estuviera en otro lado, la dirección completa,
-         y su origen agregado a connect-src en la CSP de arriba. -->
-    <meta name="trainhit-senal" content="servidor/senal.php" />
-    <!-- El relevo por WebSocket (servidor/relevo/relevo.js), para cuando la red
-         no deja conectar directo al teléfono y al PC. Sin él, el enlace solo
-         funciona donde la conexión directa se puede. Su origen va también en
-         connect-src. Cómo cargarlo y probarlo: servidor/relevo/LEEME.md. -->
-    <meta name="trainhit-relevo" content="servidor/relevo/" />
     <!-- Tarjeta de enlace: lo que ven WhatsApp, Slack, X o un LMS cuando se
          pega el link. La URL de `og:image` tiene que ser ABSOLUTA —los
          scrapers no resuelven rutas relativas de forma confiable—, así que si
@@ -62,7 +52,7 @@
     />
     <!-- Mapa de importación: versiona los imports internos. Lo regenera
          bump.mjs junto con su hash en la CSP de arriba. Va antes del arranque. -->
-    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-27.65","./js/app.js":"./js/app.js?v=2026-09-27.65","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-27.65","./js/cabeza.js":"./js/cabeza.js?v=2026-09-27.65","./js/canales.js":"./js/canales.js?v=2026-09-27.65","./js/curve.js":"./js/curve.js?v=2026-09-27.65","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-27.65","./js/enlace.js":"./js/enlace.js?v=2026-09-27.65","./js/geom.js":"./js/geom.js?v=2026-09-27.65","./js/head.js":"./js/head.js?v=2026-09-27.65","./js/idioma.js":"./js/idioma.js?v=2026-09-27.65","./js/idioma-en.js":"./js/idioma-en.js?v=2026-09-27.65","./js/laberinto.js":"./js/laberinto.js?v=2026-09-27.65","./js/otolitos.js":"./js/otolitos.js?v=2026-09-27.65","./js/patologia.js":"./js/patologia.js?v=2026-09-27.65","./js/pipeline.js":"./js/pipeline.js?v=2026-09-27.65","./js/plots.js":"./js/plots.js?v=2026-09-27.65","./js/practica.js":"./js/practica.js?v=2026-09-27.65","./js/preguntas.js":"./js/preguntas.js?v=2026-09-27.65","./js/sesion.js":"./js/sesion.js?v=2026-09-27.65","./js/signal.js":"./js/signal.js?v=2026-09-27.65","./js/simulacion.js":"./js/simulacion.js?v=2026-09-27.65","./js/tracker.js":"./js/tracker.js?v=2026-09-27.65","./js/tutorial.js":"./js/tutorial.js?v=2026-09-27.65","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-27.65","./js/tutorial-pasos-en.js":"./js/tutorial-pasos-en.js?v=2026-09-27.65","./js/via.js":"./js/via.js?v=2026-09-27.65","three":"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"}}</script>
+    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-27.66","./js/app.js":"./js/app.js?v=2026-09-27.66","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-27.66","./js/curve.js":"./js/curve.js?v=2026-09-27.66","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-27.66","./js/geom.js":"./js/geom.js?v=2026-09-27.66","./js/head.js":"./js/head.js?v=2026-09-27.66","./js/idioma.js":"./js/idioma.js?v=2026-09-27.66","./js/idioma-en.js":"./js/idioma-en.js?v=2026-09-27.66","./js/pipeline.js":"./js/pipeline.js?v=2026-09-27.66","./js/plots.js":"./js/plots.js?v=2026-09-27.66","./js/practica.js":"./js/practica.js?v=2026-09-27.66","./js/preguntas.js":"./js/preguntas.js?v=2026-09-27.66","./js/sesion.js":"./js/sesion.js?v=2026-09-27.66","./js/signal.js":"./js/signal.js?v=2026-09-27.66","./js/simulacion.js":"./js/simulacion.js?v=2026-09-27.66","./js/tracker.js":"./js/tracker.js?v=2026-09-27.66","./js/tutorial.js":"./js/tutorial.js?v=2026-09-27.66","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-27.66","./js/tutorial-pasos-en.js":"./js/tutorial-pasos-en.js?v=2026-09-27.66"}}</script>
     <script src="js/arranque.js"></script>
     <noscript><link rel="stylesheet" href="css/estilo.css" /></noscript>
   </head>
@@ -94,7 +84,9 @@
       <button id="btn-aprender" class="ghost" title="paseos guiados por la página (T)" data-i18n-title="barra.aprender.t" data-i18n="barra.aprender">Aprender</button>
       <button id="btn-ayuda" class="ghost" title="qué es esto" aria-label="qué es esto" data-i18n-title="barra.ayuda" data-i18n-aria-label="barra.ayuda">?</button>
       <button id="btn-simulador" class="ghost" title="paciente simulado: una patología sobre pulsos reales (S)" data-i18n-title="barra.simulador.t" data-i18n="barra.simulador">Simulador</button>
-      <button id="btn-laberinto" class="ghost" aria-pressed="false" title="los canales semicirculares en 3D: qué siente cada uno con cada giro (L)" data-i18n-title="barra.laberinto.t" data-i18n="barra.laberinto">Laberinto 3D</button>
+      <!-- El Laberinto 3D se mudó a su propio sitio, Labyrinthus 3D: el botón
+           es un enlace, y `L` lo abre también (app.js). -->
+      <a id="btn-laberinto" class="boton ghost" href="https://tecmedhub.org/labyrinthus3d/" target="_blank" rel="noopener" title="los canales semicirculares en 3D, en Labyrinthus 3D, su propio sitio (L)" data-i18n-title="barra.laberinto.t" data-i18n="barra.laberinto">Laberinto 3D ↗</a>
       <button id="btn-herramientas" class="ghost" data-i18n="barra.herramientas">Herramientas</button>
     </header>
 
@@ -659,319 +651,6 @@
         </section>
       </div>
     </aside>
-
-    <!-- Laberinto 3D: ver js/laberinto.js. Toma la pantalla entera y no usa
-         la cámara. El lienzo lo pinta three.js; los rótulos de los canales
-         son HTML encima; las barras y los botones de movimiento los agrega
-         el módulo. -->
-    <section id="laberinto" class="laberinto" aria-label="laberinto 3D" data-i18n-aria-label="lab.aria" hidden>
-      <header class="lab-barra">
-        <span class="marca" data-i18n="lab.titulo">Laberinto <b>3D</b></span>
-        <nav class="lab-vistas" role="tablist">
-          <button role="tab" data-vista="canales" aria-selected="true" data-i18n="lab.v.canales">Canales</button>
-          <button role="tab" data-vista="ejes" aria-selected="false" data-i18n="lab.v.ejes">Ejes</button>
-          <button role="tab" data-vista="respuesta" aria-selected="false" data-i18n="lab.v.respuesta">Respuesta</button>
-          <button role="tab" data-vista="patologia" aria-selected="false" data-i18n="lab.v.patologia">Patología</button>
-          <button role="tab" data-vista="via" aria-selected="false" data-i18n="lab.v.via">Vía</button>
-        </nav>
-        <div class="lab-modos" role="radiogroup" aria-label="dónde van los laberintos" data-i18n-aria-label="lab.modos.aria">
-          <button role="radio" data-modo-lab="lados" aria-checked="true" title="afuera de la cabeza, a cada lado y agrandados" data-i18n-title="lab.modo.lados.t" data-i18n="lab.modo.lados">A los lados</button>
-          <button role="radio" data-modo-lab="lugar" aria-checked="false" title="en su posición anatómica, agrandados cuatro veces" data-i18n-title="lab.modo.lugar.t" data-i18n="lab.modo.lugar">En su lugar</button>
-          <button role="radio" data-modo-lab="real" aria-checked="false" title="en su posición anatómica y a tamaño real" data-i18n-title="lab.modo.real.t" data-i18n="lab.modo.real">Tamaño real</button>
-        </div>
-        <span id="lab-pat-badge" class="badge sim" hidden></span>
-        <button id="lab-enlace-badge" class="badge ok" hidden>TELÉFONO ENLAZADO</button>
-        <span class="espacio"></span>
-        <button id="lab-sensores" aria-pressed="false" hidden>Mover con el teléfono</button>
-        <button id="lab-enlazar" title="mover la cabeza con un teléfono, enlazado con un QR" data-i18n-title="lab.enlazar.t" data-i18n="lab.enlazar">Enlazar</button>
-        <button id="lab-centrar" title="cabeza y ojos al frente (doble toque, 0)" data-i18n-title="lab.centrar.t" data-i18n="lab.centrar">Centrar</button>
-        <button id="lab-reiniciar" title="todo como al abrir: cabeza, ojos, patología y ajustes" data-i18n-title="lab.reiniciar.t" data-i18n="lab.reiniciar">Reiniciar</button>
-        <button id="lab-salir" class="ghost" title="volver a trainHIT (Esc)" data-i18n-title="lab.salir.t" data-i18n="lab.salir">✕ Salir</button>
-      </header>
-      <!-- Enlace teléfono–PC: ver js/enlace.js y servidor/senal.php. -->
-      <div id="lab-enlace" class="lab-enlace" role="dialog" aria-modal="true" aria-labelledby="lab-enlace-titulo" hidden>
-        <div class="tarjeta lab-enlace-tarjeta">
-          <h2 id="lab-enlace-titulo" data-i18n="lab.enlace.titulo">Enlazar un teléfono</h2>
-          <p class="ayuda" data-i18n="lab.enlace.ayuda">
-            El teléfono hace de cabeza: se lo mueve como una cabeza y en el PC se ven el modelo, los
-            canales y los ojos, con la patología que esté puesta. Los dos tienen que tener abierta esta
-            página a la vez.
-          </p>
-          <!-- En el PC: el QR. El teléfono lo escanea con su cámara y llega con
-               `?enlace=código`: ahí se ve solo la otra sección. -->
-          <section id="lab-enlace-visor">
-            <button id="lab-enlace-crear" class="primario" data-i18n="lab.enlace.crear">Mostrar el QR</button>
-            <div id="lab-enlace-codigo" class="lab-enlace-codigo" hidden>
-              <canvas id="lab-enlace-qr" role="img" aria-label="QR con el enlace para el teléfono" data-i18n-aria-label="lab.enlace.qr"></canvas>
-              <p class="ayuda" data-i18n="lab.enlace.como">Escanealo con la cámara del teléfono.</p>
-            </div>
-          </section>
-          <section id="lab-enlace-cabeza" hidden>
-            <button id="lab-enlace-unirse" class="primario" data-i18n="lab.enlace.unirse">Usar este teléfono como cabeza</button>
-          </section>
-          <p id="lab-enlace-estado" class="lab-enlace-estado" aria-live="polite"></p>
-          <div class="lab-enlace-pie">
-            <button id="lab-enlace-terminar" class="peligro" data-i18n="lab.enlace.terminar" hidden>Terminar enlace</button>
-            <button id="lab-enlace-cerrar" class="ghost" data-i18n="lab.enlace.cerrar">Cerrar</button>
-          </div>
-        </div>
-      </div>
-      <!-- El teléfono enlazado: no dibuja el modelo (ahorra batería). Arriba
-           esto; abajo, las pestañas y el panel, que manejan los del PC
-           (laberinto.js, «control remoto»). -->
-      <div id="lab-remota" class="lab-remota" hidden>
-        <p class="grande" data-i18n="lab.remota.titulo">Este teléfono es la cabeza</p>
-        <p class="ayuda" data-i18n="lab.remota.ayuda">Sostenelo parado frente a vos y movelo como una cabeza: el modelo se ve en el PC. Abajo, el menú maneja el PC.</p>
-        <p id="lab-remota-estado" class="lab-remota-estado" aria-live="polite"></p>
-        <div class="lab-remota-botones">
-          <button id="lab-remota-centrar" class="primario" data-i18n="lab.remota.centrar">Centrar</button>
-          <button id="lab-remota-soltar" data-i18n="lab.remota.soltar">Desconectar</button>
-        </div>
-        <label class="check"><input type="checkbox" id="lab-remota-mueve" checked /> <span data-i18n="lab.remota.mueve">mover la cabeza con el teléfono</span></label>
-        <label class="campo">
-          <span data-i18n="lab.remota.pantalla">En la pantalla del PC</span>
-          <select id="lab-remota-pantalla">
-            <option value="" data-i18n="lab.pres.normal">el Laberinto con su panel</option>
-            <option value="cabeza" data-i18n="lab.pres.cabeza">solo la cabeza</option>
-            <option value="via" data-i18n="lab.pres.via">cabeza y vía</option>
-            <option value="ojos" data-i18n="lab.pres.ojos">cabeza, ojos y curvas</option>
-            <option value="todo" data-i18n="lab.pres.todo">cabeza, vía, ojos y curvas</option>
-          </select>
-        </label>
-      </div>
-      <div class="lab-cuerpo">
-        <div id="lab-escena" class="lab-escena">
-          <canvas id="lab-canvas"></canvas>
-          <button id="lab-visor" class="lab-visor" aria-pressed="false" title="solo el visor 3D, sin barra ni panel (H)" data-i18n-title="lab.visor.t">⤢</button>
-          <div id="lab-rotulos" class="lab-rotulos" aria-hidden="true"></div>
-          <p id="lab-estado" class="lab-estado" aria-live="polite" hidden></p>
-          <!-- Los ojos de cerca: la vista de arriba la pinta three.js en este
-               hueco con una cámara pegada a la cabeza delante de UN ojo, como
-               un video-oculógrafo; abajo, la posición del ojo en el tiempo,
-               cada componente en su franja. -->
-          <div id="lab-ojos" class="lab-ojos" hidden>
-            <div id="lab-ojos-vista" class="lab-ojos-vista"><span id="lab-ojos-cual" class="lab-ojos-cual"></span></div>
-            <canvas id="lab-traza" class="lab-traza" role="img" aria-label="posición del ojo en el tiempo" data-i18n-aria-label="lab.traza.aria"></canvas>
-            <p class="lab-traza-leyenda" data-i18n="lab.traza.leyenda">
-              ↑ derecha · ↑ arriba · ↑ polo superior a la derecha · ±15° · 4 s
-            </p>
-          </div>
-          <!-- La vía del reflejo, en 2D: ver js/via.js. El modelo 3D se
-               corre al hueco que queda. -->
-          <canvas id="lab-via" class="lab-via" role="img" aria-label="la vía del reflejo vestíbulo-ocular, del canal al músculo" data-i18n-aria-label="lab.via.aria" hidden></canvas>
-          <p class="lab-gestos" data-i18n="lab.gestos">
-            arrastrar: girar · clic derecho o Mayús: rolar · rueda o pellizco: acercar · dos dedos:
-            mover · doble toque: centrar
-          </p>
-        </div>
-        <aside class="lab-panel">
-          <section data-panel="canales">
-            <p class="ayuda" data-i18n="lab.canales.ayuda">
-              Tres canales por lado, casi en ángulo recto entre sí. Cada uno tiene un
-              <b>compañero en el mismo plano</b> del otro lado, y el color es el par: los dos laterales,
-              anterior izquierdo con posterior derecho (<b>LARP</b>) y anterior derecho con posterior
-              izquierdo (<b>RALP</b>). Lo que excita a uno inhibe al otro: al girar la cabeza, el que se
-              excita se pone <b class="exc">rojo</b> y el que se inhibe, <b class="inh">azul</b>.
-            </p>
-            <ul class="lab-leyenda">
-              <li class="par-lateral" data-i18n="lab.par.lateral">laterales</li>
-              <li class="par-larp" data-i18n="lab.par.larp">LARP</li>
-              <li class="par-ralp" data-i18n="lab.par.ralp">RALP</li>
-            </ul>
-            <label class="check"><input type="checkbox" id="lab-rotulos-ver" checked /> <span data-i18n="lab.rotulos">rótulos</span></label>
-            <label class="check"><input type="checkbox" id="lab-cabeza-ver" checked /> <span data-i18n="lab.cabeza">cabeza</span></label>
-            <p class="ayuda" data-i18n="lab.modos.ayuda">
-              Arriba se elige dónde van los laberintos: <b>a los lados</b> de la cabeza y grandes, para
-              verlos sin nada adelante; <b>en su lugar</b>, agrandados cuatro veces; o en su lugar a
-              <b>tamaño real</b>, donde un canal mide unos 6 mm de lado a lado, más chico que el iris. En
-              los tres giran con la cabeza.
-            </p>
-          </section>
-          <section data-panel="ejes" hidden>
-            <p class="ayuda" data-i18n="lab.ejes.ayuda">
-              Cada flecha es el <b>eje que excita</b> a su canal: con el pulgar de la mano derecha en la
-              flecha, girar la cabeza como cierran los dedos lo excita. Los discos son los planos donde
-              se examina cada par. Todo el conjunto va levantado unos 30° adelante: por eso el vHIT
-              lateral se hace con la cabeza flexionada 30°.
-            </p>
-            <label class="check"><input type="checkbox" id="lab-flechas" checked /> <span data-i18n="lab.flechas">ejes</span></label>
-            <label class="check par-lateral"><input type="checkbox" id="lab-plano-lateral" /> <span data-i18n="lab.plano.lateral">plano lateral</span></label>
-            <label class="check par-larp"><input type="checkbox" id="lab-plano-larp" /> <span data-i18n="lab.plano.larp">plano LARP</span></label>
-            <label class="check par-ralp"><input type="checkbox" id="lab-plano-ralp" /> <span data-i18n="lab.plano.ralp">plano RALP</span></label>
-            <button id="lab-cenital" aria-pressed="true" data-i18n="lab.cenital">Vista de arriba</button>
-          </section>
-          <section data-panel="patologia" hidden>
-            <p class="ayuda" data-i18n="lab.pat.ayuda">
-              Cada canal puede estar <b>normal</b>, con <b>hipofunción</b> (responde a la mitad) o en
-              <b>arreflexia</b> (no responde). De eso sale todo: las tasas, el reflejo de cada plano, el
-              nistagmo espontáneo si la lesión no está compensada y las sacadas correctivas. Para verlo,
-              los impulsos de <b>Respuesta</b> o mover la cabeza. El <b>utrículo</b> y el <b>sáculo</b>
-              también: un utrículo perdido sin compensar rota los ojos hacia su lado, y su vía y la del
-              sáculo se ven en <b>Vía</b>.
-            </p>
-            <div id="lab-pat-controles" class="lab-pat-controles">
-              <label class="campo">
-                <span data-i18n="lab.pat.caso">Caso</span>
-                <select id="lab-caso"></select>
-              </label>
-              <label class="check"><input type="checkbox" id="lab-pat-der" /> <span data-i18n="lab.pat.der">del lado derecho</span></label>
-              <div class="lab-grilla" role="group" aria-label="estado de cada canal" data-i18n-aria-label="lab.pat.grilla">
-                <span></span><b data-i18n="lab.pat.izq">izquierdo</b><b data-i18n="lab.pat.dercol">derecho</b>
-                <span data-i18n="lab.pat.lateral">lateral</span><select data-canal="lat_izq"></select><select data-canal="lat_der"></select>
-                <span data-i18n="lab.pat.anterior">anterior</span><select data-canal="ant_izq"></select><select data-canal="ant_der"></select>
-                <span data-i18n="lab.pat.posterior">posterior</span><select data-canal="post_izq"></select><select data-canal="post_der"></select>
-                <span data-i18n="lab.pat.utriculo">utrículo</span><select data-canal="utr_izq"></select><select data-canal="utr_der"></select>
-                <span data-i18n="lab.pat.saculo">sáculo</span><select data-canal="sac_izq"></select><select data-canal="sac_der"></select>
-                <span class="lab-grilla-central" data-i18n="lab.pat.floculo">flóculo (cerebelo)</span><select data-canal="floculo_izq" class="lab-grilla-central"></select><select data-canal="floculo_der" class="lab-grilla-central"></select>
-              </div>
-              <label class="check"><input type="checkbox" id="lab-compensado" /> <span data-i18n="lab.pat.compensado">compensada (sin nistagmo espontáneo)</span></label>
-              <label class="campo">
-                <span data-i18n="lab.pat.sacadas">Sacadas correctivas</span>
-                <select id="lab-sacadas">
-                  <option value="encubiertas" data-i18n="lab.pat.s.encubiertas">encubiertas (durante el giro)</option>
-                  <option value="abiertas" data-i18n="lab.pat.s.abiertas">abiertas (al frenar)</option>
-                  <option value="tardias" data-i18n="lab.pat.s.tardias">abiertas tardías</option>
-                  <option value="mixtas" data-i18n="lab.pat.s.mixtas">mixtas</option>
-                </select>
-              </label>
-            </div>
-            <p id="lab-ciego" class="sim-info" data-i18n="lab.pat.ciego" hidden>
-              Paciente <b>a ciegas</b>: los canales no muestran nada y las tasas quedan ocultas. Examinalo
-              con los impulsos de Respuesta y mirando los ojos.
-            </p>
-            <label class="check"><input type="checkbox" id="lab-fijacion" /> <span data-i18n="lab.pat.fijacion">fijando la mirada (sin lentes de Frenzel)</span></label>
-            <div data-ojos-opciones>
-              <!-- También en Respuesta: el bloque se muda al panel que se ve. -->
-              <div id="lab-ojos-opciones" class="lab-ojos-opciones">
-                <label class="check"><input type="checkbox" id="lab-ojos-ver" checked /> <span data-i18n="lab.pat.ojos">ojos de cerca</span></label>
-                <label class="campo">
-                  <span data-i18n="lab.ojo.visto">ojo</span>
-                  <select id="lab-ojo-visto">
-                    <option value="der" data-i18n="lab.ojo.der">derecho</option>
-                    <option value="izq" data-i18n="lab.ojo.izq">izquierdo</option>
-                  </select>
-                </label>
-                <label class="campo">
-                  <span data-i18n="lab.mirada">la mirada</span>
-                  <select id="lab-mirada">
-                    <option value="pantalla" data-i18n="lab.mirada.pantalla">fija en el centro de la pantalla</option>
-                    <option value="derecha" data-i18n="lab.mirada.derecha">20° a la derecha del paciente</option>
-                    <option value="izquierda" data-i18n="lab.mirada.izquierda">20° a la izquierda del paciente</option>
-                    <option value="arriba" data-i18n="lab.mirada.arriba">20° arriba</option>
-                    <option value="abajo" data-i18n="lab.mirada.abajo">20° abajo</option>
-                    <option value="cabeza" data-i18n="lab.mirada.cabeza">vuelve al frente de la cabeza</option>
-                  </select>
-                </label>
-              </div>
-            </div>
-            <p id="lab-nistagmo" class="lab-nistagmo" aria-live="polite"></p>
-            <div class="practica">
-              <button id="lab-azar" class="primario" data-i18n="lab.pat.azar">Paciente al azar (a ciegas)</button>
-              <button id="lab-revelar" data-i18n="lab.pat.revelar" hidden>Revelar</button>
-              <p id="lab-revelado" class="sim-info" hidden></p>
-            </div>
-          </section>
-          <section data-panel="respuesta" hidden>
-            <p class="ayuda" data-i18n="lab.resp.ayuda">
-              Un canal <b class="exc">se excita</b> cuando la cabeza gira alrededor de su eje y
-              <b class="inh">se inhibe</b> cuando gira al revés. Los ojos contragiran para que la mirada
-              no se mueva: es el reflejo vestíbulo-ocular.
-            </p>
-            <!-- Los impulsos se usan también en Vía: el bloque se muda al
-                 panel visible (laberinto.js, ponVista). -->
-            <div data-ojos-opciones></div>
-            <div data-impulsos>
-              <div id="lab-impulsos" class="lab-impulsos">
-                <div id="lab-movimientos" class="lab-movimientos"></div>
-                <label class="campo">
-                  <span data-i18n="lab.vpico">velocidad pico</span>
-                  <input type="range" id="lab-vpico" min="50" max="300" step="10" value="150" />
-                  <output id="lab-vpico-valor"></output>
-                </label>
-                <label class="campo">
-                  <span data-i18n="lab.lentitud">cámara lenta</span>
-                  <select id="lab-lentitud">
-                    <option value="1" data-i18n="lab.lentitud.1">no (tiempo real)</option>
-                    <option value="4" selected>×4</option>
-                    <option value="10">×10</option>
-                    <option value="50">×50</option>
-                  </select>
-                </label>
-                <label class="check"><input type="checkbox" id="lab-volver" checked /> <span data-i18n="lab.volver">volver después del impulso</span></label>
-                <p class="ayuda" data-i18n="lab.volver.ayuda">Sin volver, la cabeza se queda donde llegó y el impulso siguiente sale de ahí: se encadenan posiciones sin pasar por el centro. «Centrar» la trae de vuelta.</p>
-                <p class="lab-vcab"><span data-i18n="lab.vcab">cabeza</span> <b id="lab-vcab">0</b> °/s</p>
-              </div>
-            </div>
-            <div id="lab-tasas" class="lab-tasas">
-              <h3 data-i18n="lab.tasa">Disparo del nervio <small>(espigas/s)</small></h3>
-              <div id="lab-barras" class="lab-barras"></div>
-            </div>
-            <p id="lab-tasas-ciego" class="ayuda" data-i18n="lab.tasas.ciego" hidden>A ciegas, las tasas quedan ocultas: mirá los ojos.</p>
-            <!-- Las tres leyes de Ewald, con lo que pasa ahora al lado de cada una
-                 (laberinto.js, pintaEwald). -->
-            <div id="lab-ewald" class="lab-ewald">
-              <h3 data-i18n="lab.ewald">Leyes de Ewald</h3>
-              <p><b>1.ª</b> <span data-i18n="lab.ewald.1">El ojo se mueve en el plano del canal estimulado.</span> <i data-ley="1"></i></p>
-              <p><b>2.ª</b> <span data-i18n="lab.ewald.2">La excitación puede más que la inhibición, que no baja de cero.</span> <i data-ley="2"></i></p>
-              <p><b>3.ª</b> <span data-i18n="lab.ewald.3">Al lateral lo excita el flujo hacia la ampolla (ampulípeto); a los verticales, el que se aleja (ampulífugo).</span> <i data-ley="3"></i></p>
-            </div>
-            <p class="ayuda" data-i18n="lab.resp.ewald">
-              En reposo cada nervio dispara unas 90 veces por segundo. Hacia arriba tiene margen; hacia
-              abajo, no pasa de cero: con un giro rápido el canal inhibido se calla y todo el trabajo lo
-              hace el excitado. Es la <b>segunda ley de Ewald</b>, y es la razón por la que el vHIT
-              examina cada lado girando <b>hacia</b> ese lado.
-            </p>
-          </section>
-          <section data-panel="via" hidden>
-            <p class="ayuda" data-i18n="lab.via.ayuda">
-              El <b>arco de tres neuronas</b>: el nervio vestibular lleva la señal del canal a los núcleos
-              vestibulares; de ahí cruza la línea media a los núcleos de los músculos del ojo (III, IV y
-              VI), y de ellos sale al músculo. Cada canal excita a dos músculos, uno de cada ojo, que
-              mueven los ojos en su plano: el lateral izquierdo, al recto medial izquierdo y al recto
-              lateral derecho, y por eso los ojos van a la derecha cuando la cabeza gira a la izquierda.
-            </p>
-            <p class="ayuda" data-i18n="lab.via.otol">
-              Por el mismo nervio van los <b>otolitos</b>, que sienten la inclinación. El
-              <b>utrículo</b>, por la rama superior, llega a los músculos de los dos verticales de su
-              lado: al bajar esa oreja los ojos rotan unos grados hacia el otro lado (la contrarrotación
-              ocular; es la vía del oVEMP). El <b>sáculo</b>, por la inferior, baja al
-              esternocleidomastoideo (<b>ECM</b>) de su lado por el haz vestíbulo-espinal: es la vía del
-              cVEMP. Por eso una neuritis superior deja el cVEMP normal, y una inferior, el oVEMP.
-            </p>
-            <label class="campo">
-              <span data-i18n="lab.via.plano">Mostrar</span>
-              <select id="lab-via-filtro">
-                <option value="lateral" data-i18n="lab.par.lateral">laterales</option>
-                <option value="larp" data-i18n="lab.par.larp">LARP</option>
-                <option value="ralp" data-i18n="lab.par.ralp">RALP</option>
-                <option value="otolitos" data-i18n="lab.via.otolitos">utrículo y sáculo</option>
-                <option value="todos" data-i18n="lab.via.todos">todo</option>
-              </select>
-            </label>
-            <div data-impulsos></div>
-            <p class="ayuda" data-i18n="lab.via.leyenda">
-              Cada punto que corre son <b>15 espigas</b>: cuantos más pasan por segundo, más dispara la
-              neurona. En <b>reposo</b> van blancos, tenues y lentos; <b class="inh">inhibida</b>, azules,
-              más lentos y más separados; <b class="exc">excitada</b>, rojos, rápidos y seguidos. El tramo toma el mismo color, y va
-              punteado si calla. Una <b class="lesion">cruz</b> es un nervio muerto; una barra, uno con
-              hipofunción.
-            </p>
-            <p class="ayuda" data-i18n="lab.via.floculo">
-              El <b>flóculo</b> (cerebelo) recibe la visión cuando hay un blanco que fijar e inhibe los
-              núcleos vestibulares del lado que dispara de más: así la fijación frena el nistagmo
-              periférico. Con el flóculo lesionado no lo frena: el <b>OFI</b> (fase lenta fijando ÷ sin
-              fijar) sube. Se prende con «fijando la mirada», en Patología.
-            </p>
-            <p class="ayuda" data-i18n="lab.via.comp">
-              Con la lesión <b>compensada</b>, el nervio sigue callado pero su núcleo vuelve a disparar
-              en reposo: es la compensación central, y con ella se va el nistagmo espontáneo. Las vías
-              inhibidoras, que van al mismo lado, no se dibujan; su efecto está en las tasas.
-            </p>
-            <p id="lab-via-ciego" class="ayuda" data-i18n="lab.via.ciego" hidden>A ciegas, la vía no muestra la actividad ni la lesión: solo la anatomía y los ojos.</p>
-          </section>
-        </aside>
-      </div>
-    </section>
 
     <!-- El módulo de entrada lo inserta js/arranque.js, con su versión. -->
   </body>
