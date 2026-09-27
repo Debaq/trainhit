@@ -28,6 +28,10 @@ Falta, del lado de trainHIT:
 
 ## Pendiente
 
+- **Pasada completa del manual** (`docs/manual/`): rehacer las capturas, que
+  son anteriores al botón **Laberinto 3D ↗** de la barra y al tema claro (solo
+  `04-menu-aprender.png` está al día, del 2026-09-27); revisar el texto contra
+  la interfaz de hoy, regenerar los PDF y subirlos al release `manual`.
 - **Nistagmo espontáneo con la cámara**: el paciente fija un blanco o el dedo,
   se registra el ojo 10 a 20 s y se detecta el diente de sierra, con la
   dirección de la fase rápida y la velocidad de la fase lenta; también con el
