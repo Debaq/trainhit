@@ -904,9 +904,11 @@ export function montaLaberinto() {
     // 4) Tasa de cada canal.
     const r = respuestas(st.omega, st.ejesMedidos, st.f);
     pinta(st.qOjo, r);
-    // Los puntos de la vía corren en tiempo físico, como el ojo: en cámara
-    // lenta se frenan con todo lo demás.
-    if (st.vista === 'via') pintaVia({ ...r, ...ro }, dtFisico);
+    // Los puntos de la vía van siempre en la cámara lenta elegida, no solo
+    // durante un impulso: así el reposo también se frena y se compara con
+    // lo que pasa al mover. Con el mouse o el teléfono la cabeza sigue en
+    // tiempo real; lo lento es la vía.
+    if (st.vista === 'via') pintaVia({ ...r, ...ro }, dt / Number($('lab-lentitud').value));
   }
 
   /**
