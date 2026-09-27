@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 """Pasa el manual de uso y guía docente de Markdown a PDF, en los dos idiomas:
-manual.md → manual.pdf y manual.en.md → manual.en.pdf.
+manual.md → trainhit-manual.pdf y manual.en.md → trainhit-manual-en.pdf.
 
     python3 docs/manual/generar-pdf.py
 
-Hace falta `pip install markdown weasyprint`. El Markdown es la fuente: el PDF
-se regenera cada vez que el manual o las capturas de img/ cambian.
+Hace falta `pip install markdown weasyprint`. El Markdown es la fuente. Los PDF
+no van en el repo (.gitignore): son assets del release «manual» de GitHub, que
+es de donde los baja la página. Para publicar una versión nueva:
+
+    gh release upload manual docs/manual/trainhit-manual*.pdf --clobber
 """
 import re
 from pathlib import Path
@@ -66,13 +69,13 @@ def figuras(html: str) -> str:
 IDIOMAS = {
     'es': {
         'fuente': 'manual.md',
-        'salida': 'manual.pdf',
+        'salida': 'trainhit-manual.pdf',
         'titulo': 'trainHIT · Manual de uso y guía docente',
         'pie': 'TecMedHub · Universidad Austral de Chile, Sede Puerto Montt',
     },
     'en': {
         'fuente': 'manual.en.md',
-        'salida': 'manual.en.pdf',
+        'salida': 'trainhit-manual-en.pdf',
         'titulo': 'trainHIT · User manual and teacher’s guide',
         'pie': 'TecMedHub · Universidad Austral de Chile, Puerto Montt campus',
     },

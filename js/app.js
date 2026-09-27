@@ -1772,6 +1772,9 @@ $('camara').addEventListener('change', () => {
  * nombres de las perillas del HTML y `montaSimulacion` escribe los perfiles.
  * Al cambiarlo, lo que arma el código se vuelve a pintar; la sesión queda.
  */
+/** Dónde se bajan los PDF del manual: el release «manual» del repo. */
+const MANUAL_URL = 'https://github.com/Debaq/trainhit/releases/download/manual/';
+
 function montaIdioma() {
   const boton = $('btn-idioma');
   const otro = () => (idioma() === 'es' ? 'en' : 'es');
@@ -1779,12 +1782,11 @@ function montaIdioma() {
     boton.textContent = otro().toUpperCase();
     boton.title = IDIOMAS[otro()];
     boton.lang = otro();
-    // El manual, en el idioma de la interfaz.
-    const en = idioma() === 'en';
-    for (const a of document.querySelectorAll('.enlace-manual')) {
-      a.href = en ? 'docs/manual/manual.en.pdf' : 'docs/manual/manual.pdf';
-      a.download = en ? 'trainhit-manual-en.pdf' : 'trainhit-manual.pdf';
-    }
+    // El manual, en el idioma de la interfaz. Los PDF son assets del release
+    // «manual» de GitHub y no viajan con la página: el enlace anda aunque la
+    // página se sirva desde otro lado. Ver docs/manual/generar-pdf.py.
+    const pdf = idioma() === 'en' ? 'trainhit-manual-en.pdf' : 'trainhit-manual.pdf';
+    for (const a of document.querySelectorAll('.enlace-manual')) a.href = MANUAL_URL + pdf;
   };
   boton.addEventListener('click', () => ponIdioma(otro()));
   alCambiarIdioma(() => {

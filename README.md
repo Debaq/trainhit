@@ -159,8 +159,15 @@ pedagógico: resultados de aprendizaje, secuencias de clase, actividades,
 rúbrica— en español (`manual.md`) y en inglés (`manual.en.md`), con capturas
 de la página en cada idioma (`img/` e `img/en/`). La página lo ofrece para
 bajar en PDF desde la bienvenida y desde Herramientas › Para docentes, en el
-idioma de la interfaz. El Markdown es la fuente; los PDF se regeneran con
-`python3 docs/manual/generar-pdf.py` (hace falta `markdown` y `weasyprint`).
+idioma de la interfaz.
+
+Los PDF no van en el repo: son assets del release
+[`manual`](https://github.com/Debaq/trainhit/releases/tag/manual) de GitHub, y
+la página los enlaza ahí (`MANUAL_URL` en `js/app.js`), así que el enlace anda
+aunque la página se sirva desde otro servidor. El Markdown es la fuente; los
+PDF se regeneran con `python3 docs/manual/generar-pdf.py` (hace falta
+`markdown` y `weasyprint`) y se publican con
+`gh release upload manual docs/manual/trainhit-manual*.pdf --clobber`.
 
 ## Aprender a usar
 
