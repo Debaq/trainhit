@@ -4,10 +4,10 @@
 // de un nervio muerto.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { CANAL, CANALES, TASA_REPOSO, qEjeAngulo, qMul, respuestas } from '../js/canales.js';
+import { CANAL, CANALES, TASA_REPOSO, activacion, qEjeAngulo, qMul, respuestas } from '../js/canales.js';
 import { funciones, velocidadVOR } from '../js/patologia.js';
 import { abajoEnCabeza, respuestasOtolitos } from '../js/otolitos.js';
-import { FILTROS, actividad, musculosDe, tramos, vectorRotacion, velocidadOrbita } from '../js/via.js';
+import { DibujoVia, ESPIGAS_POR_PUNTO, FILTROS, actividad, estiloPunto, musculosDe, tramos, vectorRotacion, velocidadOrbita } from '../js/via.js';
 
 const cerca = (a, b, tol = 1e-6) => Math.abs(a - b) < tol;
 const escala = (v, k) => v.map((x) => x * k);
@@ -127,4 +127,32 @@ test('oreja izquierda abajo: el utrículo izquierdo dispara más, y su núcleo m
   assert.ok(a.nucleo.utr_izq > a.aferente.utr_izq);
   // El sáculo no siente el rolido.
   assert.ok(cerca(a.nucleo.sac_izq, TASA_REPOSO, 1e-6));
+});
+
+test('los puntos: en reposo blancos, tenues y lentos; inhibidos más lentos; excitados rápidos', () => {
+  const reposo = estiloPunto(0);
+  const inhibido = estiloPunto(-1);
+  const excitado = estiloPunto(1);
+  assert.ok(inhibido.vel < reposo.vel && reposo.vel < excitado.vel);
+  assert.ok(reposo.alfa < inhibido.alfa && reposo.alfa < excitado.alfa);
+  // Blanco en reposo; rojo excitado (más rojo que azul) y azul inhibido.
+  assert.ok(Math.max(...reposo.color) - Math.min(...reposo.color) < 10);
+  assert.ok(excitado.color[0] > excitado.color[2] + 100);
+  assert.ok(inhibido.color[2] > inhibido.color[0] + 100);
+});
+
+test('inhibido, los puntos quedan más separados que en reposo; y al inhibirse, los viejos se ralean', () => {
+  const hueco = (tasa) => estiloPunto(activacion(tasa)).vel / (tasa / ESPIGAS_POR_PUNTO);
+  assert.ok(hueco(45) > 1.3 * hueco(TASA_REPOSO), `${hueco(45)} vs ${hueco(TASA_REPOSO)}`);
+  assert.ok(hueco(20) > hueco(45));
+  // Un tramo que venía en reposo y se inhibe: menos puntos en él.
+  const d = new DibujoVia();
+  const s = { largo: 40, espigas: [], fase: 0 };
+  const correr = (tasa, segundos) => {
+    for (let t = 0; t < segundos; t += 1 / 60) d.avanza(s, tasa, estiloPunto(activacion(tasa)).vel, 1 / 60);
+  };
+  correr(TASA_REPOSO, 5);
+  const enReposo = s.espigas.length;
+  correr(20, 0.2);
+  assert.ok(s.espigas.length < enReposo, `${s.espigas.length} vs ${enReposo}`);
 });

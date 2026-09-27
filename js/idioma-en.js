@@ -378,7 +378,7 @@ export const HTML = {
   'lab.via.otol':
     'The <b>otoliths</b>, which sense tilt, travel in the same nerve. The <b>utricle</b>, in the superior division, reaches the muscles of both vertical canals on its side: when that ear goes down the eyes roll a few degrees the other way (ocular counter-roll; this is the oVEMP pathway). The <b>saccule</b>, in the inferior division, descends to the sternocleidomastoid (<b>SCM</b>) on its side through the vestibulospinal tract: this is the cVEMP pathway. That is why a superior neuritis spares the cVEMP, and an inferior one, the oVEMP.',
   'lab.via.leyenda':
-    'Each running dot is <b>10 spikes</b>: the closer together they go, the faster the neuron fires. A segment turns <b class="exc">red</b> when it fires more than at rest, <b class="inh">blue</b> when less, and dotted when silent. A <b class="lesion">cross</b> is a dead nerve; a bar, a hypofunctioning one.',
+    'Each running dot is <b>15 spikes</b>: the more pass per second, the faster the neuron fires. At <b>rest</b> they are white, faint and slow; <b class="inh">inhibited</b>, blue, slower and further apart; <b class="exc">excited</b>, red, fast and close together. The segment takes the same colour, and is dotted when silent. A <b class="lesion">cross</b> is a dead nerve; a bar, a hypofunctioning one.',
   'lab.via.comp':
     'With the lesion <b>compensated</b>, the nerve stays silent but its nucleus fires again at rest: that is central compensation, and with it the spontaneous nystagmus goes away. The inhibitory pathways, to the same side, are not drawn; their effect is in the rates.',
   'lab.via.ciego': 'Blind, the pathway shows neither the activity nor the lesion: only the anatomy and the eyes.',

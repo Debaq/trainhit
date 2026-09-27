@@ -291,9 +291,40 @@ function enTramo(puntos, s) {
   return puntos[puntos.length - 1];
 }
 
-/** Cuántas espigas vale cada punto que corre, y a qué velocidad corre (unidades/s). */
-export const ESPIGAS_POR_PUNTO = 10;
-const VEL_PUNTO = 36;
+/** Cuántas espigas vale cada punto que corre: pocos, para que se lean de a uno. */
+export const ESPIGAS_POR_PUNTO = 15;
+
+/**
+ * A qué velocidad corren los puntos, en unidades del esquema por segundo. No
+ * es la velocidad de conducción (son milisegundos): es para que el estado se
+ * lea de un vistazo. En reposo van lentos; inhibidos, más lentos todavía;
+ * excitados, rápidos. Entre uno y otro, de a poco con la activación.
+ *
+ * La distancia entre puntos es velocidad / tasa. Para que el inhibido quede
+ * además más espaciado —menos potenciales—, su velocidad baja menos que su
+ * tasa: a la mitad de la tasa va a un 70 % de la velocidad, y el hueco crece
+ * una vez y media.
+ */
+const VEL_REPOSO = 22;
+const VEL_INHIBIDO = 10;
+const VEL_EXCITADO = 70;
+/**
+ * Un punto que queda más cerca que esta fracción del hueco que pide la tasa
+ * se borra: al inhibirse un tramo, los que venían del reposo se ralean en vez
+ * de seguir apretados hasta salir.
+ */
+const RALEO = 0.6;
+
+/** Velocidad y color de los puntos de un tramo con activación `a` (−1 a 1, canales.js). */
+export function estiloPunto(a) {
+  const k = Math.sqrt(Math.abs(a));
+  if (a >= 0) {
+    return { vel: VEL_REPOSO + (VEL_EXCITADO - VEL_REPOSO) * k, color: mezcla(BLANCO, ROJO_PUNTO, k), alfa: ALFA_REPOSO + (1 - ALFA_REPOSO) * k };
+  }
+  // La velocidad baja en línea recta con la activación, no con la raíz: así
+  // baja menos que la tasa y el hueco entre puntos crece.
+  return { vel: VEL_REPOSO + (VEL_REPOSO - VEL_INHIBIDO) * a, color: mezcla(BLANCO, AZUL_PUNTO, k), alfa: ALFA_REPOSO + (0.95 - ALFA_REPOSO) * k };
+}
 
 /** Qué órganos muestra cada filtro del panel. */
 export const FILTROS = {
@@ -311,6 +342,14 @@ const ROJO = [224, 48, 42];
 const AZUL = [46, 125, 214];
 const GRIS = [107, 107, 115];
 const COLOR_LESION = '#a8c83a';
+/**
+ * Los puntos: blancos y tenues en reposo, para que no se confundan con los
+ * excitados; rojos o azules y enteros cuanto más se apartan del reposo.
+ */
+const BLANCO = [235, 235, 240];
+const ROJO_PUNTO = [255, 70, 60];
+const AZUL_PUNTO = [80, 150, 255];
+const ALFA_REPOSO = 0.35;
 
 const mezcla = (a, b, k) => a.map((v, i) => Math.round(v + (b[i] - v) * k));
 const rgb = (c, alfa = 1) => `rgba(${c[0]},${c[1]},${c[2]},${alfa})`;
@@ -388,8 +427,9 @@ export class DibujoVia {
         s.puntos.forEach((p, i) => (i ? ctx.lineTo(...X(p)) : ctx.moveTo(...X(p))));
         ctx.stroke();
         ctx.setLineDash([]);
-        this.avanza(s, ciego ? 0 : tasa, dt);
-        ctx.fillStyle = rgb(mezcla(color, [255, 255, 255], 0.55));
+        const punto = estiloPunto(ciego ? 0 : activacion(tasa));
+        this.avanza(s, ciego ? 0 : tasa, punto.vel, dt);
+        ctx.fillStyle = rgb(punto.color, punto.alfa);
         for (const e of s.espigas) {
           const [px, py] = X(enTramo(s.puntos, e));
           ctx.beginPath();
@@ -535,12 +575,22 @@ export class DibujoVia {
 
   /**
    * Los puntos de un tramo: nacen al ritmo de la tasa —uno cada
-   * ESPIGAS_POR_PUNTO espigas, parejos— y corren a velocidad fija.
+   * ESPIGAS_POR_PUNTO espigas, parejos— y corren a `vel` (`estiloPunto`).
    */
-  avanza(s, tasa, dt) {
-    const paso = VEL_PUNTO * dt;
-    s.espigas = s.espigas.map((e) => e + paso).filter((e) => e < s.largo);
-    s.fase += (tasa / ESPIGAS_POR_PUNTO) * dt;
+  avanza(s, tasa, vel, dt) {
+    const paso = vel * dt;
+    const frecuencia = tasa / ESPIGAS_POR_PUNTO;
+    // Los más viejos van adelante, al principio del arreglo.
+    const hueco = RALEO * Math.min(s.largo, frecuencia > 0 ? vel / frecuencia : Infinity);
+    const quedan = [];
+    for (const e of s.espigas) {
+      const x = e + paso;
+      if (x >= s.largo) continue;
+      if (quedan.length && quedan[quedan.length - 1] - x < hueco) continue;
+      quedan.push(x);
+    }
+    s.espigas = quedan;
+    s.fase += frecuencia * dt;
     // Tope por cuadro: con la pestaña dormida, dt se acota igual.
     for (let n = 0; s.fase >= 1 && n < 8; n++) {
       s.fase -= 1;

@@ -492,7 +492,7 @@ Cinco vistas:
   costado del modelo: nervio vestibular, núcleos vestibulares, el cruce al VI,
   IV o III (por el fascículo longitudinal medial) y los dos músculos que excita
   cada canal, uno de cada ojo. Por cada tramo corren puntos al ritmo de su
-  neurona, uno cada 10 espigas, y se pone rojo o azul según dispare más o menos
+  neurona, uno cada 15 espigas, y se pone rojo o azul según dispare más o menos
   que en reposo. Anda con los impulsos armados, el mouse o el teléfono enlazado,
   y con la patología puesta: el nervio enfermo lleva una cruz o una barra, y con
   la lesión compensada su núcleo vuelve a disparar (la compensación central).

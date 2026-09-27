@@ -112,8 +112,9 @@ Publicado en el servidor propio del proyecto (PHP y Node.js).
   (con el FLM) → los dos músculos que excita, uno de cada ojo. Lateral: RM
   propio y RL contrario; anterior: RS propio y OI contrario; posterior: OS
   propio y RI contrario.
-- Puntos que corren al ritmo de cada neurona (uno cada 10 espigas), tramos en
-  rojo o azul según se aparten del reposo, punteados si callan.
+- Puntos que corren al ritmo de cada neurona (uno cada 15 espigas): en reposo
+  blancos, tenues y lentos; inhibidos azules, más lentos y más separados;
+  excitados rojos y rápidos. Tramos del mismo color, punteados si callan.
 - Tasas: el nervio de canales.js; el núcleo, con la comisura del compañero
   coplanar y el reposo devuelto si la lesión está compensada; la motoneurona,
   con la posición y la velocidad reales del ojo (sacadas incluidas).
