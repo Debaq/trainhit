@@ -983,6 +983,9 @@ body.con-laberinto { overflow: hidden; }
 .lab-vistas { display: flex; gap: 2px; padding: 2px; background: var(--background); border-radius: var(--r-window); }
 .lab-vistas button { border: 0; background: transparent; color: var(--muted-fg); }
 .lab-vistas button[aria-selected='true'] { background: var(--accent); color: var(--foreground); font-weight: 600; }
+.lab-modos { display: flex; gap: 2px; padding: 2px; background: var(--background); border-radius: var(--r-window); }
+.lab-modos button { border: 0; background: transparent; color: var(--muted-fg); font-size: 12px; }
+.lab-modos button[aria-checked='true'] { background: rgba(77, 182, 232, 0.16); color: var(--c-guide); font-weight: 600; }
 
 .lab-cuerpo { flex: 1; min-height: 0; display: flex; }
 .lab-escena { position: relative; flex: 1; min-width: 0; overflow: hidden; }

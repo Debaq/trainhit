@@ -405,12 +405,19 @@ teléfono mismo, que hace de cabeza: girarlo a la izquierda gira la cabeza a
 *su* izquierda. Es una recreación de lo que hacía la app aVOR (Universidad de
 Sydney, solo iOS), que ya no está disponible.
 
+Los laberintos se ven de tres formas, como en aVOR, elegidas en la barra de la
+sección: **a los lados** de la cabeza y grandes (la de entrada, con la cámara de
+frente), **en su lugar** agrandados cuatro veces (con la cámara en tres
+cuartos), o en su lugar a **tamaño real**. En las tres giran con la cabeza, y
+el paso de una a otra se anima.
+
 Tres vistas:
 
 - **Canales**: los seis, pintados por par coplanar (laterales, LARP, RALP), con
-  rótulos. Van agrandados cuatro veces; **tamaño real** muestra lo chicos que son.
+  rótulos.
 - **Ejes**: vista de arriba, con la flecha del eje que excita a cada canal
-  (regla de la mano derecha) y los tres planos de examen.
+  (regla de la mano derecha). Los tres planos de examen se pueden prender; van
+  apagados porque encima de todo lo demás confunden.
 - **Respuesta**: impulsos armados —horizontales, de nariz, de oreja y
   diagonales en LARP y RALP— con velocidad pico y cámara lenta, o giro libre.
   Cada canal se pinta de rojo si se excita y de azul si se inhibe, las barras

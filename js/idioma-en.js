@@ -285,6 +285,13 @@ export const HTML = {
   'lab.v.canales': 'Canals',
   'lab.v.ejes': 'Axes',
   'lab.v.respuesta': 'Response',
+  'lab.modos.aria': 'where the labyrinths go',
+  'lab.modo.lados': 'Beside',
+  'lab.modo.lados.t': 'outside the head, one on each side, magnified',
+  'lab.modo.lugar': 'In place',
+  'lab.modo.lugar.t': 'in their anatomical position, magnified four times',
+  'lab.modo.real': 'Actual size',
+  'lab.modo.real.t': 'in their anatomical position and at actual size',
   'lab.centrar': 'Center',
   'lab.centrar.t': 'head and eyes to the front (double tap, 0)',
   'lab.salir': '✕ Exit',
@@ -298,9 +305,8 @@ export const HTML = {
   'lab.par.ralp': 'RALP',
   'lab.rotulos': 'labels',
   'lab.cabeza': 'head',
-  'lab.real': 'actual size',
-  'lab.real.ayuda':
-    'The labyrinths are magnified four times. At actual size a canal is about 6 mm across: smaller than the iris.',
+  'lab.modos.ayuda':
+    'Above you choose where the labyrinths go: <b>beside</b> the head and large, to see them with nothing in front; <b>in place</b>, magnified four times; or in place at <b>actual size</b>, where a canal is about 6 mm across, smaller than the iris. In all three they turn with the head.',
   'lab.ejes.ayuda':
     'Each arrow is the <b>axis that excites</b> its canal: with the right thumb on the arrow, turning the head the way the fingers curl excites it. The discs are the planes where each pair is tested. The whole set is tilted up about 30° at the front: that is why the lateral vHIT is done with the head flexed 30°.',
   'lab.flechas': 'axes',

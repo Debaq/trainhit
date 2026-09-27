@@ -109,9 +109,9 @@ export function distancia(x, y, z) {
   }
   // Labios, y la línea de la boca tallada entre los dos.
   if (lejos(x, y, z, 0, -0.051, 0.1, 0.03) < Math.abs(d) + 0.008) {
-    d = une(d, elipsoide(x, y, z, 0, -0.045, 0.1, 0.022, 0.0068, 0.011), 0.008);
-    d = une(d, elipsoide(x, y, z, 0, -0.057, 0.098, 0.019, 0.0072, 0.011), 0.008);
-    d = resta(d, elipsoide(x, y, z, 0, -0.0512, 0.109, 0.021, 0.0012, 0.009), 0.002);
+    d = une(d, elipsoide(x, y, z, 0, -0.0465, 0.0975, 0.02, 0.0042, 0.0078), 0.006);
+    d = une(d, elipsoide(x, y, z, 0, -0.0565, 0.0955, 0.0175, 0.0048, 0.0078), 0.006);
+    d = resta(d, elipsoide(x, y, z, 0, -0.0515, 0.106, 0.02, 0.001, 0.008), 0.002);
   }
   // Orejas: el pabellón pegado al cráneo, con la concha tallada.
   if (lejos(ax, y, z, 0.077, 0.002, -0.01, 0.031) < d + 0.005) {

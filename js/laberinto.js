@@ -59,10 +59,36 @@ export const NOMBRES = {
 };
 
 /**
- * Lupa sobre cada laberinto. A tamaño real un canal mide unos 6 mm de lado a
- * lado: al lado de la cabeza no se ve. El interruptor «tamaño real» la saca.
+ * Desde dónde mira la cámara, en grados. Con los laberintos a los lados, de
+ * frente: se ven los dos, uno a cada lado. En su lugar, en tres cuartos desde
+ * la izquierda del paciente y un poco arriba: de frente quedan detrás de los
+ * ojos y no se distingue un canal del otro. «Centrar» vuelve siempre de
+ * frente, cara a cara, que es como se piensa la mirada al frente.
  */
-const AUMENTO = 4;
+const CAMARA_TRES_CUARTOS = { az: 32, el: 14 };
+const CAMARA_FRENTE = { az: 0, el: 0 };
+
+/**
+ * Dónde y a qué escala van los laberintos. Son las tres formas de aVOR:
+ *
+ *   lados  afuera de la cabeza, uno a cada lado y bien grandes: se ven sin
+ *          nada adelante, y giran con la cabeza igual que en su lugar.
+ *   lugar  en su posición anatómica, agrandados cuatro veces.
+ *   real   en su posición anatómica y a tamaño real: un canal mide unos 6 mm
+ *          de lado a lado, más chico que el iris.
+ *
+ * `x` es a qué distancia del plano medio va el centro de cada vestíbulo
+ * (null: la anatómica). `ancho` es lo que tiene que entrar de costado a
+ * costado en la pantalla, para alejar la cámara en un teléfono parado.
+ * Elegir un modo lleva la cámara a la suya.
+ */
+const MODOS_LABERINTO = {
+  lados: { aumento: 7, x: 0.14, ancho: 0.5, camara: CAMARA_FRENTE },
+  lugar: { aumento: 4, x: null, ancho: 0.24, camara: CAMARA_TRES_CUARTOS },
+  real: { aumento: 1, x: null, ancho: 0.24, camara: CAMARA_TRES_CUARTOS },
+};
+/** Constante de tiempo del paso de una forma a otra, en segundos. */
+const TAU_MODO_S = 0.12;
 
 /** Hasta dónde gira el ojo en la órbita antes de una fase rápida, en grados. */
 const LIMITE_OJO_DEG = 40;
@@ -73,19 +99,13 @@ const TAU_OMEGA_S = 0.06;
 
 /** Grados por píxel al arrastrar. */
 const GRADOS_POR_PX = 0.45;
+/** Distancia mínima de la cámara; más lejos si el modo no entra en pantalla. */
 const DIST_INICIAL = 0.42;
-const DIST_MIN = 0.12;
-const DIST_MAX = 1.6;
+const ZOOM_MIN = 0.3;
+const ZOOM_MAX = 3.5;
 /** Altura del punto al que mira la cámara: entre los ojos y los oídos. */
 const MIRA_Y = 0.015;
-/**
- * Al abrir, la cámara va en tres cuartos, desde la izquierda del paciente y
- * un poco arriba: de frente los laberintos quedan detrás de los ojos y no se
- * distingue un canal del otro. «Centrar» la pone de frente, cara a cara, que
- * es como se piensa la mirada al frente. Grados.
- */
-const CAMARA_TRES_CUARTOS = { az: 32, el: 14 };
-const CAMARA_FRENTE = { az: 0, el: 0 };
+
 
 /** Amplitud de los impulsos armados, en grados: la de un impulso de vHIT. */
 const AMPLITUD_IMPULSO = 20;
@@ -134,7 +154,7 @@ export function montaLaberinto() {
     T: null, // three.js
     vista: 'canales',
     cenital: false,
-    real: false,
+    modoLab: 'lados',
     rotulos: true,
     // Orientación de la cabeza en el mundo: la manual (mouse, dedo, teclas)
     // compuesta con la del teléfono.
@@ -149,7 +169,9 @@ export function montaLaberinto() {
     omega: [0, 0, 0],
     impulso: null,
     dist: DIST_INICIAL,
-    camara: CAMARA_TRES_CUARTOS,
+    distBase: null,
+    zoom: 1,
+    camara: CAMARA_FRENTE,
     pan: [0, 0, 0],
     tPrevio: 0,
     raf: 0,
@@ -169,10 +191,15 @@ export function montaLaberinto() {
   }
   $('lab-salir').addEventListener('click', () => cierra());
   $('lab-centrar').addEventListener('click', () => centra());
-  $('lab-real').addEventListener('change', (e) => {
-    st.real = e.target.checked;
-    aplicaAumento();
-  });
+  for (const b of seccion.querySelectorAll('[data-modo-lab]')) {
+    b.addEventListener('click', () => {
+      st.modoLab = b.dataset.modoLab;
+      st.camara = MODOS_LABERINTO[st.modoLab].camara;
+      for (const o of seccion.querySelectorAll('[data-modo-lab]')) {
+        o.setAttribute('aria-checked', String(o === b));
+      }
+    });
+  }
   $('lab-rotulos-ver').addEventListener('change', (e) => {
     st.rotulos = e.target.checked;
     rotulos.hidden = !st.rotulos;
@@ -403,6 +430,7 @@ export function montaLaberinto() {
       cabeza.add(grupo);
       grupo.updateMatrixWorld(true);
       for (const p of piezas) grupo.attach(p);
+      grupo.userData.anatomica = grupo.position.clone();
       laberintos[lado] = grupo;
     }
     for (const c of CANALES) {
@@ -466,7 +494,7 @@ export function montaLaberinto() {
     );
 
     st.escena = { ojos, laberintos, canales, piel, ...ejesYPlanos(T, laberintos) };
-    aplicaAumento();
+    ubicaLaberintos(1);
     aplicaVista();
     if (!glb) console.info('laberinto: modelo provisorio (no hay %s)', MODELO_URL);
   }
@@ -503,7 +531,7 @@ export function montaLaberinto() {
       const grupo = laberintos[c.lado];
       if (!grupo) continue;
       const eje = new T.Vector3(...(st.ejesMedidos?.[c.id] ?? c.eje));
-      // Largo en el marco del grupo, que se agranda: se corrige en aplicaAumento.
+      // Largo en el marco del grupo, que se agranda: se corrige en ubicaLaberintos.
       const f = new T.ArrowHelper(eje, new T.Vector3(), 1, COLOR_PAR[c.par]);
       f.userData.largo = 0.045;
       grupo.add(f);
@@ -536,15 +564,27 @@ export function montaLaberinto() {
     return { flechas, planos };
   }
 
-  function aplicaAumento() {
-    if (!st.escena) return;
-    const k = st.real ? 1 : AUMENTO;
-    for (const g of Object.values(st.escena.laberintos)) g.scale.setScalar(k);
-    for (const f of st.escena.flechas) {
-      // La flecha vive dentro del grupo agrandado: se la achica para que mida
-      // lo mismo en la cabeza con o sin lupa.
-      const l = f.userData.largo / k;
-      f.setLength(l, 0.3 * l, 0.18 * l);
+  /**
+   * Lleva cada laberinto hacia el lugar y la escala del modo, una fracción
+   * `a` del camino (1: de una). Cuadro a cuadro, el cambio de modo se anima.
+   */
+  function ubicaLaberintos(a) {
+    const modo = MODOS_LABERINTO[st.modoLab];
+    for (const g of Object.values(st.escena.laberintos)) {
+      const destino = g.userData.anatomica.clone();
+      if (modo.x !== null) destino.x = Math.sign(destino.x) * modo.x;
+      g.position.lerp(destino, a);
+      const k = g.scale.x + (modo.aumento - g.scale.x) * a;
+      if (Math.abs(k - g.scale.x) < 1e-6 && g.userData.flechasEn === k) continue;
+      g.scale.setScalar(k);
+      g.userData.flechasEn = k;
+      for (const f of g.children) {
+        if (!f.userData.largo) continue;
+        // La flecha vive dentro del grupo agrandado: se la achica para que
+        // mida lo mismo en la cabeza con cualquier escala.
+        const l = f.userData.largo / k;
+        f.setLength(l, 0.3 * l, 0.18 * l);
+      }
     }
   }
 
@@ -595,6 +635,14 @@ export function montaLaberinto() {
       st.omega = st.omega.map((v, i) => v + a * (w[i] - v));
     }
     st.qPrevia = st.qCabeza;
+    ubicaLaberintos(1 - Math.exp(-dt / TAU_MODO_S));
+    // La cámara se aleja o se acerca a lo que el modo necesita que entre.
+    const cam = st.r.camara;
+    const modo = MODOS_LABERINTO[st.modoLab];
+    const tanH = Math.tan((cam.fov * Math.PI) / 360) * cam.aspect;
+    const base = Math.max(DIST_INICIAL, modo.ancho / (2 * tanH));
+    st.distBase = st.distBase === null ? base : st.distBase + (base - st.distBase) * (1 - Math.exp(-dt / TAU_MODO_S));
+    st.dist = st.distBase * st.zoom;
 
     // 2) Los ojos: VOR de ganancia 1, la mirada queda quieta en el mundo.
     // Si el ojo llega al borde de la órbita, una fase rápida lo recentra: con
@@ -713,7 +761,7 @@ export function montaLaberinto() {
     st.omega = [0, 0, 0];
     st.faseRapida = false;
     st.pan = [0, 0, 0];
-    st.dist = DIST_INICIAL;
+    st.zoom = 1;
     st.camara = CAMARA_FRENTE;
     st.cenital = false;
     $('lab-cenital').setAttribute('aria-pressed', 'false');
@@ -803,7 +851,7 @@ export function montaLaberinto() {
   );
 
   function acerca(k) {
-    st.dist = Math.min(DIST_MAX, Math.max(DIST_MIN, st.dist * k));
+    st.zoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, st.zoom * k));
   }
 
   /** Mueve la cabeza en el plano de la pantalla, en píxeles. */
