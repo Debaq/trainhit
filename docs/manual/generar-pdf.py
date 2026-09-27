@@ -27,11 +27,11 @@ CSS = """
   @bottom-left { font: 8pt 'Noto Sans', sans-serif; color: #777; }
   @bottom-right { content: counter(page); font: 9pt 'Noto Sans', sans-serif; color: #777; }
 }
-@page :first { @top-right { content: none; } @bottom-right { content: none; } }
+@page :first { @top-right { content: none; } @bottom-right { content: none; } @bottom-left { content: none; } }
 body { font: 10.5pt/1.5 'Noto Sans', 'DejaVu Sans', sans-serif; color: #1d1d22; }
-h1 { font-size: 40pt; margin: 5cm 0 0.1cm; color: #111; }
-h1 + p { font-size: 20pt; color: #2b6fd6; margin: 0 0 0.3cm; }
-h1 + p + p { font-size: 12pt; color: #555; margin-bottom: 2.5cm; }
+h1 { font-size: 46pt; margin: 0 0 0.15cm; color: #111; letter-spacing: -0.5pt; }
+h1 + p { font-size: 21pt; color: #2b6fd6; margin: 0 0 0.35cm; }
+h1 + p + p { font-size: 13pt; line-height: 1.45; color: #555; margin: 0; max-width: 13cm; }
 h2 { break-before: page; font-size: 18pt; color: #111; border-bottom: 3px solid #2b6fd6;
      padding-bottom: 4pt; margin-top: 0; }
 h3 { font-size: 12.5pt; color: #2b6fd6; margin: 16pt 0 4pt; break-after: avoid; }
@@ -54,9 +54,21 @@ hr { display: none; }
 ol, ul { padding-left: 16pt; }
 li { margin: 2pt 0; }
 .indice ul { list-style: none; padding-left: 8pt; }
-/* Los logos del laboratorio y de la universidad, al pie de la portada. */
-.logos { display: flex; align-items: center; gap: 1.6cm; margin-top: 3.2cm; }
-.logos img { height: 2.6cm; width: auto; }
+/* La portada ocupa la página: arriba los logos del laboratorio y de la
+   universidad, a los extremos; el título al medio; abajo la ficha. */
+.portada { position: relative; height: 25.2cm; }
+.portada .logos { display: flex; justify-content: space-between; align-items: center;
+                  padding-bottom: 0.6cm; border-bottom: 2.5pt solid #2b6fd6; }
+.portada .logos img { height: 2.4cm; width: auto; }
+.portada h1 { margin-top: 1.5cm; }
+.portada .ilustracion { margin-top: 0.9cm; }
+.portada .ilustracion img { width: 100%; border-radius: 6pt; }
+.portada .ficha { position: absolute; left: 0; right: 0; bottom: 0; padding-top: 0.45cm;
+                  border-top: 1px solid #d4d4dc; font-size: 10pt; color: #444; }
+.portada .ficha p { margin: 0 0 5pt; }
+/* Referencias con sangría francesa, como en una bibliografía. */
+.referencias ul { list-style: none; padding-left: 1.4em; }
+.referencias li { text-indent: -1.4em; margin: 0 0 7pt; line-height: 1.45; }
 """
 
 

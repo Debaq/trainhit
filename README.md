@@ -711,13 +711,28 @@ El análisis largo de todo esto está en `GANANCIAS.md` del repo principal.
 - [Jacobsen et al., 2021](https://pubmed.ncbi.nlm.nih.gov/34057110/) — ganancia
   por regresión contra ganancia instantánea: cuál es más reproducible.
   *J Vestib Res.*
-- [Money-Nolan & Devroede, 2023](https://pubmed.ncbi.nlm.nih.gov/36970532/) —
+- [Money-Nolan & Flagge, 2023](https://pubmed.ncbi.nlm.nih.gov/36970532/) —
   revisión sistemática de qué hace variar la ganancia: no es un número fijo, y
   hacen falta normativos por equipo y protocolo. *Front Neurol.*
 - [Du et al., 2021](https://pubmed.ncbi.nlm.nih.gov/32930021/) — ganancia y PR
   score en trastornos vestibulares periféricos. *Acta Otolaryngol.*
 - [Zamaro et al., 2020](https://doi.org/10.3233/ves-200708) — los métodos de
   cálculo de ganancia en vHIT no son intercambiables entre sí. *J Vestib Res.*
+- [Weber et al., 2008](https://doi.org/10.1212/01.wnl.0000299117.48935.2e) —
+  las sacadas correctivas encubiertas y manifiestas. *Neurology.*
+- [Halmagyi et al., 2017](https://doi.org/10.3389/fneur.2017.00258) — revisión
+  del vHIT: técnica, ganancia y sacadas. *Front Neurol.*
+- [Rüfer et al., 2005](https://doi.org/10.1097/01.ico.0000148312.01805.53) — el
+  diámetro horizontal de la córnea, 11,71 ± 0,42 mm: por qué el iris sirve de
+  regla. *Cornea.*
+- [Savitzky & Golay, 1964](https://doi.org/10.1021/ac60214a047) — la derivada
+  por ajuste polinómico local del derivador. *Anal Chem.*
+- [Kartynnik et al., 2019](https://arxiv.org/abs/1907.06724) y
+  [Ablavatski et al., 2020](https://arxiv.org/abs/2006.11341) — la malla facial
+  y el seguimiento del iris de MediaPipe. *arXiv.*
+
+Las fichas completas, con autores, volumen, páginas y DOI, están en la sección
+24 del manual (`docs/manual/manual.md`).
 
 ## Tests y banco sintético
 

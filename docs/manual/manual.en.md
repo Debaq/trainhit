@@ -1,18 +1,29 @@
-# trainHIT
-
-**User manual and teacher’s guide**
-
-A teaching vHIT in the browser, with the computer’s webcam.
-
-**Author:** Nicolás Baier Quezada<br>
-**Date:** September 27, 2026<br>
-**trainHIT version documented:** 2026-09-27.76
-
-TecMedHub Lab · Universidad Austral de Chile, Puerto Montt campus
+<div class="portada" markdown="1">
 
 <div class="logos">
 <img src="img/logos/tecmedhub.png" alt="TecMedHub" height="90">
 <img src="img/logos/uach.png" alt="Universidad Austral de Chile" height="90">
+</div>
+
+# trainHIT
+
+**User manual and teacher’s guide**
+
+A teaching simulator and vHIT in the browser: with the computer’s webcam or
+with a phone as the head.
+
+<div class="ilustracion"><img src="img/portada.png" alt="An examiner standing behind the patient, hands on the patient’s head; the patient looks at the laptop camera."></div>
+
+<div class="ficha" markdown="1">
+
+**Author:** Nicolás Baier Quezada<br>
+**Date:** September 27, 2026<br>
+**trainHIT version documented:** 2026-09-27.77
+
+TecMedHub Lab · Universidad Austral de Chile, Puerto Montt campus
+
+</div>
+
 </div>
 
 ## Contents
@@ -50,6 +61,7 @@ TecMedHub Lab · Universidad Austral de Chile, Puerto Montt campus
 **Appendix**
 
 - [23. Glossary](#23-glossary)
+- [24. References](#24-references)
 
 </div>
 
@@ -65,9 +77,19 @@ TecMedHub Lab · Universidad Austral de Chile, Puerto Montt campus
 > delivers more: the cap is there on purpose.
 
 trainHIT measures the **vestibulo-ocular reflex (VOR)** with the computer’s
-camera. Frame by frame it tracks the head and the iris, and computes the
-**gain** of each head impulse: how much the eye turned for every degree the
-head turned.
+camera. Frame by frame it tracks the head and the iris with the MediaPipe face
+mesh (Kartynnik et al., 2019), and computes the **gain** of each head impulse
+(Halmagyi & Curthoys, 1988): how much the eye turned for every degree the head
+turned.
+
+**Three ways to practice.** With the **camera** you examine a real classmate.
+With the **Simulator**, a pathology —neuritis, compensated deficit, bilateral
+vestibulopathy— is added to those same impulses, and you practice examining
+and reading at the same time. And with a **phone as the head** you need neither
+camera nor classmate: the gyroscope gives the turn and a drawn face shows the
+model’s eye, healthy or with the chosen pathology. So the impulse technique can
+be practiced anywhere, and in class you can project a patient with whatever
+condition you want to teach.
 
 Unlike a clinical device, trainHIT puts **every step of the computation in
 plain sight**, and you can touch it. You can see the parallax line, the impulse
@@ -289,8 +311,10 @@ Each impulse lands in the panel for its side:
 - **At the top** of each panel, all the impulses overlaid. The green band is
   the accepted range of peak velocity.
 - **The mean gain ± SD**, in green or red against the 0.80 cutoff. That cutoff
-  comes from devices that do desaccade, so here it is a reference, not a
-  criterion. Without calibration it stays gray.
+  comes from devices that do desaccade (MacDougall et al., 2009), and normal
+  gain changes with the device and the protocol (Money-Nolan & Flagge, 2023),
+  so here it is a reference, not a criterion. Without calibration it stays
+  gray.
 - **The count** of accepted and rejected impulses.
 - **The list**, one impulse per row: number, peak velocity, duration, gain,
   saccades (▼) and status. **✕** discards that impulse.
@@ -364,7 +388,8 @@ appears:
 
 ### The saccades
 
-Each saccade has a triangle over its peak:
+Each saccade has a triangle over its peak. The classification is the clinical
+one (Weber et al., 2008):
 
 - **Violet: covert.** It started while the head was still turning.
 - **Red: overt.** It came after the turn.
@@ -475,7 +500,7 @@ The **Method** selector and the table show the same gains computed four ways:
 
 With the same impulses, the means and the asymmetry change with the method.
 That is why **a gain without its method cannot be compared with another**
-(Zamaro et al., 2020).
+(Zamaro et al., 2020; Jacobsen et al., 2021).
 
 After a **Recompute**, each old point is joined to the new one:
 
@@ -487,13 +512,17 @@ After a **Recompute**, each old point is joined to the new one:
 
 The engine’s five decisions:
 
-1. the iris as a ruler;
+1. the iris as a ruler: its horizontal diameter is ~11.7 mm, with little
+   variation between people (Rüfer et al., 2005), and it gives the pixels per
+   millimeter;
 2. the spherical angle;
-3. the head measured by increments;
-4. the derivative by polynomial fit;
+3. the head measured by increments, with the MediaPipe face mesh (Kartynnik et
+   al., 2019; Ablavatski et al., 2020);
+4. the derivative by polynomial fit (Savitzky & Golay, 1964);
 5. the gain computed with positions.
 
-Below are what the method does **not** do and the references for each number.
+Below are what the method does **not** do and the references for each number,
+which are listed in full in [section 24](#24-references).
 
 ### For teachers
 
@@ -535,7 +564,7 @@ puts everything back.
 
 | Setting | Default | What it does | To try |
 |---|---|---|---|
-| **Differentiator window** | 50 ms | Velocity comes from fitting a parabola to the samples in this window. Wider means less noise, but a flatter peak. | Set 200 ms and recompute: the peaks drop and several impulses become *TOO SLOW*. |
+| **Differentiator window** | 50 ms | Velocity comes from fitting a parabola to the samples in this window (Savitzky & Golay, 1964). Wider means less noise, but a flatter peak. | Set 200 ms and recompute: the peaks drop and several impulses become *TOO SLOW*. |
 | **Fit degree** | 2 | 1 fits a line and flattens the peak; 3 also follows the noise. | Try it with the window at 50 and at 100 ms. |
 | **Start / End threshold** | 60 / 40 °/s | Where the impulse starts and ends, that is, the window over which the gain is computed. | Move them and watch **Last impulse**. |
 | **Min / Max peak** | 120 / 300 °/s | Criterion for accepting an impulse. It changes no gain; it decides which ones enter the mean. | Lower the minimum to 80: the slow example impulse becomes accepted. |
@@ -1059,8 +1088,8 @@ what fixes it?
 
 In groups, with the **What a vHIT measures › What this is not** tour step and
 the **Tools › How it measures** section, list the differences between trainHIT
-and a clinical vHIT: frames per second, desaccading, distance to the target,
-vertical canals and validation.
+and a clinical vHIT: frames per second, desaccading, distance to the target
+(Judge et al., 2018; Castro et al., 2018), vertical canals and validation.
 
 **To discuss:** what would it take for a tool like this to be used with
 patients? Why does it have a 60 frames per second cap on purpose?
@@ -1171,7 +1200,7 @@ Filled in by the observer in activity 19.4, or by the teacher.
 | Term | Meaning |
 |---|---|
 | **VOR** | Vestibulo-ocular reflex: it moves the eyes opposite to the head and at the same speed, so the gaze stays still. |
-| **Head impulse** | A small, fast, unpredictable head turn, delivered by the examiner. |
+| **Head impulse** | A small, fast, unpredictable head turn, delivered by the examiner (Halmagyi & Curthoys, 1988). |
 | **Gain** | How much the eye turned for every degree the head turned. 1 is perfect compensation. |
 | **Corrective saccade** | The quick jump with which the eye returns to the target when the reflex fell short. |
 | **Covert / overt** | The saccade that happens during the turn / after the turn. |
@@ -1181,8 +1210,121 @@ Filled in by the observer in activity 19.4, or by the teacher.
 | **Impulse window** | The span between the start and end of the impulse, over which the gain is computed. |
 | **RALP / LARP** | The pairs of vertical canals. trainHIT does not measure them. |
 
----
 
 *trainHIT is free software (Apache-2.0), developed at the TecMedHub Lab of the
 Universidad Austral de Chile, Puerto Montt campus. The code and every decision
 in the computation are explained in the repository.*
+
+---
+
+## 24. References
+
+The sources of trainHIT’s numbers and decisions. They are cited by author and
+year in the text; each one carries a line on what it is used for here.
+
+### The head impulse and the vHIT
+
+<div class="referencias" markdown="1">
+
+- Halmagyi GM, Curthoys IS. A clinical sign of canal paresis. *Arch Neurol.*
+  1988;45(7):737-9. doi:[10.1001/archneur.1988.00520310043015](https://doi.org/10.1001/archneur.1988.00520310043015)
+  — The head impulse as a clinical sign: the test trainHIT teaches.
+- Weber KP, Aw ST, Todd MJ, McGarvie LA, Curthoys IS, Halmagyi GM. Head impulse
+  test in unilateral vestibular loss: vestibulo-ocular reflex and catch-up
+  saccades. *Neurology.* 2008;70(6):454-63. doi:[10.1212/01.wnl.0000299117.48935.2e](https://doi.org/10.1212/01.wnl.0000299117.48935.2e)
+  — Covert and overt catch-up saccades.
+- MacDougall HG, Weber KP, McGarvie LA, Halmagyi GM, Curthoys IS. The video
+  head impulse test: diagnostic accuracy in peripheral vestibulopathy.
+  *Neurology.* 2009;73(14):1134-41. doi:[10.1212/WNL.0b013e3181bacf85](https://doi.org/10.1212/WNL.0b013e3181bacf85)
+  — The vHIT against the scleral search coil. The 0.80 cutoff comes from here,
+  measured with desaccaded area gain, at ~250 Hz and with the target at ~1 m.
+- Halmagyi GM, Chen L, MacDougall HG, Weber KP, McGarvie LA, Curthoys IS. The
+  video head impulse test. *Front Neurol.* 2017;8:258. doi:[10.3389/fneur.2017.00258](https://doi.org/10.3389/fneur.2017.00258)
+  — Review of the method: technique, gain and saccades.
+
+</div>
+
+### Remote camera and what makes the gain vary
+
+<div class="referencias" markdown="1">
+
+- Wiener-Vacher SR, Wiener SI. Video head impulse tests with a remote camera
+  system: normative values of semicircular canal vestibulo-ocular reflex gain
+  in infants and children. *Front Neurol.* 2017;8:434. doi:[10.3389/fneur.2017.00434](https://doi.org/10.3389/fneur.2017.00434)
+  — Norms with a remote camera at 100 fps and the target at 1–1.3 m: the
+  precedent of the goggle-free approach.
+- Judge PD, Rodriguez AI, Barin K, Janky KL. Impact of target distance, target
+  size, and visual acuity on the video head impulse test. *Otolaryngol Head
+  Neck Surg.* 2018;159(4):739-42. doi:[10.1177/0194599818779908](https://doi.org/10.1177/0194599818779908)
+  — The distance and size of the target change the measured gain.
+- Castro P, Sena Esteves S, Lerchundi F, Buckwell D, Gresty MA, Bronstein AM,
+  et al. Viewing target distance influences the vestibulo-ocular reflex gain
+  when assessed using the video head impulse test. *Audiol Neurootol.*
+  2018;23(5):285-9. doi:[10.1159/000493845](https://doi.org/10.1159/000493845)
+  — Target distance and VOR gain.
+- Money-Nolan LE, Flagge AG. Factors affecting variability in vestibulo-ocular
+  reflex gain in the video head impulse test in individuals without
+  vestibulopathy: a systematic review of literature. *Front Neurol.*
+  2023;14:1125951. doi:[10.3389/fneur.2023.1125951](https://doi.org/10.3389/fneur.2023.1125951)
+  — Normal gain is not a fixed number: norms are needed per device and
+  protocol.
+
+</div>
+
+### How the gain is computed
+
+<div class="referencias" markdown="1">
+
+- Zamaro E, Saber Tehrani AS, Kattah JC, Eibenberger K, Guede CI, Armando L,
+  et al. VOR gain calculation methods in video head impulse recordings.
+  *J Vestib Res.* 2020;30(4):225-34. doi:[10.3233/VES-200708](https://doi.org/10.3233/VES-200708)
+  — Gain calculation methods are not interchangeable.
+- Jacobsen CL, Abrahamsen ER, Skals RK, Hougaard DD. Is regression gain or
+  instantaneous gain the most reliable and reproducible gain value when
+  performing video head impulse testing of the lateral semicircular canals?
+  *J Vestib Res.* 2021;31(3):151-62. doi:[10.3233/VES-180669](https://doi.org/10.3233/VES-180669)
+  — Regression gain versus instantaneous gain: which one is more
+  reproducible.
+- Du Y, Ren L, Liu X, Guo W, Wu Z, Yang S. The characteristics of vHIT gain
+  and PR score in peripheral vestibular disorders. *Acta Otolaryngol.*
+  2021;141(1):43-9. doi:[10.1080/00016489.2020.1812715](https://doi.org/10.1080/00016489.2020.1812715)
+  — Gain and saccade scatter (PR score) in peripheral vestibular disorders.
+
+</div>
+
+### The measurement engine
+
+<div class="referencias" markdown="1">
+
+- Kartynnik Y, Ablavatski A, Grishchenko I, Grundmann M. Real-time facial
+  surface geometry from monocular video on mobile GPUs. arXiv:[1907.06724](https://arxiv.org/abs/1907.06724);
+  2019. — The MediaPipe face mesh, which gives the head turn and the eye
+  landmarks.
+- Ablavatski A, Vakunov A, Grishchenko I, Raveendran K, Zhdanovich M.
+  Real-time pupil tracking from monocular video for digital puppetry.
+  arXiv:[2006.11341](https://arxiv.org/abs/2006.11341); 2020. — MediaPipe’s iris
+  tracking.
+- Rüfer F, Schröder A, Erb C. White-to-white corneal diameter: normal values in
+  healthy humans obtained with the Orbscan II topography system. *Cornea.*
+  2005;24(3):259-61. doi:[10.1097/01.ico.0000148312.01805.53](https://doi.org/10.1097/01.ico.0000148312.01805.53)
+  — The horizontal corneal diameter, 11.71 ± 0.42 mm in healthy adults: why
+  the iris works as a ruler.
+- Savitzky A, Golay MJE. Smoothing and differentiation of data by simplified
+  least squares procedures. *Anal Chem.* 1964;36(8):1627-39. doi:[10.1021/ac60214a047](https://doi.org/10.1021/ac60214a047)
+  — The differentiator’s derivative by local polynomial fit.
+
+</div>
+
+### Software
+
+- **trainHIT**, open source (Apache-2.0): <https://github.com/Debaq/trainhit>
+- **MediaPipe** (Google, Apache-2.0), the face tracking model:
+  <https://github.com/google-ai-edge/mediapipe>
+- **Labyrinthus 3D**, from the same lab, where the phone link comes from: <https://github.com/Debaq/labyrinthus3d>
+
+### How to cite trainHIT
+
+> Baier-Quezada N, Uribe-Hernández V, López-Moncada F. trainHIT: a teaching
+> vHIT in the browser [software]. Version 2026-09-27.77. Puerto Montt:
+> TecMedHub Lab, Universidad Austral de Chile; 2026. Available at:
+> https://github.com/Debaq/trainhit

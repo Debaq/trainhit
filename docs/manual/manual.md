@@ -1,18 +1,29 @@
-# trainHIT
-
-**Manual de uso y guía docente**
-
-vHIT didáctico en el navegador, con la webcam del equipo.
-
-**Autor:** Nicolás Baier Quezada<br>
-**Fecha:** 27 de septiembre de 2026<br>
-**Versión de trainHIT documentada:** 2026-09-27.76
-
-Laboratorio TecMedHub · Universidad Austral de Chile, Sede Puerto Montt
+<div class="portada" markdown="1">
 
 <div class="logos">
 <img src="img/logos/tecmedhub.png" alt="TecMedHub" height="90">
 <img src="img/logos/uach.png" alt="Universidad Austral de Chile" height="90">
+</div>
+
+# trainHIT
+
+**Manual de uso y guía docente**
+
+Simulador y vHIT didáctico en el navegador: con la webcam del equipo o con un
+teléfono como cabeza.
+
+<div class="ilustracion"><img src="img/portada.png" alt="Un examinador de pie detrás del paciente, con las manos sobre su cabeza; el paciente mira la cámara de la laptop."></div>
+
+<div class="ficha" markdown="1">
+
+**Autor:** Nicolás Baier Quezada<br>
+**Fecha:** 27 de septiembre de 2026<br>
+**Versión de trainHIT documentada:** 2026-09-27.77
+
+Laboratorio TecMedHub · Universidad Austral de Chile, Sede Puerto Montt
+
+</div>
+
 </div>
 
 ## Contenido
@@ -50,6 +61,7 @@ Laboratorio TecMedHub · Universidad Austral de Chile, Sede Puerto Montt
 **Anexo**
 
 - [23. Glosario](#23-glosario)
+- [24. Referencias](#24-referencias)
 
 </div>
 
@@ -65,8 +77,19 @@ Laboratorio TecMedHub · Universidad Austral de Chile, Sede Puerto Montt
 > propósito.
 
 trainHIT mide el **reflejo vestíbulo-ocular (VOR)** con la cámara del computador.
-Cuadro a cuadro sigue la cabeza y el iris, y calcula la **ganancia** de cada
-impulso cefálico: cuánto giró el ojo por cada grado que giró la cabeza.
+Cuadro a cuadro sigue la cabeza y el iris con la malla facial de MediaPipe
+(Kartynnik et al., 2019), y calcula la **ganancia** de cada impulso cefálico
+(Halmagyi & Curthoys, 1988): cuánto giró el ojo por cada grado que giró la
+cabeza.
+
+**Tres formas de practicar.** Con la **cámara** se examina a un compañero de
+verdad. Con el **Simulador**, a esos mismos impulsos se les agrega una
+patología —neuritis, déficit compensado, vestibulopatía bilateral— y se
+practica examinar y leer a la vez. Y con un **teléfono como cabeza** no hace
+falta ni cámara ni compañero: el giroscopio da el giro y una cara dibujada
+muestra el ojo del modelo, sano o con la patología elegida. Así se practica la
+técnica del impulso en cualquier lugar, y en clase se proyecta un paciente con
+el cuadro que se quiera enseñar.
 
 A diferencia de un equipo clínico, en trainHIT **cada paso del cálculo está a la
 vista** y se puede tocar. Se ve la recta del paralaje, la ventana del impulso,
@@ -283,8 +306,10 @@ Cada impulso cae en el panel de su lado:
 - **Arriba** de cada panel, todos los impulsos superpuestos. La franja verde
   es el rango de pico de velocidad aceptado.
 - **La ganancia media ± DE**, en verde o rojo contra el corte de 0,80. Ese
-  corte viene de equipos que sí desacadizan, así que aquí es una referencia y
-  no un criterio. Sin calibrar queda gris.
+  corte viene de equipos que sí desacadizan (MacDougall et al., 2009), y la
+  ganancia normal cambia con el equipo y el protocolo (Money-Nolan & Flagge,
+  2023), así que aquí es una referencia y no un criterio. Sin calibrar queda
+  gris.
 - **La cuenta** de aceptados y rechazados.
 - **La lista**, un pulso por fila: número, pico de velocidad, duración,
   ganancia, sacadas (▼) y estado. **✕** descarta ese pulso.
@@ -359,7 +384,8 @@ roja con el motivo:
 
 ### Las sacadas
 
-Cada sacada lleva un triángulo sobre su pico:
+Cada sacada lleva un triángulo sobre su pico. La clasificación es la clínica
+(Weber et al., 2008):
 
 - **Violeta: encubierta.** Arrancó mientras la cabeza todavía giraba.
 - **Rojo: manifiesta.** Llegó después del giro.
@@ -470,7 +496,8 @@ cuatro formas:
 | **Hasta la sacada ≈** | El área cortada antes de la primera sacada encubierta: una desacadización aproximada, para comparar y no para informar. |
 
 Con los mismos pulsos, las medias y la asimetría cambian según el método. Por
-eso **una ganancia sin su método no se compara con otra** (Zamaro et al., 2020).
+eso **una ganancia sin su método no se compara con otra** (Zamaro et al., 2020;
+Jacobsen et al., 2021).
 
 Después de un **Recalcular**, cada punto viejo queda unido al nuevo:
 
@@ -482,14 +509,17 @@ Después de un **Recalcular**, cada punto viejo queda unido al nuevo:
 
 Las cinco decisiones del motor:
 
-1. el iris como regla;
+1. el iris como regla: su diámetro horizontal es de ~11,7 mm, con poca
+   variación entre personas (Rüfer et al., 2005), y da los píxeles por
+   milímetro;
 2. el ángulo esférico;
-3. la cabeza medida por incrementos;
-4. la derivada por ajuste polinómico;
+3. la cabeza medida por incrementos, con la malla facial de MediaPipe
+   (Kartynnik et al., 2019; Ablavatski et al., 2020);
+4. la derivada por ajuste polinómico (Savitzky & Golay, 1964);
 5. la ganancia calculada con posiciones.
 
 Debajo está lo que el método **no** hace y las referencias bibliográficas de
-cada número.
+cada número, que están completas en la [sección 24](#24-referencias).
 
 ### Para docentes
 
@@ -531,7 +561,7 @@ Mientras alguna perilla no está en su valor de fábrica, la barra dice
 
 | Perilla | Por defecto | Qué hace | Para probar |
 |---|---|---|---|
-| **Ventana derivador** | 50 ms | La velocidad sale de ajustar una parábola a las muestras de esta ventana. Más ancha da menos ruido, pero aplana el pico. | Pon 200 ms y recalcula: los picos bajan y varios pulsos pasan a *MUY LENTO*. |
+| **Ventana derivador** | 50 ms | La velocidad sale de ajustar una parábola a las muestras de esta ventana (Savitzky & Golay, 1964). Más ancha da menos ruido, pero aplana el pico. | Pon 200 ms y recalcula: los picos bajan y varios pulsos pasan a *MUY LENTO*. |
 | **Grado del ajuste** | 2 | 1 ajusta una recta y aplana el pico; 3 sigue también el ruido. | Pruébalo con la ventana en 50 y en 100 ms. |
 | **Umbral inicio / fin** | 60 / 40 °/s | Dónde empieza y termina el impulso, o sea la ventana sobre la que se calcula la ganancia. | Muévelos y mira **Último pulso**. |
 | **Pico mín / máx** | 120 / 300 °/s | Criterio para aceptar un pulso. No cambia ninguna ganancia; decide cuáles entran en la media. | Baja el mínimo a 80: el pulso lento del ejemplo pasa a aceptado. |
@@ -1053,7 +1083,8 @@ lo corrige?
 En grupos, con el paseo **Qué mide un vHIT › Lo que esto no es** y la sección
 **Herramientas › Cómo se mide**, preparar una lista de las diferencias entre
 trainHIT y un vHIT clínico: cuadros por segundo, desacadización, distancia al
-blanco, canales verticales y validación.
+blanco (Judge et al., 2018; Castro et al., 2018), canales verticales y
+validación.
 
 **Para discutir:** ¿qué haría falta para que una herramienta así se pudiera
 usar con pacientes? ¿Por qué tiene un tope de 60 cuadros por segundo puesto a
@@ -1162,7 +1193,7 @@ La llena el observador de la actividad 19.4, o el docente.
 | Término | Significado |
 |---|---|
 | **VOR** | Reflejo vestíbulo-ocular: mueve los ojos al revés que la cabeza y a la misma velocidad, para que la mirada quede quieta. |
-| **Impulso cefálico** | Un giro de cabeza pequeño, rápido e impredecible, dado por el examinador. |
+| **Impulso cefálico** | Un giro de cabeza pequeño, rápido e impredecible, dado por el examinador (Halmagyi & Curthoys, 1988). |
 | **Ganancia** | Cuánto giró el ojo por cada grado que giró la cabeza. 1 es compensación perfecta. |
 | **Sacada correctiva** | El salto rápido con que el ojo vuelve al blanco cuando el reflejo no alcanzó. |
 | **Encubierta / manifiesta** | La sacada que ocurre durante el giro / después del giro. |
@@ -1172,8 +1203,123 @@ La llena el observador de la actividad 19.4, o el docente.
 | **Ventana del impulso** | El tramo entre el inicio y el fin del impulso, sobre el que se calcula la ganancia. |
 | **RALP / LARP** | Los pares de canales verticales. trainHIT no los mide. |
 
----
 
 *trainHIT es software libre (Apache-2.0), desarrollado en el Laboratorio
 TecMedHub de la Universidad Austral de Chile, Sede Puerto Montt. El código y
 cada decisión del cálculo están explicados en el repositorio.*
+
+---
+
+## 24. Referencias
+
+Las fuentes de los números y de las decisiones de trainHIT. En el texto se
+citan por autor y año; cada una lleva una línea sobre para qué se usa aquí.
+
+### El impulso cefálico y el vHIT
+
+<div class="referencias" markdown="1">
+
+- Halmagyi GM, Curthoys IS. A clinical sign of canal paresis. *Arch Neurol.*
+  1988;45(7):737-9. doi:[10.1001/archneur.1988.00520310043015](https://doi.org/10.1001/archneur.1988.00520310043015)
+  — El impulso cefálico como signo clínico: la prueba que trainHIT enseña.
+- Weber KP, Aw ST, Todd MJ, McGarvie LA, Curthoys IS, Halmagyi GM. Head impulse
+  test in unilateral vestibular loss: vestibulo-ocular reflex and catch-up
+  saccades. *Neurology.* 2008;70(6):454-63. doi:[10.1212/01.wnl.0000299117.48935.2e](https://doi.org/10.1212/01.wnl.0000299117.48935.2e)
+  — Las sacadas correctivas encubiertas y manifiestas.
+- MacDougall HG, Weber KP, McGarvie LA, Halmagyi GM, Curthoys IS. The video
+  head impulse test: diagnostic accuracy in peripheral vestibulopathy.
+  *Neurology.* 2009;73(14):1134-41. doi:[10.1212/WNL.0b013e3181bacf85](https://doi.org/10.1212/WNL.0b013e3181bacf85)
+  — El vHIT contra la bobina escleral. De aquí sale el corte de 0,80, medido
+  con ganancia de área desacadizada, a ~250 Hz y con el blanco a ~1 m.
+- Halmagyi GM, Chen L, MacDougall HG, Weber KP, McGarvie LA, Curthoys IS. The
+  video head impulse test. *Front Neurol.* 2017;8:258. doi:[10.3389/fneur.2017.00258](https://doi.org/10.3389/fneur.2017.00258)
+  — Revisión del método: técnica, ganancia y sacadas.
+
+</div>
+
+### Cámara remota y lo que hace variar la ganancia
+
+<div class="referencias" markdown="1">
+
+- Wiener-Vacher SR, Wiener SI. Video head impulse tests with a remote camera
+  system: normative values of semicircular canal vestibulo-ocular reflex gain
+  in infants and children. *Front Neurol.* 2017;8:434. doi:[10.3389/fneur.2017.00434](https://doi.org/10.3389/fneur.2017.00434)
+  — Normativos con cámara remota a 100 fps y blanco a 1–1,3 m: el precedente
+  del enfoque sin gafas.
+- Judge PD, Rodriguez AI, Barin K, Janky KL. Impact of target distance, target
+  size, and visual acuity on the video head impulse test. *Otolaryngol Head
+  Neck Surg.* 2018;159(4):739-42. doi:[10.1177/0194599818779908](https://doi.org/10.1177/0194599818779908)
+  — La distancia y el tamaño del blanco cambian la ganancia medida.
+- Castro P, Sena Esteves S, Lerchundi F, Buckwell D, Gresty MA, Bronstein AM,
+  et al. Viewing target distance influences the vestibulo-ocular reflex gain
+  when assessed using the video head impulse test. *Audiol Neurootol.*
+  2018;23(5):285-9. doi:[10.1159/000493845](https://doi.org/10.1159/000493845)
+  — La distancia del blanco y la ganancia del VOR.
+- Money-Nolan LE, Flagge AG. Factors affecting variability in vestibulo-ocular
+  reflex gain in the video head impulse test in individuals without
+  vestibulopathy: a systematic review of literature. *Front Neurol.*
+  2023;14:1125951. doi:[10.3389/fneur.2023.1125951](https://doi.org/10.3389/fneur.2023.1125951)
+  — La ganancia normal no es un número fijo: hacen falta normativos por equipo
+  y protocolo.
+
+</div>
+
+### Cómo se calcula la ganancia
+
+<div class="referencias" markdown="1">
+
+- Zamaro E, Saber Tehrani AS, Kattah JC, Eibenberger K, Guede CI, Armando L,
+  et al. VOR gain calculation methods in video head impulse recordings.
+  *J Vestib Res.* 2020;30(4):225-34. doi:[10.3233/VES-200708](https://doi.org/10.3233/VES-200708)
+  — Los métodos de cálculo de la ganancia no son intercambiables.
+- Jacobsen CL, Abrahamsen ER, Skals RK, Hougaard DD. Is regression gain or
+  instantaneous gain the most reliable and reproducible gain value when
+  performing video head impulse testing of the lateral semicircular canals?
+  *J Vestib Res.* 2021;31(3):151-62. doi:[10.3233/VES-180669](https://doi.org/10.3233/VES-180669)
+  — Ganancia por regresión contra ganancia instantánea: cuál es más
+  reproducible.
+- Du Y, Ren L, Liu X, Guo W, Wu Z, Yang S. The characteristics of vHIT gain
+  and PR score in peripheral vestibular disorders. *Acta Otolaryngol.*
+  2021;141(1):43-9. doi:[10.1080/00016489.2020.1812715](https://doi.org/10.1080/00016489.2020.1812715)
+  — La ganancia y la dispersión de las sacadas (PR score) en trastornos
+  vestibulares periféricos.
+
+</div>
+
+### El motor de medición
+
+<div class="referencias" markdown="1">
+
+- Kartynnik Y, Ablavatski A, Grishchenko I, Grundmann M. Real-time facial
+  surface geometry from monocular video on mobile GPUs. arXiv:[1907.06724](https://arxiv.org/abs/1907.06724);
+  2019. — La malla facial de MediaPipe, de la que salen el giro de la cabeza y
+  los puntos de los ojos.
+- Ablavatski A, Vakunov A, Grishchenko I, Raveendran K, Zhdanovich M.
+  Real-time pupil tracking from monocular video for digital puppetry.
+  arXiv:[2006.11341](https://arxiv.org/abs/2006.11341); 2020. — El seguimiento
+  del iris de MediaPipe.
+- Rüfer F, Schröder A, Erb C. White-to-white corneal diameter: normal values in
+  healthy humans obtained with the Orbscan II topography system. *Cornea.*
+  2005;24(3):259-61. doi:[10.1097/01.ico.0000148312.01805.53](https://doi.org/10.1097/01.ico.0000148312.01805.53)
+  — El diámetro horizontal de la córnea, 11,71 ± 0,42 mm en adultos sanos: por
+  qué el iris sirve de regla.
+- Savitzky A, Golay MJE. Smoothing and differentiation of data by simplified
+  least squares procedures. *Anal Chem.* 1964;36(8):1627-39. doi:[10.1021/ac60214a047](https://doi.org/10.1021/ac60214a047)
+  — La derivada por ajuste polinómico local del derivador.
+
+</div>
+
+### Software
+
+- **trainHIT**, código abierto (Apache-2.0): <https://github.com/Debaq/trainhit>
+- **MediaPipe** (Google, Apache-2.0), el modelo de seguimiento de la cara:
+  <https://github.com/google-ai-edge/mediapipe>
+- **Labyrinthus 3D**, del mismo laboratorio, de donde viene el enlace con el
+  teléfono: <https://github.com/Debaq/labyrinthus3d>
+
+### Cómo citar trainHIT
+
+> Baier-Quezada N, Uribe-Hernández V, López-Moncada F. trainHIT: vHIT
+> didáctico en el navegador [software]. Versión 2026-09-27.77. Puerto Montt:
+> Laboratorio TecMedHub, Universidad Austral de Chile; 2026. Disponible en:
+> https://github.com/Debaq/trainhit

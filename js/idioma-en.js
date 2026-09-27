@@ -263,7 +263,7 @@ export const HTML = {
               <i>J Vestib Res.</i>
             </li>
             <li>
-              <a href="https://pubmed.ncbi.nlm.nih.gov/36970532/" target="_blank" rel="noopener">Money-Nolan &amp; Devroede, 2023</a>
+              <a href="https://pubmed.ncbi.nlm.nih.gov/36970532/" target="_blank" rel="noopener">Money-Nolan &amp; Flagge, 2023</a>
               — systematic review of what makes the gain vary: gain is not a fixed number, norms are needed per device and protocol. <i>Front Neurol.</i>
             </li>
             <li>
