@@ -1171,22 +1171,32 @@ body.con-laberinto { overflow: hidden; }
 .laberinto.control-remoto .lab-vcab { display: none; }
 
 /* El PC en presentación: sin barra ni panel, el modelo y lo que se pidió.
-   Los ojos de cerca van abajo, más grandes, y el modelo arriba de ellos
+   Los ojos de cerca van a la derecha y más grandes, con el modelo a la
+   izquierda; con todo, abajo a la izquierda y el modelo arriba de ellos
    (laberinto.js, regionModelo). */
 .laberinto.presentacion .lab-barra,
 .laberinto.presentacion .lab-panel,
 .laberinto.presentacion .lab-gestos,
 .laberinto.presentacion .lab-visor { display: none; }
 .laberinto.presentacion .lab-ojos {
+  top: 50%;
+  left: auto;
+  right: 16px;
+  transform: translateY(-50%);
+  width: min(620px, 46%);
+}
+.laberinto.presentacion .lab-traza { height: 170px; }
+.laberinto.presentacion[data-pres='todo'] .lab-via { width: 50%; }
+.laberinto.presentacion[data-pres='todo'] .lab-ojos {
   top: auto;
   bottom: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(720px, 60%);
+  left: 12px;
+  right: auto;
+  transform: none;
+  width: calc(50% - 24px);
 }
-.laberinto.presentacion .lab-traza { height: 100px; }
-.laberinto.presentacion[data-pres='todo'] .lab-via { width: 50%; }
-.laberinto.presentacion[data-pres='todo'] .lab-ojos { left: 12px; transform: none; width: calc(50% - 24px); }
+.laberinto.presentacion[data-pres='todo'] .lab-ojos-vista { aspect-ratio: 2.4; }
+.laberinto.presentacion[data-pres='todo'] .lab-traza { height: 130px; }
 
 /* Ojos de cerca: arriba a la izquierda de la escena. El hueco de arriba lo
    pinta three.js en el mismo lienzo (por eso es transparente); abajo, la
@@ -1198,18 +1208,32 @@ body.con-laberinto { overflow: hidden; }
   width: 280px;
   border: 1px solid var(--accent);
   border-radius: var(--r-window);
-  background: rgba(9, 9, 11, 0.6);
+  /* Sin fondo: el ojo lo pinta el lienzo de abajo, y un fondo acá le pasaba
+     un velo oscuro. Las curvas y la leyenda tienen el suyo. */
+  background: transparent;
   overflow: hidden;
   pointer-events: none;
+  z-index: 1;
 }
 .lab-ojos[hidden] { display: none; }
-.lab-ojos-vista { aspect-ratio: 2.2; }
-.lab-traza { display: block; width: 100%; height: 70px; border-top: 1px solid var(--accent); }
-.lab-traza-leyenda { margin: 0; padding: 2px 6px 4px; font-size: 10px; color: var(--muted-fg); }
-.lab-traza-leyenda i { font-style: normal; font-weight: 600; }
-.lab-traza-leyenda .h { color: #e8721c; }
-.lab-traza-leyenda .v { color: #4db6e8; }
-.lab-traza-leyenda .t { color: #9b51d0; }
+.lab-ojos-vista { position: relative; aspect-ratio: 2; }
+.lab-ojos-cual {
+  position: absolute;
+  top: 5px;
+  left: 7px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  /* Sobre la piel clara del ojo: con fondo propio para que se lea. */
+  background: rgba(9, 9, 11, 0.72);
+  color: var(--foreground);
+}
+/* Las curvas con fondo casi opaco: debajo pasan los laberintos y sus rótulos.
+   El hueco del ojo no puede tenerlo, porque lo pinta el lienzo de abajo. */
+.lab-traza { display: block; width: 100%; height: 120px; border-top: 1px solid var(--accent); background: rgba(9, 9, 11, 0.92); }
+.lab-traza-leyenda { margin: 0; padding: 2px 6px 4px; font-size: 10px; color: var(--muted-fg); background: rgba(9, 9, 11, 0.92); }
 
 /* La vía: a la derecha de la escena, y el modelo 3D en lo que queda
    (laberinto.js, regionModelo). En pantalla angosta, abajo. */
@@ -1226,7 +1250,8 @@ body.con-laberinto { overflow: hidden; }
 }
 .lab-via[hidden] { display: none; }
 .laberinto[data-vista='via'] .lab-gestos { display: none; }
-.lab-impulsos { display: flex; flex-direction: column; gap: 8px; }
+.lab-impulsos,
+.lab-ojos-opciones { display: flex; flex-direction: column; gap: 8px; }
 .lab-panel .lesion { color: #a8c83a; }
 
 .lab-pat-controles { display: flex; flex-direction: column; gap: 8px; }

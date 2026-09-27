@@ -498,10 +498,14 @@ Cinco vistas:
   (sin o con lentes de Frenzel). **Paciente al azar** lo esconde todo —colores,
   tasas, nombre— y solo quedan los ojos para descubrirlo; **Revelar** dice qué
   era. Los canales enfermos van en amarillo verdoso, como en aVOR. En
-  Patología y en Respuesta, **ojos de cerca** muestra los ojos con una cámara
-  pegada a la cabeza, como un video-oculógrafo, y debajo su posición en el
-  tiempo: horizontal, vertical y torsional, donde el nistagmo es un diente de
-  sierra.
+  Patología y en Respuesta, **ojos de cerca** muestra un ojo —el derecho o el
+  izquierdo, a elección— con una cámara pegada a la cabeza, como un
+  video-oculógrafo, y debajo su posición en el tiempo: horizontal, vertical y
+  torsional, cada una en su franja, donde el nistagmo es un diente de sierra.
+  **La mirada** puede quedar fija en el centro de la pantalla —el ojo sigue
+  mirándola aunque la cabeza quede girada, y si la pantalla queda fuera de la
+  órbita se queda en el borde— o volver al frente de la cabeza cuando esta se
+  queda quieta. **Reiniciar**, en la barra, deja todo como al abrir.
 - **Vía**: el arco de tres neuronas de cada canal, en un esquema de frente al
   costado del modelo: nervio vestibular, núcleos vestibulares, el cruce al VI,
   IV o III (por el fascículo longitudinal medial) y los dos músculos que excita

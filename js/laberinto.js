@@ -56,6 +56,7 @@ import { OJO, mallaCabeza } from './cabeza.js';
 import {
   CASO,
   CASOS,
+  avanzaCuadro,
   ESTADOS,
   Ojo,
   SACADAS,
@@ -115,18 +116,28 @@ const MODOS_LABERINTO = {
 /** Constante de tiempo del paso de una forma a otra, en segundos. */
 const TAU_MODO_S = 0.12;
 
-/** Paso máximo con que se avanza el ojo, en segundos físicos: sus sacadas duran 30 ms. */
-const PASO_OJO_S = 0.004;
 /** Lo que se ve de la traza de los ojos, en segundos, y su escala en grados. */
 const TRAZA_S = 4;
 const TRAZA_GRADOS = 15;
-/** Ancho de cara que entra en «ojos de cerca» y a qué distancia va esa cámara. */
-const OJOS_ANCHO = 0.11;
+/**
+ * Lo que tiene que llenar «ojos de cerca»: la hendidura de los párpados de un
+ * ojo, con un margen chico. La cámara se abre lo justo para que entre a lo
+ * ancho y a lo alto, sea cual sea la forma del recuadro. Y a qué distancia va.
+ */
+const OJOS_ANCHO = 0.032;
+const OJOS_ALTO = 0.016;
 const OJOS_DIST = 0.2;
 /** Constante de tiempo de la torsión que piden los utrículos, en segundos físicos. */
 const TAU_TORSION_S = 0.15;
-/** Suavizado de la velocidad medida de a cuadros (mouse, dedo, teléfono). */
+/**
+ * Suavizado de la velocidad medida de a cuadros (mouse, dedo, teléfono): para
+ * las tasas y los colores. El ojo no la usa para el VOR (patologia.js,
+ * `avanzaCuadro`).
+ */
 const TAU_OMEGA_S = 0.06;
+
+/** El centro de la pantalla con la cámara de frente: adelante, en el mundo. */
+const BLANCO_PANTALLA = [0, 0, 1];
 
 /** Grados por píxel al arrastrar. */
 const GRADOS_POR_PX = 0.45;
@@ -250,6 +261,7 @@ export function montaLaberinto() {
     if (!document.fullscreenElement && seccion.classList.contains('solo-visor')) soloVisor(false);
   });
   $('lab-centrar').addEventListener('click', () => centra());
+  $('lab-reiniciar').addEventListener('click', () => reinicia());
   for (const b of seccion.querySelectorAll('[data-modo-lab]')) {
     b.addEventListener('click', () => {
       marcaModo(b.dataset.modoLab);
@@ -321,6 +333,7 @@ export function montaLaberinto() {
     pintaSensores();
     llenaSelects();
     pintaPatologia();
+    ubicaCamOjos();
   }
   alCambiarIdioma(traduce);
 
@@ -345,6 +358,9 @@ export function montaLaberinto() {
     // panel que se ve.
     const destino = seccion.querySelector(`[data-panel="${v}"] [data-impulsos]`);
     if (destino) destino.append($('lab-impulsos'));
+    // Lo mismo con las opciones de los ojos de cerca, en Respuesta y Patología.
+    const destinoOjos = seccion.querySelector(`[data-panel="${v}"] [data-ojos-opciones]`);
+    if (destinoOjos) destinoOjos.append($('lab-ojos-opciones'));
     seccion.dataset.vista = v;
     aplicaVista();
     pintaCapas();
@@ -361,6 +377,14 @@ export function montaLaberinto() {
   function ojosVisibles() {
     if (st.presentacion) return st.presentacion === 'ojos' || st.presentacion === 'todo';
     return $('lab-ojos-ver').checked && (st.vista === 'patologia' || st.vista === 'respuesta');
+  }
+
+  /** La cámara de los ojos de cerca, delante del ojo elegido. */
+  function ubicaCamOjos() {
+    const lado = $('lab-ojo-visto').value === 'izq' ? 'izq' : 'der';
+    $('lab-ojos-cual').textContent = lado === 'izq' ? tx('OJO IZQUIERDO') : tx('OJO DERECHO');
+    const p = st.r?.posOjos?.[lado];
+    if (p) st.r.camOjos.position.set(p.x, p.y, p.z + OJOS_DIST);
   }
 
   function pintaCapas() {
@@ -487,6 +511,7 @@ export function montaLaberinto() {
   });
   $('lab-sacadas').addEventListener('change', (e) => (st.pat.sacadas = e.target.value));
   $('lab-ojos-ver').addEventListener('change', pintaCapas);
+  $('lab-ojo-visto').addEventListener('change', ubicaCamOjos);
 
   // A ciegas: un caso al azar, de un lado al azar, compensado o no y con un
   // tipo de sacada al azar. Revelar muestra qué era.
@@ -742,14 +767,16 @@ export function montaLaberinto() {
 
     st.escena = { ojos, laberintos, canales, piel, ...ejesYPlanos(T, laberintos) };
     for (const g of [...Object.values(laberintos), ...Object.values(st.escena.planos)]) g.traverse((o) => o.layers.set(1));
-    // La cámara de los ojos de cerca, delante de la cara, a la altura de los
-    // ojos y mirando hacia atrás (−z de la cabeza, que es su −z propio).
-    const centroOjos = new T.Vector3();
-    const listaOjos = Object.values(ojos);
-    for (const o of listaOjos) centroOjos.add(o.obj.getWorldPosition(new T.Vector3()));
-    if (listaOjos.length) cabeza.worldToLocal(centroOjos.divideScalar(listaOjos.length));
-    else centroOjos.set(0, OJO.y, OJO.z);
-    st.r.camOjos.position.set(0, centroOjos.y, centroOjos.z + OJOS_DIST);
+    // La cámara de los ojos de cerca va delante de un ojo y mira hacia atrás
+    // (−z de la cabeza, que es su −z propio): se guarda dónde está cada uno.
+    // El derecho del paciente está en −x.
+    st.r.posOjos = {};
+    for (const [lado, signo] of [['izq', 1], ['der', -1]]) {
+      st.r.posOjos[lado] = ojos[lado]
+        ? cabeza.worldToLocal(ojos[lado].obj.getWorldPosition(new T.Vector3()))
+        : new T.Vector3(signo * OJO.x, OJO.y, OJO.z);
+    }
+    ubicaCamOjos();
     ubicaLaberintos(1);
     aplicaVista();
     if (!glb) console.info('laberinto: modelo provisorio (no hay %s)', MODELO_URL);
@@ -890,6 +917,7 @@ export function montaLaberinto() {
       const a = 1 - Math.exp(-dt / TAU_OMEGA_S);
       st.omega = st.omega.map((v, i) => v + a * (w[i] - v));
     }
+    const qAntes = st.qPrevia;
     st.qPrevia = st.qCabeza;
     ubicaLaberintos(1 - Math.exp(-dt / TAU_MODO_S));
     // La cámara se aleja o se acerca a lo que el modo necesita que entre.
@@ -908,9 +936,13 @@ export function montaLaberinto() {
     // 2) Los ojos: VOR, nistagmo espontáneo y sacadas, con la patología
     // puesta. Sano, la mirada queda quieta en el mundo; si el ojo llega al
     // borde de la órbita, una fase rápida lo recentra.
-    const pasos = Math.max(1, Math.ceil(dtFisico / PASO_OJO_S));
-    const opciones = { f: st.f, lenta: st.lenta, tipo: st.pat.sacadas };
-    for (let i = 0; i < pasos; i++) st.ojo.paso(dtFisico / pasos, st.qCabeza, st.omega, opciones);
+    // El VOR sigue el giro exacto de la cabeza en el cuadro (ver
+    // `avanzaCuadro`); `st.omega`, suavizada, es para las tasas.
+    // La mirada: fija en el centro de la pantalla (adelante en el mundo, donde
+    // está la cámara al centrar) o, sin blanco, vuelve al frente de la cabeza
+    // al quedar quieta. Más adelante el blanco puede ser un dedo.
+    const blanco = $('lab-mirada').value === 'pantalla' ? BLANCO_PANTALLA : null;
+    avanzaCuadro(st.ojo, qAntes, st.qCabeza, dtFisico, st.omega, { f: st.f, lenta: st.lenta, tipo: st.pat.sacadas, blanco });
 
     // 3) Los otolitos: con la cabeza inclinada, los utrículos piden una
     // torsión de los ojos (la contrarrotación), que va encima del ojo. Con
@@ -937,7 +969,8 @@ export function montaLaberinto() {
    * Dónde va el modelo 3D dentro de la escena, en píxeles CSS desde arriba a
    * la izquierda: toda la escena, salvo con la vía, que ocupa un costado (o
    * abajo, en pantalla angosta), y el modelo se corre al resto. En
-   * presentación, los ojos de cerca van abajo y el modelo, arriba de ellos.
+   * presentación, los ojos de cerca van a la derecha (o, con todo, abajo) y
+   * el modelo se corre al costado (o arriba).
    */
   function regionModelo() {
     let w = Math.max(1, caja.clientWidth);
@@ -948,7 +981,8 @@ export function montaLaberinto() {
       else h = Math.max(1, via.offsetTop);
     }
     const ojos = $('lab-ojos');
-    if (st.presentacion && !ojos.hidden) h = Math.max(1, Math.min(h, ojos.offsetTop - 8));
+    if (st.presentacion === 'ojos' && !ojos.hidden) w = Math.max(1, Math.min(w, ojos.offsetLeft - 8));
+    else if (st.presentacion && !ojos.hidden) h = Math.max(1, Math.min(h, ojos.offsetTop - 8));
     return { x: 0, y: 0, w, h };
   }
 
@@ -1067,17 +1101,30 @@ export function montaLaberinto() {
     const x = hueco.left - todo.left;
     const y = todo.bottom - hueco.bottom;
     camOjos.aspect = hueco.width / Math.max(1, hueco.height);
-    camOjos.fov = (2 * Math.atan(OJOS_ANCHO / 2 / (OJOS_DIST * camOjos.aspect)) * 180) / Math.PI;
+    const alto = Math.max(OJOS_ALTO, OJOS_ANCHO / camOjos.aspect);
+    camOjos.fov = (2 * Math.atan(alto / 2 / OJOS_DIST) * 180) / Math.PI;
     camOjos.updateProjectionMatrix();
     renderer.setScissorTest(true);
     renderer.setScissor(x, y, hueco.width, hueco.height);
     renderer.setViewport(x, y, hueco.width, hueco.height);
+    // La piel, translúcida en la vista general para ver los laberintos, acá
+    // va opaca: es una cámara delante de la cara, y translúcida se veía
+    // lavada, como un fantasma.
+    const piel = st.escena.piel.map((m) => m.material);
+    const opacidad = piel.map((m) => m.opacity);
+    for (const m of piel) m.opacity = 1;
     renderer.render(escena, camOjos);
+    piel.forEach((m, i) => (m.opacity = opacidad[i]));
     renderer.setScissorTest(false);
     renderer.setViewport(0, 0, todo.width, todo.height);
     pintaTraza();
   }
 
+  /**
+   * La posición del ojo en el tiempo: horizontal, vertical y torsional, cada
+   * una en su franja con su cero, para que no se pisen. Misma escala en las
+   * tres (±TRAZA_GRADOS), así se comparan.
+   */
   function pintaTraza() {
     const lienzoTraza = $('lab-traza');
     const dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -1086,24 +1133,45 @@ export function montaLaberinto() {
     if (lienzoTraza.width !== w || lienzoTraza.height !== h) Object.assign(lienzoTraza, { width: w, height: h });
     const ctx = lienzoTraza.getContext('2d');
     ctx.clearRect(0, 0, w, h);
-    ctx.strokeStyle = 'rgba(250,250,250,0.18)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(0, h / 2);
-    ctx.lineTo(w, h / 2);
-    ctx.stroke();
-    if (st.traza.length < 2) return;
-    const fin = st.traza[st.traza.length - 1][0];
+    const franja = h / 3;
+    const COMPONENTES = [
+      [tx('horizontal'), '#e8721c'],
+      [tx('vertical'), '#4db6e8'],
+      [tx('torsional'), '#9b51d0'],
+    ];
+    const fin = st.traza.length ? st.traza[st.traza.length - 1][0] : 0;
     const xDe = (t) => w - ((fin - t) / (TRAZA_S * 1000)) * w;
-    const yDe = (g) => h / 2 - (Math.max(-TRAZA_GRADOS, Math.min(TRAZA_GRADOS, g)) / TRAZA_GRADOS) * (h / 2 - 2);
-    const colores = ['#e8721c', '#4db6e8', '#9b51d0'];
-    ctx.lineWidth = 1.5 * dpr;
-    for (let k = 0; k < 3; k++) {
-      ctx.strokeStyle = colores[k];
+    ctx.font = `600 ${10 * dpr}px system-ui, sans-serif`;
+    ctx.textBaseline = 'top';
+    COMPONENTES.forEach(([nombre, color], k) => {
+      const cero = franja * (k + 0.5);
+      const alto = franja / 2 - 2 * dpr;
+      // Separación entre franjas y el cero de cada una.
+      ctx.strokeStyle = 'rgba(250,250,250,0.1)';
+      ctx.lineWidth = 1;
+      if (k) {
+        ctx.beginPath();
+        ctx.moveTo(0, franja * k);
+        ctx.lineTo(w, franja * k);
+        ctx.stroke();
+      }
+      ctx.strokeStyle = 'rgba(250,250,250,0.22)';
+      ctx.setLineDash([3 * dpr, 3 * dpr]);
+      ctx.beginPath();
+      ctx.moveTo(0, cero);
+      ctx.lineTo(w, cero);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = color;
+      ctx.fillText(nombre, 4 * dpr, franja * k + 2 * dpr);
+      if (st.traza.length < 2) return;
+      const yDe = (g) => cero - (Math.max(-TRAZA_GRADOS, Math.min(TRAZA_GRADOS, g)) / TRAZA_GRADOS) * alto;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5 * dpr;
       ctx.beginPath();
       st.traza.forEach((m, i) => (i ? ctx.lineTo(xDe(m[0]), yDe(m[k + 1])) : ctx.moveTo(xDe(m[0]), yDe(m[k + 1]))));
       ctx.stroke();
-    }
+    });
   }
 
   function pintaBarras(r) {
@@ -1123,6 +1191,10 @@ export function montaLaberinto() {
     const { camara } = st.r;
     const { x: x0, y: y0, w, h } = st.region;
     const p = new T.Vector3();
+    // Los rótulos que caerían sobre los ojos de cerca se esconden: ese hueco
+    // es transparente (lo pinta el lienzo) y se leían encima del ojo.
+    const ojos = $('lab-ojos');
+    const tapa = ojos.hidden ? null : { x: ojos.offsetLeft, y: ojos.offsetTop, w: ojos.offsetWidth, h: ojos.offsetHeight };
     for (const el of rotulos.children) {
       const c = st.escena.canales[el.dataset.canal];
       p.copy(c.ancla);
@@ -1131,7 +1203,8 @@ export function montaLaberinto() {
       const x = x0 + ((p.x + 1) / 2) * w;
       const y = y0 + ((1 - p.y) / 2) * h;
       el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) translate(-50%, -50%)`;
-      el.hidden = p.z > 1;
+      const bajoOjos = tapa && x > tapa.x && x < tapa.x + tapa.w && y > tapa.y && y < tapa.y + tapa.h;
+      el.hidden = p.z > 1 || bajoOjos;
     }
   }
 
@@ -1175,6 +1248,35 @@ export function montaLaberinto() {
     $('lab-cenital').setAttribute('aria-pressed', 'false');
     // Con el teléfono, el frente nuevo es como se lo tiene ahora.
     if (st.sensor.activo && st.sensor.arriba) st.sensor.marco = marcoDesdeArriba(st.sensor.arriba);
+  }
+
+  /**
+   * Todo como al abrir: los controles del panel a lo que dice el HTML, sano,
+   * la cabeza y los ojos al frente, la traza y la vía en blanco. La pestaña y
+   * la presentación quedan como están.
+   */
+  function reinicia() {
+    st.impulso = null;
+    st.pat.ciego = false;
+    for (const el of seccion.querySelectorAll('.lab-panel input, .lab-panel select')) {
+      const antes = el.type === 'checkbox' ? el.checked : el.value;
+      if (el.type === 'checkbox') el.checked = el.defaultChecked;
+      else if (el.tagName === 'SELECT') {
+        const o = [...el.options].find((x) => x.defaultSelected) ?? el.options[0];
+        if (o) el.value = o.value;
+      } else el.value = el.defaultValue;
+      const ahora = el.type === 'checkbox' ? el.checked : el.value;
+      if (ahora !== antes && el.id) el.dispatchEvent(new Event(el.type === 'range' ? 'input' : 'change', { bubbles: true }));
+    }
+    st.pat = { caso: 'sano', der: false, canales: {}, compensado: true, fijacion: false, sacadas: 'encubiertas', ciego: false };
+    aplicaPatologia();
+    $('lab-revelado').hidden = true;
+    marcaModo('lados');
+    centra();
+    st.traza = [];
+    st.torsion = 0;
+    st.via = null;
+    avisaEstado();
   }
 
   function lanzaImpulso(m) {
@@ -1719,7 +1821,7 @@ export function montaLaberinto() {
   // el teléfono; Esc en el PC la saca.
 
   /** Lo que el teléfono maneja: el panel, las pestañas, los modos y Centrar. */
-  const ZONA_CONTROL = '.lab-panel, .lab-vistas, .lab-modos, #lab-centrar';
+  const ZONA_CONTROL = '.lab-panel, .lab-vistas, .lab-modos, #lab-centrar, #lab-reiniciar';
   const VISTAS = ['canales', 'ejes', 'respuesta', 'patologia', 'via'];
   const PRESENTACIONES = ['', 'cabeza', 'via', 'ojos', 'todo'];
 

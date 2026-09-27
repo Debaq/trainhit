@@ -4,12 +4,14 @@
 // correctiva salga cuando tiene que salir.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { CANAL, perfilImpulso, qEjeAngulo, qMul } from '../js/canales.js';
+import { CANAL, perfilImpulso, qEjeAngulo, qMul, velocidadAngular } from '../js/canales.js';
 import {
   CASO,
   CASOS,
   ORGANOS,
   Ojo,
+  avanzaCuadro,
+  mirarHacia,
   describeNistagmo,
   espejo,
   faseLentaEspontanea,
@@ -146,4 +148,101 @@ test('con la cabeza quieta en otra postura, el ojo vuelve a mirar al frente', ()
   assert.ok(angulo(ojo.q) > 20, `todavía fijando: ${angulo(ojo.q)}`);
   for (let t = 0; t < 1; t += 0.001) ojo.paso(0.001, qEjeAngulo(eje, 25), [0, 0, 0], { f: sano });
   assert.ok(angulo(ojo.q) < 2, `al frente: ${angulo(ojo.q)}`);
+});
+
+/**
+ * Un impulso de 20° cuadro a cuadro, como laberinto.js: la cabeza se da como
+ * orientaciones sueltas y, si `suaviza`, `omega` sale de derivarlas y
+ * suavizarlas, como con el mouse o el teléfono.
+ */
+function cuadroACuadro(f, { fps = 60, vPico = 150, suaviza = false, tipo = 'encubiertas' } = {}) {
+  const ojo = new Ojo();
+  const eje = CANAL.lat_izq.eje;
+  const dt = 1 / fps;
+  let qAntes = [0, 0, 0, 1];
+  let omega = [0, 0, 0];
+  let error = 0;
+  for (let t = 0; t < 3; t += dt) {
+    const p = perfilImpulso(t, 20, vPico);
+    const q = qEjeAngulo(eje, p.angulo);
+    if (suaviza) {
+      const w = velocidadAngular(qAntes, q, dt);
+      omega = omega.map((v, i) => v + (1 - Math.exp(-dt / 0.06)) * (w[i] - v));
+    } else omega = eje.map((v) => v * p.velocidad);
+    avanzaCuadro(ojo, qAntes, q, dt, omega, { f, tipo });
+    qAntes = q;
+    const mirada = qMul(q, ojo.q);
+    error = Math.max(error, (2 * Math.acos(Math.min(1, Math.abs(mirada[3]))) * 180) / Math.PI);
+  }
+  return { sacadas: ojo.sacadas, error };
+}
+
+test('sano cuadro a cuadro: ganancia 1 y ninguna sacada, a cualquier cadencia y movido a mano', () => {
+  for (const o of [{}, { fps: 30 }, { vPico: 300, fps: 30 }, { suaviza: true }, { suaviza: true, vPico: 250 }]) {
+    const r = cuadroACuadro(sano, o);
+    assert.equal(r.sacadas, 0, JSON.stringify(o));
+    assert.ok(r.error < 0.05, `${JSON.stringify(o)}: la mirada se corrió ${r.error}°`);
+  }
+});
+
+test('cuadro a cuadro, un canal muerto sigue dando sacadas', () => {
+  const f = funciones({ lat_izq: 'arreflexia' });
+  for (const o of [{}, { suaviza: true }]) assert.ok(cuadroACuadro(f, o).sacadas > 0, JSON.stringify(o));
+});
+
+test('un salto de la cabeza (centrar) no es un giro: no mueve el ojo', () => {
+  const ojo = new Ojo();
+  avanzaCuadro(ojo, [0, 0, 0, 1], qEjeAngulo([0, 1, 0], 60), 1 / 60, [0, 0, 0], { f: sano });
+  assert.deepEqual(ojo.q.slice(0, 3).map((v) => Math.abs(v) < 1e-9), [true, true, true]);
+});
+
+/** La cabeza gira `grados` sobre el lateral y se queda; el ojo mira un blanco adelante. */
+function giraYQueda(f, grados, blanco = [0, 0, 1]) {
+  const ojo = new Ojo();
+  const eje = CANAL.lat_izq.eje;
+  const dt = 1 / 60;
+  let qAntes = [0, 0, 0, 1];
+  let mirada = null;
+  for (let t = 0; t < 4; t += dt) {
+    const p = perfilImpulso(t, grados, 150, { vuelve: false });
+    const q = qEjeAngulo(eje, p.angulo);
+    avanzaCuadro(ojo, qAntes, q, dt, eje.map((v) => v * p.velocidad), { f, blanco });
+    qAntes = q;
+    mirada = qMul(q, ojo.q);
+  }
+  // Se mide hacia dónde apunta la mirada, no la torsión: el giro lateral es
+  // sobre un eje inclinado y deja algo de torsión aunque la mirada esté bien.
+  const aDelFrente = (q) => {
+    const z = qMul(qMul(q, [0, 0, 1, 0]), [-q[0], -q[1], -q[2], q[3]]);
+    return (Math.acos(Math.max(-1, Math.min(1, z[2]))) * 180) / Math.PI;
+  };
+  return { sacadas: ojo.sacadas, mirada: aDelFrente(mirada), enOrbita: aDelFrente(ojo.q) };
+}
+
+test('con blanco en la pantalla, un sano con la cabeza girada sigue mirándolo: sin volver al frente', () => {
+  const r = giraYQueda(sano, 20);
+  assert.equal(r.sacadas, 0);
+  assert.ok(r.mirada < 0.05, `la mirada se corrió ${r.mirada}°`);
+  // El eje del lateral está inclinado 30°: 20° sobre él desvían la mirada 20·cos 30°.
+  const esperado = 20 * Math.cos(Math.PI / 6);
+  assert.ok(Math.abs(r.enOrbita - esperado) < 0.1, `el ojo quedó a ${r.enOrbita}° en la órbita`);
+});
+
+test('con blanco fuera de la órbita, el ojo queda en el borde sin sacadas en bucle', () => {
+  const r = giraYQueda(sano, 60);
+  assert.ok(Math.abs(r.enOrbita - 40) < 0.5, `${r.enOrbita}°`);
+  assert.ok(r.sacadas <= 2, `${r.sacadas} sacadas`);
+});
+
+test('con blanco, un canal muerto hace sacadas para volver a él', () => {
+  const r = giraYQueda(funciones({ lat_izq: 'arreflexia' }), 20);
+  assert.ok(r.sacadas > 0);
+  assert.ok(r.mirada < 1.5, `${r.mirada}°`);
+});
+
+test('mirarHacia sigue la ley de Listing: sin torsión, eje en el plano frontal', () => {
+  const s = Math.sin(Math.PI / 9);
+  const q = mirarHacia([s, 0, Math.cos(Math.PI / 9)]);
+  assert.ok(Math.abs(q[2]) < 1e-12);
+  assert.ok(Math.abs((2 * Math.acos(q[3]) * 180) / Math.PI - 20) < 1e-9);
 });

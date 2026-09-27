@@ -30,7 +30,7 @@
 // están elegidas para que se vea lo que se ve en la clínica, con los órdenes
 // de magnitud de la literatura.
 
-import { CANAL, CANALES, aMarcoCanales, qEjeAngulo, qInv, qMul } from './canales.js';
+import { CANAL, CANALES, aMarcoCanales, qEjeAngulo, qInv, qMul, velocidadAngular } from './canales.js';
 import { OTOLITOS } from './otolitos.js';
 
 // ---------------------------------------------------------------- canales ---
@@ -254,6 +254,38 @@ const V_MOVIENDO = 40;
 const V_QUIETA = 15;
 
 const anguloDe = (q) => (2 * Math.acos(Math.min(1, Math.abs(q[3]))) * 180) / Math.PI;
+
+/** Un vector girado por el cuaternión `q`. */
+function rota(q, [x, y, z]) {
+  const r = qMul(qMul(q, [x, y, z, 0]), qInv(q));
+  return [r[0], r[1], r[2]];
+}
+
+/** El giro más corto que lleva el vector unitario `a` al `b`. */
+function entre(a, b) {
+  const ex = a[1] * b[2] - a[2] * b[1];
+  const ey = a[2] * b[0] - a[0] * b[2];
+  const ez = a[0] * b[1] - a[1] * b[0];
+  const s = Math.hypot(ex, ey, ez);
+  const c = a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  if (s < 1e-12) return [0, 0, 0, 1];
+  return qEjeAngulo([ex / s, ey / s, ez / s], (Math.atan2(s, c) * 180) / Math.PI);
+}
+
+/**
+ * La orientación del ojo en la órbita para mirar hacia `d` (unitario, marco de
+ * la cabeza): el giro más corto desde el frente (+z), con el eje en el plano
+ * frontal, que es la ley de Listing. Más allá de la órbita, se queda en el
+ * borde en esa dirección.
+ */
+export function mirarHacia(d) {
+  const ex = -d[1];
+  const ey = d[0];
+  const s = Math.hypot(ex, ey);
+  const grados = Math.min(LIMITE_ORBITA, (Math.acos(Math.max(-1, Math.min(1, d[2]))) * 180) / Math.PI);
+  if (s < 1e-9) return [0, 0, 0, 1];
+  return qEjeAngulo([ex / s, ey / s, 0], grados);
+}
 const suave = (u) => (u <= 0 ? 0 : u >= 1 ? 1 : u * u * (3 - 2 * u));
 
 function qSlerp(a, b, t) {
@@ -298,9 +330,24 @@ export class Ojo {
    * @param qCabeza   orientación de la cabeza en el mundo
    * @param omega     velocidad de la cabeza, °/s, en su marco
    * @param opciones  { f: funciones de los canales, lenta: fase lenta
-   *                  espontánea, tipo: clave de SACADAS }
+   *                  espontánea, tipo: clave de SACADAS, giro: la velocidad
+   *                  EXACTA de la cabeza en este paso, si `omega` viene
+   *                  suavizada, blanco: hacia dónde está lo que se mira,
+   *                  unitario y en el mundo (ver abajo) }
+   *
+   * Sin `blanco`, el ojo mira donde miraba al empezar a moverse la cabeza y,
+   * con la cabeza quieta un rato en otra postura, vuelve al frente. Con
+   * `blanco`, lo busca siempre: el centro de la pantalla, y más adelante lo
+   * que se le muestre (un dedo). Si queda fuera de la órbita, el ojo se queda
+   * en el borde mirando hacia él.
+   *
+   * El VOR se integra con `giro` y el resto (si la cabeza se mueve o está
+   * quieta) con `omega`. Tienen que ser distintas cuando la velocidad sale de
+   * derivar y suavizar la orientación, como con el mouse o el teléfono: el
+   * suavizado atrasa, y un VOR atrasado deja correr la mirada aunque la
+   * ganancia sea 1, y salen sacadas en un sano.
    */
-  paso(dt, qCabeza, omega, { f, lenta = [0, 0, 0], tipo = 'encubiertas' }) {
+  paso(dt, qCabeza, omega, { f, lenta = [0, 0, 0], tipo = 'encubiertas', giro = omega, blanco = null }) {
     const v = Math.hypot(...omega);
     if (v > V_MOVIENDO) {
       if (!this.moviendo) this.tMov = 0;
@@ -316,11 +363,22 @@ export class Ojo {
     // Dónde tendría que estar el ojo para mirar el objetivo. Si eso pide
     // salirse de la órbita, el objetivo pasa a ser el frente de la cabeza: es
     // la fase rápida de un giro largo.
-    let destino = qMul(qInv(qCabeza), this.objetivo);
-    const recentra = this.tQuieta > RECENTRA_S && anguloDe(destino) > RECENTRA_DEG;
-    if (anguloDe(destino) > LIMITE_ORBITA || recentra) {
-      this.objetivo = qCabeza;
-      destino = [0, 0, 0, 1];
+    let destino;
+    if (blanco) {
+      // El giro más corto que lleva la mirada de ahora al blanco (o al borde
+      // de la órbita en su dirección). No toca la torsión: el VOR de un giro
+      // sobre un eje inclinado deja algo, y corregirla daría una sacada
+      // aunque la mirada esté justo en el blanco.
+      const d = rota(mirarHacia(rota(qInv(qCabeza), blanco)), [0, 0, 1]);
+      destino = qMul(entre(rota(this.q, [0, 0, 1]), d), this.q);
+      this.objetivo = qMul(qCabeza, destino);
+    } else {
+      destino = qMul(qInv(qCabeza), this.objetivo);
+      const recentra = this.tQuieta > RECENTRA_S && anguloDe(destino) > RECENTRA_DEG;
+      if (anguloDe(destino) > LIMITE_ORBITA || recentra) {
+        this.objetivo = qCabeza;
+        destino = [0, 0, 0, 1];
+      }
     }
 
     if (this.sacada) {
@@ -333,7 +391,7 @@ export class Ojo {
     }
 
     // Fase lenta: VOR más el nistagmo espontáneo, en la órbita.
-    const vor = velocidadVOR(omega, f);
+    const vor = velocidadVOR(giro, f);
     const w = [vor[0] + lenta[0], vor[1] + lenta[1], vor[2] + lenta[2]];
     const m = Math.hypot(...w);
     if (m > 1e-9) this.q = qMul(qEjeAngulo(w, m * dt), this.q);
@@ -352,5 +410,41 @@ export class Ojo {
     this.sacada = { desde: this.q, t: 0, duracion: 0.02 + amplitud / 600 };
     this.tSacada = 0;
     this.sacadas++;
+  }
+}
+
+// ----------------------------------------------------------- un cuadro ---
+
+/** Paso máximo con que se avanza el ojo, en segundos físicos: sus sacadas duran 30 ms. */
+export const PASO_OJO_S = 0.004;
+/** Más rápido que esto, lo que cambió la cabeza en un cuadro es un salto, no un giro. */
+export const GIRO_MAX_DPS = 1500;
+
+/**
+ * Avanza el ojo un cuadro de `dt` segundos físicos, en que la cabeza fue de
+ * `qAntes` a `qDespues`. Dos cosas para que un sano tenga ganancia 1 y
+ * ninguna sacada, con cualquier cadencia de cuadros y con la cabeza movida a
+ * mano:
+ *
+ *   - el VOR sigue el giro EXACTO del cuadro, sacado de las dos
+ *     orientaciones, y no `omega`, que con el mouse o el teléfono viene de
+ *     derivar y suavizar y llega tarde;
+ *   - en cada paso intermedio, la cabeza está donde está en ese momento del
+ *     cuadro, no al final: si no, el ojo parece atrasado hasta un cuadro
+ *     entero de giro y sale una sacada.
+ *
+ * Un salto (centrar, reconectar el teléfono) no es un giro: no mueve el VOR.
+ */
+export function avanzaCuadro(ojo, qAntes, qDespues, dt, omega, opciones) {
+  let giro = velocidadAngular(qAntes, qDespues, dt);
+  let v = Math.hypot(...giro);
+  if (v > GIRO_MAX_DPS) {
+    giro = [0, 0, 0];
+    v = 0;
+  }
+  const pasos = Math.max(1, Math.ceil(dt / PASO_OJO_S));
+  for (let i = 1; i <= pasos; i++) {
+    const q = v > 0 ? qMul(qAntes, qEjeAngulo(giro, (v * dt * i) / pasos)) : qDespues;
+    ojo.paso(dt / pasos, q, omega, { ...opciones, giro });
   }
 }

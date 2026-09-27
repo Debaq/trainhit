@@ -104,11 +104,19 @@ Publicado en el servidor propio del proyecto (PHP y Node.js).
   - El ojo se lee en el marco de los canales (Simpson y Graf).
 - Paciente al azar a ciegas: sin colores, tasas ni nombre. «Revelar» dice qué
   era.
-- Ojos de cerca: cámara pegada a la cabeza, como un video-oculógrafo, con la
-  traza horizontal, vertical y torsional.
-- Con la cabeza quieta en otra postura más de 1 s, los ojos vuelven a mirar al
-  frente con una sacada, como una persona; antes quedaban pegados mirando el
-  blanco viejo.
+- Ojos de cerca: cámara pegada a la cabeza delante de un ojo (derecho o
+  izquierdo, a elección), como un video-oculógrafo, con la traza horizontal,
+  vertical y torsional, cada una en su franja.
+- La mirada tiene un blanco: fija en el centro de la pantalla (por defecto;
+  sigue mirándola con la cabeza girada, y fuera de la órbita queda en el
+  borde) o, sin blanco, vuelve al frente de la cabeza tras 1 s quieta. Es la
+  base para que más adelante el blanco sea un dedo (MediaPipe).
+- El VOR sigue el giro exacto de la cabeza en cada cuadro: un sano tiene
+  ganancia 1 y ninguna sacada a cualquier cadencia, con impulsos, mouse o
+  teléfono (`avanzaCuadro`).
+- Ojos de cerca: un ojo que llena el recuadro, con la piel opaca; se elige
+  cuál. Las tres curvas, cada una en su franja.
+- Reiniciar: todo como al abrir, también desde el teléfono.
 - Canales enfermos en amarillo verdoso.
 
 ### La vía del reflejo (`js/via.js`)
