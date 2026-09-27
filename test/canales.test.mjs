@@ -10,6 +10,8 @@ import {
   TASA_MAX,
   TASA_REPOSO,
   activacion,
+  giroEnPantalla,
+  integraGiro,
   normalDePlano,
   perfilImpulso,
   qEjeAngulo,
@@ -116,4 +118,26 @@ test('normalDePlano encuentra el eje de un anillo inclinado', () => {
   const m = normalDePlano(pts);
   const c = Math.abs(m[0] * n[0] + m[1] * n[1] + m[2] * n[2]);
   assert.ok(c > 0.999, `coseno ${c}`);
+});
+
+test('el giroscopio integrado da la orientación, sin trabarse con el teléfono parado', () => {
+  // Un segundo a 90 °/s alrededor del eje vertical de la pantalla (gamma),
+  // en pasos de 10 ms: 90° a la izquierda.
+  let q = [0, 0, 0, 1];
+  for (let i = 0; i < 100; i++) q = integraGiro(q, giroEnPantalla({ alpha: 0, beta: 0, gamma: 90 }), 0.01);
+  const e = qMul(q, [0, -Math.SQRT1_2, 0, Math.SQRT1_2]); // deshace 90° en +y
+  assert.ok(Math.abs(Math.abs(e[3]) - 1) < 1e-9, String(q));
+  // Y la velocidad que sale de derivar esa orientación es la del giroscopio.
+  const q2 = integraGiro(q, [0, 90, 0], 0.01);
+  const w = velocidadAngular(q, q2, 0.01);
+  assert.ok(Math.abs(w[1] - 90) < 1e-6 && Math.abs(w[0]) < 1e-6);
+});
+
+test('con la pantalla apaisada, los ejes del teléfono se pasan a los de la pantalla', () => {
+  // Parado: beta es alrededor de x, gamma alrededor de y.
+  assert.deepEqual(giroEnPantalla({ alpha: 3, beta: 1, gamma: 2 }, 0), [1, 2, 3]);
+  // Girado 90° antihorario: el borde derecho del teléfono queda arriba, así
+  // que un giro alrededor de su x es alrededor de la vertical de la pantalla.
+  const w = giroEnPantalla({ alpha: 0, beta: 10, gamma: 0 }, 90);
+  assert.ok(Math.abs(w[0]) < 1e-9 && Math.abs(w[1] - 10) < 1e-9, String(w));
 });

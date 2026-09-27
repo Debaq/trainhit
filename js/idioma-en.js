@@ -579,6 +579,7 @@ export const TEXTO = {
   'cargando el modelo 3D…': 'loading the 3D model…',
   'no se pudo cargar three.js: hace falta red la primera vez': 'could not load three.js: a network connection is needed the first time',
   'sin permiso para leer los sensores del teléfono': 'no permission to read the phone sensors',
+  'este teléfono no entrega el giroscopio': 'this phone does not provide the gyroscope',
   'Giro a la izquierda': 'Turn left',
   'Giro a la derecha': 'Turn right',
   'Nariz abajo': 'Nose down',

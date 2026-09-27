@@ -182,6 +182,39 @@ export function velocidadAngular(q0, q1, dt) {
   return [(d[0] / s) * (ang / dt), (d[1] / s) * (ang / dt), (d[2] / s) * (ang / dt)];
 }
 
+// ------------------------------------------------------------ giroscopio ---
+
+/**
+ * La velocidad angular del giroscopio (`devicemotion.rotationRate`, °/s) en
+ * el marco de la pantalla. El navegador la da en el marco del teléfono: alpha
+ * alrededor de z (saliendo de la pantalla), beta alrededor de x (el borde
+ * corto) y gamma alrededor de y (el borde largo). Con la pantalla girada
+ * `anguloPantalla` grados (apaisado), los ejes x e y del teléfono ya no son
+ * los de la pantalla y se giran para que lo sean.
+ */
+export function giroEnPantalla({ alpha, beta, gamma }, anguloPantalla = 0) {
+  const a = rad(anguloPantalla);
+  const c = Math.cos(a);
+  const s = Math.sin(a);
+  const wx = beta ?? 0;
+  const wy = gamma ?? 0;
+  return [c * wx - s * wy, s * wx + c * wy, alpha ?? 0];
+}
+
+/**
+ * Suma a la orientación `q` un giro de `omega` °/s —en el marco del propio
+ * objeto— durante `dt` segundos. Integrar el giroscopio así no tiene los
+ * saltos de los ángulos de Euler con el teléfono parado; a la larga deriva un
+ * poco, y «Centrar» la vuelve a cero.
+ */
+export function integraGiro(q, omega, dt) {
+  const w = Math.hypot(omega[0], omega[1], omega[2]);
+  if (w < 1e-9 || dt <= 0) return q;
+  const d = qMul(q, qEjeAngulo(omega, w * dt));
+  const n = Math.hypot(d[0], d[1], d[2], d[3]);
+  return d.map((v) => v / n);
+}
+
 // ---------------------------------------------------- plano de una malla ---
 
 /**

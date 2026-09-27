@@ -33,6 +33,8 @@ import {
   TASA_MAX,
   TASA_REPOSO,
   activacion,
+  giroEnPantalla,
+  integraGiro,
   normalDePlano,
   perfilImpulso,
   qEjeAngulo,
@@ -162,7 +164,7 @@ export function montaLaberinto() {
     // compuesta con la del teléfono.
     qManual: Q1(),
     qSensor: Q1(),
-    sensor: { activo: false, qRef: null, q: null },
+    sensor: { activo: false, tPrevio: null, recibio: false },
     qCabeza: Q1(),
     qPrevia: Q1(),
     // Hacia dónde mira el ojo en el mundo. Con VOR perfecto no se mueve.
@@ -247,8 +249,7 @@ export function montaLaberinto() {
     fila.querySelector('.reposo').style.left = `${(100 * TASA_REPOSO) / TASA_MAX}%`;
   }
 
-  const sensoresPosibles =
-    'DeviceOrientationEvent' in window && window.matchMedia?.('(pointer: coarse)').matches;
+  const sensoresPosibles = 'DeviceMotionEvent' in window && window.matchMedia?.('(pointer: coarse)').matches;
   $('lab-sensores').hidden = !sensoresPosibles;
   $('lab-sensores').addEventListener('click', () => (st.sensor.activo ? apagaSensores() : prendeSensores()));
 
@@ -619,7 +620,6 @@ export function montaLaberinto() {
         st.qManual = qMul(im.qBase, qInv(st.qSensor));
       }
     } else {
-      if (st.sensor.activo && st.sensor.q && st.sensor.qRef) st.qSensor = qMul(qInv(st.sensor.qRef), st.sensor.q);
       st.qCabeza = qMul(st.qManual, st.qSensor);
     }
     if (omegaExacta) st.omega = omegaExacta;
@@ -769,7 +769,6 @@ export function montaLaberinto() {
     st.camara = CAMARA_FRENTE;
     st.cenital = false;
     $('lab-cenital').setAttribute('aria-pressed', 'false');
-    if (st.sensor.q) st.sensor.qRef = st.sensor.q;
   }
 
   function lanzaImpulso(m) {
@@ -876,51 +875,75 @@ export function montaLaberinto() {
 
   // ------------------------------------------------------------ sensores ---
   //
-  // `deviceorientation` da la orientación del teléfono como ángulos Z-X'-Y''
-  // (alpha, beta, gamma). El marco del teléfono —x a la derecha, y hacia
-  // arriba de la pantalla, z saliendo de la pantalla hacia uno— es el mismo de
-  // la cámara de la escena, así que el giro del teléfono desde que se lo tomó
-  // se le aplica tal cual a la cabeza: girar el teléfono a la izquierda gira
-  // la cabeza a SU izquierda y excita el lateral izquierdo.
+  // El giroscopio (`devicemotion.rotationRate`) da la velocidad angular del
+  // teléfono en °/s, que es justo lo que sienten los canales. Se la integra
+  // en `qSensor` evento a evento. El marco del teléfono —x a la derecha, y
+  // hacia arriba de la pantalla, z saliendo de la pantalla hacia uno— es el
+  // de la cámara de la escena, así que el giro se le aplica tal cual a la
+  // cabeza: girar el teléfono a la izquierda gira la cabeza a SU izquierda y
+  // excita el lateral izquierdo.
+  //
+  // No se usa `deviceorientation`: sus ángulos de Euler se traban justo con
+  // el teléfono parado frente a la cara (beta = 90°), que es como se lo
+  // sostiene, y derivarlos para sacar la velocidad amplificaba ese ruido.
+
+  /** Sin eventos con giroscopio en este tiempo, el teléfono no tiene. */
+  const ESPERA_GIROSCOPIO_MS = 1500;
+
+  function avisa(texto) {
+    estado.hidden = false;
+    estado.textContent = texto;
+    setTimeout(() => (estado.hidden = true), 3500);
+  }
 
   async function prendeSensores() {
     try {
-      const pide = window.DeviceOrientationEvent?.requestPermission;
-      if (typeof pide === 'function' && (await pide.call(window.DeviceOrientationEvent)) !== 'granted') {
-        estado.hidden = false;
-        estado.textContent = tx('sin permiso para leer los sensores del teléfono');
-        setTimeout(() => (estado.hidden = true), 3000);
+      const pide = window.DeviceMotionEvent?.requestPermission;
+      if (typeof pide === 'function' && (await pide.call(window.DeviceMotionEvent)) !== 'granted') {
+        avisa(tx('sin permiso para leer los sensores del teléfono'));
         return;
       }
     } catch (e) {
       console.warn('laberinto: sensores', e);
+      avisa(tx('sin permiso para leer los sensores del teléfono'));
       return;
     }
-    st.sensor = { activo: true, qRef: null, q: null };
+    st.sensor = { activo: true, tPrevio: null, recibio: false };
     // Lo que se giró a mano queda: el teléfono suma desde ahí.
     st.qManual = st.qCabeza;
     st.qSensor = Q1();
-    window.addEventListener('deviceorientation', alOrientar);
+    window.addEventListener('devicemotion', alMoverse);
     pintaSensores();
+    setTimeout(() => {
+      if (st.sensor.activo && !st.sensor.recibio) {
+        apagaSensores();
+        avisa(tx('este teléfono no entrega el giroscopio'));
+      }
+    }, ESPERA_GIROSCOPIO_MS);
   }
 
   function apagaSensores() {
     if (!st.sensor.activo) return;
-    window.removeEventListener('deviceorientation', alOrientar);
+    window.removeEventListener('devicemotion', alMoverse);
     st.qManual = st.qCabeza;
     st.qSensor = Q1();
-    st.sensor = { activo: false, qRef: null, q: null };
+    st.sensor = { activo: false, tPrevio: null, recibio: false };
     pintaSensores();
   }
 
-  function alOrientar(e) {
-    if (e.alpha == null) return;
-    const giroPantalla = screen.orientation?.angle ?? window.orientation ?? 0;
-    let q = qMul(qEjeAngulo([0, 0, 1], e.alpha), qEjeAngulo([1, 0, 0], e.beta));
-    q = qMul(q, qEjeAngulo([0, 1, 0], e.gamma));
-    q = qMul(q, qEjeAngulo([0, 0, 1], -giroPantalla));
-    st.sensor.q = q;
-    st.sensor.qRef ??= q;
+  function alMoverse(e) {
+    const r = e.rotationRate;
+    if (!r || (r.alpha == null && r.beta == null && r.gamma == null)) return;
+    st.sensor.recibio = true;
+    // El intervalo sale de las marcas de tiempo y no de `e.interval`, que
+    // unos navegadores dan en milisegundos y otros en segundos.
+    const t = e.timeStamp;
+    const dt = st.sensor.tPrevio === null ? 0 : Math.min(0.1, (t - st.sensor.tPrevio) / 1000);
+    st.sensor.tPrevio = t;
+    // Mientras corre un impulso armado la cabeza es del impulso.
+    if (st.impulso || dt <= 0) return;
+    const angulo = screen.orientation?.angle ?? window.orientation ?? 0;
+    st.qSensor = integraGiro(st.qSensor, giroEnPantalla(r, angulo), dt);
   }
 
   return { abre, cierra, abierto: () => st.abierta };

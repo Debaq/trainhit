@@ -402,7 +402,11 @@ misma limitación que con un paciente de verdad, y queda a la vista.
 cabeza, ojos y los dos laberintos. No usa la cámara: la cabeza se gira con el
 mouse o el dedo, o —en un teléfono, con **Mover con el teléfono**— con el
 teléfono mismo, que hace de cabeza: girarlo a la izquierda gira la cabeza a
-*su* izquierda. Es una recreación de lo que hacía la app aVOR (Universidad de
+*su* izquierda. Se lee el **giroscopio** (`devicemotion`), que da la velocidad
+angular —lo que sienten los canales— y se integra para la orientación; los
+ángulos de `deviceorientation` se traban con el teléfono parado frente a la
+cara. Necesita HTTPS (en `localhost` no) y, en iPhone, el permiso que Safari
+pide al apretar el botón; «Centrar» corrige la deriva. Es una recreación de lo que hacía la app aVOR (Universidad de
 Sydney, solo iOS), que ya no está disponible.
 
 Los laberintos se ven de tres formas, como en aVOR, elegidas en la barra de la
