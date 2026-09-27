@@ -6,6 +6,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { CANAL, CANALES, TASA_REPOSO, qEjeAngulo, qMul, respuestas } from '../js/canales.js';
 import { funciones, velocidadVOR } from '../js/patologia.js';
+import { abajoEnCabeza, respuestasOtolitos } from '../js/otolitos.js';
 import { FILTROS, actividad, musculosDe, tramos, vectorRotacion, velocidadOrbita } from '../js/via.js';
 
 const cerca = (a, b, tol = 1e-6) => Math.abs(a - b) < tol;
@@ -41,7 +42,10 @@ test('la vía de cada canal cruza la línea media y los filtros cubren los seis'
     assert.equal(lado(central.puntos.at(-1)[0]), -suLado, c.id);
     for (const t of ts) assert.ok(t.largo > 0);
   }
-  assert.deepEqual([...FILTROS.lateral, ...FILTROS.larp, ...FILTROS.ralp].sort(), CANALES.map((c) => c.id).sort());
+  assert.deepEqual(
+    [...FILTROS.lateral, ...FILTROS.larp, ...FILTROS.ralp, ...FILTROS.otolitos].sort(),
+    [...FILTROS.todos].sort(),
+  );
 });
 
 test('en reposo y sano, todo dispara al reposo', () => {
@@ -99,4 +103,28 @@ test('velocidad y posición del ojo desde sus orientaciones', () => {
   // Con w negativo (la misma rotación), el mismo vector.
   const rvNeg = vectorRotacion(qEjeAngulo([0, 0, 1], 25).map((x) => -x));
   assert.ok(cerca(rvNeg[2], 25));
+});
+
+test('los otolitos: el utrículo mueve los músculos de los verticales de su lado; el sáculo, el ECM', () => {
+  assert.deepEqual(
+    musculosDe('utr_izq').map((x) => `${x.musculo} ${x.lado}`),
+    ['rs izq', 'oi der', 'os izq', 'ri der'],
+  );
+  assert.deepEqual(musculosDe('sac_der'), [{ musculo: 'ecm', lado: 'der' }]);
+  // El utrículo va por la rama superior, con el anterior y el lateral; el
+  // sáculo, por la inferior, con el posterior.
+  const nervio = (id) => tramos(id)[0].puntos[1];
+  assert.deepEqual(nervio('utr_izq'), nervio('ant_izq'));
+  assert.deepEqual(nervio('sac_izq'), nervio('post_izq'));
+  assert.notDeepEqual(nervio('utr_izq'), nervio('sac_izq'));
+});
+
+test('oreja izquierda abajo: el utrículo izquierdo dispara más, y su núcleo más todavía', () => {
+  const abajo = abajoEnCabeza(qEjeAngulo([0, 0, -1], 30));
+  const ro = respuestasOtolitos(abajo);
+  const a = actividad({ ...respuestas([0, 0, 0]), ...ro }, [0, 0, 0], [0, 0, 0]);
+  assert.ok(a.aferente.utr_izq > TASA_REPOSO + 20 && a.aferente.utr_der < TASA_REPOSO - 20);
+  assert.ok(a.nucleo.utr_izq > a.aferente.utr_izq);
+  // El sáculo no siente el rolido.
+  assert.ok(cerca(a.nucleo.sac_izq, TASA_REPOSO, 1e-6));
 });

@@ -498,7 +498,19 @@ Cinco vistas:
   la lesión compensada su núcleo vuelve a disparar (la compensación central).
   Las tasas del núcleo suman la comisura del compañero coplanar; las de la
   motoneurona salen de la posición y la velocidad del ojo, sacadas incluidas.
-  Está en `js/via.js`, con tests.
+  Por el mismo nervio van el **utrículo** (rama superior), que llega a los
+  músculos de los dos verticales de su lado —la contrarrotación ocular, la vía
+  del oVEMP—, y el **sáculo** (rama inferior), que baja al esternocleidomastoideo
+  de su lado —la vía del cVEMP—. Está en `js/via.js`, con tests.
+
+Los otolitos (`js/otolitos.js`) sienten la inclinación de la cabeza respecto de
+la gravedad: cada utrículo se excita al bajar su oreja y los dos trabajan en
+empuje-tracción; los sáculos, con la inclinación adelante-atrás. Los utrículos
+piden la contrarrotación ocular (unos 7° con la oreja 30° abajo), que se suma a
+los ojos. Un utrículo perdido sin compensar deja una torsión quieta hacia su
+lado, la de la reacción de inclinación ocular. En Patología se los enferma como
+a los canales, y los casos los llevan según la rama del nervio: la neuritis
+superior pierde el utrículo y la inferior el sáculo.
 
 El modelo de patologías (`js/patologia.js`) no tiene guiones por
 enfermedad: todo sale de la función de cada canal. El nervio de un canal
@@ -746,6 +758,7 @@ js/ejemplo.js   el paciente sintético de los paseos
 js/canales.js   los seis canales: ejes, tasa de disparo, impulsos (sin DOM)
 js/cabeza.js    la cabeza provisoria como superficie implícita (sin DOM)
 js/patologia.js canales enfermos: VOR, nistagmo espontáneo y sacadas (sin DOM)
+js/otolitos.js  utrículo y sáculo: inclinación, tasas y contrarrotación (sin DOM)
 js/via.js       la vía del reflejo, del canal al músculo: tasas y dibujo (sin DOM)
 js/enlace.js    enlace teléfono–PC: sala en servidor/senal.php y canal WebRTC
 js/laberinto.js el Laberinto 3D: escena three.js, modelo, gestos y sensores

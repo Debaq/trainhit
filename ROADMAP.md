@@ -121,11 +121,18 @@ Publicado en el servidor propio del proyecto (PHP y Node.js).
 - Filtro por plano (laterales, LARP, RALP o los tres). Los impulsos armados
   están también en su panel. A ciegas no muestra actividad ni lesión.
 - Los ojos del esquema se mueven con el ojo del modelo.
+- **Utrículo y sáculo** (`js/otolitos.js`): sienten la inclinación respecto de
+  la gravedad. El utrículo, por la rama superior, llega a RS y OS de su ojo y
+  a OI y RI del otro (contrarrotación ocular, vía del oVEMP), y la
+  contrarrotación se suma a los ojos. El sáculo, por la inferior, baja al ECM
+  de su lado (vía del cVEMP). Filtro propio en Vía, filas en la grilla de
+  Patología y en los casos según la rama del nervio. Un utrículo perdido sin
+  compensar deja una torsión hacia su lado.
 
 ### Calidad
 
 - Tests en node de la física, la cabeza, el giroscopio, las patologías y la vía
-  (120 en total con el resto de trainHIT).
+  (127 en total con el resto de trainHIT).
 - Todo traducido al inglés.
 
 ## Falta probar
@@ -145,6 +152,9 @@ Publicado en el servidor propio del proyecto (PHP y Node.js).
 - Revisión clínica de la vía: el trayecto de los verticales (el anterior va
   en realidad también por el tracto tegmental ventral y el brachium
   conjunctivum, acá todo por el FLM) y las constantes de núcleo y motoneurona.
+- Revisión clínica de los otolitos: 60 espigas/s por g, la contrarrotación de
+  15° por g (unos 7° con la oreja 30° abajo) y la torsión de un utrículo
+  perdido (unos 6°). El sáculo solo siente la inclinación adelante-atrás.
 - Revisión clínica de las constantes: 10 °/s de fase lenta por canal muerto, la
   fijación al 30 %, y la pérdida unilateral total, que sale con la torsional
   algo mayor que la horizontal.
@@ -167,5 +177,11 @@ Publicado en el servidor propio del proyecto (PHP y Node.js).
 - En la Vía, las lesiones centrales: cortar el FLM (oftalmoplejía
   internuclear) o un núcleo, además de las periféricas.
 - En la Vía, las proyecciones inhibidoras al mismo lado, prendibles.
+- La reacción de inclinación ocular completa: con un solo ojo en el modelo no
+  sale la desviación oblicua (skew), que necesita un ojo más bajo que el otro.
+- Los otolitos en el modelo 3D: el vestíbulo no los separa, así que no se
+  pintan; con el modelo de la diseñadora podrían ir `utriculo_izq`, etc.
+- Simular un VEMP: el estímulo (sonido o vibración) y la respuesta en el ECM o
+  en el OI.
 - Con la cámara, más allá del nistagmo espontáneo: seguimiento lento y sacadas
   siguiendo el dedo o un blanco.

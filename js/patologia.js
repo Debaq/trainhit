@@ -31,10 +31,18 @@
 // de magnitud de la literatura.
 
 import { CANAL, CANALES, aMarcoCanales, qEjeAngulo, qInv, qMul } from './canales.js';
+import { OTOLITOS } from './otolitos.js';
 
 // ---------------------------------------------------------------- canales ---
 
-/** Los estados de un canal y su función. */
+/**
+ * Los órganos que pueden enfermar: los seis canales y los cuatro otolitos
+ * (otolitos.js). Un otolito enfermo no cambia el VOR ni el nistagmo de los
+ * canales: cambia la torsión de los ojos y su vía en «Vía».
+ */
+export const ORGANOS = [...CANALES.map((c) => c.id), ...OTOLITOS.map((o) => o.id)];
+
+/** Los estados de un órgano y su función. */
 export const ESTADOS = {
   normal: 1,
   hipofuncion: 0.5,
@@ -54,21 +62,27 @@ export const CASOS = [
     id: 'neuritis_superior',
     nombre: 'Neuritis vestibular superior',
     unilateral: true,
-    canales: { lat_izq: 'arreflexia', ant_izq: 'arreflexia' },
+    canales: { lat_izq: 'arreflexia', ant_izq: 'arreflexia', utr_izq: 'arreflexia' },
     compensado: false,
   },
   {
     id: 'neuritis_inferior',
     nombre: 'Neuritis vestibular inferior',
     unilateral: true,
-    canales: { post_izq: 'arreflexia' },
+    canales: { post_izq: 'arreflexia', sac_izq: 'arreflexia' },
     compensado: false,
   },
   {
     id: 'perdida_unilateral',
     nombre: 'Pérdida vestibular unilateral',
     unilateral: true,
-    canales: { lat_izq: 'arreflexia', ant_izq: 'arreflexia', post_izq: 'arreflexia' },
+    canales: {
+      lat_izq: 'arreflexia',
+      ant_izq: 'arreflexia',
+      post_izq: 'arreflexia',
+      utr_izq: 'arreflexia',
+      sac_izq: 'arreflexia',
+    },
     compensado: true,
   },
   {
@@ -81,13 +95,13 @@ export const CASOS = [
   {
     id: 'hipofuncion_bilateral',
     nombre: 'Hipofunción bilateral (ototoxicidad)',
-    canales: Object.fromEntries(CANALES.map((c) => [c.id, 'hipofuncion'])),
+    canales: Object.fromEntries(ORGANOS.map((id) => [id, 'hipofuncion'])),
     compensado: true,
   },
   {
     id: 'arreflexia_bilateral',
     nombre: 'Arreflexia bilateral',
-    canales: Object.fromEntries(CANALES.map((c) => [c.id, 'arreflexia'])),
+    canales: Object.fromEntries(ORGANOS.map((id) => [id, 'arreflexia'])),
     compensado: true,
   },
 ];
@@ -100,9 +114,9 @@ export function espejo(canales) {
   return Object.fromEntries(Object.entries(canales).map(([id, e]) => [otro(id), e]));
 }
 
-/** De estados por canal ({ lat_izq: 'arreflexia' }) a funciones de los seis. */
+/** De estados por órgano ({ lat_izq: 'arreflexia' }) a funciones de los diez. */
 export function funciones(canales = {}) {
-  return Object.fromEntries(CANALES.map((c) => [c.id, ESTADOS[canales[c.id] ?? 'normal']]));
+  return Object.fromEntries(ORGANOS.map((id) => [id, ESTADOS[canales[id] ?? 'normal']]));
 }
 
 // ------------------------------------------------------------------- VOR ---

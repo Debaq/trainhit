@@ -8,7 +8,7 @@
          jsdelivr (MediaPipe), y conexiones solo a lo que la página usa. -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-iFJ8xPaO2b+vXCVycPfGe9GySA97JJ+JYUlPUhz8WQY='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
+      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-nQAYvNExyaObNbNhC1BSCfSXt1ddRR4VUHWPXNk7aRU='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
     />
     <meta
       name="description"
@@ -62,7 +62,7 @@
     />
     <!-- Mapa de importación: versiona los imports internos. Lo regenera
          bump.mjs junto con su hash en la CSP de arriba. Va antes del arranque. -->
-    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-27.47","./js/app.js":"./js/app.js?v=2026-09-27.47","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-27.47","./js/cabeza.js":"./js/cabeza.js?v=2026-09-27.47","./js/canales.js":"./js/canales.js?v=2026-09-27.47","./js/curve.js":"./js/curve.js?v=2026-09-27.47","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-27.47","./js/enlace.js":"./js/enlace.js?v=2026-09-27.47","./js/geom.js":"./js/geom.js?v=2026-09-27.47","./js/head.js":"./js/head.js?v=2026-09-27.47","./js/idioma.js":"./js/idioma.js?v=2026-09-27.47","./js/idioma-en.js":"./js/idioma-en.js?v=2026-09-27.47","./js/laberinto.js":"./js/laberinto.js?v=2026-09-27.47","./js/patologia.js":"./js/patologia.js?v=2026-09-27.47","./js/pipeline.js":"./js/pipeline.js?v=2026-09-27.47","./js/plots.js":"./js/plots.js?v=2026-09-27.47","./js/practica.js":"./js/practica.js?v=2026-09-27.47","./js/preguntas.js":"./js/preguntas.js?v=2026-09-27.47","./js/sesion.js":"./js/sesion.js?v=2026-09-27.47","./js/signal.js":"./js/signal.js?v=2026-09-27.47","./js/simulacion.js":"./js/simulacion.js?v=2026-09-27.47","./js/tracker.js":"./js/tracker.js?v=2026-09-27.47","./js/tutorial.js":"./js/tutorial.js?v=2026-09-27.47","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-27.47","./js/tutorial-pasos-en.js":"./js/tutorial-pasos-en.js?v=2026-09-27.47","./js/via.js":"./js/via.js?v=2026-09-27.47","three":"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"}}</script>
+    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-27.51","./js/app.js":"./js/app.js?v=2026-09-27.51","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-27.51","./js/cabeza.js":"./js/cabeza.js?v=2026-09-27.51","./js/canales.js":"./js/canales.js?v=2026-09-27.51","./js/curve.js":"./js/curve.js?v=2026-09-27.51","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-27.51","./js/enlace.js":"./js/enlace.js?v=2026-09-27.51","./js/geom.js":"./js/geom.js?v=2026-09-27.51","./js/head.js":"./js/head.js?v=2026-09-27.51","./js/idioma.js":"./js/idioma.js?v=2026-09-27.51","./js/idioma-en.js":"./js/idioma-en.js?v=2026-09-27.51","./js/laberinto.js":"./js/laberinto.js?v=2026-09-27.51","./js/otolitos.js":"./js/otolitos.js?v=2026-09-27.51","./js/patologia.js":"./js/patologia.js?v=2026-09-27.51","./js/pipeline.js":"./js/pipeline.js?v=2026-09-27.51","./js/plots.js":"./js/plots.js?v=2026-09-27.51","./js/practica.js":"./js/practica.js?v=2026-09-27.51","./js/preguntas.js":"./js/preguntas.js?v=2026-09-27.51","./js/sesion.js":"./js/sesion.js?v=2026-09-27.51","./js/signal.js":"./js/signal.js?v=2026-09-27.51","./js/simulacion.js":"./js/simulacion.js?v=2026-09-27.51","./js/tracker.js":"./js/tracker.js?v=2026-09-27.51","./js/tutorial.js":"./js/tutorial.js?v=2026-09-27.51","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-27.51","./js/tutorial-pasos-en.js":"./js/tutorial-pasos-en.js?v=2026-09-27.51","./js/via.js":"./js/via.js?v=2026-09-27.51","three":"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"}}</script>
     <script src="js/arranque.js"></script>
     <noscript><link rel="stylesheet" href="css/estilo.css" /></noscript>
   </head>
@@ -789,7 +789,9 @@
               Cada canal puede estar <b>normal</b>, con <b>hipofunción</b> (responde a la mitad) o en
               <b>arreflexia</b> (no responde). De eso sale todo: las tasas, el reflejo de cada plano, el
               nistagmo espontáneo si la lesión no está compensada y las sacadas correctivas. Para verlo,
-              los impulsos de <b>Respuesta</b> o mover la cabeza.
+              los impulsos de <b>Respuesta</b> o mover la cabeza. El <b>utrículo</b> y el <b>sáculo</b>
+              también: un utrículo perdido sin compensar rota los ojos hacia su lado, y su vía y la del
+              sáculo se ven en <b>Vía</b>.
             </p>
             <div id="lab-pat-controles" class="lab-pat-controles">
               <label class="campo">
@@ -802,6 +804,8 @@
                 <span data-i18n="lab.pat.lateral">lateral</span><select data-canal="lat_izq"></select><select data-canal="lat_der"></select>
                 <span data-i18n="lab.pat.anterior">anterior</span><select data-canal="ant_izq"></select><select data-canal="ant_der"></select>
                 <span data-i18n="lab.pat.posterior">posterior</span><select data-canal="post_izq"></select><select data-canal="post_der"></select>
+                <span data-i18n="lab.pat.utriculo">utrículo</span><select data-canal="utr_izq"></select><select data-canal="utr_der"></select>
+                <span data-i18n="lab.pat.saculo">sáculo</span><select data-canal="sac_izq"></select><select data-canal="sac_der"></select>
               </div>
               <label class="check"><input type="checkbox" id="lab-compensado" /> <span data-i18n="lab.pat.compensado">compensada (sin nistagmo espontáneo)</span></label>
               <label class="campo">
@@ -874,13 +878,22 @@
               mueven los ojos en su plano: el lateral izquierdo, al recto medial izquierdo y al recto
               lateral derecho, y por eso los ojos van a la derecha cuando la cabeza gira a la izquierda.
             </p>
+            <p class="ayuda" data-i18n="lab.via.otol">
+              Por el mismo nervio van los <b>otolitos</b>, que sienten la inclinación. El
+              <b>utrículo</b>, por la rama superior, llega a los músculos de los dos verticales de su
+              lado: al bajar esa oreja los ojos rotan unos grados hacia el otro lado (la contrarrotación
+              ocular; es la vía del oVEMP). El <b>sáculo</b>, por la inferior, baja al
+              esternocleidomastoideo (<b>ECM</b>) de su lado por el haz vestíbulo-espinal: es la vía del
+              cVEMP. Por eso una neuritis superior deja el cVEMP normal, y una inferior, el oVEMP.
+            </p>
             <label class="campo">
-              <span data-i18n="lab.via.plano">Plano</span>
+              <span data-i18n="lab.via.plano">Mostrar</span>
               <select id="lab-via-filtro">
                 <option value="lateral" data-i18n="lab.par.lateral">laterales</option>
                 <option value="larp" data-i18n="lab.par.larp">LARP</option>
                 <option value="ralp" data-i18n="lab.par.ralp">RALP</option>
-                <option value="todos" data-i18n="lab.via.todos">los tres</option>
+                <option value="otolitos" data-i18n="lab.via.otolitos">utrículo y sáculo</option>
+                <option value="todos" data-i18n="lab.via.todos">todo</option>
               </select>
             </label>
             <div data-impulsos></div>

@@ -66,6 +66,7 @@ import {
 } from './patologia.js';
 import { Sala, leeCabeza, mensajeCabeza, uneSala } from './enlace.js';
 import { DibujoVia, actividad, vectorRotacion, velocidadOrbita } from './via.js';
+import { abajoEnCabeza, nucleosOtolitos, respuestasOtolitos, torsionOtolitica } from './otolitos.js';
 import { alCambiarIdioma, tx } from './idioma.js';
 
 const $ = (id) => document.getElementById(id);
@@ -122,6 +123,8 @@ const TRAZA_GRADOS = 15;
 /** Ancho de cara que entra en «ojos de cerca» y a qué distancia va esa cámara. */
 const OJOS_ANCHO = 0.11;
 const OJOS_DIST = 0.2;
+/** Constante de tiempo de la torsión que piden los utrículos, en segundos físicos. */
+const TAU_TORSION_S = 0.15;
 /** Suavizado de la velocidad medida de a cuadros (mouse, dedo, teléfono). */
 const TAU_OMEGA_S = 0.06;
 
@@ -189,8 +192,13 @@ export function montaLaberinto() {
     // La vía (via.js): el dibujo se arma al abrirla; el ojo se mide para sus
     // motoneuronas.
     via: null,
-    qOjoPrevio: Q1(),
+    qOjoPrevio: null,
     velOjo: [0, 0, 0],
+    // La torsión de los ojos por los utrículos (otolitos.js), en grados, y
+    // la orientación del ojo que se ve: la del ojo de patologia.js con esa
+    // torsión encima.
+    torsion: 0,
+    qOjo: Q1(),
     omega: [0, 0, 0],
     impulso: null,
     dist: DIST_INICIAL,
@@ -471,7 +479,7 @@ export function montaLaberinto() {
     st.pat.ciego = true;
     $('lab-revelado').hidden = true;
     st.ojo.centra();
-    st.qOjoPrevio = Q1();
+    st.qOjoPrevio = null;
     aplicaPatologia();
   });
   $('lab-revelar').addEventListener('click', () => {
@@ -879,14 +887,22 @@ export function montaLaberinto() {
     const pasos = Math.max(1, Math.ceil(dtFisico / PASO_OJO_S));
     const opciones = { f: st.f, lenta: st.lenta, tipo: st.pat.sacadas };
     for (let i = 0; i < pasos; i++) st.ojo.paso(dtFisico / pasos, st.qCabeza, st.omega, opciones);
-    anotaTraza(ahora, st.ojo.q);
-    st.velOjo = velocidadOrbita(st.qOjoPrevio, st.ojo.q, dtFisico);
-    st.qOjoPrevio = st.ojo.q;
 
-    // 3) Tasa de cada canal.
+    // 3) Los otolitos: con la cabeza inclinada, los utrículos piden una
+    // torsión de los ojos (la contrarrotación), que va encima del ojo. Con
+    // un utrículo perdido sin compensar, una torsión quieta hacia ese lado.
+    const ro = respuestasOtolitos(abajoEnCabeza(st.qCabeza), st.f);
+    const torsion = torsionOtolitica(nucleosOtolitos(ro, { compensado: st.pat.compensado }));
+    st.torsion += (torsion - st.torsion) * (1 - Math.exp(-dtFisico / TAU_TORSION_S));
+    st.qOjo = qMul(qEjeAngulo([0, 0, 1], st.torsion), st.ojo.q);
+    anotaTraza(ahora, st.qOjo);
+    st.velOjo = velocidadOrbita(st.qOjoPrevio ?? st.qOjo, st.qOjo, dtFisico);
+    st.qOjoPrevio = st.qOjo;
+
+    // 4) Tasa de cada canal.
     const r = respuestas(st.omega, st.ejesMedidos, st.f);
-    pinta(st.ojo.q, r);
-    if (st.vista === 'via') pintaVia(r, dt);
+    pinta(st.qOjo, r);
+    if (st.vista === 'via') pintaVia({ ...r, ...ro }, dt);
   }
 
   /**
@@ -903,7 +919,7 @@ export function montaLaberinto() {
     return { x: 0, y: 0, w, h: Math.max(1, via.offsetTop) };
   }
 
-  /** La vía: las tasas de cada tramo y el dibujo, en su lienzo. */
+  /** La vía: las tasas de cada tramo y el dibujo, en su lienzo. `r`: canales y otolitos. */
   function pintaVia(r, dt) {
     const lienzoVia = $('lab-via');
     const dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -912,7 +928,7 @@ export function montaLaberinto() {
     if (!w || !h) return;
     if (lienzoVia.width !== w || lienzoVia.height !== h) Object.assign(lienzoVia, { width: w, height: h });
     st.via ??= new DibujoVia();
-    const act = actividad(r, vectorRotacion(st.ojo.q), st.velOjo, { compensado: st.pat.compensado });
+    const act = actividad(r, vectorRotacion(st.qOjo), st.velOjo, { compensado: st.pat.compensado });
     const ultimo = st.traza[st.traza.length - 1];
     st.via.dibuja(lienzoVia.getContext('2d'), w, h, dt, {
       act,
@@ -1121,7 +1137,7 @@ export function montaLaberinto() {
     st.qCabeza = Q1();
     st.qPrevia = Q1();
     st.ojo.centra();
-    st.qOjoPrevio = Q1();
+    st.qOjoPrevio = null;
     st.omega = [0, 0, 0];
     st.pan = [0, 0, 0];
     st.zoom = 1;

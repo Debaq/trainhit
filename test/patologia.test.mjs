@@ -8,6 +8,7 @@ import { CANAL, perfilImpulso, qEjeAngulo, qMul } from '../js/canales.js';
 import {
   CASO,
   CASOS,
+  ORGANOS,
   Ojo,
   describeNistagmo,
   espejo,
@@ -71,8 +72,8 @@ test('sin nistagmo si está compensada o si la pérdida es pareja', () => {
   assert.ok(fijo > 0 && fijo < 0.5 * libre);
 });
 
-test('los casos nombran solo canales que existen', () => {
-  for (const c of CASOS) for (const id of Object.keys(c.canales)) assert.ok(CANAL[id], `${c.id}: ${id}`);
+test('los casos nombran solo órganos que existen', () => {
+  for (const c of CASOS) for (const id of Object.keys(c.canales)) assert.ok(ORGANOS.includes(id), `${c.id}: ${id}`);
 });
 
 /**

@@ -23,8 +23,19 @@
 //              cuyo nervio cruza, al oblicuo superior del mismo lado; y III de
 //              ese lado, al recto inferior del otro lado.
 //
-// El canal anterior y el lateral van por la rama superior del nervio; el
-// posterior, por la inferior: por eso la neuritis superior deja el posterior.
+// Los otolitos (otolitos.js) van por el mismo nervio:
+//
+//   utrículo   núcleos vestibulares → FLM del otro lado → III y IV de ese
+//              lado → los músculos de los dos verticales de su lado: RS y OS
+//              del mismo ojo (intorsión), OI y RI del otro (extorsión). Es la
+//              contrarrotación ocular y la vía del oVEMP (el OI del otro lado).
+//   sáculo     núcleos vestibulares → haz vestíbulo-espinal medial, del mismo
+//              lado → núcleo del XI → esternocleidomastoideo (ECM): la vía del
+//              cVEMP, que en el ECM es una inhibición.
+//
+// El anterior, el lateral y el utrículo van por la rama superior del nervio;
+// el posterior y el sáculo, por la inferior: por eso la neuritis superior deja
+// el posterior y el cVEMP, y la inferior deja el oVEMP.
 // Las proyecciones inhibidoras (al mismo lado) no se dibujan, para que se lea
 // el camino; su efecto está en las tasas, que trabajan en empuje-tracción.
 //
@@ -44,6 +55,7 @@
 // Es para enseñar: las constantes dan los órdenes de magnitud, no más.
 
 import { CANAL, CANALES, TASA_MAX, TASA_REPOSO, activacion, qInv, qMul } from './canales.js';
+import { OTOLITO, OTOLITOS, nucleosOtolitos } from './otolitos.js';
 import { PARES } from './patologia.js';
 import { tx } from './idioma.js';
 
@@ -58,16 +70,41 @@ export const VIA = {
   lateral: { nervio: 'superior', motor: 'VI', mismo: 'rm', otro: 'rl' },
   anterior: { nervio: 'superior', motor: 'III', mismo: 'rs', otro: 'oi' },
   posterior: { nervio: 'inferior', motor: 'IV', mismo: 'os', otro: 'ri' },
+  utriculo: { nervio: 'superior' },
+  saculo: { nervio: 'inferior' },
 };
 
-/** Los músculos que excita un canal, con el lado de cada uno. */
+/** Un canal o un otolito, por su id. */
+const organo = (id) => CANAL[id] ?? OTOLITO[id];
+
+/** Los órganos de la vía: los seis canales y los cuatro otolitos. */
+export const ORGANOS_VIA = [...CANALES, ...OTOLITOS].map((o) => o.id);
+
+/**
+ * Los canales cuyos músculos mueve cada órgano: un canal, los suyos; un
+ * utrículo, los de los dos verticales de su lado; un sáculo, ninguno (va al
+ * cuello).
+ */
+export const MOTORES_DE = {
+  ...Object.fromEntries(CANALES.map((c) => [c.id, [c.id]])),
+  utr_izq: ['ant_izq', 'post_izq'],
+  utr_der: ['ant_der', 'post_der'],
+  sac_izq: [],
+  sac_der: [],
+};
+
+/** Los músculos que excita un órgano, con el lado de cada uno. */
 export function musculosDe(id) {
-  const c = CANAL[id];
-  const v = VIA[c.tipo];
-  return [
-    { musculo: v.mismo, lado: c.lado },
-    { musculo: v.otro, lado: otro(c.lado) },
-  ];
+  const o = organo(id);
+  if (o.tipo === 'saculo') return [{ musculo: 'ecm', lado: o.lado }];
+  return MOTORES_DE[id].flatMap((cid) => {
+    const c = CANAL[cid];
+    const v = VIA[c.tipo];
+    return [
+      { musculo: v.mismo, lado: c.lado },
+      { musculo: v.otro, lado: otro(c.lado) },
+    ];
+  });
 }
 
 /** Cuánto suma a la motoneurona cada grado del ojo en la órbita y cada °/s. */
@@ -104,9 +141,12 @@ export function vectorRotacion(q) {
 }
 
 /**
- * Las tasas de la vía de cada canal, en espigas/s.
+ * Las tasas de la vía de cada órgano, en espigas/s. Los otolitos no tienen
+ * motoneurona propia: sus músculos son los de los verticales, y el del sáculo
+ * (el ECM) va con la tasa de su núcleo.
  *
- * @param r           respuestas de los canales (canales.js, `respuestas`)
+ * @param r           respuestas de los canales (canales.js, `respuestas`) y de
+ *                    los otolitos (otolitos.js, `respuestasOtolitos`), juntas
  * @param posOjo      posición del ojo en la órbita, vector de rotación en °
  * @param velOjo      velocidad del ojo en la órbita, °/s
  * @param compensado  si la lesión está compensada en los núcleos
@@ -128,6 +168,14 @@ export function actividad(r, posOjo, velOjo, { compensado = true } = {}) {
     // que lo excita.
     const n = c.eje;
     motor[c.id] = acota(TASA_REPOSO - K_POSICION * punto(posOjo, n) - K_VELOCIDAD * punto(velOjo, n));
+  }
+  if (r[OTOLITOS[0].id]) {
+    const n = nucleosOtolitos(r, { compensado });
+    for (const o of OTOLITOS) {
+      aferente[o.id] = r[o.id].tasa;
+      nucleo[o.id] = acota(n[o.id]);
+      if (o.tipo === 'saculo') motor[o.id] = nucleo[o.id];
+    }
   }
   return { aferente, nucleo, motor };
 }
@@ -157,7 +205,10 @@ const MUSCULO = {
   os: [-8, -8],
   oi: [-8, 8],
 };
-const posMusculo = (m, lado) => P(lado, OJO.u + MUSCULO[m][0], OJO.y + MUSCULO[m][1]);
+/** El esternocleidomastoideo, al costado de los núcleos: el cuello. */
+const ECM = { u: 46, y: 79 };
+const posMusculo = (m, lado) =>
+  m === 'ecm' ? P(lado, ECM.u, ECM.y) : P(lado, OJO.u + MUSCULO[m][0], OJO.y + MUSCULO[m][1]);
 
 const NUCLEOS = {
   III: { u: 6, y: 36, w: 8, h: 6 },
@@ -165,18 +216,19 @@ const NUCLEOS = {
   VI: { u: 13, y: 62, w: 8, h: 6 },
   NV: { u: 25, y: 75, w: 22, h: 8 },
 };
-/** Por dónde entra y sale cada canal de los núcleos vestibulares. */
-const U_NV = { anterior: 20, lateral: 25, posterior: 30 };
-const U_CANAL = { anterior: 17, lateral: 27, posterior: 37 };
+/** Por dónde entra y sale cada órgano de los núcleos vestibulares. */
+const U_NV = { utriculo: 16, anterior: 20, lateral: 25, posterior: 30, saculo: 34 };
+/** Dónde va cada órgano abajo: los de la rama superior adentro, los de la inferior afuera. */
+const U_ORGANO = { utriculo: 9, anterior: 17, lateral: 25, posterior: 33, saculo: 41 };
 const Y_CANAL = 98;
-const NERVIO = { superior: { u: 22, y: 88 }, inferior: { u: 34, y: 88 } };
+const NERVIO = { superior: { u: 18, y: 88 }, inferior: { u: 37, y: 88 } };
 
 /**
- * Los tramos de la vía de un canal, cada uno una poligonal con la tasa que
+ * Los tramos de la vía de un órgano, cada uno una poligonal con la tasa que
  * lleva: `aferente`, `nucleo` o `motor`.
  */
 export function tramos(id) {
-  const c = CANAL[id];
+  const c = organo(id);
   const X = c.lado;
   const Y = otro(X);
   const v = VIA[c.tipo];
@@ -185,7 +237,7 @@ export function tramos(id) {
   const out = [
     {
       tasa: 'aferente',
-      puntos: [P(X, U_CANAL[c.tipo], Y_CANAL - 3), P(X, nervio.u, nervio.y), P(X, nv, 79)],
+      puntos: [P(X, U_ORGANO[c.tipo], Y_CANAL - 3), P(X, nervio.u, nervio.y), P(X, nv, 79)],
     },
   ];
   const t = (tasa, ...puntos) => out.push({ tasa, puntos });
@@ -202,6 +254,14 @@ export function tramos(id) {
     // El subnúcleo del recto superior cruza dentro del III.
     t('motor', P(Y, 5, 33), P(X, 5, 30), P(X, 11, 2.5), posMusculo('rs', X));
     t('motor', P(Y, 9, 35), posMusculo('oi', Y));
+  } else if (c.tipo === 'utriculo') {
+    // Al IV y al III del otro lado, entre las fibras de los verticales: de
+    // ahí salen por los motores de ellos.
+    t('nucleo', salida, P(Y, 6, 67), P(Y, 6, 50));
+    t('nucleo', P(Y, 6, 44.5), P(Y, 6, 39));
+  } else if (c.tipo === 'saculo') {
+    // Baja por el haz vestíbulo-espinal medial al XI y al ECM, del mismo lado.
+    t('nucleo', P(X, 35, 77), P(X, ECM.u - 2.6, ECM.y));
   } else {
     t('nucleo', salida, P(Y, 7.5, 66), P(Y, 7.5, 50));
     t('nucleo', P(Y, 7.5, 44.5), P(Y, 7.5, 39));
@@ -235,15 +295,18 @@ function enTramo(puntos, s) {
 export const ESPIGAS_POR_PUNTO = 10;
 const VEL_PUNTO = 36;
 
-/** Qué canales muestra cada filtro del panel. */
+/** Qué órganos muestra cada filtro del panel. */
 export const FILTROS = {
   lateral: ['lat_izq', 'lat_der'],
   larp: ['ant_izq', 'post_der'],
   ralp: ['ant_der', 'post_izq'],
-  todos: CANALES.map((c) => c.id),
+  otolitos: OTOLITOS.map((o) => o.id),
+  todos: ORGANOS_VIA,
 };
 
 const COLOR_PAR = { lateral: '#4db6e8', larp: '#d18800', ralp: '#9b51d0' };
+/** Los otolitos no tienen par coplanar: van de un color propio. */
+const COLOR_OTOLITO = '#c9a26b';
 const ROJO = [224, 48, 42];
 const AZUL = [46, 125, 214];
 const GRIS = [107, 107, 115];
@@ -266,7 +329,7 @@ function colorTasa(t) {
 export class DibujoVia {
   constructor() {
     this.tramos = Object.fromEntries(
-      CANALES.map((c) => [c.id, tramos(c.id).map((s) => ({ ...s, espigas: [], fase: Math.random() }))]),
+      ORGANOS_VIA.map((id) => [id, tramos(id).map((s) => ({ ...s, espigas: [], fase: Math.random() }))]),
     );
   }
 
@@ -274,7 +337,7 @@ export class DibujoVia {
    * @param ctx       contexto 2D del lienzo
    * @param w, h      tamaño del lienzo en píxeles del aparato
    * @param dt        segundos de pantalla desde el cuadro anterior
-   * @param o         { act: `actividad`, f: función de cada canal, filtro,
+   * @param o         { act: `actividad`, f: función de cada órgano, filtro,
    *                  ciego, ojo: [horizontal, vertical, torsional] en °,
    *                  escala: píxeles del aparato por píxel CSS }
    */
@@ -284,6 +347,9 @@ export class DibujoVia {
     const oy = (h - ALTO * k) / 2 - Y0 * k;
     const X = ([x, y]) => [ox + x * k, oy + y * k];
     const visibles = new Set(FILTROS[filtro] ?? FILTROS.lateral);
+    // Los músculos, y sus fibras motoras, de los canales que mueven los
+    // órganos visibles: un utrículo prende los de los verticales de su lado.
+    const motores = new Set([...visibles].flatMap((id) => MOTORES_DE[id]));
     const letra = (tam, peso = 500) => `${peso} ${Math.max(9 * escala, tam * k)}px system-ui, sans-serif`;
     const grosor = Math.max(1.5 * escala, 0.42 * k);
 
@@ -309,10 +375,10 @@ export class DibujoVia {
 
     // Tramos, con sus puntos.
     const rPunto = Math.max(1.7 * escala, 0.55 * k);
-    for (const c of CANALES) {
-      if (!visibles.has(c.id)) continue;
-      for (const s of this.tramos[c.id]) {
-        const tasa = ciego ? TASA_REPOSO : act[s.tasa][c.id];
+    for (const id of ORGANOS_VIA) {
+      for (const s of this.tramos[id]) {
+        if (!(s.tasa === 'motor' ? motores.has(id) : visibles.has(id))) continue;
+        const tasa = ciego ? TASA_REPOSO : act[s.tasa][id];
         const color = ciego ? GRIS : colorTasa(tasa);
         const callado = !ciego && tasa < 3;
         ctx.strokeStyle = rgb(callado ? [63, 63, 70] : color);
@@ -366,30 +432,40 @@ export class DibujoVia {
     ctx.font = letra(2.2, 600);
     ctx.fillText(tx('FLM'), ...X([ANCHO / 2, 30]));
 
-    // Canales, con la lesión en su nervio.
-    for (const c of CANALES) {
-      const vis = visibles.has(c.id);
-      const [cx, cy] = X(P(c.lado, U_CANAL[c.tipo], Y_CANAL));
+    // Canales (anillos) y otolitos (máculas), con la lesión en su nervio.
+    const ROTULO = {
+      lateral: tx('lat.'),
+      anterior: tx('ant.'),
+      posterior: tx('post.'),
+      utriculo: tx('utr.'),
+      saculo: tx('sác.'),
+    };
+    for (const id of ORGANOS_VIA) {
+      const c = organo(id);
+      const vis = visibles.has(id);
+      const [cx, cy] = X(P(c.lado, U_ORGANO[c.tipo], Y_CANAL));
+      const color = COLOR_PAR[c.par] ?? COLOR_OTOLITO;
       ctx.globalAlpha = vis ? 1 : 0.3;
-      ctx.strokeStyle = COLOR_PAR[c.par];
+      ctx.strokeStyle = color;
       ctx.lineWidth = Math.max(2 * escala, 0.7 * k);
       ctx.beginPath();
-      ctx.arc(cx, cy, 2.6 * k, 0, 2 * Math.PI);
+      if (c.par) ctx.arc(cx, cy, 2.6 * k, 0, 2 * Math.PI);
+      else ctx.roundRect(cx - 2.8 * k, cy - 1.8 * k, 5.6 * k, 3.6 * k, 1.2 * k);
       ctx.stroke();
-      ctx.fillStyle = COLOR_PAR[c.par];
+      ctx.fillStyle = color;
       ctx.font = letra(2.4, 600);
-      ctx.fillText(c.tipo === 'lateral' ? tx('lat.') : c.tipo === 'anterior' ? tx('ant.') : tx('post.'), cx, cy + 5.2 * k);
-      if (vis && !ciego && f[c.id] < 1) {
-        // A dos tercios del canal al nervio.
+      ctx.fillText(ROTULO[c.tipo], cx, cy + 5.2 * k);
+      if (vis && !ciego && f[id] < 1) {
+        // A dos tercios del órgano al nervio.
         const nervio = NERVIO[VIA[c.tipo].nervio];
-        const a = P(c.lado, U_CANAL[c.tipo], Y_CANAL - 3);
+        const a = P(c.lado, U_ORGANO[c.tipo], Y_CANAL - 3);
         const b = P(c.lado, nervio.u, nervio.y);
         const [mx, my] = X([a[0] + (b[0] - a[0]) * 0.6, a[1] + (b[1] - a[1]) * 0.6]);
         ctx.strokeStyle = COLOR_LESION;
         ctx.lineWidth = Math.max(2.5 * escala, 0.8 * k);
         const d = 1.8 * k;
         ctx.beginPath();
-        if (f[c.id] === 0) {
+        if (f[id] === 0) {
           ctx.moveTo(mx - d, my - d);
           ctx.lineTo(mx + d, my + d);
           ctx.moveTo(mx + d, my - d);
@@ -435,12 +511,14 @@ export class DibujoVia {
       ctx.stroke();
     }
 
-    // Músculos, del color de su motoneurona.
-    const NOMBRE = { rm: tx('RM'), rl: tx('RL'), rs: tx('RS'), ri: tx('RI'), os: tx('OS'), oi: tx('OI') };
-    for (const c of CANALES) {
-      const vis = visibles.has(c.id);
-      const color = ciego || !vis ? GRIS : colorTasa(act.motor[c.id]);
-      for (const { musculo, lado } of musculosDe(c.id)) {
+    // Músculos, del color de su motoneurona: los de los ojos van con el canal
+    // que los mueve, el ECM con su sáculo.
+    const NOMBRE = { rm: tx('RM'), rl: tx('RL'), rs: tx('RS'), ri: tx('RI'), os: tx('OS'), oi: tx('OI'), ecm: tx('ECM') };
+    const conMusculo = [...CANALES.map((c) => c.id), ...OTOLITOS.filter((o) => o.tipo === 'saculo').map((o) => o.id)];
+    for (const id of conMusculo) {
+      const vis = CANAL[id] ? motores.has(id) : visibles.has(id);
+      const color = ciego || !vis ? GRIS : colorTasa(act.motor[id]);
+      for (const { musculo, lado } of musculosDe(id)) {
         const [mx, my] = X(posMusculo(musculo, lado));
         ctx.globalAlpha = vis ? 1 : 0.35;
         ctx.fillStyle = rgb(color);

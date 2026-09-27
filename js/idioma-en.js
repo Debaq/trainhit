@@ -307,7 +307,7 @@ export const HTML = {
   'lab.traza.leyenda':
     '<i class="h">horizontal</i> <i class="v">vertical</i> <i class="t">torsional</i> · ↑ right, up, upper pole to the right · 4 s',
   'lab.pat.ayuda':
-    'Each canal can be <b>normal</b>, <b>hypofunctional</b> (responds at half) or <b>areflexic</b> (does not respond). Everything follows from that: the firing rates, the reflex in each plane, the spontaneous nystagmus if the lesion is not compensated, and the corrective saccades. To see it, use the impulses in <b>Response</b> or move the head.',
+    'Each canal can be <b>normal</b>, <b>hypofunctional</b> (responds at half) or <b>areflexic</b> (does not respond). Everything follows from that: the firing rates, the reflex in each plane, the spontaneous nystagmus if the lesion is not compensated, and the corrective saccades. To see it, use the impulses in <b>Response</b> or move the head. The <b>utricle</b> and the <b>saccule</b> too: a lost utricle, uncompensated, rolls the eyes towards its side, and its pathway and the saccule’s show in <b>Pathway</b>.',
   'lab.pat.caso': 'Case',
   'lab.pat.der': 'on the right side',
   'lab.pat.grilla': 'state of each canal',
@@ -315,6 +315,8 @@ export const HTML = {
   'lab.pat.dercol': 'right',
   'lab.pat.lateral': 'lateral',
   'lab.pat.anterior': 'anterior',
+  'lab.pat.utriculo': 'utricle',
+  'lab.pat.saculo': 'saccule',
   'lab.pat.posterior': 'posterior',
   'lab.pat.compensado': 'compensated (no spontaneous nystagmus)',
   'lab.pat.sacadas': 'Corrective saccades',
@@ -370,8 +372,11 @@ export const HTML = {
   'lab.via.aria': 'the vestibulo-ocular reflex pathway, from canal to muscle',
   'lab.via.ayuda':
     'The <b>three-neuron arc</b>: the vestibular nerve carries the canal’s signal to the vestibular nuclei; from there it crosses the midline to the nuclei of the eye muscles (III, IV and VI), and from them to the muscle. Each canal excites two muscles, one in each eye, that move the eyes in its plane: the left lateral canal excites the left medial rectus and the right lateral rectus, which is why the eyes go right when the head turns left.',
-  'lab.via.plano': 'Plane',
-  'lab.via.todos': 'all three',
+  'lab.via.plano': 'Show',
+  'lab.via.todos': 'everything',
+  'lab.via.otolitos': 'utricle and saccule',
+  'lab.via.otol':
+    'The <b>otoliths</b>, which sense tilt, travel in the same nerve. The <b>utricle</b>, in the superior division, reaches the muscles of both vertical canals on its side: when that ear goes down the eyes roll a few degrees the other way (ocular counter-roll; this is the oVEMP pathway). The <b>saccule</b>, in the inferior division, descends to the sternocleidomastoid (<b>SCM</b>) on its side through the vestibulospinal tract: this is the cVEMP pathway. That is why a superior neuritis spares the cVEMP, and an inferior one, the oVEMP.',
   'lab.via.leyenda':
     'Each running dot is <b>10 spikes</b>: the closer together they go, the faster the neuron fires. A segment turns <b class="exc">red</b> when it fires more than at rest, <b class="inh">blue</b> when less, and dotted when silent. A <b class="lesion">cross</b> is a dead nerve; a bar, a hypofunctioning one.',
   'lab.via.comp':
@@ -712,6 +717,9 @@ export const TEXTO = {
   'lat.': 'lat.',
   'ant.': 'ant.',
   'post.': 'post.',
+  'utr.': 'utr.',
+  'sác.': 'sacc.',
+  ECM: 'SCM',
   RM: 'MR',
   RL: 'LR',
   RS: 'SR',
