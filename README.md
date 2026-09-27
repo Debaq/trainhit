@@ -133,7 +133,7 @@ puede ser externo, así que va autorizado por su hash sha256 en la CSP;
 | `H` | Abrir o cerrar las herramientas |
 | `S` | Abrir o cerrar el simulador (paciente simulado) |
 | `T` | Abrir o cerrar «Aprender a usar» |
-| `L` | Abrir el Laberinto 3D (`Esc` lo cierra; ahí adentro, flechas y `Q`/`E` giran la cabeza y `0` la centra) |
+| `L` | Abrir el Laberinto 3D (`Esc` lo cierra; ahí adentro, flechas y `Q`/`E` giran la cabeza, `0` la centra y `H` deja solo el visor) |
 | `Espacio` o `P` | Pausar y congelar la traza de abajo para medirla (la cámara sigue) |
 
 ### Idiomas
@@ -414,6 +414,10 @@ movimiento comparándolo con la orientación. Necesita HTTPS (en `localhost` no)
 y, en iPhone, el permiso que Safari pide al apretar el botón; «Centrar» corrige
 la deriva. Es una recreación de lo que hacía la app aVOR (Universidad de
 Sydney, solo iOS), que ya no está disponible.
+
+El botón de la esquina (o `H`) esconde la barra y el panel y deja solo el
+visor, en pantalla completa donde el navegador la permite; `Esc` o el mismo
+botón los traen de vuelta.
 
 Los laberintos se ven de tres formas, como en aVOR, elegidas en la barra de la
 sección: **a los lados** de la cabeza y grandes (la de entrada, con la cámara de

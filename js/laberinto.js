@@ -202,6 +202,29 @@ export function montaLaberinto() {
     b.addEventListener('click', () => ponVista(b.dataset.vista));
   }
   $('lab-salir').addEventListener('click', () => cierra());
+  $('lab-visor').addEventListener('click', () => soloVisor(!seccion.classList.contains('solo-visor')));
+
+  /**
+   * Solo el visor: esconde la barra y el panel. Donde se puede, pide además
+   * pantalla completa —en el teléfono es lo que más se gana—; si el navegador
+   * la saca (Esc, gesto de volver), vuelven las herramientas.
+   */
+  function soloVisor(si) {
+    seccion.classList.toggle('solo-visor', si);
+    const b = $('lab-visor');
+    b.setAttribute('aria-pressed', String(si));
+    b.textContent = si ? '⤡' : '⤢';
+    b.title = si ? tx('volver a las herramientas (H)') : tx('solo el visor 3D, sin barra ni panel (H)');
+    try {
+      if (si && !document.fullscreenElement) seccion.requestFullscreen?.().catch(() => {});
+      if (!si && document.fullscreenElement === seccion) document.exitFullscreen?.().catch(() => {});
+    } catch {
+      /* sin pantalla completa: queda igual el visor solo */
+    }
+  }
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement && seccion.classList.contains('solo-visor')) soloVisor(false);
+  });
   $('lab-centrar').addEventListener('click', () => centra());
   for (const b of seccion.querySelectorAll('[data-modo-lab]')) {
     b.addEventListener('click', () => {
@@ -473,6 +496,7 @@ export function montaLaberinto() {
     cancelAnimationFrame(st.raf);
     st.raf = 0;
     apagaSensores();
+    soloVisor(false);
     $('btn-laberinto').focus();
   }
 
@@ -485,7 +509,8 @@ export function montaLaberinto() {
       e.preventDefault();
       giraMundo(eje, g);
     };
-    if (k === 'Escape') cierra();
+    if (k === 'Escape') seccion.classList.contains('solo-visor') ? soloVisor(false) : cierra();
+    else if (k === 'h' || k === 'H') soloVisor(!seccion.classList.contains('solo-visor'));
     else if (k === 'ArrowLeft') gira([0, 1, 0], -paso);
     else if (k === 'ArrowRight') gira([0, 1, 0], paso);
     else if (k === 'ArrowUp') gira([1, 0, 0], -paso);

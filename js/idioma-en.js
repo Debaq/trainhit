@@ -286,6 +286,7 @@ export const HTML = {
   'lab.v.ejes': 'Axes',
   'lab.v.respuesta': 'Response',
   'lab.v.patologia': 'Pathology',
+  'lab.visor.t': 'only the 3D viewer, without bar or panel (H)',
   'lab.traza.aria': 'position of the right eye over time',
   'lab.traza.leyenda':
     '<i class="h">horizontal</i> <i class="v">vertical</i> <i class="t">torsional</i> · ↑ right, up, upper pole to the right · 4 s',
@@ -644,4 +645,6 @@ export const TEXTO = {
   'sin compensar': 'uncompensated',
   'sacadas {tipo}': '{tipo} saccades',
   'Era: {caso}.': 'It was: {caso}.',
+  'volver a las herramientas (H)': 'back to the tools (H)',
+  'solo el visor 3D, sin barra ni panel (H)': 'only the 3D viewer, without bar or panel (H)',
 };

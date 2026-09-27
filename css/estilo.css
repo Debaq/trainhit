@@ -1077,6 +1077,24 @@ body.con-laberinto { overflow: hidden; }
 .lab-vcab { margin: 0; font-size: 12px; color: var(--muted-fg); }
 .lab-vcab b { color: var(--foreground); font-variant-numeric: tabular-nums; }
 
+/* Solo el visor: sin barra, panel ni ayuda de gestos. El botón de la esquina
+   queda siempre, para volver. */
+.lab-visor {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  font-size: 18px;
+  line-height: 1;
+  background: rgba(24, 24, 27, 0.75);
+}
+.laberinto.solo-visor .lab-barra,
+.laberinto.solo-visor .lab-panel,
+.laberinto.solo-visor .lab-gestos { display: none; }
+
 /* Ojos de cerca: arriba a la izquierda de la escena. El hueco de arriba lo
    pinta three.js en el mismo lienzo (por eso es transparente); abajo, la
    traza. No captura el puntero: el arrastre pasa al modelo. */
