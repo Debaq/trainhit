@@ -1,7 +1,9 @@
 // Gráficos en canvas. Nada de librerías.
 //
-// La paleta es la del motor nativo (`rust/src/gui/theme.rs`): son tonos medios
-// elegidos para leerse igual sobre fondo claro y oscuro, no una decoración.
+// Los colores NO se escriben acá: salen de las fichas de `css/estilo.css`,
+// que es donde vive la paleta de los dos temas. `leePaleta` las lee y llena
+// `COLOR`; los valores de abajo son los del tema oscuro, para lo que corre sin
+// página (los tests en node) o antes de la primera lectura.
 
 import { monotona } from './curve.js';
 import { RECHAZO_TEXT, SIGNO_DERECHA, sideSign } from './analysis.js';
@@ -17,9 +19,75 @@ export const COLOR = {
   bad: '#D62D2D',
   guia: '#4DB6E8',
   borde: '#27272A',
+  cero: '#3F3F46',
   muted: '#A1A1AA',
   texto: '#FAFAFA',
+  tramo: 'rgba(250,250,250,0.05)',
+  globo: 'rgba(9,9,11,0.88)',
+  banda: 'rgba(46,158,84,0.08)',
+  rechazo: 'rgba(214,45,45,0.9)',
+  sobreColor: '#FFFFFF',
+  video: '#000000',
+  sobreVideo: '#A1A1AA',
 };
+
+/** De qué ficha del CSS sale cada color del canvas. */
+const FICHAS = {
+  cabeza: '--c-head',
+  ojo: '--c-eye',
+  overt: '--c-bad',
+  covert: '--c-covert',
+  ok: '--c-ok',
+  warn: '--c-warn',
+  bad: '--c-bad',
+  guia: '--c-guide',
+  borde: '--plot-grilla',
+  cero: '--plot-cero',
+  muted: '--plot-texto',
+  texto: '--plot-tinta',
+  tramo: '--plot-tramo',
+  globo: '--plot-globo',
+  banda: '--plot-banda',
+  rechazo: '--plot-rechazo',
+  sobreColor: '--sobre-color',
+  video: '--video',
+  sobreVideo: '--sobre-video',
+};
+
+/**
+ * Vuelve a leer la paleta del CSS. Se llama al arrancar y cada vez que cambia
+ * el tema; después hay que redibujar.
+ *
+ * No alcanza con `getPropertyValue('--c-head')`: una ficha sin registrar se
+ * devuelve como está escrita, y acá están escritas como `light-dark(…)` o
+ * `color-mix(…)`, que el canvas no entiende. Se las hace resolver al
+ * navegador poniéndolas de `color` de un elemento de prueba: el color
+ * computado sale siempre como `rgb(…)`, ya con el tema que corresponde.
+ */
+export function leePaleta() {
+  const prueba = document.createElement('i');
+  prueba.hidden = true;
+  document.body.appendChild(prueba);
+  const cs = getComputedStyle(prueba);
+  for (const [k, ficha] of Object.entries(FICHAS)) {
+    prueba.style.color = `var(${ficha})`;
+    const c = aRgb(cs.color);
+    if (c) COLOR[k] = c;
+  }
+  prueba.remove();
+}
+
+/**
+ * Un `color-mix(in srgb, …)` computado sale como `color(srgb r g b / a)`,
+ * con los canales de 0 a 1. Se lo pasa a `rgba()`, que lo entiende cualquier
+ * canvas; lo demás ya viene como `rgb(…)`.
+ */
+function aRgb(c) {
+  const m = /^color\(srgb ([\d.e-]+) ([\d.e-]+) ([\d.e-]+)(?: \/ ([\d.e-]+))?\)$/.exec(c);
+  if (!m) return c;
+  const [r, g, b] = [m[1], m[2], m[3]].map((v) => Math.round(Number(v) * 255));
+  return `rgba(${r},${g},${b},${m[4] ?? 1})`;
+}
 
 /** Prepara el canvas para la densidad de pantalla y devuelve el contexto. */
 export function prepara(canvas) {
@@ -67,7 +135,7 @@ function marco(ctx, w, h, pad, o) {
 
   for (const v of niceTicks(y0, y1, yTicks)) {
     const y = Math.round(py(v)) + 0.5;
-    ctx.strokeStyle = Math.abs(v) < 1e-9 ? '#3F3F46' : COLOR.borde;
+    ctx.strokeStyle = Math.abs(v) < 1e-9 ? COLOR.cero : COLOR.borde;
     ctx.beginPath();
     ctx.moveTo(pad.l, y);
     ctx.lineTo(w - pad.r, y);
@@ -192,8 +260,8 @@ function recorta(ctx, pad, w, h) {
   ctx.clip();
 }
 
-function vacio(ctx, w, h, txt) {
-  ctx.fillStyle = COLOR.muted;
+function vacio(ctx, w, h, txt, color = COLOR.muted) {
+  ctx.fillStyle = color;
   ctx.font = '12px system-ui, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -388,7 +456,7 @@ function cursorMedicion(ctx, w, h, pad, { px, py, x0, x1 }, med, series, unidadX
     ctx.stroke();
     ctx.setLineDash([]);
     // El tramo medido, sombreado: el ojo ve el intervalo sin leer el número.
-    ctx.fillStyle = 'rgba(250,250,250,0.05)';
+    ctx.fillStyle = COLOR.tramo;
     ctx.fillRect(Math.min(x, xa), pad.t, Math.abs(x - xa), h - pad.t - pad.b);
   }
 
@@ -448,7 +516,7 @@ function etiqueta(ctx, w, h, pad, x, filas, colores) {
   const cx = izq ? x - 10 - anchoCaja : x + 10;
   const cy = pad.t + 6;
 
-  ctx.fillStyle = 'rgba(9,9,11,0.88)';
+  ctx.fillStyle = COLOR.globo;
   ctx.strokeStyle = COLOR.borde;
   ctx.lineWidth = 1;
   ctx.beginPath();
@@ -686,11 +754,11 @@ function cajaRechazo(ctx, w, h, pad, { px, py }, trial, ventana) {
   ctx.font = '600 10px ui-monospace, SFMono-Regular, monospace';
   const ancho = ctx.measureText(motivo).width + 10;
   const cx = Math.min(w - pad.r - ancho, Math.max(pad.l, izq));
-  ctx.fillStyle = 'rgba(214,45,45,0.9)';
+  ctx.fillStyle = COLOR.rechazo;
   ctx.beginPath();
   ctx.roundRect(cx, pad.t + 1, ancho, 15, 4);
   ctx.fill();
-  ctx.fillStyle = '#fff';
+  ctx.fillStyle = COLOR.sobreColor;
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
   ctx.fillText(motivo, cx + 5, pad.t + 9);
@@ -731,7 +799,7 @@ export function overlayLado(canvas, trials, side, cfg, seleccion, { promedio = f
   const banda = signoBanda(side);
   const bMax = py(cfg.accept.peakMaxDegS * banda);
   const bMin = py(cfg.accept.peakMinDegS * banda);
-  ctx.fillStyle = 'rgba(46,158,84,0.07)';
+  ctx.fillStyle = COLOR.banda;
   ctx.fillRect(pad.l, Math.min(bMax, bMin), w - pad.l - pad.r, Math.abs(bMin - bMax));
 
   recorta(ctx, pad, w, h);
@@ -802,13 +870,13 @@ export function dibujaPulso(canvas, trial, cfg, { medicion = null } = {}) {
   });
 
   if (trial.core) {
-    ctx.fillStyle = 'rgba(250,250,250,0.05)';
+    ctx.fillStyle = COLOR.tramo;
     ctx.fillRect(px(trial.tOnsetMs), pad.t, px(trial.tOffsetMs) - px(trial.tOnsetMs), h - pad.t - pad.b);
   }
   ctx.setLineDash([3, 3]);
   // Los umbrales de entrada y salida también van del lado del impulso.
   for (const v of [cfg.impulse.onDegS, cfg.impulse.offDegS].map((u) => u * signoBanda(trial.side))) {
-    ctx.strokeStyle = '#3F3F46';
+    ctx.strokeStyle = COLOR.cero;
     ctx.beginPath();
     ctx.moveTo(pad.l, py(v));
     ctx.lineTo(w - pad.r, py(v));
@@ -852,7 +920,7 @@ export function dibujaDispersion(canvas, trials, cfg, { metodo = 'area', antes =
   const pad = { l: 36, r: 6, t: 12, b: 16 };
   const { px, py } = marco(ctx, w, h, pad, { x0: 0, x1: 350, y0: 0, y1: 1.6, unidad: tx('ganancia / °/s') });
 
-  ctx.fillStyle = 'rgba(46,158,84,0.07)';
+  ctx.fillStyle = COLOR.banda;
   ctx.fillRect(px(cfg.accept.peakMinDegS), pad.t, px(cfg.accept.peakMaxDegS) - px(cfg.accept.peakMinDegS), h - pad.t - pad.b);
   ctx.strokeStyle = COLOR.warn;
   ctx.setLineDash([4, 4]);
@@ -965,10 +1033,10 @@ export function dibujaPuntos(ctx, landmarks, idx, w, h) {
  */
 export function dibujaOjo(canvas, video, crop, landmarks, ojo, espejo, { simDeltaMm = 0, pxPerMm = null } = {}) {
   const { ctx, w, h } = prepara(canvas);
-  ctx.fillStyle = '#09090B';
+  ctx.fillStyle = COLOR.video;
   ctx.fillRect(0, 0, w, h);
   if (!crop || !video?.videoWidth) {
-    vacio(ctx, w, h, '—');
+    vacio(ctx, w, h, '—', COLOR.sobreVideo);
     return;
   }
   const vw = video.videoWidth;

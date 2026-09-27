@@ -17,6 +17,7 @@ import { leeSesion, textoSesion } from './sesion.js';
 import { textoGift } from './preguntas.js';
 import { PERFILES, arrastre, offsetConMirada, parametrosPulso, simulaCrudo } from './simulacion.js';
 import { IDIOMAS, alCambiarIdioma, idioma, idiomaInicial, ponIdioma, tx } from './idioma.js';
+import { alCambiarTema, ponTema, siguienteTema, tema } from './tema.js';
 import { MIN_POR_LADO, corrige, preguntasPractica } from './practica.js';
 
 /**
@@ -1816,7 +1817,47 @@ function montaIdioma() {
   ponIdioma(idiomaInicial(), { guarda: false });
 }
 
+/**
+ * Botón del tema: da la vuelta sistema → claro → oscuro. Lleva el dibujo del
+ * tema en que está, no del que sigue: con tres estados, «lo que pasa si
+ * aprieto» no se adivina, y «dónde estoy» sí sirve.
+ *
+ * Los canvas pintan con colores ya leídos: al cambiar el tema hay que volver
+ * a leer la paleta y redibujar todo.
+ */
+function montaTema() {
+  const boton = $('btn-tema');
+  const DIBUJO = { sistema: '◐', claro: '☀', oscuro: '☾' };
+  const NOMBRE = {
+    sistema: () => tx('tema: el del sistema'),
+    claro: () => tx('tema: claro'),
+    oscuro: () => tx('tema: oscuro'),
+  };
+  const pinta = () => {
+    const t = tema();
+    boton.textContent = DIBUJO[t];
+    boton.title = tx('{tema} (clic para cambiar)', { tema: NOMBRE[t]() });
+    boton.setAttribute('aria-label', NOMBRE[t]());
+  };
+  const repinta = () => {
+    plots.leePaleta();
+    ensucia();
+  };
+  boton.addEventListener('click', () => ponTema(siguienteTema()));
+  alCambiarTema(() => {
+    pinta();
+    repinta();
+  });
+  alCambiarIdioma(pinta);
+  // La hoja de estilo la pone `arranque.js` y puede terminar de llegar después
+  // de este módulo: la paleta se vuelve a leer cuando está todo cargado.
+  window.addEventListener('load', repinta, { once: true });
+  pinta();
+  plots.leePaleta();
+}
+
 montaIdioma();
+montaTema();
 sliders();
 montaSimulacion();
 atajos();

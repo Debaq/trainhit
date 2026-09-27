@@ -13,6 +13,15 @@
   const V = mapa.imports['./js/app.js'].split('?v=')[1];
   document.documentElement.dataset.v = V;
 
+  // El tema elegido a mano, antes que la hoja de estilo: así la página no
+  // aparece un instante con el del sistema. Ver tema.js.
+  try {
+    const tema = { claro: 'light', oscuro: 'dark' }[localStorage.getItem('trainhit.tema')];
+    if (tema) document.documentElement.dataset.theme = tema;
+  } catch {
+    /* sin almacenamiento: queda el del sistema */
+  }
+
   const hoja = document.createElement('link');
   hoja.rel = 'stylesheet';
   hoja.href = `css/estilo.css?v=${V}`;

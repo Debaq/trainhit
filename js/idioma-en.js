@@ -290,6 +290,11 @@ export const TEXTO = {
   'modelo en CPU: más lento': 'model on CPU: slower',
   'sin rVFC: timestamps peores': 'no rVFC: worse timestamps',
   'error: {msg}': 'error: {msg}',
+  // ── tema ──
+  'tema: el del sistema': 'theme: follow the system',
+  'tema: claro': 'theme: light',
+  'tema: oscuro': 'theme: dark',
+  '{tema} (clic para cambiar)': '{tema} (click to change)',
   detenido: 'stopped',
   'calibración cancelada: se apagó la cámara': 'calibration cancelled: the camera was turned off',
   'encender la cámara antes de calibrar': 'turn on the camera before calibrating',

@@ -1,17 +1,38 @@
-/* Paleta y fichas de diseño del motor nativo (rust/src/gui/theme.rs):
-   la escala zinc de shadcn para la interfaz, y los colores clínicos —que los
-   eligió la lectura de los gráficos, no la moda— sin tocar. */
-:root {
-  --background: #09090b;
-  --surface: #18181b;
-  --foreground: #fafafa;
-  --muted-fg: #a1a1aa;
-  --muted: #27272a;
-  --accent: #3f3f46;
-  --accent-strong: #52525b;
-  --border: #27272a;
-  --input: #09090b;
+/* ── paleta ──────────────────────────────────────────────────────────────────
 
+   TODO color de la página sale de acá. Ni el CSS de abajo ni el canvas
+   (`plots.js`, `leePaleta`) llevan un color escrito: si un tono cambia, cambia
+   en este bloque y en ningún otro lado.
+
+   Dos temas en un solo lugar: cada ficha es `light-dark(claro, oscuro)` y el
+   que manda es `color-scheme`. Por defecto sigue al sistema; el botón de la
+   barra (tema.js) lo fija con `data-theme` en <html>. No hay un segundo bloque
+   con el tema claro que se pueda desincronizar del oscuro.
+
+   La interfaz es la escala zinc de shadcn, la del motor nativo
+   (rust/src/gui/theme.rs). Los colores clínicos —que los eligió la lectura de
+   los gráficos, no la moda— son los mismos en los dos temas: la cabeza es
+   azul y el ojo naranja con cualquier fondo. Lo que cambia es su versión
+   `-texto`, para las letras: sobre blanco el amarillo, el verde, el celeste y
+   el naranja no llegan al contraste mínimo (4.5:1) y se oscurecen. */
+:root {
+  color-scheme: light dark;
+
+  /* interfaz */
+  --background: light-dark(#f4f4f5, #09090b);
+  --surface: light-dark(#ffffff, #18181b);
+  --foreground: light-dark(#09090b, #fafafa);
+  --foreground-2: light-dark(#3f3f46, #d4d4d8); /* párrafos: un paso debajo del título */
+  --muted-fg: light-dark(#52525b, #a1a1aa);
+  --dim: #71717a; /* notas al pie de una perilla, revistas de las citas */
+  --faint: light-dark(#a1a1aa, #52525b); /* la versión, al fondo del cajón */
+  --muted: light-dark(#f4f4f5, #27272a);
+  --accent: light-dark(#e4e4e7, #3f3f46);
+  --accent-strong: light-dark(#d4d4d8, #52525b);
+  --border: light-dark(#e4e4e7, #27272a);
+  --input: light-dark(#ffffff, #09090b);
+
+  /* clínicos: trazas, marcas y rellenos */
   --c-head: #2e7dd6;
   --c-eye: #e8721c;
   --c-ok: #2e9e54;
@@ -20,13 +41,43 @@
   --c-covert: #9b51d0;
   --c-guide: #4db6e8;
 
+  /* clínicos: letras */
+  --c-head-texto: light-dark(#1f67b8, var(--c-head));
+  --c-eye-texto: light-dark(#b8520a, var(--c-eye));
+  --c-ok-texto: light-dark(#1f7a3e, var(--c-ok));
+  --c-warn-texto: light-dark(#8f5c00, var(--c-warn));
+  --c-bad-texto: light-dark(#c42020, var(--c-bad));
+  --c-covert-texto: light-dark(#8440b8, var(--c-covert));
+  --c-guide-texto: light-dark(#17709e, var(--c-guide));
+
+  /* superficies especiales */
+  --sobre-color: #ffffff; /* letras sobre un relleno clínico (botón primario, rótulos) */
+  --video: #000000; /* detrás del video y de los ojos: es imagen, no interfaz */
+  --sobre-video: #a1a1aa; /* letras sobre ese negro, en los dos temas */
+  --velo: light-dark(rgb(24 24 27 / 0.45), rgb(9 9 11 / 0.75));
+  --velo-foco: light-dark(rgb(24 24 27 / 0.4), rgb(9 9 11 / 0.62));
+  --sombra: light-dark(rgb(24 24 27 / 0.16), rgb(0 0 0 / 0.5));
+  --fila-alterna: light-dark(rgb(0 0 0 / 0.025), rgb(255 255 255 / 0.02));
+
+  /* canvas: los lee plots.js */
+  --plot-grilla: var(--border);
+  --plot-cero: light-dark(#a1a1aa, #3f3f46);
+  --plot-texto: var(--muted-fg);
+  --plot-tinta: var(--foreground);
+  --plot-tramo: light-dark(rgb(9 9 11 / 0.06), rgb(250 250 250 / 0.05));
+  --plot-globo: light-dark(rgb(255 255 255 / 0.94), rgb(9 9 11 / 0.88));
+  --plot-banda: color-mix(in srgb, var(--c-ok) 8%, transparent);
+  --plot-rechazo: color-mix(in srgb, var(--c-bad) 90%, transparent);
+
   --r-widget: 6px;
   --r-window: 8px;
 }
+:root[data-theme='light'] { color-scheme: light; }
+:root[data-theme='dark'] { color-scheme: dark; }
 
 * { box-sizing: border-box; }
 
-:focus-visible { outline: 2px solid var(--c-guide); outline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--c-guide-texto); outline-offset: 2px; }
 
 html, body { height: 100%; }
 
@@ -63,7 +114,7 @@ body {
   line-height: 1.15;
   font-size: 11px;
   font-weight: 600;
-  color: #d4d4d8;
+  color: var(--foreground-2);
   padding-left: 10px;
   border-left: 1px solid var(--border);
   margin-left: 2px;
@@ -80,20 +131,20 @@ button.firma {
   cursor: pointer;
 }
 button.firma:hover { background: none; color: var(--foreground); }
-button.firma:hover i { color: #d4d4d8; }
+button.firma:hover i { color: var(--foreground-2); }
 button.enlace {
   background: none;
   border: 0;
   padding: 0;
   margin: 0 0 0 4px;
-  color: var(--c-guide);
+  color: var(--c-guide-texto);
   font: inherit;
   text-decoration: underline;
   text-underline-offset: 3px;
   cursor: pointer;
 }
 button.enlace:hover { background: none; color: var(--foreground); }
-a.enlace-manual { color: var(--c-guide); text-underline-offset: 3px; }
+a.enlace-manual { color: var(--c-guide-texto); text-underline-offset: 3px; }
 a.enlace-manual:hover { color: var(--foreground); }
 /* Un enlace con cara de botón: el manual se baja, no es una acción. */
 a.boton {
@@ -132,9 +183,9 @@ a.boton.ghost:hover { background: var(--accent); }
   margin: 0 0 18px;
   padding: 12px 16px;
   border-left: 3px solid var(--c-eye);
-  background: rgba(232, 114, 28, 0.06);
+  background: color-mix(in srgb, var(--c-eye) 6%, transparent);
   border-radius: 0 var(--r-widget) var(--r-widget) 0;
-  color: #e4e4e7;
+  color: var(--foreground-2);
   font-size: 14.5px;
   line-height: 1.55;
   font-style: italic;
@@ -156,7 +207,7 @@ a.boton.ghost:hover { background: var(--accent); }
   place-items: center;
   font: 600 12px ui-monospace, SFMono-Regular, monospace;
   font-style: normal;
-  color: #fff;
+  color: var(--sobre-color);
   flex: none;
 }
 .inicial.c1 { background: var(--c-head); }
@@ -167,7 +218,7 @@ img.inicial { object-fit: cover; box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px
 img.inicial.c2 { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--c-eye); }
 img.inicial.c3 { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--c-covert); }
 .acerca-equipo .gh { display: block; font: 12px ui-monospace, SFMono-Regular, monospace; color: var(--muted-fg); text-decoration: none; }
-.acerca-equipo .gh:hover { color: var(--c-guide); text-decoration: underline; }
+.acerca-equipo .gh:hover { color: var(--c-guide-texto); text-decoration: underline; }
 .acerca-lugar {
   display: flex;
   flex-direction: column;
@@ -178,11 +229,11 @@ img.inicial.c3 { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--c-covert)
   border-radius: var(--r-widget);
   background: var(--background);
 }
-.acerca-lugar b { color: var(--c-head); font-size: 14px; }
-.acerca-lugar span { color: #d4d4d8; font-size: 13px; }
-.acerca a { color: var(--c-guide); }
-.tarjeta .credito { margin-top: 12px; color: #d4d4d8; }
-.tarjeta .credito b { color: var(--c-head); }
+.acerca-lugar b { color: var(--c-head-texto); font-size: 14px; }
+.acerca-lugar span { color: var(--foreground-2); font-size: 13px; }
+.acerca a { color: var(--c-guide-texto); }
+.tarjeta .credito { margin-top: 12px; color: var(--foreground-2); }
+.tarjeta .credito b { color: var(--c-head-texto); }
 
 .badge {
   padding: 3px 9px;
@@ -190,10 +241,10 @@ img.inicial.c3 { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--c-covert)
   font: 600 11px ui-monospace, SFMono-Regular, monospace;
   letter-spacing: 0.4px;
 }
-.badge.ok { background: rgba(46, 158, 84, 0.15); color: var(--c-ok); }
-.badge.mal { background: rgba(214, 45, 45, 0.15); color: var(--c-bad); }
-.badge.warn { background: rgba(209, 136, 0, 0.15); color: var(--c-warn); cursor: help; }
-.badge.sim { background: rgba(155, 81, 208, 0.18); color: var(--c-covert); cursor: help; }
+.badge.ok { background: color-mix(in srgb, var(--c-ok) 15%, transparent); color: var(--c-ok-texto); }
+.badge.mal { background: color-mix(in srgb, var(--c-bad) 15%, transparent); color: var(--c-bad-texto); }
+.badge.warn { background: color-mix(in srgb, var(--c-warn) 15%, transparent); color: var(--c-warn-texto); cursor: help; }
+.badge.sim { background: color-mix(in srgb, var(--c-covert) 18%, transparent); color: var(--c-covert-texto); cursor: help; }
 button.badge { border: 0; cursor: pointer; white-space: nowrap; }
 
 .estado { color: var(--muted-fg); font: 12px ui-monospace, monospace; }
@@ -211,8 +262,8 @@ button.badge { border: 0; cursor: pointer; white-space: nowrap; }
 .chip i { color: var(--muted-fg); font-style: normal; font-size: 10px; text-transform: uppercase; }
 
 .megusta { display: inline-flex; gap: 5px; align-items: center; font-size: 13px; }
-.megusta:not(:disabled):hover { color: var(--c-bad); border-color: var(--c-bad); }
-.megusta.votado { color: var(--c-bad); border-color: var(--c-bad); opacity: 1; cursor: default; }
+.megusta:not(:disabled):hover { color: var(--c-bad-texto); border-color: var(--c-bad-texto); }
+.megusta.votado { color: var(--c-bad-texto); border-color: var(--c-bad-texto); opacity: 1; cursor: default; }
 .megusta:disabled { opacity: 0.9; }
 
 /* ── punto de fijación ───────────────────────────────────────────────────── */
@@ -236,21 +287,21 @@ button.badge { border: 0; cursor: pointer; white-space: nowrap; }
   pointer-events: none;
 }
 .fijacion[hidden] { display: none; }
-.fijacion p { margin: 0; font-size: 14px; color: #d4d4d8; text-shadow: 0 1px 6px #09090b; }
+.fijacion p { margin: 0; font-size: 14px; color: var(--foreground-2); text-shadow: 0 1px 6px var(--background); }
 .fijacion .cuenta { font: 600 13px ui-monospace, SFMono-Regular, monospace; color: var(--muted-fg); }
 .punto {
   width: 22px;
   height: 22px;
   border-radius: 50%;
   background: var(--c-bad);
-  box-shadow: 0 0 0 5px rgba(214, 45, 45, 0.18), 0 0 18px rgba(214, 45, 45, 0.5);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--c-bad) 18%, transparent), 0 0 18px color-mix(in srgb, var(--c-bad) 50%, transparent);
   animation: late 1.6s ease-in-out infinite;
 }
 /* El latido es para encontrarlo rápido, no para seguirlo: apenas se nota y se
    apaga si el sistema pide menos movimiento. */
 @keyframes late {
-  0%, 100% { box-shadow: 0 0 0 5px rgba(214, 45, 45, 0.18), 0 0 18px rgba(214, 45, 45, 0.5); }
-  50% { box-shadow: 0 0 0 9px rgba(214, 45, 45, 0.1), 0 0 22px rgba(214, 45, 45, 0.65); }
+  0%, 100% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--c-bad) 18%, transparent), 0 0 18px color-mix(in srgb, var(--c-bad) 50%, transparent); }
+  50% { box-shadow: 0 0 0 9px color-mix(in srgb, var(--c-bad) 10%, transparent), 0 0 22px color-mix(in srgb, var(--c-bad) 65%, transparent); }
 }
 @media (prefers-reduced-motion: reduce) {
   .punto { animation: none; }
@@ -262,7 +313,7 @@ button.badge { border: 0; cursor: pointer; white-space: nowrap; }
   position: fixed;
   inset: 0;
   z-index: 20;
-  background: rgba(9, 9, 11, 0.75);
+  background: var(--velo);
   display: grid;
   place-items: center;
   padding: 16px;
@@ -272,13 +323,13 @@ button.badge { border: 0; cursor: pointer; white-space: nowrap; }
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r-window);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 24px 60px var(--sombra);
   padding: 22px 24px;
   max-width: 540px;
 }
 .tarjeta h1 { margin: 0 0 10px; font-size: 26px; letter-spacing: -0.4px; }
 .tarjeta h1 b { color: var(--c-head); }
-.tarjeta p { margin: 0 0 10px; color: #d4d4d8; font-size: 14px; }
+.tarjeta p { margin: 0 0 10px; color: var(--foreground-2); font-size: 14px; }
 .tarjeta .ayuda { color: var(--muted-fg); font-size: 13px; }
 .tarjeta button { margin-top: 6px; }
 
@@ -300,7 +351,7 @@ button.badge { border: 0; cursor: pointer; white-space: nowrap; }
   pointer-events: none;
 }
 .tutorial[hidden] { display: none; }
-.tuto-fondo { position: absolute; inset: 0; background: rgba(9, 9, 11, 0.75); pointer-events: auto; }
+.tuto-fondo { position: absolute; inset: 0; background: var(--velo); pointer-events: auto; }
 .tutorial[data-modo='guia'] .tuto-fondo { display: none; }
 
 /* El foco oscurece todo MENOS el objetivo con una sombra enorme: así el
@@ -308,8 +359,8 @@ button.badge { border: 0; cursor: pointer; white-space: nowrap; }
 .tuto-foco {
   position: fixed;
   border-radius: var(--r-window);
-  box-shadow: 0 0 0 200vmax rgba(9, 9, 11, 0.62);
-  outline: 2px solid var(--c-guide);
+  box-shadow: 0 0 0 200vmax var(--velo-foco);
+  outline: 2px solid var(--c-guide-texto);
   pointer-events: none;
   transition: left 0.18s ease, top 0.18s ease, width 0.18s ease, height 0.18s ease;
 }
@@ -327,30 +378,30 @@ button.badge { border: 0; cursor: pointer; white-space: nowrap; }
 .tuto-tarjeta.flota { position: fixed; max-height: min(70dvh, 560px); padding: 12px 14px 10px; }
 .tuto-tarjeta h1 { font-size: 20px; margin: 4px 0 8px; }
 .tuto-tarjeta.flota h1 { font-size: 16px; }
-.tuto-cuerpo p, .tuto-cuerpo li { color: #d4d4d8; font-size: 14px; }
+.tuto-cuerpo p, .tuto-cuerpo li { color: var(--foreground-2); font-size: 14px; }
 .tuto-tarjeta.flota .tuto-cuerpo p, .tuto-tarjeta.flota .tuto-cuerpo li { font-size: 13px; }
 .tuto-cuerpo ul, .tuto-cuerpo ol { margin: 0 0 10px; padding-left: 20px; }
 .tuto-cuerpo li { margin-bottom: 4px; }
-.tuto-cuerpo .c-cabeza { color: var(--c-head); }
-.tuto-cuerpo .c-ojo { color: var(--c-eye); }
+.tuto-cuerpo .c-cabeza { color: var(--c-head-texto); }
+.tuto-cuerpo .c-ojo { color: var(--c-eye-texto); }
 
 /* Preguntas de «Casos a ciegas»: una opción por renglón, y la devolución
    abajo. El color va en el botón elegido, no en todos: la respuesta correcta
    no se delata hasta que se la elige. */
 .tuto-pregunta .opciones { display: flex; flex-direction: column; gap: 4px; margin: 4px 0 8px; }
 .tuto-pregunta .opciones button { margin: 0; text-align: left; font-size: 13px; padding: 5px 9px; }
-.tuto-pregunta .opciones button.bien { border-color: var(--c-ok); background: rgba(46, 158, 84, 0.18); }
-.tuto-pregunta .opciones button.mal { border-color: var(--c-bad); background: rgba(214, 45, 45, 0.14); }
+.tuto-pregunta .opciones button.bien { border-color: var(--c-ok-texto); background: color-mix(in srgb, var(--c-ok) 18%, transparent); }
+.tuto-pregunta .opciones button.mal { border-color: var(--c-bad-texto); background: color-mix(in srgb, var(--c-bad) 14%, transparent); }
 .tuto-pregunta .opciones button:disabled { cursor: default; opacity: 0.75; }
 .tuto-pregunta .opciones button.bien:disabled { opacity: 1; }
 .tuto-respuesta { font-size: 13px; padding: 6px 9px; border-radius: var(--r-widget); }
-.tuto-respuesta.ok { background: rgba(46, 158, 84, 0.12); }
-.tuto-respuesta.no { background: rgba(214, 45, 45, 0.1); }
+.tuto-respuesta.ok { background: color-mix(in srgb, var(--c-ok) 12%, transparent); }
+.tuto-respuesta.no { background: color-mix(in srgb, var(--c-bad) 10%, transparent); }
 .tuto-respuesta[hidden] { display: none; }
 
 .tuto-arriba { display: flex; align-items: center; gap: 8px; }
 .tuto-arriba button { margin: 0; padding: 2px 8px; font-size: 12px; color: var(--muted-fg); }
-.tuto-paseo { font: 600 11px ui-monospace, monospace; letter-spacing: 0.4px; text-transform: uppercase; color: var(--c-guide); }
+.tuto-paseo { font: 600 11px ui-monospace, monospace; letter-spacing: 0.4px; text-transform: uppercase; color: var(--c-guide-texto); }
 .tuto-arriba[hidden],
 .tuto-nav [hidden],
 .tuto-paseos[hidden] { display: none; }
@@ -369,7 +420,7 @@ button.badge { border: 0; cursor: pointer; white-space: nowrap; }
 .tuto-paseos button b { font-size: 14px; }
 .tuto-paseos button span { grid-column: 1; color: var(--muted-fg); font-size: 12px; }
 .tuto-paseos button i { grid-column: 2; grid-row: 1 / 3; align-self: center; font: 11px ui-monospace, monospace; font-style: normal; color: var(--muted-fg); }
-.tuto-paseos button.visto i { color: var(--c-ok); }
+.tuto-paseos button.visto i { color: var(--c-ok-texto); }
 
 /* 16:9 fijo: la tarjeta no salta de alto cuando la imagen termina de bajar. */
 .tuto-fig { margin: 0 0 10px; }
@@ -401,10 +452,10 @@ button.badge { border: 0; cursor: pointer; white-space: nowrap; }
   font-size: 12px;
   overflow: hidden;
 }
-.tuto-falta b { font: 600 11px ui-monospace, monospace; color: var(--c-warn); }
+.tuto-falta b { font: 600 11px ui-monospace, monospace; color: var(--c-warn-texto); }
 
-.tuto-espera { font: 600 12px ui-monospace, monospace; color: var(--c-warn); margin: 0 0 8px; }
-.tuto-espera.ok { color: var(--c-ok); }
+.tuto-espera { font: 600 12px ui-monospace, monospace; color: var(--c-warn-texto); margin: 0 0 8px; }
+.tuto-espera.ok { color: var(--c-ok-texto); }
 .tuto-espera[hidden] { display: none; }
 
 .tuto-nav { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
@@ -421,7 +472,7 @@ button.badge { border: 0; cursor: pointer; white-space: nowrap; }
 .barra {
   height: 8px;
   border-radius: 999px;
-  background: #27272a;
+  background: var(--muted);
   overflow: hidden;
   margin: 4px 0 12px;
 }
@@ -490,7 +541,7 @@ button.badge { border: 0; cursor: pointer; white-space: nowrap; }
   flex: none;
   width: 100%;
   aspect-ratio: 16 / 9;
-  background: #000;
+  background: var(--video);
   border: 1px solid var(--border);
   border-radius: var(--r-window);
   overflow: hidden;
@@ -507,7 +558,7 @@ button.badge { border: 0; cursor: pointer; white-space: nowrap; }
   inset: 0;
   display: grid;
   place-items: center;
-  color: var(--muted-fg);
+  color: var(--sobre-video);
   font: 12px ui-monospace, monospace;
   transform: scaleX(-1);
 }
@@ -523,7 +574,7 @@ button.badge { border: 0; cursor: pointer; white-space: nowrap; }
   display: block;
   width: 100%;
   aspect-ratio: 1.8;
-  background: #000;
+  background: var(--video);
   border: 1px solid var(--border);
   border-radius: var(--r-widget);
 }
@@ -550,20 +601,20 @@ button, select {
 }
 button:hover, select:hover { background: var(--accent); }
 button:active { background: var(--accent-strong); }
-button.primario { background: var(--c-head); border-color: transparent; color: #fff; font-weight: 600; }
+button.primario { background: var(--c-head); border-color: transparent; color: var(--sobre-color); font-weight: 600; }
 button.primario:hover { filter: brightness(1.1); }
-button.peligro:hover { background: rgba(214, 45, 45, 0.2); border-color: var(--c-bad); }
+button.peligro:hover { background: color-mix(in srgb, var(--c-bad) 20%, transparent); border-color: var(--c-bad-texto); }
 button.ghost { background: transparent; }
 /* Un botón que queda apretado tiene que verse apretado: `aria-pressed` es el
    estado de verdad y el color sale de ahí, no de una clase aparte que se
    pueda desincronizar. */
 button[aria-pressed='true'] {
-  background: rgba(209, 136, 0, 0.18);
-  border-color: var(--c-warn);
-  color: var(--c-warn);
+  background: color-mix(in srgb, var(--c-warn) 18%, transparent);
+  border-color: var(--c-warn-texto);
+  color: var(--c-warn-texto);
   font-weight: 600;
 }
-button[aria-pressed='true']:hover { background: rgba(209, 136, 0, 0.26); }
+button[aria-pressed='true']:hover { background: color-mix(in srgb, var(--c-warn) 26%, transparent); }
 
 select { max-width: 170px; }
 
@@ -600,12 +651,12 @@ kbd {
 }
 .lecturas i { display: block; font-style: normal; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px; }
 .lecturas b { color: var(--foreground); font-size: 14px; }
-.lecturas b.mal { color: var(--c-bad); }
+.lecturas b.mal { color: var(--c-bad-texto); }
 .lecturas > div[title] { cursor: help; }
 .leyenda-sac { margin-left: 6px; color: var(--muted-fg); font-size: 11px; }
 .leyenda-sac i { font-style: normal; margin: 0 2px 0 6px; }
-.c-covert { color: var(--c-covert); }
-.c-overt { color: var(--c-bad); }
+.c-covert { color: var(--c-covert-texto); }
+.c-overt { color: var(--c-bad-texto); }
 .glosario { grid-column: 1 / -1; font-size: 12px; color: var(--muted-fg); }
 .glosario summary { cursor: pointer; padding: 2px 0; }
 .glosario dl { margin: 6px 0 0; display: grid; grid-template-columns: max-content 1fr; gap: 4px 10px; }
@@ -651,8 +702,8 @@ kbd {
   margin-top: 6px;
 }
 .gan { font: 700 22px ui-monospace, monospace; }
-.gan.ok { color: var(--c-ok); }
-.gan.bajo { color: var(--c-bad); }
+.gan.ok { color: var(--c-ok-texto); }
+.gan.bajo { color: var(--c-bad-texto); }
 .gan.sin { color: var(--muted-fg); }
 .meta { color: var(--muted-fg); font-size: 12px; margin-left: auto; }
 
@@ -662,7 +713,7 @@ kbd {
 .lista { max-height: 160px; overflow-y: auto; flex: none; margin-top: 6px; }
 .lista table { width: 100%; border-collapse: collapse; font: 12px ui-monospace, monospace; }
 .lista td { padding: 2px 6px; border-bottom: 1px solid var(--border); cursor: pointer; }
-.lista tr:nth-child(odd) { background: rgba(255, 255, 255, 0.02); }
+.lista tr:nth-child(odd) { background: var(--fila-alterna); }
 .lista tr:hover td { background: var(--muted); }
 .lista tr.sel td { background: var(--accent); }
 .lista .num { color: var(--muted-fg); }
@@ -671,19 +722,19 @@ kbd {
   margin-left: 4px;
   padding: 0 4px;
   border-radius: 3px;
-  background: rgba(209, 136, 0, 0.18);
-  color: var(--c-warn);
+  background: color-mix(in srgb, var(--c-warn) 18%, transparent);
+  color: var(--c-warn-texto);
   font: 600 9px ui-monospace, monospace;
   font-style: normal;
   text-transform: uppercase;
 }
-.lista .simtag { background: rgba(155, 81, 208, 0.2); color: var(--c-covert); }
+.lista .simtag { background: color-mix(in srgb, var(--c-covert) 20%, transparent); color: var(--c-covert-texto); }
 .lista .sc {
   margin-left: 4px;
   padding: 0 4px;
   border-radius: 3px;
-  background: rgba(214, 45, 45, 0.15);
-  color: var(--c-bad);
+  background: color-mix(in srgb, var(--c-bad) 15%, transparent);
+  color: var(--c-bad-texto);
   font: 600 9px ui-monospace, monospace;
   font-style: normal;
 }
@@ -691,15 +742,15 @@ kbd {
 /* Ganancia sin calibrar: se muestra, pero no se lee como un resultado. */
 .lista .g.sin { color: var(--muted-fg); font-weight: 400; text-decoration: line-through dotted; }
 .lista .est { text-align: right; }
-.lista .est.ok { color: var(--c-ok); }
-.lista .est.mal { color: var(--c-bad); }
+.lista .est.ok { color: var(--c-ok-texto); }
+.lista .est.mal { color: var(--c-bad-texto); }
 .lista .acc { text-align: right; width: 22px; padding: 0 4px; }
 .lista s.antes { color: var(--muted-fg); font-weight: 400; }
 .lista .sac { padding: 2px 2px; font-size: 9px; white-space: nowrap; }
 .lista .sac i { font-style: normal; }
 .lista .x { background: none; border: 0; padding: 0 2px; color: var(--muted-fg); font: inherit; cursor: pointer; }
-.lista .x:hover { color: var(--c-bad); }
-.lista tr:focus-visible { outline: 2px solid var(--c-guide); outline-offset: -2px; }
+.lista .x:hover { color: var(--c-bad-texto); }
+.lista tr:focus-visible { outline: 2px solid var(--c-guide-texto); outline-offset: -2px; }
 
 /* ── franja de velocidad en vivo ─────────────────────────────────────────── */
 
@@ -732,7 +783,7 @@ kbd {
   max-width: 100vw;
   background: var(--surface);
   border-left: 1px solid var(--border);
-  box-shadow: -12px 0 32px rgba(0, 0, 0, 0.45);
+  box-shadow: -12px 0 32px var(--sombra);
   display: flex;
   flex-direction: column;
   z-index: 10;
@@ -758,23 +809,23 @@ kbd {
 }
 .cajon-cuerpo > section { min-width: 0; }
 .cajon-cuerpo > section > .ayuda:first-child { margin-top: 0; }
-.sim-info { margin: 8px 0; padding: 8px 10px; border-radius: var(--r-widget); background: rgba(155, 81, 208, 0.1); color: #e4e4e7; font-size: 13px; }
+.sim-info { margin: 8px 0; padding: 8px 10px; border-radius: var(--r-widget); background: color-mix(in srgb, var(--c-covert) 10%, transparent); color: var(--foreground-2); font-size: 13px; }
 /* Práctica con paciente al azar: el botón grande arriba, y adentro el avance,
    las preguntas (con el estilo de las del tutorial) y la nota. */
-.practica { margin: 10px 0 4px; padding: 10px; border: 1px solid rgba(155, 81, 208, 0.35); border-radius: var(--r-widget); }
+.practica { margin: 10px 0 4px; padding: 10px; border: 1px solid color-mix(in srgb, var(--c-covert) 35%, transparent); border-radius: var(--r-widget); }
 .practica > button.primario { width: 100%; }
 .practica > .ayuda { margin: 6px 0 0; }
 .practica-cuerpo { margin-top: 10px; }
 .practica-cuerpo[hidden] { display: none; }
 .practica-cuerpo .tuto-pregunta p { margin: 8px 0 4px; font-size: 13px; }
-.practica-cuerpo .opciones button.elegida { border-color: var(--c-covert); background: rgba(155, 81, 208, 0.2); }
+.practica-cuerpo .opciones button.elegida { border-color: var(--c-covert-texto); background: color-mix(in srgb, var(--c-covert) 20%, transparent); }
 .practica-avance { margin: 0 0 8px; font-variant-numeric: tabular-nums; font-size: 13px; }
-.practica-nota { margin: 0 0 4px; font-weight: 600; font-size: 14px; color: var(--c-bad); }
-.practica-nota.ok { color: var(--c-ok); }
+.practica-nota { margin: 0 0 4px; font-weight: 600; font-size: 14px; color: var(--c-bad-texto); }
+.practica-nota.ok { color: var(--c-ok-texto); }
 .sim-o { margin: 10px 0 4px; color: var(--muted-fg); font-size: 12px; }
 .sim-o[hidden] { display: none; }
 /* El botón de la barra se ve encendido mientras hay un paciente simulado. */
-#btn-simulador.activo { color: var(--c-covert); border-color: var(--c-covert); background: rgba(155, 81, 208, 0.14); }
+#btn-simulador.activo { color: var(--c-covert-texto); border-color: var(--c-covert-texto); background: color-mix(in srgb, var(--c-covert) 14%, transparent); }
 /* Adentro del cajón nada pasa del ancho: los selectores y las etiquetas se
    achican o bajan de renglón. */
 .cajon select { max-width: 100%; min-width: 0; }
@@ -790,7 +841,7 @@ kbd {
   padding: 7px 9px;
   margin: 6px 0;
   font: 12px ui-monospace, monospace;
-  color: var(--c-guide);
+  color: var(--c-guide-texto);
   overflow-x: auto;
 }
 .ayuda { margin: 6px 0; color: var(--muted-fg); font-size: 12px; }
@@ -801,19 +852,19 @@ kbd {
 .perilla > span { display: block; }
 .perilla b { color: var(--foreground); font-family: ui-monospace, monospace; }
 .perilla input[type='range'] { width: 100%; margin: 3px 0 0; accent-color: var(--c-head); }
-.perilla small { display: block; font-size: 11px; color: #71717a; }
+.perilla small { display: block; font-size: 11px; color: var(--dim); }
 
 .pasos { margin: 0; padding-left: 18px; color: var(--muted-fg); font-size: 12px; }
 .pasos li { margin-bottom: 5px; }
 .pasos b { color: var(--foreground); }
 
 .cajon-head small { color: var(--muted-fg); font: 400 11px ui-monospace, monospace; }
-.pie { margin: 12px 0 0; color: #52525b; font: 11px ui-monospace, monospace; }
+.pie { margin: 12px 0 0; color: var(--faint); font: 11px ui-monospace, monospace; }
 
 .refs { margin: 0; padding-left: 16px; color: var(--muted-fg); font-size: 12px; }
 .refs li { margin-bottom: 7px; }
-.refs a { color: var(--c-guide); }
-.refs i { color: #71717a; }
+.refs a { color: var(--c-guide-texto); }
+.refs i { color: var(--dim); }
 
 /* ── anchos chicos ───────────────────────────────────────────────────────── */
 
