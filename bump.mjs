@@ -25,9 +25,20 @@ export function modulos() {
     .sort();
 }
 
+// Módulos de afuera con nombre pelado. three.js va acá y no con su URL en el
+// import porque sus agregados (GLTFLoader) importan `three` a secas: sin esta
+// entrada, el navegador no sabe qué es. La versión va fija en la URL.
+export const EXTERNOS = {
+  three: 'https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js',
+  'three/addons/': 'https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/',
+};
+
 export function mapaJson(version) {
   return JSON.stringify({
-    imports: Object.fromEntries(modulos().map((m) => [`./js/${m}.js`, `./js/${m}.js?v=${version}`])),
+    imports: {
+      ...Object.fromEntries(modulos().map((m) => [`./js/${m}.js`, `./js/${m}.js?v=${version}`])),
+      ...EXTERNOS,
+    },
   });
 }
 

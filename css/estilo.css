@@ -953,3 +953,140 @@ kbd {
   .meta { margin-left: 0; }
   .ojos canvas { aspect-ratio: 1.6; }
 }
+
+/* ── laberinto 3D ────────────────────────────────────────────────────────── */
+
+/* Toma la pantalla entera, encima de todo lo de trainHIT: barra propia, el
+   lienzo y un panel al costado (abajo en el teléfono). */
+.laberinto {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  background: var(--background);
+}
+.laberinto[hidden] { display: none; }
+body.con-laberinto { overflow: hidden; }
+
+.lab-barra {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 7px 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.lab-barra .marca b { color: var(--c-guide); }
+.lab-barra .espacio { flex: 1; }
+.lab-vistas { display: flex; gap: 2px; padding: 2px; background: var(--background); border-radius: var(--r-window); }
+.lab-vistas button { border: 0; background: transparent; color: var(--muted-fg); }
+.lab-vistas button[aria-selected='true'] { background: var(--accent); color: var(--foreground); font-weight: 600; }
+
+.lab-cuerpo { flex: 1; min-height: 0; display: flex; }
+.lab-escena { position: relative; flex: 1; min-width: 0; overflow: hidden; }
+#lab-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* El gesto es del modelo: sin esto el navegador desplaza o hace zoom a la página. */
+  touch-action: none;
+  cursor: grab;
+}
+#lab-canvas:active { cursor: grabbing; }
+
+.lab-rotulos { position: absolute; inset: 0; pointer-events: none; }
+.lab-rotulos[hidden] { display: none; }
+.lab-rotulo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(9, 9, 11, 0.72);
+  border: 1px solid currentColor;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.lab-rotulo[hidden] { display: none; }
+
+.lab-estado {
+  position: absolute;
+  inset: 45% 0 auto;
+  margin: 0;
+  text-align: center;
+  color: var(--muted-fg);
+}
+.lab-estado[hidden] { display: none; }
+.lab-gestos {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 6px;
+  margin: 0;
+  padding: 0 10px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--muted-fg);
+  pointer-events: none;
+}
+
+.lab-panel {
+  width: clamp(280px, 24vw, 360px);
+  flex: none;
+  overflow-y: auto;
+  padding: 12px 14px;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+}
+.lab-panel section { display: flex; flex-direction: column; gap: 8px; }
+.lab-panel section[hidden] { display: none; }
+.lab-panel .ayuda { margin: 0; font-size: 12.5px; }
+.lab-panel h3 { margin: 6px 0 0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted-fg); }
+.lab-panel h3 small { text-transform: none; letter-spacing: 0; font-weight: 400; }
+.lab-panel .campo input[type='range'] { flex: 1; min-width: 0; }
+.lab-panel .campo output { min-width: 5.5em; text-align: right; font-variant-numeric: tabular-nums; color: var(--foreground); }
+
+/* Colores de par (vista canales y ejes) y de respuesta. */
+.par-lateral { color: #4db6e8; }
+.par-larp { color: #d18800; }
+.par-ralp { color: #9b51d0; }
+.lab-panel .exc { color: #ef5a52; }
+.lab-panel .inh { color: #5b9be6; }
+
+.lab-leyenda { display: flex; gap: 14px; margin: 0; padding: 0; list-style: none; font-size: 12px; }
+.lab-leyenda li::before { content: '●'; margin-right: 5px; }
+
+.lab-movimientos { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.lab-movimientos button { padding: 6px 8px; font-size: 12px; text-align: left; }
+
+.lab-barras { display: grid; gap: 5px; }
+.lab-fila { display: grid; grid-template-columns: 7.5em 1fr 2.6em; align-items: center; gap: 8px; font-size: 12px; }
+.lab-fila .nombre { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lab-fila .pista { position: relative; height: 10px; border-radius: 3px; background: var(--muted); overflow: hidden; }
+.lab-fila .relleno { position: absolute; inset: 0 auto 0 0; background: #8a8a93; }
+.lab-fila .relleno.exc { background: #e0302a; }
+.lab-fila .relleno.inh { background: #2e7dd6; }
+.lab-fila .reposo { position: absolute; top: -2px; bottom: -2px; width: 1px; background: var(--foreground); opacity: 0.7; }
+.lab-fila .valor { text-align: right; font-variant-numeric: tabular-nums; color: var(--foreground); font-weight: 500; }
+.lab-vcab { margin: 0; font-size: 12px; color: var(--muted-fg); }
+.lab-vcab b { color: var(--foreground); font-variant-numeric: tabular-nums; }
+
+/* Teléfono o ventana angosta: el panel pasa abajo y el modelo queda arriba. */
+@media (max-width: 780px) {
+  .lab-cuerpo { flex-direction: column; }
+  .lab-panel { width: auto; max-height: 42dvh; border-left: 0; border-top: 1px solid var(--border); }
+  .lab-barra { padding: 5px 8px; gap: 6px; }
+  .lab-gestos { display: none; }
+  /* Con el panel abajo y corto, lo primero que se ve son las barras: es lo
+     que se mira mientras se gira el teléfono. */
+  .lab-panel h3,
+  .lab-barras,
+  .lab-vcab { order: -1; }
+}
+/* Teléfono de costado: panel al costado otra vez, más angosto. */
+@media (orientation: landscape) and (max-height: 560px) {
+  .lab-cuerpo { flex-direction: row; }
+  .lab-panel { width: 250px; max-height: none; border-top: 0; border-left: 1px solid var(--border); }
+}

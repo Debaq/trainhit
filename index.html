@@ -8,7 +8,7 @@
          jsdelivr (MediaPipe), y conexiones solo a lo que la página usa. -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-x8+gywU6jRaSXbloUQFOmVH7v7qjXHyTS6iLTKnN6Fs='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
+      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-gz/DVAfNFlQ38m+BthTmDbIB8wYL65Jj3c5I91ZCj4o='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
     />
     <meta
       name="description"
@@ -52,7 +52,7 @@
     />
     <!-- Mapa de importación: versiona los imports internos. Lo regenera
          bump.mjs junto con su hash en la CSP de arriba. Va antes del arranque. -->
-    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-27.2","./js/app.js":"./js/app.js?v=2026-09-27.2","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-27.2","./js/curve.js":"./js/curve.js?v=2026-09-27.2","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-27.2","./js/geom.js":"./js/geom.js?v=2026-09-27.2","./js/head.js":"./js/head.js?v=2026-09-27.2","./js/idioma.js":"./js/idioma.js?v=2026-09-27.2","./js/idioma-en.js":"./js/idioma-en.js?v=2026-09-27.2","./js/pipeline.js":"./js/pipeline.js?v=2026-09-27.2","./js/plots.js":"./js/plots.js?v=2026-09-27.2","./js/practica.js":"./js/practica.js?v=2026-09-27.2","./js/preguntas.js":"./js/preguntas.js?v=2026-09-27.2","./js/sesion.js":"./js/sesion.js?v=2026-09-27.2","./js/signal.js":"./js/signal.js?v=2026-09-27.2","./js/simulacion.js":"./js/simulacion.js?v=2026-09-27.2","./js/tracker.js":"./js/tracker.js?v=2026-09-27.2","./js/tutorial.js":"./js/tutorial.js?v=2026-09-27.2","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-27.2","./js/tutorial-pasos-en.js":"./js/tutorial-pasos-en.js?v=2026-09-27.2"}}</script>
+    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-27.9","./js/app.js":"./js/app.js?v=2026-09-27.9","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-27.9","./js/canales.js":"./js/canales.js?v=2026-09-27.9","./js/curve.js":"./js/curve.js?v=2026-09-27.9","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-27.9","./js/geom.js":"./js/geom.js?v=2026-09-27.9","./js/head.js":"./js/head.js?v=2026-09-27.9","./js/idioma.js":"./js/idioma.js?v=2026-09-27.9","./js/idioma-en.js":"./js/idioma-en.js?v=2026-09-27.9","./js/laberinto.js":"./js/laberinto.js?v=2026-09-27.9","./js/pipeline.js":"./js/pipeline.js?v=2026-09-27.9","./js/plots.js":"./js/plots.js?v=2026-09-27.9","./js/practica.js":"./js/practica.js?v=2026-09-27.9","./js/preguntas.js":"./js/preguntas.js?v=2026-09-27.9","./js/sesion.js":"./js/sesion.js?v=2026-09-27.9","./js/signal.js":"./js/signal.js?v=2026-09-27.9","./js/simulacion.js":"./js/simulacion.js?v=2026-09-27.9","./js/tracker.js":"./js/tracker.js?v=2026-09-27.9","./js/tutorial.js":"./js/tutorial.js?v=2026-09-27.9","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-27.9","./js/tutorial-pasos-en.js":"./js/tutorial-pasos-en.js?v=2026-09-27.9","three":"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"}}</script>
     <script src="js/arranque.js"></script>
     <noscript><link rel="stylesheet" href="css/estilo.css" /></noscript>
   </head>
@@ -84,6 +84,7 @@
       <button id="btn-aprender" class="ghost" title="paseos guiados por la página (T)" data-i18n-title="barra.aprender.t" data-i18n="barra.aprender">Aprender</button>
       <button id="btn-ayuda" class="ghost" title="qué es esto" aria-label="qué es esto" data-i18n-title="barra.ayuda" data-i18n-aria-label="barra.ayuda">?</button>
       <button id="btn-simulador" class="ghost" title="paciente simulado: una patología sobre pulsos reales (S)" data-i18n-title="barra.simulador.t" data-i18n="barra.simulador">Simulador</button>
+      <button id="btn-laberinto" class="ghost" aria-pressed="false" title="los canales semicirculares en 3D: qué siente cada uno con cada giro (L)" data-i18n-title="barra.laberinto.t" data-i18n="barra.laberinto">Laberinto 3D</button>
       <button id="btn-herramientas" class="ghost" data-i18n="barra.herramientas">Herramientas</button>
     </header>
 
@@ -648,6 +649,101 @@
         </section>
       </div>
     </aside>
+
+    <!-- Laberinto 3D: ver js/laberinto.js. Toma la pantalla entera y no usa
+         la cámara. El lienzo lo pinta three.js; los rótulos de los canales
+         son HTML encima; las barras y los botones de movimiento los agrega
+         el módulo. -->
+    <section id="laberinto" class="laberinto" aria-label="laberinto 3D" data-i18n-aria-label="lab.aria" hidden>
+      <header class="lab-barra">
+        <span class="marca" data-i18n="lab.titulo">Laberinto <b>3D</b></span>
+        <nav class="lab-vistas" role="tablist">
+          <button role="tab" data-vista="canales" aria-selected="true" data-i18n="lab.v.canales">Canales</button>
+          <button role="tab" data-vista="ejes" aria-selected="false" data-i18n="lab.v.ejes">Ejes</button>
+          <button role="tab" data-vista="respuesta" aria-selected="false" data-i18n="lab.v.respuesta">Respuesta</button>
+        </nav>
+        <span class="espacio"></span>
+        <button id="lab-sensores" aria-pressed="false" hidden>Mover con el teléfono</button>
+        <button id="lab-centrar" title="cabeza y ojos al frente (doble toque, 0)" data-i18n-title="lab.centrar.t" data-i18n="lab.centrar">Centrar</button>
+        <button id="lab-salir" class="ghost" title="volver a trainHIT (Esc)" data-i18n-title="lab.salir.t" data-i18n="lab.salir">✕ Salir</button>
+      </header>
+      <div class="lab-cuerpo">
+        <div id="lab-escena" class="lab-escena">
+          <canvas id="lab-canvas"></canvas>
+          <div id="lab-rotulos" class="lab-rotulos" aria-hidden="true"></div>
+          <p id="lab-estado" class="lab-estado" aria-live="polite" hidden></p>
+          <p class="lab-gestos" data-i18n="lab.gestos">
+            arrastrar: girar · clic derecho o Mayús: rolar · rueda o pellizco: acercar · dos dedos:
+            mover · doble toque: centrar
+          </p>
+        </div>
+        <aside class="lab-panel">
+          <section data-panel="canales">
+            <p class="ayuda" data-i18n="lab.canales.ayuda">
+              Tres canales por lado, casi en ángulo recto entre sí. Cada uno tiene un
+              <b>compañero en el mismo plano</b> del otro lado, y el color es el par: los dos laterales,
+              anterior izquierdo con posterior derecho (<b>LARP</b>) y anterior derecho con posterior
+              izquierdo (<b>RALP</b>). Lo que excita a uno inhibe al otro.
+            </p>
+            <ul class="lab-leyenda">
+              <li class="par-lateral" data-i18n="lab.par.lateral">laterales</li>
+              <li class="par-larp" data-i18n="lab.par.larp">LARP</li>
+              <li class="par-ralp" data-i18n="lab.par.ralp">RALP</li>
+            </ul>
+            <label class="check"><input type="checkbox" id="lab-rotulos-ver" checked /> <span data-i18n="lab.rotulos">rótulos</span></label>
+            <label class="check"><input type="checkbox" id="lab-cabeza-ver" checked /> <span data-i18n="lab.cabeza">cabeza</span></label>
+            <label class="check"><input type="checkbox" id="lab-real" /> <span data-i18n="lab.real">tamaño real</span></label>
+            <p class="ayuda" data-i18n="lab.real.ayuda">
+              Los laberintos van agrandados cuatro veces. A tamaño real, un canal mide unos 6 mm de lado a
+              lado: más chico que el iris.
+            </p>
+          </section>
+          <section data-panel="ejes" hidden>
+            <p class="ayuda" data-i18n="lab.ejes.ayuda">
+              Cada flecha es el <b>eje que excita</b> a su canal: con el pulgar de la mano derecha en la
+              flecha, girar la cabeza como cierran los dedos lo excita. Los discos son los planos donde
+              se examina cada par. Todo el conjunto va levantado unos 30° adelante: por eso el vHIT
+              lateral se hace con la cabeza flexionada 30°.
+            </p>
+            <label class="check"><input type="checkbox" id="lab-flechas" checked /> <span data-i18n="lab.flechas">ejes</span></label>
+            <label class="check par-lateral"><input type="checkbox" id="lab-plano-lateral" checked /> <span data-i18n="lab.plano.lateral">plano lateral</span></label>
+            <label class="check par-larp"><input type="checkbox" id="lab-plano-larp" checked /> <span data-i18n="lab.plano.larp">plano LARP</span></label>
+            <label class="check par-ralp"><input type="checkbox" id="lab-plano-ralp" checked /> <span data-i18n="lab.plano.ralp">plano RALP</span></label>
+            <button id="lab-cenital" aria-pressed="true" data-i18n="lab.cenital">Vista de arriba</button>
+          </section>
+          <section data-panel="respuesta" hidden>
+            <p class="ayuda" data-i18n="lab.resp.ayuda">
+              Un canal <b class="exc">se excita</b> cuando la cabeza gira alrededor de su eje y
+              <b class="inh">se inhibe</b> cuando gira al revés. Los ojos contragiran para que la mirada
+              no se mueva: es el reflejo vestíbulo-ocular.
+            </p>
+            <div id="lab-movimientos" class="lab-movimientos"></div>
+            <label class="campo">
+              <span data-i18n="lab.vpico">velocidad pico</span>
+              <input type="range" id="lab-vpico" min="50" max="300" step="10" value="150" />
+              <output id="lab-vpico-valor"></output>
+            </label>
+            <label class="campo">
+              <span data-i18n="lab.lentitud">cámara lenta</span>
+              <select id="lab-lentitud">
+                <option value="1" data-i18n="lab.lentitud.1">no (tiempo real)</option>
+                <option value="4" selected>×4</option>
+                <option value="10">×10</option>
+              </select>
+            </label>
+            <h3 data-i18n="lab.tasa">Disparo del nervio <small>(espigas/s)</small></h3>
+            <div id="lab-barras" class="lab-barras"></div>
+            <p class="lab-vcab"><span data-i18n="lab.vcab">cabeza</span> <b id="lab-vcab">0</b> °/s</p>
+            <p class="ayuda" data-i18n="lab.resp.ewald">
+              En reposo cada nervio dispara unas 90 veces por segundo. Hacia arriba tiene margen; hacia
+              abajo, no pasa de cero: con un giro rápido el canal inhibido se calla y todo el trabajo lo
+              hace el excitado. Es la <b>segunda ley de Ewald</b>, y es la razón por la que el vHIT
+              examina cada lado girando <b>hacia</b> ese lado.
+            </p>
+          </section>
+        </aside>
+      </div>
+    </section>
 
     <!-- El módulo de entrada lo inserta js/arranque.js, con su versión. -->
   </body>

@@ -25,6 +25,8 @@ export const HTML = {
   'barra.simulador': 'Simulator',
   'barra.simulador.t': 'simulated patient: a pathology on top of real impulses (S)',
   'barra.herramientas': 'Tools',
+  'barra.laberinto': '3D Labyrinth',
+  'barra.laberinto.t': 'the semicircular canals in 3D: what each one senses with each turn (L)',
 
   fijacion: 'Look at the dot —or at the camera, if it is elsewhere— <b>without letting go</b> and turn your head slowly, ±20°',
 
@@ -276,6 +278,45 @@ export const HTML = {
           `,
   'sim.como.ayuda':
     'In the magnified eyes, the violet ring is where the simulated iris would be: the video is the real one and does not move with the pathology. Changing patient deletes the impulses already there.',
+
+  // ── laberinto 3D ──
+  'lab.aria': '3D labyrinth',
+  'lab.titulo': 'Labyrinth <b>3D</b>',
+  'lab.v.canales': 'Canals',
+  'lab.v.ejes': 'Axes',
+  'lab.v.respuesta': 'Response',
+  'lab.centrar': 'Center',
+  'lab.centrar.t': 'head and eyes to the front (double tap, 0)',
+  'lab.salir': '✕ Exit',
+  'lab.salir.t': 'back to trainHIT (Esc)',
+  'lab.gestos':
+    'drag: turn · right click or Shift: roll · wheel or pinch: zoom · two fingers: move · double tap: center',
+  'lab.canales.ayuda':
+    'Three canals per side, nearly at right angles to each other. Each one has a <b>partner in the same plane</b> on the other side, and the color is the pair: the two laterals, left anterior with right posterior (<b>LARP</b>) and right anterior with left posterior (<b>RALP</b>). What excites one inhibits the other.',
+  'lab.par.lateral': 'laterals',
+  'lab.par.larp': 'LARP',
+  'lab.par.ralp': 'RALP',
+  'lab.rotulos': 'labels',
+  'lab.cabeza': 'head',
+  'lab.real': 'actual size',
+  'lab.real.ayuda':
+    'The labyrinths are magnified four times. At actual size a canal is about 6 mm across: smaller than the iris.',
+  'lab.ejes.ayuda':
+    'Each arrow is the <b>axis that excites</b> its canal: with the right thumb on the arrow, turning the head the way the fingers curl excites it. The discs are the planes where each pair is tested. The whole set is tilted up about 30° at the front: that is why the lateral vHIT is done with the head flexed 30°.',
+  'lab.flechas': 'axes',
+  'lab.plano.lateral': 'lateral plane',
+  'lab.plano.larp': 'LARP plane',
+  'lab.plano.ralp': 'RALP plane',
+  'lab.cenital': 'Top view',
+  'lab.resp.ayuda':
+    'A canal <b class="exc">is excited</b> when the head turns around its axis and <b class="inh">is inhibited</b> when it turns the other way. The eyes counter-rotate so that gaze does not move: that is the vestibulo-ocular reflex.',
+  'lab.vpico': 'peak velocity',
+  'lab.lentitud': 'slow motion',
+  'lab.lentitud.1': 'no (real time)',
+  'lab.tasa': 'Nerve firing <small>(spikes/s)</small>',
+  'lab.vcab': 'head',
+  'lab.resp.ewald':
+    'At rest each nerve fires about 90 times per second. Upwards it has room; downwards it cannot go below zero: with a fast turn the inhibited canal falls silent and the excited one does all the work. That is <b>Ewald’s second law</b>, and it is why the vHIT tests each side by turning <b>towards</b> that side.',
 };
 
 export const TEXTO = {
@@ -519,4 +560,27 @@ export const TEXTO = {
   'Sin patología (control)': 'No pathology (control)',
   'Los dos canales laterales sanos: el motor no agregó nada. Las ganancias y las sacadas que se vieron son las del compañero.':
     'Both lateral canals healthy: the engine added nothing. The gains and saccades seen are the classmate’s own.',
+
+  // ── laberinto 3D ──
+  'lateral izq.': 'left lateral',
+  'anterior izq.': 'left anterior',
+  'posterior izq.': 'left posterior',
+  'lateral der.': 'right lateral',
+  'anterior der.': 'right anterior',
+  'posterior der.': 'right posterior',
+  'Mover con el teléfono': 'Move with the phone',
+  'Soltar el teléfono': 'Release the phone',
+  'cargando el modelo 3D…': 'loading the 3D model…',
+  'no se pudo cargar three.js: hace falta red la primera vez': 'could not load three.js: a network connection is needed the first time',
+  'sin permiso para leer los sensores del teléfono': 'no permission to read the phone sensors',
+  'Giro a la izquierda': 'Turn left',
+  'Giro a la derecha': 'Turn right',
+  'Nariz abajo': 'Nose down',
+  'Nariz arriba': 'Nose up',
+  'Oreja izquierda abajo': 'Left ear down',
+  'Oreja derecha abajo': 'Right ear down',
+  'LARP, nariz abajo': 'LARP, nose down',
+  'LARP, nariz arriba': 'LARP, nose up',
+  'RALP, nariz abajo': 'RALP, nose down',
+  'RALP, nariz arriba': 'RALP, nose up',
 };

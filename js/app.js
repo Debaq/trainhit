@@ -18,6 +18,7 @@ import { textoGift } from './preguntas.js';
 import { PERFILES, arrastre, offsetConMirada, parametrosPulso, simulaCrudo } from './simulacion.js';
 import { IDIOMAS, alCambiarIdioma, idioma, idiomaInicial, ponIdioma, tx } from './idioma.js';
 import { MIN_POR_LADO, corrige, preguntasPractica } from './practica.js';
+import { montaLaberinto } from './laberinto.js';
 
 const $ = (id) => document.getElementById(id);
 const fmt = (v, d = 2) => (v === null || v === undefined || Number.isNaN(v) ? '—' : v.toFixed(d));
@@ -1340,6 +1341,8 @@ function atajos() {
     // Ctrl+C es copiar, Ctrl+D marcador, Ctrl+R recargar: no son atajos de acá.
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (!$('bienvenida').hidden || !$('acerca').hidden || tutorial.bloqueaAtajos()) return;
+    // El laberinto tiene sus propias teclas; las de acá no lo atraviesan.
+    if (laberinto.abierto()) return;
     const k = e.key.toLowerCase();
     if (k === 't') tutorial.abierto() ? tutorial.cierra() : tutorial.abre();
     else if (k === 'c') empiezaCalibracion();
@@ -1348,6 +1351,7 @@ function atajos() {
     else if (k === 'z') deshaceDescarte();
     else if (k === 'h') abreHerramientas($('herramientas').hidden);
     else if (k === 's') abreSimulador($('simulador').hidden);
+    else if (k === 'l') laberinto.abre();
     else if (k === ' ' || k === 'p') {
       // `preventDefault` acá no es solo para que la página no haga scroll: si
       // el foco quedó en un botón —y queda, apenas se aprieta «Encender
@@ -1732,6 +1736,8 @@ $('btn-herramientas').addEventListener('click', () => abreHerramientas($('herram
 $('btn-cerrar').addEventListener('click', () => abreHerramientas(false));
 $('btn-simulador').addEventListener('click', () => abreSimulador($('simulador').hidden));
 $('btn-cerrar-sim').addEventListener('click', () => abreSimulador(false));
+const laberinto = montaLaberinto();
+$('btn-laberinto').addEventListener('click', () => laberinto.abre());
 $('btn-pausa').addEventListener('click', () => ponPausa(!estado.pausado));
 $('metodo-gan').addEventListener('change', () => (sucio.pulsos = true));
 $('promedio').addEventListener('change', (e) => {

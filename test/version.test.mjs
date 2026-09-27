@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { hashCsp, modulos, versionActual } from '../bump.mjs';
+import { EXTERNOS, hashCsp, modulos, versionActual } from '../bump.mjs';
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 
@@ -18,5 +18,6 @@ test('el importmap lista todos los módulos con la misma versión', () => {
   const v = versionActual(html);
   assert.match(v, /^\d{4}-\d{2}-\d{2}\.\d+$/);
   for (const m of modulos()) assert.equal(mapa[`./js/${m}.js`], `./js/${m}.js?v=${v}`, m);
-  assert.equal(Object.keys(mapa).length, modulos().length);
+  for (const [k, url] of Object.entries(EXTERNOS)) assert.equal(mapa[k], url, k);
+  assert.equal(Object.keys(mapa).length, modulos().length + Object.keys(EXTERNOS).length);
 });

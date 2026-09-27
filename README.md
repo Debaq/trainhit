@@ -133,6 +133,7 @@ puede ser externo, así que va autorizado por su hash sha256 en la CSP;
 | `H` | Abrir o cerrar las herramientas |
 | `S` | Abrir o cerrar el simulador (paciente simulado) |
 | `T` | Abrir o cerrar «Aprender a usar» |
+| `L` | Abrir el Laberinto 3D (`Esc` lo cierra; ahí adentro, flechas y `Q`/`E` giran la cabeza y `0` la centra) |
 | `Espacio` o `P` | Pausar y congelar la traza de abajo para medirla (la cámara sigue) |
 
 ### Idiomas
@@ -395,6 +396,60 @@ A 30 fps una encubierta temprana se superpone con el arrastre y a veces no
 llega al umbral del detector de sacadas: puede quedar sin triángulo. Es la
 misma limitación que con un paciente de verdad, y queda a la vista.
 
+## Laberinto 3D
+
+**Laberinto 3D**, en la barra (o `L`), toma la pantalla entera con un modelo de
+cabeza, ojos y los dos laberintos. No usa la cámara: la cabeza se gira con el
+mouse o el dedo, o —en un teléfono, con **Mover con el teléfono**— con el
+teléfono mismo, que hace de cabeza: girarlo a la izquierda gira la cabeza a
+*su* izquierda. Es una recreación de lo que hacía la app aVOR (Universidad de
+Sydney, solo iOS), que ya no está disponible.
+
+Tres vistas:
+
+- **Canales**: los seis, pintados por par coplanar (laterales, LARP, RALP), con
+  rótulos. Van agrandados cuatro veces; **tamaño real** muestra lo chicos que son.
+- **Ejes**: vista de arriba, con la flecha del eje que excita a cada canal
+  (regla de la mano derecha) y los tres planos de examen.
+- **Respuesta**: impulsos armados —horizontales, de nariz, de oreja y
+  diagonales en LARP y RALP— con velocidad pico y cámara lenta, o giro libre.
+  Cada canal se pinta de rojo si se excita y de azul si se inhibe, las barras
+  muestran la tasa de disparo, y los ojos contragiran (VOR de ganancia 1, con
+  fase rápida al llegar al borde de la órbita).
+
+El modelo de canales es el de libro: tres ortogonales por lado, el conjunto
+levantado 30° adelante. La tasa sale de 90 espigas/s en reposo más 0,5 por °/s
+en el eje del canal, entre 0 y 400: que la inhibición toque fondo en cero y la
+excitación siga es la segunda ley de Ewald, y en las barras se ve. La física
+está en `js/canales.js` y la prueban los tests.
+
+three.js se baja de jsdelivr recién al abrir la sección (unos 2 MB, después
+queda en el service worker). Va en el mapa de importación como `three` porque
+sus agregados lo importan con ese nombre: `bump.mjs` lo agrega, con la versión
+fija.
+
+### El modelo
+
+Si existe `modelos/laberinto.glb` se usa ese; si no, uno provisorio armado con
+primitivas. Para hacer el de verdad en Blender:
+
+- Exportar a **glTF Binary (.glb)**, con **+Y Up**, sin compresión Draco.
+- **Metros y tamaño real** (cabeza de unos 0,18–0,20 m), la **cara mirando a −Y**
+  de Blender, escala y rotación aplicadas (`Ctrl+A`).
+- Objetos separados con estos nombres: `cabeza`; `ojo_izq`, `ojo_der` con el
+  **origen en el centro de rotación del ojo** (unos 13 mm detrás de la córnea) y
+  el iris hacia adelante; `vestibulo_izq`, `vestibulo_der`, `coclea_izq`,
+  `coclea_der`; y los seis canales **cada uno por separado**: `canal_lat_izq`,
+  `canal_ant_izq`, `canal_post_izq`, `canal_lat_der`, `canal_ant_der`,
+  `canal_post_der`.
+- Unos 2–3 MB como mucho: los materiales pueden ser simples, porque los colores
+  de canales y piel los pone el código.
+
+Con ese modelo el eje de cada canal ya no sale del libro sino de la malla: se
+ajusta el plano de sus vértices (`normalDePlano`) y, si se aparta más de 35° del
+de libro, la consola lo avisa. `modelos/provisorio.glb` es el modelo provisorio
+exportado: se importa en Blender y muestra nombres, escala y posiciones.
+
 ## Tres métodos de ganancia
 
 **Ganancia vs pico**, en Herramientas, tiene un selector de **método** —área,
@@ -585,6 +640,8 @@ js/plots.js     los cuatro gráficos, en canvas y sin librerías
 js/app.js       el cableado y la interfaz
 js/tutorial.js  «Aprender a usar»: el menú de paseos; el contenido, en js/tutorial-pasos.js
 js/ejemplo.js   el paciente sintético de los paseos
+js/canales.js   los seis canales: ejes, tasa de disparo, impulsos (sin DOM)
+js/laberinto.js el Laberinto 3D: escena three.js, modelo, gestos y sensores
 ```
 
 Las cinco decisiones que importan, resumidas:
