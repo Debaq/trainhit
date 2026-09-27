@@ -464,7 +464,7 @@ frente), **en su lugar** agrandados cuatro veces (con la cámara en tres
 cuartos), o en su lugar a **tamaño real**. En las tres giran con la cabeza, y
 el paso de una a otra se anima.
 
-Cuatro vistas:
+Cinco vistas:
 
 - **Canales**: los seis, pintados por par coplanar (laterales, LARP, RALP), con
   rótulos.
@@ -488,6 +488,17 @@ Cuatro vistas:
   pegada a la cabeza, como un video-oculógrafo, y debajo su posición en el
   tiempo: horizontal, vertical y torsional, donde el nistagmo es un diente de
   sierra.
+- **Vía**: el arco de tres neuronas de cada canal, en un esquema de frente al
+  costado del modelo: nervio vestibular, núcleos vestibulares, el cruce al VI,
+  IV o III (por el fascículo longitudinal medial) y los dos músculos que excita
+  cada canal, uno de cada ojo. Por cada tramo corren puntos al ritmo de su
+  neurona, uno cada 10 espigas, y se pone rojo o azul según dispare más o menos
+  que en reposo. Anda con los impulsos armados, el mouse o el teléfono enlazado,
+  y con la patología puesta: el nervio enfermo lleva una cruz o una barra, y con
+  la lesión compensada su núcleo vuelve a disparar (la compensación central).
+  Las tasas del núcleo suman la comisura del compañero coplanar; las de la
+  motoneurona salen de la posición y la velocidad del ojo, sacadas incluidas.
+  Está en `js/via.js`, con tests.
 
 El modelo de patologías (`js/patologia.js`) no tiene guiones por
 enfermedad: todo sale de la función de cada canal. El nervio de un canal
@@ -735,6 +746,7 @@ js/ejemplo.js   el paciente sintético de los paseos
 js/canales.js   los seis canales: ejes, tasa de disparo, impulsos (sin DOM)
 js/cabeza.js    la cabeza provisoria como superficie implícita (sin DOM)
 js/patologia.js canales enfermos: VOR, nistagmo espontáneo y sacadas (sin DOM)
+js/via.js       la vía del reflejo, del canal al músculo: tasas y dibujo (sin DOM)
 js/enlace.js    enlace teléfono–PC: sala en servidor/senal.php y canal WebRTC
 js/laberinto.js el Laberinto 3D: escena three.js, modelo, gestos y sensores
 ```

@@ -14,8 +14,8 @@ Publicado en el servidor propio del proyecto (PHP y Node.js).
 
 ### Escena y modelo
 
-- Sección a pantalla completa con barra propia, panel y cuatro vistas:
-  Canales, Ejes, Respuesta y Patología.
+- Sección a pantalla completa con barra propia, panel y cinco vistas:
+  Canales, Ejes, Respuesta, Patología y Vía.
 - Botón de solo visor (⤢ o `H`): esconde barra y panel, con pantalla completa
   donde se puede.
 - three.js bajado recién al abrir, fijo en el import map como `three`
@@ -103,10 +103,29 @@ Publicado en el servidor propio del proyecto (PHP y Node.js).
   blanco viejo.
 - Canales enfermos en amarillo verdoso.
 
+### La vía del reflejo (`js/via.js`)
+
+- Vista **Vía**: el esquema en 2D a la derecha (abajo en pantalla angosta) y
+  el modelo 3D corrido al hueco que queda.
+- El arco de tres neuronas de cada canal, de frente como la cámara: nervio
+  (rama superior o inferior) → núcleos vestibulares → cruce → VI, IV o III
+  (con el FLM) → los dos músculos que excita, uno de cada ojo. Lateral: RM
+  propio y RL contrario; anterior: RS propio y OI contrario; posterior: OS
+  propio y RI contrario.
+- Puntos que corren al ritmo de cada neurona (uno cada 10 espigas), tramos en
+  rojo o azul según se aparten del reposo, punteados si callan.
+- Tasas: el nervio de canales.js; el núcleo, con la comisura del compañero
+  coplanar y el reposo devuelto si la lesión está compensada; la motoneurona,
+  con la posición y la velocidad reales del ojo (sacadas incluidas).
+- La lesión va como cruz (arreflexia) o barra (hipofunción) en el nervio.
+- Filtro por plano (laterales, LARP, RALP o los tres). Los impulsos armados
+  están también en su panel. A ciegas no muestra actividad ni lesión.
+- Los ojos del esquema se mueven con el ojo del modelo.
+
 ### Calidad
 
-- Tests en node de la física, la cabeza, el giroscopio y las patologías (104 en
-  total con el resto de trainHIT).
+- Tests en node de la física, la cabeza, el giroscopio, las patologías y la vía
+  (120 en total con el resto de trainHIT).
 - Todo traducido al inglés.
 
 ## Falta probar
@@ -122,17 +141,16 @@ Publicado en el servidor propio del proyecto (PHP y Node.js).
 
 - El diente de sierra del nistagmo y las sacadas en pantalla, a velocidad
   normal (los tests del modelo los cubren).
+- La vía con el teléfono enlazado, en un PC de verdad.
+- Revisión clínica de la vía: el trayecto de los verticales (el anterior va
+  en realidad también por el tracto tegmental ventral y el brachium
+  conjunctivum, acá todo por el FLM) y las constantes de núcleo y motoneurona.
 - Revisión clínica de las constantes: 10 °/s de fase lenta por canal muerto, la
   fijación al 30 %, y la pérdida unilateral total, que sale con la torsional
   algo mayor que la horizontal.
 
 ## Pendiente
 
-- **La vía en el PC**: el arco de tres neuronas animado con la actividad
-  corriendo (canal → nervio vestibular → núcleos vestibulares → VI → fascículo
-  longitudinal medial → III → rectos), y las vías de los verticales hacia III y
-  IV. Se corta donde está la lesión. Sirve con el teléfono enlazado o con los
-  impulsos armados.
 - **Nistagmo espontáneo con la cámara** (en trainHIT, no en el Laberinto): el
   paciente fija un blanco o el dedo, se registra el ojo 10 a 20 s y se detecta
   el diente de sierra, con la dirección de la fase rápida y la velocidad de la
@@ -143,9 +161,11 @@ Publicado en el servidor propio del proyecto (PHP y Node.js).
 - **Disfunción cerebelosa**, como en aVOR.
 - **Referencia de fijación** cabeza o mundo, como en aVOR.
 - Modelo definitivo de la diseñadora (`modelos/laberinto.glb`).
-- Merge a `main` y publicación.
 
 ## Ideas
 
+- En la Vía, las lesiones centrales: cortar el FLM (oftalmoplejía
+  internuclear) o un núcleo, además de las periféricas.
+- En la Vía, las proyecciones inhibidoras al mismo lado, prendibles.
 - Con la cámara, más allá del nistagmo espontáneo: seguimiento lento y sacadas
   siguiendo el dedo o un blanco.

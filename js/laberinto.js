@@ -5,7 +5,7 @@
 // mouse o el dedo, o —en un teléfono— con el teléfono mismo: el teléfono ES la
 // cabeza. La webcam no se usa acá.
 //
-// Tres vistas:
+// Cinco vistas:
 //   canales    los seis canales, pintados por par coplanar, con rótulos y el
 //              interruptor de tamaño real.
 //   ejes       el eje que excita a cada canal (mano derecha) y los tres planos
@@ -13,6 +13,9 @@
 //   respuesta  impulsos armados y giro libre: cada canal se pinta de rojo si
 //              se excita y de azul si se inhibe, con la tasa de disparo en
 //              barras, y los ojos contragiran (VOR de ganancia 1).
+//   patologia  canales enfermos, nistagmo espontáneo y sacadas (patologia.js).
+//   via        la vía del reflejo, del canal al músculo, animada en 2D al
+//              costado del modelo (via.js).
 //
 // La física —ejes, tasas, perfiles— está en canales.js, sin DOM. Acá va la
 // escena y la interfaz.
@@ -62,6 +65,7 @@ import {
   funciones,
 } from './patologia.js';
 import { Sala, leeCabeza, mensajeCabeza, uneSala } from './enlace.js';
+import { DibujoVia, actividad, vectorRotacion, velocidadOrbita } from './via.js';
 import { alCambiarIdioma, tx } from './idioma.js';
 
 const $ = (id) => document.getElementById(id);
@@ -182,6 +186,11 @@ export function montaLaberinto() {
     f: funciones(),
     lenta: [0, 0, 0],
     traza: [],
+    // La vía (via.js): el dibujo se arma al abrirla; el ojo se mide para sus
+    // motoneuronas.
+    via: null,
+    qOjoPrevio: Q1(),
+    velOjo: [0, 0, 0],
     omega: [0, 0, 0],
     impulso: null,
     dist: DIST_INICIAL,
@@ -318,6 +327,12 @@ export function montaLaberinto() {
     // Los ejes se entienden desde arriba; al salir se vuelve de frente.
     st.cenital = v === 'ejes';
     $('lab-cenital').setAttribute('aria-pressed', String(st.cenital));
+    // Los impulsos armados sirven en Respuesta y en Vía: el bloque se muda al
+    // panel que se ve.
+    const destino = seccion.querySelector(`[data-panel="${v}"] [data-impulsos]`);
+    if (destino) destino.append($('lab-impulsos'));
+    $('lab-via').hidden = v !== 'via';
+    seccion.dataset.vista = v;
     aplicaVista();
     pintaOjosVisibles();
   }
@@ -409,6 +424,7 @@ export function montaLaberinto() {
     $('lab-revelar').hidden = !p.ciego;
     $('lab-tasas').hidden = p.ciego;
     $('lab-tasas-ciego').hidden = !p.ciego;
+    $('lab-via-ciego').hidden = !p.ciego;
     // A ciegas el nistagmo también se calla en texto: se lo tiene que ver.
     $('lab-nistagmo').textContent = p.ciego ? '' : textoNistagmo();
     const badge = $('lab-pat-badge');
@@ -455,6 +471,7 @@ export function montaLaberinto() {
     st.pat.ciego = true;
     $('lab-revelado').hidden = true;
     st.ojo.centra();
+    st.qOjoPrevio = Q1();
     aplicaPatologia();
   });
   $('lab-revelar').addEventListener('click', () => {
@@ -846,6 +863,11 @@ export function montaLaberinto() {
     // La cámara se aleja o se acerca a lo que el modo necesita que entre.
     const cam = st.r.camara;
     const modo = MODOS_LABERINTO[st.modoLab];
+    st.region = regionModelo();
+    if (Math.abs(cam.aspect - st.region.w / st.region.h) > 1e-4) {
+      cam.aspect = st.region.w / st.region.h;
+      cam.updateProjectionMatrix();
+    }
     const tanH = Math.tan((cam.fov * Math.PI) / 360) * cam.aspect;
     const base = Math.max(DIST_INICIAL, modo.ancho / (2 * tanH));
     st.distBase = st.distBase === null ? base : st.distBase + (base - st.distBase) * (1 - Math.exp(-dt / TAU_MODO_S));
@@ -858,10 +880,48 @@ export function montaLaberinto() {
     const opciones = { f: st.f, lenta: st.lenta, tipo: st.pat.sacadas };
     for (let i = 0; i < pasos; i++) st.ojo.paso(dtFisico / pasos, st.qCabeza, st.omega, opciones);
     anotaTraza(ahora, st.ojo.q);
+    st.velOjo = velocidadOrbita(st.qOjoPrevio, st.ojo.q, dtFisico);
+    st.qOjoPrevio = st.ojo.q;
 
     // 3) Tasa de cada canal.
     const r = respuestas(st.omega, st.ejesMedidos, st.f);
     pinta(st.ojo.q, r);
+    if (st.vista === 'via') pintaVia(r, dt);
+  }
+
+  /**
+   * Dónde va el modelo 3D dentro de la escena, en píxeles CSS desde arriba a
+   * la izquierda: toda la escena, salvo en Vía, donde el esquema ocupa un
+   * costado (o abajo, en pantalla angosta) y el modelo se corre al resto.
+   */
+  function regionModelo() {
+    const w = Math.max(1, caja.clientWidth);
+    const h = Math.max(1, caja.clientHeight);
+    const via = $('lab-via');
+    if (via.hidden) return { x: 0, y: 0, w, h };
+    if (via.offsetLeft > 10) return { x: 0, y: 0, w: Math.max(1, via.offsetLeft), h };
+    return { x: 0, y: 0, w, h: Math.max(1, via.offsetTop) };
+  }
+
+  /** La vía: las tasas de cada tramo y el dibujo, en su lienzo. */
+  function pintaVia(r, dt) {
+    const lienzoVia = $('lab-via');
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const w = Math.round(lienzoVia.clientWidth * dpr);
+    const h = Math.round(lienzoVia.clientHeight * dpr);
+    if (!w || !h) return;
+    if (lienzoVia.width !== w || lienzoVia.height !== h) Object.assign(lienzoVia, { width: w, height: h });
+    st.via ??= new DibujoVia();
+    const act = actividad(r, vectorRotacion(st.ojo.q), st.velOjo, { compensado: st.pat.compensado });
+    const ultimo = st.traza[st.traza.length - 1];
+    st.via.dibuja(lienzoVia.getContext('2d'), w, h, dt, {
+      act,
+      f: st.f,
+      filtro: $('lab-via-filtro').value,
+      ciego: st.pat.ciego,
+      ojo: ultimo ? ultimo.slice(1) : [0, 0, 0],
+      escala: dpr,
+    });
   }
 
   /**
@@ -938,6 +998,8 @@ export function montaLaberinto() {
     }
     camara.updateMatrixWorld();
     escena.updateMatrixWorld();
+    const reg = st.region;
+    renderer.setViewport(reg.x, caja.clientHeight - reg.y - reg.h, reg.w, reg.h);
     renderer.render(escena, camara);
     if (st.rotulos) ubicaRotulos();
     if (ojosVisibles()) pintaOjosDeCerca();
@@ -1014,16 +1076,15 @@ export function montaLaberinto() {
   function ubicaRotulos() {
     const T = st.T;
     const { camara } = st.r;
-    const w = caja.clientWidth;
-    const h = caja.clientHeight;
+    const { x: x0, y: y0, w, h } = st.region;
     const p = new T.Vector3();
     for (const el of rotulos.children) {
       const c = st.escena.canales[el.dataset.canal];
       p.copy(c.ancla);
       c.grupo.localToWorld(p);
       p.project(camara);
-      const x = ((p.x + 1) / 2) * w;
-      const y = ((1 - p.y) / 2) * h;
+      const x = x0 + ((p.x + 1) / 2) * w;
+      const y = y0 + ((1 - p.y) / 2) * h;
       el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) translate(-50%, -50%)`;
       el.hidden = p.z > 1;
     }
@@ -1034,8 +1095,7 @@ export function montaLaberinto() {
     const w = Math.max(1, caja.clientWidth);
     const h = Math.max(1, caja.clientHeight);
     renderer.setSize(w, h, false);
-    camara.aspect = w / h;
-    camara.updateProjectionMatrix();
+    // El aspecto de la cámara lo pone cada cuadro, según `regionModelo`.
   }
 
   // ---------------------------------------------------------- movimiento ---
@@ -1061,6 +1121,7 @@ export function montaLaberinto() {
     st.qCabeza = Q1();
     st.qPrevia = Q1();
     st.ojo.centra();
+    st.qOjoPrevio = Q1();
     st.omega = [0, 0, 0];
     st.pan = [0, 0, 0];
     st.zoom = 1;
@@ -1165,7 +1226,7 @@ export function montaLaberinto() {
   function desplaza(dx, dy) {
     if (!st.r) return;
     const { camara } = st.r;
-    const mPorPx = (2 * st.dist * Math.tan((camara.fov * Math.PI) / 360)) / Math.max(1, caja.clientHeight);
+    const mPorPx = (2 * st.dist * Math.tan((camara.fov * Math.PI) / 360)) / (st.region?.h ?? Math.max(1, caja.clientHeight));
     const der = new st.T.Vector3(1, 0, 0).applyQuaternion(camara.quaternion);
     const arr = new st.T.Vector3(0, 1, 0).applyQuaternion(camara.quaternion);
     for (let i = 0; i < 3; i++) {

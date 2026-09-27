@@ -286,6 +286,7 @@ export const HTML = {
   'lab.v.ejes': 'Axes',
   'lab.v.respuesta': 'Response',
   'lab.v.patologia': 'Pathology',
+  'lab.v.via': 'Pathway',
   'lab.visor.t': 'only the 3D viewer, without bar or panel (H)',
   'lab.enlazar': 'Link',
   'lab.enlazar.t': 'move the head with a phone, linked with a QR',
@@ -366,6 +367,16 @@ export const HTML = {
   'lab.vcab': 'head',
   'lab.resp.ewald':
     'At rest each nerve fires about 90 times per second. Upwards it has room; downwards it cannot go below zero: with a fast turn the inhibited canal falls silent and the excited one does all the work. That is <b>Ewald’s second law</b>, and it is why the vHIT tests each side by turning <b>towards</b> that side.',
+  'lab.via.aria': 'the vestibulo-ocular reflex pathway, from canal to muscle',
+  'lab.via.ayuda':
+    'The <b>three-neuron arc</b>: the vestibular nerve carries the canal’s signal to the vestibular nuclei; from there it crosses the midline to the nuclei of the eye muscles (III, IV and VI), and from them to the muscle. Each canal excites two muscles, one in each eye, that move the eyes in its plane: the left lateral canal excites the left medial rectus and the right lateral rectus, which is why the eyes go right when the head turns left.',
+  'lab.via.plano': 'Plane',
+  'lab.via.todos': 'all three',
+  'lab.via.leyenda':
+    'Each running dot is <b>10 spikes</b>: the closer together they go, the faster the neuron fires. A segment turns <b class="exc">red</b> when it fires more than at rest, <b class="inh">blue</b> when less, and dotted when silent. A <b class="lesion">cross</b> is a dead nerve; a bar, a hypofunctioning one.',
+  'lab.via.comp':
+    'With the lesion <b>compensated</b>, the nerve stays silent but its nucleus fires again at rest: that is central compensation, and with it the spontaneous nystagmus goes away. The inhibitory pathways, to the same side, are not drawn; their effect is in the rates.',
+  'lab.via.ciego': 'Blind, the pathway shows neither the activity nor the lesion: only the anatomy and the eyes.',
 };
 
 export const TEXTO = {
@@ -690,4 +701,21 @@ export const TEXTO = {
   'La red no deja conectar directo: pasando por el servidor…': 'The network does not allow a direct connection: going through the server…',
   'el otro aparato no llegó al servidor': 'the other device did not reach the server',
   'no se pudo usar el servidor de relevo': 'the relay server could not be used',
+  // ── vía del reflejo (via.js) ──
+  DERECHA: 'RIGHT',
+  IZQUIERDA: 'LEFT',
+  núcleos: 'vestibular',
+  vestibulares: 'nuclei',
+  FLM: 'MLF',
+  'n. sup.': 'sup. n.',
+  'n. inf.': 'inf. n.',
+  'lat.': 'lat.',
+  'ant.': 'ant.',
+  'post.': 'post.',
+  RM: 'MR',
+  RL: 'LR',
+  RS: 'SR',
+  RI: 'IR',
+  OS: 'SO',
+  OI: 'IO',
 };
