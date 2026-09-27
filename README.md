@@ -405,8 +405,14 @@ teléfono mismo, que hace de cabeza: girarlo a la izquierda gira la cabeza a
 *su* izquierda. Se lee el **giroscopio** (`devicemotion`), que da la velocidad
 angular —lo que sienten los canales— y se integra para la orientación; los
 ángulos de `deviceorientation` se traban con el teléfono parado frente a la
-cara. Necesita HTTPS (en `localhost` no) y, en iPhone, el permiso que Safari
-pide al apretar el botón; «Centrar» corrige la deriva. Es una recreación de lo que hacía la app aVOR (Universidad de
+cara. De `deviceorientation` se usa solo beta y gamma, para saber dónde está
+arriba: al prender o al centrar se arma el marco de la cabeza con la gravedad,
+así que girar de costado a costado es girar la cabeza con el teléfono parado,
+apaisado o inclinado. Y como no todos los navegadores entregan `rotationRate`
+en el mismo orden de ejes, el orden se detecta en el primer segundo de
+movimiento comparándolo con la orientación. Necesita HTTPS (en `localhost` no)
+y, en iPhone, el permiso que Safari pide al apretar el botón; «Centrar» corrige
+la deriva. Es una recreación de lo que hacía la app aVOR (Universidad de
 Sydney, solo iOS), que ya no está disponible.
 
 Los laberintos se ven de tres formas, como en aVOR, elegidas en la barra de la

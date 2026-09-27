@@ -33,10 +33,15 @@ import {
   TASA_MAX,
   TASA_REPOSO,
   activacion,
-  giroEnPantalla,
+  DetectorOrden,
+  ORDENES_GIRO,
+  aMarco,
+  arribaDesdeOrientacion,
   integraGiro,
+  marcoDesdeArriba,
   normalDePlano,
   perfilImpulso,
+  qDesdeOrientacion,
   qEjeAngulo,
   qInv,
   qMul,
@@ -164,7 +169,7 @@ export function montaLaberinto() {
     // compuesta con la del teléfono.
     qManual: Q1(),
     qSensor: Q1(),
-    sensor: { activo: false, tPrevio: null, recibio: false },
+    sensor: sensorApagado(),
     qCabeza: Q1(),
     qPrevia: Q1(),
     // Hacia dónde mira el ojo en el mundo. Con VOR perfecto no se mueve.
@@ -769,6 +774,8 @@ export function montaLaberinto() {
     st.camara = CAMARA_FRENTE;
     st.cenital = false;
     $('lab-cenital').setAttribute('aria-pressed', 'false');
+    // Con el teléfono, el frente nuevo es como se lo tiene ahora.
+    if (st.sensor.activo && st.sensor.arriba) st.sensor.marco = marcoDesdeArriba(st.sensor.arriba);
   }
 
   function lanzaImpulso(m) {
@@ -876,19 +883,33 @@ export function montaLaberinto() {
   // ------------------------------------------------------------ sensores ---
   //
   // El giroscopio (`devicemotion.rotationRate`) da la velocidad angular del
-  // teléfono en °/s, que es justo lo que sienten los canales. Se la integra
-  // en `qSensor` evento a evento. El marco del teléfono —x a la derecha, y
-  // hacia arriba de la pantalla, z saliendo de la pantalla hacia uno— es el
-  // de la cámara de la escena, así que el giro se le aplica tal cual a la
-  // cabeza: girar el teléfono a la izquierda gira la cabeza a SU izquierda y
-  // excita el lateral izquierdo.
+  // teléfono en °/s, que es justo lo que sienten los canales, y se la integra
+  // en `qSensor` evento a evento. No se usan los ángulos de
+  // `deviceorientation` para mover la cabeza: se traban justo con el teléfono
+  // parado frente a la cara (beta = 90°), que es como se lo sostiene.
   //
-  // No se usa `deviceorientation`: sus ángulos de Euler se traban justo con
-  // el teléfono parado frente a la cara (beta = 90°), que es como se lo
-  // sostiene, y derivarlos para sacar la velocidad amplificaba ese ruido.
+  // Pero `deviceorientation` sirve para dos cosas que el giroscopio no dice:
+  //   - dónde está arriba (beta y gamma, sin alpha, que es lo que se traba):
+  //     con eso, al prender o al centrar, se arma el marco de la cabeza en el
+  //     teléfono (`marcoDesdeArriba`), y girar de costado a costado es girar
+  //     la cabeza con el teléfono parado, apaisado o inclinado;
+  //   - en qué orden vienen alpha, beta y gamma del giroscopio, que no es el
+  //     mismo en todos los navegadores: `DetectorOrden` lo decide en el primer
+  //     segundo de movimiento. Hasta entonces se integra la velocidad que sale
+  //     de derivar la orientación, más ruidosa pero con los ejes bien puestos;
+  //     y si no hay orientación, se supone «xyz», el del primer teléfono en
+  //     que se probó.
+  //
+  // Girar el teléfono a la izquierda gira la cabeza a SU izquierda y excita el
+  // lateral izquierdo.
 
   /** Sin eventos con giroscopio en este tiempo, el teléfono no tiene. */
   const ESPERA_GIROSCOPIO_MS = 1500;
+  const ORDEN_SUPUESTO = 'xyz';
+
+  function sensorApagado() {
+    return { activo: false, recibio: false, tPrevio: null, arriba: null, marco: null, orden: null, qOri: null, tOri: 0, wOri: [0, 0, 0] };
+  }
 
   function avisa(texto) {
     estado.hidden = false;
@@ -898,8 +919,13 @@ export function montaLaberinto() {
 
   async function prendeSensores() {
     try {
-      const pide = window.DeviceMotionEvent?.requestPermission;
-      if (typeof pide === 'function' && (await pide.call(window.DeviceMotionEvent)) !== 'granted') {
+      // Los dos pedidos salen juntos, dentro del mismo toque: iOS los rechaza
+      // si el segundo espera al primero y el gesto ya pasó.
+      const pedidos = [window.DeviceMotionEvent, window.DeviceOrientationEvent]
+        .filter((E) => typeof E?.requestPermission === 'function')
+        .map((E) => E.requestPermission());
+      const r = await Promise.all(pedidos);
+      if (r.some((x) => x !== 'granted')) {
         avisa(tx('sin permiso para leer los sensores del teléfono'));
         return;
       }
@@ -908,11 +934,12 @@ export function montaLaberinto() {
       avisa(tx('sin permiso para leer los sensores del teléfono'));
       return;
     }
-    st.sensor = { activo: true, tPrevio: null, recibio: false };
+    st.sensor = { ...sensorApagado(), activo: true, orden: new DetectorOrden() };
     // Lo que se giró a mano queda: el teléfono suma desde ahí.
     st.qManual = st.qCabeza;
     st.qSensor = Q1();
     window.addEventListener('devicemotion', alMoverse);
+    window.addEventListener('deviceorientation', alOrientar);
     pintaSensores();
     setTimeout(() => {
       if (st.sensor.activo && !st.sensor.recibio) {
@@ -925,25 +952,48 @@ export function montaLaberinto() {
   function apagaSensores() {
     if (!st.sensor.activo) return;
     window.removeEventListener('devicemotion', alMoverse);
+    window.removeEventListener('deviceorientation', alOrientar);
     st.qManual = st.qCabeza;
     st.qSensor = Q1();
-    st.sensor = { activo: false, tPrevio: null, recibio: false };
+    st.sensor = sensorApagado();
     pintaSensores();
+  }
+
+  function alOrientar(e) {
+    if (e.beta == null || e.gamma == null) return;
+    const s = st.sensor;
+    s.arriba = arribaDesdeOrientacion(e.beta, e.gamma);
+    s.marco ??= marcoDesdeArriba(s.arriba);
+    // La velocidad que sale de derivar la orientación: ruidosa, pero con los
+    // ejes bien puestos. Solo sirve de referencia para el detector.
+    if (e.alpha == null) return;
+    const q = qDesdeOrientacion(e.alpha, e.beta, e.gamma);
+    const dt = (e.timeStamp - s.tOri) / 1000;
+    if (s.qOri && dt > 0.005 && dt < 0.1) {
+      const w = velocidadAngular(s.qOri, q, dt);
+      s.wOri = s.wOri.map((v, i) => v + 0.5 * (w[i] - v));
+    }
+    s.qOri = q;
+    s.tOri = e.timeStamp;
   }
 
   function alMoverse(e) {
     const r = e.rotationRate;
     if (!r || (r.alpha == null && r.beta == null && r.gamma == null)) return;
-    st.sensor.recibio = true;
+    const s = st.sensor;
+    s.recibio = true;
     // El intervalo sale de las marcas de tiempo y no de `e.interval`, que
     // unos navegadores dan en milisegundos y otros en segundos.
     const t = e.timeStamp;
-    const dt = st.sensor.tPrevio === null ? 0 : Math.min(0.1, (t - st.sensor.tPrevio) / 1000);
-    st.sensor.tPrevio = t;
+    const dt = s.tPrevio === null ? 0 : Math.min(0.1, (t - s.tPrevio) / 1000);
+    s.tPrevio = t;
+    const reciente = s.qOri && t - s.tOri < 80;
+    const orden = reciente ? s.orden.muestra(r, s.wOri) : s.orden.elegido;
     // Mientras corre un impulso armado la cabeza es del impulso.
     if (st.impulso || dt <= 0) return;
-    const angulo = screen.orientation?.angle ?? window.orientation ?? 0;
-    st.qSensor = integraGiro(st.qSensor, giroEnPantalla(r, angulo), dt);
+    const enTelefono = orden ? ORDENES_GIRO[orden](r) : reciente ? s.wOri : ORDENES_GIRO[ORDEN_SUPUESTO](r);
+    const enCabeza = s.marco ? aMarco(s.marco, enTelefono) : enTelefono;
+    st.qSensor = integraGiro(st.qSensor, enCabeza, dt);
   }
 
   return { abre, cierra, abierto: () => st.abierta };

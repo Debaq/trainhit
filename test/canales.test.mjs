@@ -10,8 +10,13 @@ import {
   TASA_MAX,
   TASA_REPOSO,
   activacion,
-  giroEnPantalla,
+  DetectorOrden,
+  ORDENES_GIRO,
+  aMarco,
+  arribaDesdeOrientacion,
   integraGiro,
+  marcoDesdeArriba,
+  qDesdeOrientacion,
   normalDePlano,
   perfilImpulso,
   qEjeAngulo,
@@ -121,10 +126,9 @@ test('normalDePlano encuentra el eje de un anillo inclinado', () => {
 });
 
 test('el giroscopio integrado da la orientación, sin trabarse con el teléfono parado', () => {
-  // Un segundo a 90 °/s alrededor del eje vertical de la pantalla (gamma),
-  // en pasos de 10 ms: 90° a la izquierda.
+  // Un segundo a 90 °/s alrededor de la vertical, en pasos de 10 ms.
   let q = [0, 0, 0, 1];
-  for (let i = 0; i < 100; i++) q = integraGiro(q, giroEnPantalla({ alpha: 0, beta: 0, gamma: 90 }), 0.01);
+  for (let i = 0; i < 100; i++) q = integraGiro(q, [0, 90, 0], 0.01);
   const e = qMul(q, [0, -Math.SQRT1_2, 0, Math.SQRT1_2]); // deshace 90° en +y
   assert.ok(Math.abs(Math.abs(e[3]) - 1) < 1e-9, String(q));
   // Y la velocidad que sale de derivar esa orientación es la del giroscopio.
@@ -133,11 +137,46 @@ test('el giroscopio integrado da la orientación, sin trabarse con el teléfono 
   assert.ok(Math.abs(w[1] - 90) < 1e-6 && Math.abs(w[0]) < 1e-6);
 });
 
-test('con la pantalla apaisada, los ejes del teléfono se pasan a los de la pantalla', () => {
-  // Parado: beta es alrededor de x, gamma alrededor de y.
-  assert.deepEqual(giroEnPantalla({ alpha: 3, beta: 1, gamma: 2 }, 0), [1, 2, 3]);
-  // Girado 90° antihorario: el borde derecho del teléfono queda arriba, así
-  // que un giro alrededor de su x es alrededor de la vertical de la pantalla.
-  const w = giroEnPantalla({ alpha: 0, beta: 10, gamma: 0 }, 90);
-  assert.ok(Math.abs(w[0]) < 1e-9 && Math.abs(w[1] - 10) < 1e-9, String(w));
+const cerca = (a, b, tol = 1e-9) => a.every((v, i) => Math.abs(v - b[i]) < tol);
+
+test('arriba sale de beta y gamma: parado, acostado y apaisado', () => {
+  assert.ok(cerca(arribaDesdeOrientacion(90, 0), [0, 1, 0]));
+  assert.ok(cerca(arribaDesdeOrientacion(0, 0), [0, 0, 1]));
+  // Apaisado con el borde derecho arriba: gamma −90 y beta 0.
+  assert.ok(cerca(arribaDesdeOrientacion(0, -90), [1, 0, 0]));
+  // Coincide con la orientación completa, sea cual sea alpha.
+  const q = qDesdeOrientacion(123, 50, 20);
+  const arriba = arribaDesdeOrientacion(50, 20);
+  // El «arriba» del mundo llevado al teléfono: q⁻¹ · z · q.
+  const v = qMul(qMul([-q[0], -q[1], -q[2], q[3]], [0, 0, 1, 0]), q);
+  assert.ok(cerca(v.slice(0, 3), arriba, 1e-9), `${v} vs ${arriba}`);
+});
+
+test('el marco de la cabeza sigue a la gravedad: girar de costado es girar la cabeza', () => {
+  // Parado: el marco es el del teléfono.
+  const parado = marcoDesdeArriba([0, 1, 0]);
+  assert.ok(cerca(aMarco(parado, [0, 50, 0]), [0, 50, 0]));
+  // Apaisado, borde derecho arriba: girar alrededor de la vertical es girar
+  // alrededor de la x del teléfono, y tiene que salir como giro de cabeza (+y).
+  const apaisado = marcoDesdeArriba([1, 0, 0]);
+  assert.ok(cerca(aMarco(apaisado, [50, 0, 0]), [0, 50, 0]));
+  // Inclinado 30° hacia atrás: la vertical sigue siendo el eje de la cabeza.
+  const b = (60 * Math.PI) / 180;
+  const inclinado = marcoDesdeArriba([0, Math.sin(b), Math.cos(b)]);
+  const w = aMarco(inclinado, [0, 50 * Math.sin(b), 50 * Math.cos(b)]);
+  assert.ok(cerca(w, [0, 50, 0], 1e-9), String(w));
+});
+
+test('el detector elige el orden de rotationRate que coincide con la orientación', () => {
+  // Un navegador «xyz»: el giro de cabeza (alrededor de y) viene en beta.
+  const d = new DetectorOrden();
+  let elegido = null;
+  for (let i = 0; i < 30; i++) elegido = d.muestra({ alpha: 1, beta: 80 + i, gamma: -2 }, [1, 80 + i, -2]);
+  assert.equal(elegido, 'xyz');
+  const e = new DetectorOrden();
+  for (let i = 0; i < 30; i++) elegido = e.muestra({ alpha: -2, beta: 1, gamma: 80 + i }, [1, 80 + i, -2]);
+  assert.equal(elegido, 'especificacion');
+  // Quieto no cuenta.
+  assert.equal(new DetectorOrden().muestra({ alpha: 0, beta: 1, gamma: 0 }, [0, 1, 0]), null);
+  assert.deepEqual(ORDENES_GIRO.xyz({ alpha: 1, beta: 2, gamma: 3 }), [1, 2, 3]);
 });

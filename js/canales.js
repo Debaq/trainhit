@@ -185,20 +185,93 @@ export function velocidadAngular(q0, q1, dt) {
 // ------------------------------------------------------------ giroscopio ---
 
 /**
- * La velocidad angular del giroscopio (`devicemotion.rotationRate`, °/s) en
- * el marco de la pantalla. El navegador la da en el marco del teléfono: alpha
- * alrededor de z (saliendo de la pantalla), beta alrededor de x (el borde
- * corto) y gamma alrededor de y (el borde largo). Con la pantalla girada
- * `anguloPantalla` grados (apaisado), los ejes x e y del teléfono ya no son
- * los de la pantalla y se giran para que lo sean.
+ * Los dos órdenes en que los navegadores entregan `devicemotion.rotationRate`
+ * (°/s), pasados a [x, y, z] del teléfono: x hacia el borde derecho, y hacia
+ * arriba de la pantalla, z saliendo de la pantalla. La especificación dice
+ * alpha alrededor de z, beta de x y gamma de y; hay navegadores que dan
+ * alpha, beta y gamma alrededor de x, y y z. Cuál es cuál no se adivina: lo
+ * decide `DetectorOrden` comparando con la orientación.
  */
-export function giroEnPantalla({ alpha, beta, gamma }, anguloPantalla = 0) {
-  const a = rad(anguloPantalla);
-  const c = Math.cos(a);
-  const s = Math.sin(a);
-  const wx = beta ?? 0;
-  const wy = gamma ?? 0;
-  return [c * wx - s * wy, s * wx + c * wy, alpha ?? 0];
+export const ORDENES_GIRO = {
+  especificacion: (r) => [r.beta ?? 0, r.gamma ?? 0, r.alpha ?? 0],
+  xyz: (r) => [r.alpha ?? 0, r.beta ?? 0, r.gamma ?? 0],
+};
+
+/**
+ * Elige el orden de `rotationRate` comparándolo con la velocidad que sale de
+ * derivar la orientación (`deviceorientation`), que es igual en todos los
+ * navegadores. Solo cuentan los instantes con giro franco; con veinte que
+ * favorezcan claramente a uno, queda elegido.
+ */
+export class DetectorOrden {
+  constructor() {
+    this.error = { especificacion: 0, xyz: 0 };
+    this.n = 0;
+    this.elegido = null;
+  }
+
+  muestra(rotationRate, wReferencia) {
+    if (this.elegido) return this.elegido;
+    const m2 = wReferencia[0] ** 2 + wReferencia[1] ** 2 + wReferencia[2] ** 2;
+    if (m2 < 30 * 30) return null;
+    for (const [k, f] of Object.entries(ORDENES_GIRO)) {
+      const w = f(rotationRate);
+      this.error[k] += ((w[0] - wReferencia[0]) ** 2 + (w[1] - wReferencia[1]) ** 2 + (w[2] - wReferencia[2]) ** 2) / m2;
+    }
+    this.n++;
+    const { especificacion: e, xyz: x } = this.error;
+    if (this.n >= 20 && (e < 0.5 * x || x < 0.5 * e || this.n >= 200)) this.elegido = e <= x ? 'especificacion' : 'xyz';
+    return this.elegido;
+  }
+}
+
+/**
+ * La vertical del mundo («arriba») en el marco del teléfono, a partir de beta
+ * y gamma de `deviceorientation`. Con la orientación Z-X'-Y'' de la
+ * especificación es la tercera fila de la matriz: no depende de alpha, así
+ * que no le afecta la traba de los ángulos con el teléfono parado.
+ */
+export function arribaDesdeOrientacion(beta, gamma) {
+  const b = rad(beta);
+  const g = rad(gamma);
+  return [-Math.sin(g) * Math.cos(b), Math.sin(b), Math.cos(g) * Math.cos(b)];
+}
+
+/** La orientación del teléfono como cuaternión, desde los ángulos Z-X'-Y''. */
+export function qDesdeOrientacion(alpha, beta, gamma) {
+  return qMul(qMul(qEjeAngulo([0, 0, 1], alpha), qEjeAngulo([1, 0, 0], beta)), qEjeAngulo([0, 1, 0], gamma));
+}
+
+/**
+ * Los ejes de la cabeza en el marco del teléfono, tomados cuando se lo
+ * centra: arriba es la vertical del mundo, la nariz mira hacia quien sostiene
+ * el teléfono (z de la pantalla, acostado sobre el horizonte) e x, a la
+ * izquierda del paciente, completa. Así girar el teléfono de costado a
+ * costado es girar la cabeza, se lo tenga parado, apaisado o inclinado.
+ * Devuelve las tres filas [x, y, z].
+ */
+export function marcoDesdeArriba(arriba) {
+  const n = (v) => {
+    const l = Math.hypot(v[0], v[1], v[2]);
+    return v.map((c) => c / l);
+  };
+  const y = n(arriba);
+  const plano = (v) => {
+    const d = v[0] * y[0] + v[1] * y[1] + v[2] * y[2];
+    return [v[0] - d * y[0], v[1] - d * y[1], v[2] - d * y[2]];
+  };
+  // Con el teléfono acostado la pantalla mira arriba y no sirve de nariz: se
+  // usa el borde de abajo, el que queda hacia quien lo mira.
+  let z = plano([0, 0, 1]);
+  if (Math.hypot(...z) < 0.3) z = plano([0, -1, 0]);
+  z = n(z);
+  const x = [y[1] * z[2] - y[2] * z[1], y[2] * z[0] - y[0] * z[2], y[0] * z[1] - y[1] * z[0]];
+  return [x, y, z];
+}
+
+/** Un vector del teléfono en el marco de la cabeza. */
+export function aMarco(filas, v) {
+  return filas.map((e) => e[0] * v[0] + e[1] * v[1] + e[2] * v[2]);
 }
 
 /**
