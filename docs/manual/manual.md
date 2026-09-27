@@ -1,7 +1,56 @@
-# Manual de uso de trainHIT
+# trainHIT
 
-**vHIT didáctico en el navegador, con la webcam del equipo.**
-Laboratorio TecMedHub · Universidad Austral de Chile, Sede Puerto Montt.
+**Manual de uso y guía docente**
+
+vHIT didáctico en el navegador, con la webcam del equipo.
+
+**Autor:** Nicolás Baier Quezada<br>
+**Fecha:** 26 de septiembre de 2026<br>
+**Versión de trainHIT documentada:** 2026-09-26.2
+
+Laboratorio TecMedHub · Universidad Austral de Chile, Sede Puerto Montt
+
+## Contenido
+
+<div class="indice" markdown="1">
+
+**Parte I · Manual de uso**
+
+- [1. Qué es trainHIT](#1-que-es-trainhit)
+- [2. Antes de empezar](#2-antes-de-empezar)
+- [3. La pantalla](#3-la-pantalla)
+- [4. Preparar la sesión](#4-preparar-la-sesion)
+- [5. La primera medición](#5-la-primera-medicion)
+- [6. Leer los gráficos](#6-leer-los-graficos)
+- [7. Herramientas](#7-herramientas)
+- [8. Las perillas del motor](#8-las-perillas-del-motor)
+- [9. Aprender a usar: los paseos](#9-aprender-a-usar-los-paseos)
+- [10. Casos a ciegas](#10-casos-a-ciegas)
+- [11. Paciente simulado](#11-paciente-simulado)
+- [12. Guardar y compartir datos](#12-guardar-y-compartir-datos)
+- [13. Idioma, pantallas chicas y uso sin red](#13-idioma-pantallas-chicas-y-uso-sin-red)
+- [14. Atajos de teclado](#14-atajos-de-teclado)
+- [15. Problemas frecuentes](#15-problemas-frecuentes)
+
+**Parte II · Guía docente: ideas de uso pedagógico**
+
+- [16. Para qué y para quién](#16-para-que-y-para-quien)
+- [17. Resultados de aprendizaje](#17-resultados-de-aprendizaje)
+- [18. Secuencias de clase sugeridas](#18-secuencias-de-clase-sugeridas)
+- [19. Actividades](#19-actividades)
+- [20. Evaluación](#20-evaluacion)
+- [21. Errores frecuentes y preguntas para discutir](#21-errores-frecuentes-y-preguntas-para-discutir)
+- [22. Cuidados en el aula](#22-cuidados-en-el-aula)
+
+**Anexo**
+
+- [23. Glosario](#23-glosario)
+
+</div>
+
+---
+
+## 1. Qué es trainHIT
 
 > **trainHIT no es un equipo médico.** Sirve para *aprender* cómo se mide el
 > reflejo vestíbulo-ocular, no para diagnosticar. Una webcam común da 30 cuadros
@@ -9,29 +58,6 @@ Laboratorio TecMedHub · Universidad Austral de Chile, Sede Puerto Montt.
 > desacadiza. Por eso los valores son didácticos. Además la página procesa como
 > mucho 60 cuadros por segundo aunque la cámara dé más: el tope está puesto a
 > propósito.
-
-## Contenido
-
-1. [Qué es trainHIT](#1-que-es-trainhit)
-2. [Antes de empezar](#2-antes-de-empezar)
-3. [La pantalla](#3-la-pantalla)
-4. [Preparar la sesión](#4-preparar-la-sesion)
-5. [La primera medición](#5-la-primera-medicion)
-6. [Leer los gráficos](#6-leer-los-graficos)
-7. [Herramientas](#7-herramientas)
-8. [Las perillas del motor](#8-las-perillas-del-motor)
-9. [Aprender a usar: los paseos](#9-aprender-a-usar-los-paseos)
-10. [Casos a ciegas](#10-casos-a-ciegas)
-11. [Paciente simulado](#11-paciente-simulado)
-12. [Guardar y compartir datos](#12-guardar-y-compartir-datos)
-13. [Idioma, pantallas chicas y uso sin red](#13-idioma-pantallas-chicas-y-uso-sin-red)
-14. [Atajos de teclado](#14-atajos-de-teclado)
-15. [Problemas frecuentes](#15-problemas-frecuentes)
-16. [Glosario](#16-glosario)
-
----
-
-## 1. Qué es trainHIT
 
 trainHIT mide el **reflejo vestíbulo-ocular (VOR)** con la cámara del computador.
 Cuadro a cuadro sigue la cabeza y el iris, y calcula la **ganancia** de cada
@@ -739,7 +765,316 @@ para el aula, donde el wifi falla.
 
 ---
 
-## 16. Glosario
+## 16. Para qué y para quién
+
+Esta segunda parte junta **ideas para usar trainHIT en clases**. No es un
+programa cerrado: son actividades, secuencias y pautas que cada docente puede
+adaptar al curso, al tiempo disponible y a los equipos que tenga.
+
+### Para quién
+
+Estudiantes de carreras de la salud que ven el **sistema vestibular** y su
+evaluación: fonoaudiología, tecnología médica, medicina, kinesiología y
+enfermería. También sirve en talleres y visitas al laboratorio, para mostrar
+cómo un número clínico sale de una imagen.
+
+### Qué aporta frente a un equipo clínico
+
+Un vHIT clínico entrega la ganancia y las sacadas, pero no muestra cómo se
+calcularon. trainHIT sí lo muestra, y eso permite enseñar tres cosas que con un
+equipo cerrado quedan como caja negra:
+
+- **Cómo se mide:** del video al ángulo del ojo, de ahí a la velocidad y de
+  ahí a la ganancia, con cada paso a la vista.
+- **Por qué el número puede engañar:** el paralaje, las sacadas encubiertas,
+  el método de cálculo y los criterios de aceptación cambian el resultado.
+- **Cómo se examina:** la técnica del examinador decide si hay pulsos para
+  leer, y eso se ve en los rechazos.
+
+### Qué hace falta en la sala
+
+- **Un computador con webcam por grupo** de 2 o 3 estudiantes. Sin cámara
+  igual se pueden hacer los paseos, los casos a ciegas y las perillas.
+- **Un proyector** para las demostraciones y la discusión.
+- **Red solo la primera vez.** Conviene abrir la página en cada equipo antes
+  de la clase: después funciona sin conexión.
+- **Una silla sin ruedas** para el paciente, con espacio detrás para el
+  examinador.
+
+---
+
+## 17. Resultados de aprendizaje
+
+Al terminar las actividades, se espera que el estudiante pueda:
+
+1. **Explicar** el reflejo vestíbulo-ocular y por qué el impulso cefálico
+   pone a prueba un canal semicircular.
+2. **Ejecutar** un impulso cefálico con técnica adecuada: amplitud, velocidad,
+   imprevisibilidad y posición de las manos.
+3. **Interpretar** los gráficos de un vHIT: ganancia por lado, asimetría,
+   sacadas encubiertas y manifiestas, y pulsos rechazados.
+4. **Reconocer** los patrones normal, déficit unilateral y déficit bilateral,
+   y el déficit que queda oculto por sacadas encubiertas.
+5. **Justificar** por qué una ganancia depende de la calibración, del método
+   de cálculo y de los criterios de aceptación.
+6. **Reconocer los límites** de una medición: cuándo no se puede concluir y
+   por qué esta herramienta no sirve para diagnosticar.
+
+---
+
+## 18. Secuencias de clase sugeridas
+
+### Sesión práctica de 90 minutos
+
+Para un curso que ya vio la fisiología del VOR en teoría.
+
+| Tiempo | Actividad | Con qué | Producto |
+|---|---|---|---|
+| 0–15 min | Encuadre: qué mide un vHIT y qué no | Paseo **Qué mide un vHIT**, proyectado | Preguntas abiertas del curso |
+| 15–30 min | Preparar la sesión y calibrar | Paseos **Preparar la sesión** y **La primera medición** | Cada grupo con una calibración aceptada |
+| 30–50 min | Casos a ciegas | Paseo **Casos a ciegas**, en grupos | Respuesta del grupo a cada caso |
+| 50–80 min | Paciente simulado en parejas | **Simulador › Voy a tener suerte**, con rotación | Nota de la práctica y rúbrica de técnica |
+| 80–90 min | Cierre | Discusión del caso D y de los límites | Una idea que cada uno se lleva |
+
+### Sesión corta de 45 minutos, sin cámara
+
+Sirve para una clase teórica con proyector, o cuando no hay webcams.
+
+1. **10 min:** paseo **Qué mide un vHIT**.
+2. **15 min:** **Casos a ciegas** A a E, votando a mano alzada antes de
+   revelar cada uno.
+3. **15 min:** el experimento del paralaje (actividad 19.2) y los tres métodos
+   (actividad 19.6).
+4. **5 min:** cierre con la pregunta "¿por qué el caso D se lee normal?".
+
+### Laboratorio en dos sesiones
+
+- **Sesión 1, técnica.** Preparación, calibración y examen en parejas sin
+  simulador. La meta es la **tasa de aceptados** (actividad 19.8).
+- **Sesión 2, lectura.** Simulador a ciegas, perillas y trabajo con un CSV
+  compartido (actividad 19.7). Se termina con un informe breve.
+
+---
+
+## 19. Actividades
+
+Cada actividad dice qué se busca, cómo se hace y qué discutir al final.
+
+### 19.1 Del gráfico al número
+
+**Qué se busca:** que la ganancia deje de ser un número mágico.
+
+1. Cargar los **pulsos de ejemplo** (Aprender › Leer los gráficos).
+2. Con la **regla**, medir el área de cabeza y de ojo de un pulso del lado
+   derecho, desde el inicio hasta el fin del impulso.
+3. Dividir las áreas a mano y comparar con la ganancia de la lista.
+4. Repetir midiendo solo la subida del impulso.
+
+**Para discutir:** ¿por qué cambia la ganancia según el tramo? ¿Qué tramo usa
+el motor, y por qué ese?
+
+### 19.2 El experimento del paralaje
+
+**Qué se busca:** entender para qué se calibra.
+
+1. Con los pulsos de ejemplo, abrir **Herramientas › Calibración del
+   paralaje**.
+2. Poner **k a mano en 0**, marcar **usar este k** y apretar **Recalcular**.
+3. Anotar la ganancia del lado sano (~1,9) y volver al k calibrado.
+
+**Para discutir:** ningún reflejo tiene ganancia 1,9. ¿De dónde sale ese
+número? ¿Qué pasaría en la clínica con un equipo mal calibrado?
+
+### 19.3 Casos a ciegas en grupos
+
+**Qué se busca:** leer un vHIT completo, no solo un número.
+
+1. Cada grupo carga los casos A a E y decide el patrón **antes** de responder
+   en la página.
+2. El docente pide la respuesta de cada grupo y recién ahí se revela.
+3. Se discuten los casos donde hubo desacuerdo.
+
+**Para discutir:** en el caso C, ¿por qué una asimetría de cero no es normal?
+En el caso D, ¿qué habría que mirar para no quedarse con la media?
+
+### 19.4 Paciente simulado con rotación
+
+**Qué se busca:** examinar y leer a la vez, con una patología desconocida.
+
+Grupos de tres, con tres roles que rotan en cada ronda:
+
+- **Paciente:** un compañero sano frente a la cámara.
+- **Examinador:** da los impulsos y responde las preguntas.
+- **Observador:** llena la rúbrica de técnica (sección 20).
+
+Cada ronda es un **Voy a tener suerte**: examinar hasta tener 3 pulsos
+aceptados por lado, contestar, **Revelar** y mirar **Ver lo real**.
+
+**Para discutir:** ¿los pulsos rechazados del examinador fueron por técnica o
+por el paciente? ¿Qué cambió entre la primera ronda y la última?
+
+### 19.5 Una perilla por grupo
+
+**Qué se busca:** entender los criterios detrás de un resultado.
+
+1. Cada grupo recibe una perilla: ventana del derivador, umbrales, pico
+   mínimo, parpadeo o iris mínimo.
+2. Con los pulsos de ejemplo, cambian solo esa perilla, apretan
+   **Recalcular** y anotan qué cambió: ganancias, aceptados y rechazados.
+3. Cada grupo presenta su hallazgo en 2 minutos.
+
+**Para discutir:** bajar el pico mínimo deja entrar el pulso lento, y subir el
+umbral de parpadeo acepta mediciones con el ojo cerrado. ¿Qué criterio
+aflojarían en la clínica, y cuál nunca?
+
+### 19.6 Tres métodos, un pulso
+
+**Qué se busca:** que una ganancia no se compare sin su método.
+
+1. Con el caso D cargado, abrir **Herramientas › Ganancia vs pico**.
+2. Comparar en la tabla las medias y la asimetría de cada método.
+3. Mirar la fila **hasta la sacada ≈** del lado izquierdo.
+
+**Para discutir:** ¿cuál de los métodos "tiene razón"? ¿Por qué en el caso D la
+de área da ~1 y la que corta en la sacada da ~0,5?
+
+### 19.7 Un caso para todos
+
+**Qué se busca:** que todo el curso analice la misma medición, cada uno con
+sus propios criterios.
+
+1. El docente mide a un voluntario (o arma un caso con el simulador) y guarda
+   la sesión con **Exportar CSV**.
+2. Reparte el archivo por el aula virtual.
+3. Cada estudiante lo abre con **Importar CSV**, lo analiza y escribe un
+   informe breve: ganancia por lado, asimetría, sacadas, pulsos rechazados y
+   una conclusión, o "no concluyente" si corresponde.
+
+El CSV también se puede abrir en una planilla para rehacer las cuentas.
+
+### 19.8 La tasa de aceptados
+
+**Qué se busca:** mejorar la técnica con una medida objetiva.
+
+Cada examinador da 10 impulsos y cuenta cuántos salieron **aceptados** y los
+motivos de los rechazados (*MUY LENTO*, *MUY RÁPIDO*, *CARA PERDIDA*,
+*PARPADEO*). Se repite después de corregir la técnica y se compara.
+
+**Para discutir:** ¿qué motivo de rechazo fue el más común en el curso, y qué
+lo corrige?
+
+### 19.9 Lo que esto no es
+
+**Qué se busca:** pensamiento crítico sobre la tecnología clínica.
+
+En grupos, con el paseo **Qué mide un vHIT › Lo que esto no es** y la sección
+**Herramientas › Cómo se mide**, preparar una lista de las diferencias entre
+trainHIT y un vHIT clínico: cuadros por segundo, desacadización, distancia al
+blanco, canales verticales y validación.
+
+**Para discutir:** ¿qué haría falta para que una herramienta así se pudiera
+usar con pacientes? ¿Por qué tiene un tope de 60 cuadros por segundo puesto a
+propósito?
+
+---
+
+## 20. Evaluación
+
+### Evaluación formativa, dentro de la misma página
+
+- **Casos a ciegas:** cada respuesta da una pista si es incorrecta y una
+  explicación si es correcta. Sirve para autoevaluarse.
+- **Voy a tener suerte:** al revelar, la página da la nota ("2 de 3
+  correctas"). Una captura de pantalla sirve de evidencia.
+
+### Cuestionario en Moodle
+
+**Herramientas › Para docentes › Preguntas para Moodle (GIFT)** baja un archivo
+listo para importar en el **banco de preguntas** del curso (Banco de
+preguntas › Importar › formato GIFT). Trae:
+
+- una pregunta por cada caso a ciegas, con los números del caso;
+- preguntas de conceptos: paralaje, sacadas, falso negativo, canales,
+  asimetría, calibración y rechazos;
+- una numérica de ganancia, un verdadero/falso y un emparejamiento de métodos.
+
+Con ese banco se arma un cuestionario de entrada (antes del práctico) y uno de
+salida (después) para comparar.
+
+### Rúbrica de técnica del examinador
+
+La llena el observador de la actividad 19.4, o el docente.
+
+| Criterio | Logrado | En desarrollo | No logrado |
+|---|---|---|---|
+| **Preparación** | Cámara a la altura de los ojos, luz de frente, inclinación ~30° | Falta un elemento | Varios elementos mal |
+| **Calibración** | Aceptada al primer intento | Aceptada al segundo o tercer intento | No logra calibrar |
+| **Manos** | Por arriba de la cabeza, cara despejada | Alguna vez tapa la cara | Pierde la cara seguido (*CARA PERDIDA*) |
+| **Amplitud y velocidad** | Giros cortos y rápidos, pico entre 150 y 300 °/s | Algunos *MUY LENTO* o *MUY RÁPIDO* | La mayoría rechazados |
+| **Imprevisibilidad** | Alterna los lados sin patrón | Patrón a veces predecible | Siempre alterna igual |
+| **Retorno** | Vuelve lento al centro y espera | Vuelve rápido a veces | Retorno brusco, impulsos encadenados |
+| **Tasa de aceptados** | 8 o más de 10 | 5 a 7 de 10 | Menos de 5 de 10 |
+
+### Pauta para el informe breve (actividad 19.7)
+
+| Elemento | Qué se espera |
+|---|---|
+| Datos de la medición | Pulsos aceptados y rechazados por lado, y motivos |
+| Resultados | Ganancia media ± DE por lado, con el método, y asimetría |
+| Sacadas | Tipo (encubiertas o manifiestas) y lado |
+| Interpretación | Patrón que muestra, justificado con los gráficos |
+| Límites | Qué no se puede concluir con esta medición y por qué |
+
+---
+
+## 21. Errores frecuentes y preguntas para discutir
+
+### Errores frecuentes de los estudiantes
+
+| Error | Cómo abordarlo |
+|---|---|
+| Leer solo la asimetría | Caso C: los dos lados bajos dan asimetría cero. |
+| Quedarse con la media sin mirar las curvas | Caso D: la sacada encubierta infla la ganancia. Seleccionar un pulso y mirarlo. |
+| Confundir el lado con el de la pantalla | Derecha e izquierda son las del paciente: un impulso a su derecha cae en el panel derecho. |
+| Creer que ganancia mayor que 1 es "mejor" | Mostrar el caso D y los pulsos sin calibrar: más de 1 suele ser un artefacto. |
+| Olvidar calibrar | La barra dice **SIN CALIBRAR** y los pulsos salen **s/c**. Repetir el experimento del paralaje (19.2). |
+| Impulsos grandes y lentos | Mirar el pico de la lista y los rechazos *MUY LENTO*; practicar giros cortos. |
+| Interpretar con dos o tres pulsos | Caso E: sin pulsos aceptados suficientes no se concluye. |
+| Tomar el resultado como diagnóstico | Volver a la sección "Lo que no es" y a la actividad 19.9. |
+
+### Preguntas para abrir la discusión
+
+- ¿Por qué el impulso tiene que ser impredecible?
+- Si el reflejo es perfecto, ¿qué se ve en el gráfico? ¿Y si no hay reflejo?
+- ¿Qué información da una sacada que no da la ganancia?
+- ¿Por qué un vHIT normal en un vértigo agudo puede ser una señal de alarma?
+- ¿Qué pesa más en el resultado: el paciente, el examinador o el equipo?
+- ¿Qué cambiaría si la cámara diera 250 cuadros por segundo en vez de 30?
+
+---
+
+## 22. Cuidados en el aula
+
+> **El cuello del compañero es real.** Antes de dar impulsos, preguntar si
+> tiene alguna lesión, dolor o cirugía cervical, o vértigo en ese momento: en
+> ese caso no hace de paciente. Los impulsos son **chicos (10–20°)**, nunca
+> hasta el tope del giro, y se detienen si el paciente siente molestia.
+
+- **Es para aprender, no para diagnosticar.** Si un estudiante ve algo que le
+  preocupa en su propia medición, lo más probable es la técnica, la luz o los
+  30 fps. Igual, cualquier síntoma real se consulta con un profesional, no con
+  esta página.
+- **El video no sale del computador.** trainHIT procesa todo en el navegador y
+  no guarda ni envía imágenes.
+- **Los CSV no llevan nombres**, pero son mediciones de una persona. Al
+  compartirlos en el aula virtual conviene no identificar al voluntario.
+- **Probar antes de la clase.** Conviene abrir la página, encender la cámara y
+  calibrar en cada equipo: así el modelo queda guardado y los problemas de
+  permisos o de luz aparecen antes, no durante la clase.
+
+---
+
+## 23. Glosario
 
 | Término | Significado |
 |---|---|

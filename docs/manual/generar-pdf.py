@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pasa manual.md a manual.pdf.
+"""Pasa manual.md (manual de uso y guía docente) a manual.pdf.
 
     python3 docs/manual/generar-pdf.py
 
@@ -18,13 +18,15 @@ CSS = """
 @page {
   size: A4;
   margin: 2cm 1.8cm 2.2cm;
-  @bottom-center { content: counter(page); font: 9pt 'Noto Sans', sans-serif; color: #777; }
-  @top-right { content: 'Manual de uso de trainHIT'; font: 8pt 'Noto Sans', sans-serif; color: #999; }
+  @top-right { content: 'trainHIT · Manual de uso y guía docente'; font: 8pt 'Noto Sans', sans-serif; color: #999; }
+  @bottom-left { content: 'TecMedHub · Universidad Austral de Chile, Sede Puerto Montt'; font: 8pt 'Noto Sans', sans-serif; color: #777; }
+  @bottom-right { content: counter(page); font: 9pt 'Noto Sans', sans-serif; color: #777; }
 }
-@page :first { @top-right { content: none; } @bottom-center { content: none; } }
+@page :first { @top-right { content: none; } @bottom-right { content: none; } }
 body { font: 10.5pt/1.5 'Noto Sans', 'DejaVu Sans', sans-serif; color: #1d1d22; }
-h1 { font-size: 30pt; margin: 5cm 0 0.2cm; color: #111; }
-h1 + p { font-size: 13pt; color: #2b6fd6; }
+h1 { font-size: 40pt; margin: 5cm 0 0.1cm; color: #111; }
+h1 + p { font-size: 20pt; color: #2b6fd6; margin: 0 0 0.3cm; }
+h1 + p + p { font-size: 12pt; color: #555; margin-bottom: 2.5cm; }
 h2 { break-before: page; font-size: 18pt; color: #111; border-bottom: 3px solid #2b6fd6;
      padding-bottom: 4pt; margin-top: 0; }
 h3 { font-size: 12.5pt; color: #2b6fd6; margin: 16pt 0 4pt; break-after: avoid; }
@@ -46,6 +48,7 @@ figcaption { font-size: 8.5pt; color: #666; margin-top: 4pt; font-style: italic;
 hr { display: none; }
 ol, ul { padding-left: 16pt; }
 li { margin: 2pt 0; }
+.indice ul { list-style: none; padding-left: 8pt; }
 """
 
 
@@ -60,8 +63,8 @@ def figuras(html: str) -> str:
 
 def main() -> None:
     md = (AQUI / 'manual.md').read_text(encoding='utf-8')
-    cuerpo = markdown.markdown(md, extensions=['tables', 'fenced_code', 'toc', 'sane_lists'])
-    html = f'<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Manual de uso de trainHIT</title><style>{CSS}</style></head><body>{figuras(cuerpo)}</body></html>'
+    cuerpo = markdown.markdown(md, extensions=['tables', 'fenced_code', 'toc', 'sane_lists', 'md_in_html'])
+    html = f'<!doctype html><html lang="es"><head><meta charset="utf-8"><title>trainHIT · Manual de uso y guía docente</title><style>{CSS}</style></head><body>{figuras(cuerpo)}</body></html>'
     salida = AQUI / 'manual.pdf'
     HTML(string=html, base_url=str(AQUI)).write_pdf(salida)
     print(salida)
