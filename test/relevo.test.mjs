@@ -89,3 +89,12 @@ test('salas distintas no se mezclan', async () => {
   b.close();
   await s.cierra();
 });
+
+test('una página del mismo dominio que el relevo entra sin estar en la lista', async () => {
+  const { s, url } = await levanta();
+  const propio = `http://${new URL(url).host}`;
+  const a = cliente(url, 'visor', T, propio);
+  await a.abierto;
+  a.close();
+  await s.cierra();
+});

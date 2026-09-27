@@ -425,17 +425,24 @@ durmió, se cortó el wifi—, el PC reabre la misma sala y el teléfono vuelve 
 entrar solo al despertar, hasta que alguien aprieta «Terminar enlace» o
 «Desconectar».
 
+El enlace necesita un servidor con PHP (y, para el relevo, con aplicaciones
+Node.js): en GitHub Pages u otro hosting estático el resto de trainHIT anda,
+pero Enlazar no.
+
 La presentación pasa por `servidor/senal.php`, un PHP de un solo archivo sin
 base de datos que guarda cada sala en el directorio temporal mientras se usa
 (vence a los 10 minutos quieta). La sala tiene un código de 6 dígitos, que va
 dentro del QR, y una llave que solo tiene el PC para reabrirla; cada oferta va
 numerada y el teléfono contesta la vigente. Después el giroscopio va directo
-entre los dos aparatos por WebRTC, sin pasar por el servidor. La dirección del
-PHP la dice `<meta name="trainhit-senal">` en index.html
-(`https://tecmedhub.org/trainhit/servidor/senal.php`, con su origen en
-`connect-src` de la CSP); el PHP, a su vez, lista en `ORIGENES` desde dónde se
-lo puede llamar. Para probar en local: `php -S localhost:8095` en la raíz y
-abrir la página con `?senal=local`.
+entre los dos aparatos por WebRTC, sin pasar por el servidor. Las direcciones
+del PHP y del relevo las dicen `<meta name="trainhit-senal">` y
+`<meta name="trainhit-relevo">` en index.html; son relativas
+(`servidor/senal.php` y `servidor/relevo/`), así que alcanza con subir
+trainHIT completo a un servidor con PHP y cargar el relevo en esa misma carpeta.
+Si estuvieran en otro sitio, van las direcciones completas y su origen en
+`connect-src` de la CSP; el PHP y el relevo, a su vez, listan en `ORIGENES`
+desde qué otros sitios se los puede llamar. Para probar en local:
+`php -S localhost:8095` en la raíz y abrir la página con `?senal=local`.
 
 Si la conexión directa no se abre en unos segundos —la red no la deja:
 teléfono con datos móviles, wifi con aislamiento de clientes—, los dos aparatos

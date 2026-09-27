@@ -27,11 +27,11 @@
 // Los POST van con Content-Type text/plain para que el navegador no mande la
 // consulta previa de CORS.
 
-// Desde dónde se lo puede llamar: la página publicada y los servidores
-// locales de prueba. Agregar acá si se la sirve desde otro lado.
+// Desde qué OTROS sitios se lo puede llamar. Si la página se sirve desde el
+// mismo servidor que este PHP —lo normal—, no hace falta nada: esto es para
+// una página publicada en otro lado (y los servidores locales de prueba).
 const ORIGENES = [
     'https://debaq.github.io',
-    'https://tecmedhub.org',
     'http://localhost:8093',
     'http://localhost:8095',
 ];

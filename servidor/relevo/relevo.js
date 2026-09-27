@@ -21,13 +21,25 @@
 const http = require('http');
 const crypto = require('crypto');
 
-// Desde dónde se lo puede usar. Igual que en senal.php.
+// Desde qué OTROS sitios se lo puede usar. Una página del mismo dominio que
+// el relevo entra siempre; esto es para una publicada en otro lado (y los
+// servidores locales de prueba). Se pueden sumar más con la variable de
+// entorno RELEVO_ORIGENES, separados por comas.
 const ORIGENES = [
-  'https://tecmedhub.org',
   'https://debaq.github.io',
   'http://localhost:8093',
   'http://localhost:8095',
+  ...(process.env.RELEVO_ORIGENES ?? '').split(',').filter(Boolean),
 ];
+
+/** Si la página que llama es del mismo dominio que el relevo. */
+function mismoSitio(req) {
+  try {
+    return new URL(req.headers.origin).host === req.headers.host;
+  } catch {
+    return false;
+  }
+}
 const MAGIA = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
 /** Mensaje más grande que se acepta: los de la cabeza son de 32 bytes. */
 const MAX_BYTES = 64 * 1024;
@@ -109,7 +121,7 @@ function creaServidor({ origenes = ORIGENES } = {}) {
     const t = url.searchParams.get('t') ?? '';
     const rol = url.searchParams.get('rol');
     const clave = req.headers['sec-websocket-key'];
-    if (!origenes.includes(req.headers.origin)) return rechaza('403 Forbidden');
+    if (!origenes.includes(req.headers.origin) && !mismoSitio(req)) return rechaza('403 Forbidden');
     if (!/^[0-9a-f]{32}$/.test(t) || !['visor', 'cabeza'].includes(rol) || !clave) return rechaza('400 Bad Request');
     if (!salas.has(t) && salas.size >= MAX_SALAS) return rechaza('503 Service Unavailable');
 

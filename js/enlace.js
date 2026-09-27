@@ -109,13 +109,19 @@ function iceCompleto(pc) {
 }
 
 /**
- * La dirección del relevo por WebSocket, o null si no hay: la de la meta, o
- * la local con `?relevo=local` (`node servidor/relevo/relevo.js`).
+ * La dirección del relevo por WebSocket, o null si no hay: la de la meta —si
+ * es relativa, junto a la página, con ws o wss según sea http o https— o la
+ * local con `?relevo=local` (`node servidor/relevo/relevo.js`).
  */
 export function servidorRelevo() {
   const param = new URLSearchParams(location.search).get('relevo');
   if (param === 'local') return 'ws://localhost:3001/';
-  return document.querySelector('meta[name="trainhit-relevo"]')?.content || null;
+  const meta = document.querySelector('meta[name="trainhit-relevo"]')?.content;
+  if (!meta) return null;
+  const url = new URL(meta, location.href);
+  if (url.protocol === 'https:') url.protocol = 'wss:';
+  else if (url.protocol === 'http:') url.protocol = 'ws:';
+  return url.href;
 }
 
 const forzarRelevo = () => new URLSearchParams(location.search).get('forzar') === 'relevo';

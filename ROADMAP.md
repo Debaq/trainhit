@@ -8,7 +8,7 @@ del teléfono. Los detalles de cómo funciona están en el README, sección
 «Laberinto 3D».
 
 Rama: `main` (se trabajó en `feat/laberinto-3d` y se unió el 2026-09-27).
-Publicado en https://tecmedhub.org/trainhit/.
+Publicado en el servidor propio del proyecto (PHP y Node.js).
 
 ## Hecho
 
@@ -65,9 +65,9 @@ Publicado en https://tecmedhub.org/trainhit/.
 - El teléfono hace de cabeza y el PC muestra el modelo, con la patología
   elegida en el PC.
 - El PC muestra un QR y el teléfono lo escanea; no hay código a mano.
-- La presentación pasa por un PHP de un solo archivo en
-  `https://tecmedhub.org/trainhit/servidor/senal.php`, sin base de datos; el
-  giroscopio va después directo por WebRTC.
+- La presentación pasa por un PHP de un solo archivo (`servidor/senal.php`,
+  junto a la página), sin base de datos; el giroscopio va después directo por
+  WebRTC.
 - Reconexión sola si el teléfono se duerme o se corta la red: el PC reabre la
   misma sala con su llave secreta y el teléfono vuelve a entrar al despertar.
   Mientras hace de cabeza, el teléfono no dibuja y pide que la pantalla no se
@@ -78,8 +78,8 @@ Publicado en https://tecmedhub.org/trainhit/.
   con caída y reconexión; `?forzar=relevo` lo prueba en producción.
 - «Centrar» en el PC recentra también el teléfono.
 - Probado con dos pestañas contra el PHP local, incluido cortar la conexión y
-  reengancharse, y **con éxito con un teléfono y un PC reales** en
-  tecmedhub.org el 2026-09-27.
+  reengancharse, y **con éxito con un teléfono y un PC reales** en el servidor
+  propio el 2026-09-27.
 
 ### Patología (`js/patologia.js`)
 
@@ -112,8 +112,9 @@ Publicado en https://tecmedhub.org/trainhit/.
 ## Falta probar
 
 - La reconexión después de dormir el teléfono, con aparatos reales.
-- El relevo cargado en tecmedhub.org (`/trainhit-relevo/`): que el hosting
-  deje pasar WebSocket a la aplicación Node. Si no, plan B: tubería por el PHP.
+- El relevo ya responde en el servidor propio (`servidor/relevo/`); falta
+  probar un enlace entero por él (`?forzar=relevo`): que el hosting deje pasar
+  WebSocket a la aplicación Node. Si no, plan B: tubería por el PHP.
 - El enlace en la red de la colega a la que no le conectó (teléfono con datos
   móviles o wifi con aislamiento de clientes), ya con el relevo.
 - Que los ojos ya no se queden pegados (vuelven al frente con la cabeza quieta
