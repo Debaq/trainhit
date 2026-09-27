@@ -10,6 +10,11 @@ sin texto, azul la cabeza, naranja el ojo, verde bien, rojo mal). Cumplen su
 reemplazarlos por ilustraciones: se deja el `.webp` acá y se cambia la
 extensión en `js/tutorial-pasos.js`.
 
+Las seis del paseo «Los canales verticales» (`verticales*.svg`) salen del
+mismo script y no tienen prompt: son esquemas de anatomía y de geometría
+—planos a 45°, qué canal va con qué rama del nervio, el párpado sobre el
+iris— donde un generador inventa justo lo que se enseña.
+
 Son **14 ilustraciones** para generar. Los tres gráficos de curvas
 (`ganancia.svg`, `sacadas.svg` y `patrones.svg`) **no** están acá: están
 dibujados con `diagramas.mjs` a partir de curvas sintéticas, porque un

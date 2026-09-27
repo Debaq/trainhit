@@ -135,7 +135,7 @@ export const PASEOS = [
           prueba sobre todo el <b>lateral derecho</b>.</p>
           <p class="ayuda">trainHIT solo mide el plano <b>lateral</b>. Los verticales se prueban
           girando la cabeza en diagonal y necesitan el movimiento vertical del ojo, que el párpado
-          tapa y la webcam mide mal.</p>`,
+          tapa y la webcam mide mal. El paseo <b>Los canales verticales</b> cuenta cómo.</p>`,
       },
       {
         id: 'ganancia',
@@ -194,6 +194,116 @@ export const PASEOS = [
           a 30 fps, sin fijar la distancia al blanco y sin desacadizar, da valores didácticos.</p>
           <p>Por eso se procesa como mucho a 60 fps aunque la cámara dé más: <b>no es un equipo
           médico</b> y no queremos que se use como tal.</p>`,
+      },
+    ],
+  },
+  // ─────────────────────────────────────────────────────── verticales ──
+  // Solo para leer: trainHIT no mide estos canales todavía (ROADMAP.md).
+  {
+    id: 'verticales',
+    titulo: 'Los canales verticales',
+    resumen: 'Los pares LARP y RALP: cómo se prueban, qué hace el ojo, por qué importan y por qué trainHIT todavía no los mide. Sin cámara.',
+    pasos: [
+      {
+        id: 'pares',
+        titulo: 'Dos pares en diagonal',
+        img: 'verticales.svg',
+        alt: 'Cabeza vista desde arriba con los dos planos verticales en diagonal: marcado el que une el canal anterior izquierdo, adelante a la izquierda, con el posterior derecho, atrás a la derecha (LARP); el otro (RALP) punteado y tenue.',
+        cuerpo: `
+          <p>Los canales anterior y posterior son verticales y no miran al frente: cada uno está a
+          unos <b>45°</b> del plano que parte la cabeza en dos. El anterior de un oído queda en el
+          mismo plano que el posterior del otro, y así forman dos pares:</p>
+          <ul>
+            <li><b>LARP</b>: anterior izquierdo con posterior derecho (<i>left anterior, right
+            posterior</i>).</li>
+            <li><b>RALP</b>: anterior derecho con posterior izquierdo.</li>
+          </ul>
+          <p>Funcionan como los laterales: un giro en ese plano excita un canal del par e inhibe
+          al otro.</p>`,
+      },
+      {
+        id: 'girar',
+        titulo: 'Girar la cabeza para alinear el plano',
+        img: 'verticales-giro.svg',
+        alt: 'Cabeza vista desde arriba girada 45° hacia la derecha del paciente (flecha azul). El plano LARP, que antes iba en diagonal, queda apuntando al punto rojo de adelante, y los ojos siguen mirando ese punto.',
+        cuerpo: `
+          <p>Para probar un par, primero se gira la cabeza unos <b>45°</b> así el plano de ese par
+          queda de frente, apuntando al blanco:</p>
+          <ul>
+            <li><b>LARP</b>: cabeza girada hacia la <b>derecha</b>.</li>
+            <li><b>RALP</b>: cabeza girada hacia la <b>izquierda</b>.</li>
+          </ul>
+          <p>El paciente sigue mirando el blanco de adelante, así que los ojos quedan corridos hacia
+          el otro lado dentro de la órbita: la mirada va a lo largo del plano que se prueba.</p>`,
+      },
+      {
+        id: 'impulso',
+        titulo: 'El impulso: mentón abajo o arriba',
+        img: 'verticales-impulso.svg',
+        alt: 'De perfil, en dos cuadros. A la izquierda la cabeza gira hacia abajo (flecha azul) y el ojo hacia arriba (flecha naranja); a la derecha la cabeza hacia arriba y el ojo hacia abajo. En los dos la mirada sigue sobre el punto rojo de adelante.',
+        cuerpo: `
+          <p>Con la cabeza ya girada, el examinador la mueve en ese plano: <b>mentón hacia abajo</b>
+          o <b>mentón hacia arriba</b>, un giro chico, rápido e impredecible, como el lateral.</p>
+          <ul>
+            <li><b>Hacia abajo</b> prueba el <b>anterior</b> del par: en LARP el anterior izquierdo;
+            en RALP el anterior derecho.</li>
+            <li><b>Hacia arriba</b> prueba el <b>posterior</b>: en LARP el posterior derecho; en RALP
+            el posterior izquierdo.</li>
+          </ul>
+          <p class="ayuda">Los impulsos verticales cuestan más: el cuello da menos recorrido y es fácil
+          que el giro se escape del plano. Una mano va arriba de la cabeza y la otra bajo el mentón.</p>`,
+      },
+      {
+        id: 'ojo',
+        titulo: 'Lo que hace el ojo',
+        img: 'verticales-ojo.svg',
+        alt: 'Cara de frente con la cabeza bajando (flecha azul al costado) y los dos ojos subiendo (flechas naranjas hacia arriba); alrededor de un ojo, un arco gris punteado sugiere la torsión.',
+        cuerpo: `
+          <p>El reflejo es el mismo: el ojo gira <b>al revés</b> que la cabeza. Si la cabeza baja, los
+          ojos suben; si sube, bajan. Como la mirada va a lo largo del plano, lo que se ve es sobre
+          todo un movimiento <b>vertical</b>, con algo de <b>torsión</b> (el ojo rota sobre su propio
+          eje).</p>
+          <p>Si el canal no funciona, el ojo se va con la cabeza y vuelve al blanco con una sacada
+          <b>vertical</b>. La ganancia y las sacadas se leen igual que en el lateral.</p>
+          <p class="ayuda">La ganancia vertical normal es algo más baja y más variable que la lateral,
+          así que los cortes también son más bajos (suele usarse alrededor de 0,7). El posterior es el
+          que más cuesta medir bien.</p>`,
+      },
+      {
+        id: 'nervio',
+        titulo: 'Por qué importan',
+        img: 'verticales-nervio.svg',
+        alt: 'Dos cabezas vistas desde arriba con los tres canales de cada oído. A la izquierda, en el oído izquierdo están en rojo el lateral y el anterior (nervio vestibular superior) y en verde el posterior. A la derecha, en el oído izquierdo solo el posterior está en rojo (nervio inferior). Los del oído derecho, verdes.',
+        cuerpo: `
+          <p>El nervio vestibular tiene dos ramas. La <b>superior</b> lleva el lateral y el anterior;
+          la <b>inferior</b>, el posterior. Una neuritis puede tomar una sola:</p>
+          <ul>
+            <li><b>Neuritis superior</b>, la más común: lateral y anterior bajos, posterior normal.</li>
+            <li><b>Neuritis inferior</b>: solo el posterior bajo. El vHIT lateral da
+            <b>normal</b>, y la prueba calórica también, porque solo mira el lateral.</li>
+          </ul>
+          <p>Por eso un vHIT lateral normal no descarta un déficit vestibular: los verticales cuentan
+          la otra parte.</p>`,
+      },
+      {
+        id: 'trainhit',
+        titulo: 'Por qué trainHIT todavía no los mide',
+        img: 'verticales-parpado.svg',
+        alt: 'Dos ojos grandes de frente. A la izquierda mira al frente y el iris se ve entero. A la derecha mira hacia arriba: el párpado tapa el borde de arriba del iris, dibujado punteado, y el centro estimado con lo que se ve (punto rojo) queda por debajo del verdadero (punto naranja).',
+        cuerpo: `
+          <p>El movimiento de la cabeza ya se sabe calcular en esos planos. Lo que falta es medir bien
+          el ojo, y con una webcam hay tres problemas:</p>
+          <ul>
+            <li>El <b>párpado</b> tapa el borde de arriba del iris y acompaña a la mirada vertical: el
+            centro que se estima con lo que se ve se corre, y justo en la dirección que se mide.</li>
+            <li>La <b>torsión</b> no se ve: el modelo de la cara da el centro del iris, no cuánto rotó
+            sobre su eje.</li>
+            <li>Con la cabeza a 45°, la cámara ve la cara <b>de costado</b> y el modelo pierde
+            precisión.</li>
+          </ul>
+          <p class="ayuda">Lo que viene primero, si la cámara lo permite, es un VOR vertical en
+          cabeceo con la cabeza derecha: los dos anteriores juntos hacia abajo y los dos posteriores
+          juntos hacia arriba. No sería RALP ni LARP, y va a decirlo.</p>`,
       },
     ],
   },

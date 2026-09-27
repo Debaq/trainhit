@@ -82,7 +82,7 @@ export const PASEOS = {
           the right mainly tests the <b>right lateral</b> canal.</p>
           <p class="ayuda">trainHIT only measures the <b>lateral</b> plane. The vertical ones are tested
           by turning the head diagonally and need the vertical movement of the eye, which the eyelid
-          covers and the webcam measures poorly.</p>`,
+          covers and the webcam measures poorly. The <b>vertical canals</b> tour explains how.</p>`,
       },
       ganancia: {
         titulo: 'The gain',
@@ -137,6 +137,101 @@ export const PASEOS = {
           teaching.</p>
           <p>That is why processing is capped at 60 fps even if the camera delivers more: <b>it is not a
           medical device</b> and we do not want it used as one.</p>`,
+      },
+    },
+  },
+  // ─────────────────────────────────────────────────────── verticales ──
+  verticales: {
+    titulo: 'The vertical canals',
+    resumen: 'The LARP and RALP pairs: how they are tested, what the eye does, why they matter and why trainHIT does not measure them yet. No camera.',
+    pasos: {
+      pares: {
+        titulo: 'Two diagonal pairs',
+        alt: 'Head seen from above with the two vertical planes as diagonals: highlighted, the one joining the left anterior canal, front left, with the right posterior, back right (LARP); the other one (RALP) dotted and faint.',
+        cuerpo: `
+          <p>The anterior and posterior canals are vertical and do not face forward: each one lies about
+          <b>45°</b> from the plane that splits the head in two. The anterior canal of one ear shares
+          its plane with the posterior canal of the other, and so they form two pairs:</p>
+          <ul>
+            <li><b>LARP</b>: left anterior with right posterior.</li>
+            <li><b>RALP</b>: right anterior with left posterior.</li>
+          </ul>
+          <p>They work like the laterals: a turn in that plane excites one canal of the pair and
+          inhibits the other.</p>`,
+      },
+      girar: {
+        titulo: 'Turning the head to line up the plane',
+        alt: 'Head seen from above turned 45° toward the patient’s right (blue arrow). The LARP plane, diagonal before, now points at the red dot ahead, and the eyes keep looking at that dot.',
+        cuerpo: `
+          <p>To test a pair, the head is first turned about <b>45°</b> so that the plane of that pair
+          faces forward, pointing at the target:</p>
+          <ul>
+            <li><b>LARP</b>: head turned to the <b>right</b>.</li>
+            <li><b>RALP</b>: head turned to the <b>left</b>.</li>
+          </ul>
+          <p>The patient keeps looking at the target ahead, so the eyes end up turned the other way in
+          the orbit: the gaze runs along the plane being tested.</p>`,
+      },
+      impulso: {
+        titulo: 'The impulse: chin down or up',
+        alt: 'Side view, in two frames. On the left the head turns down (blue arrow) and the eye up (orange arrow); on the right the head turns up and the eye down. In both the gaze stays on the red dot ahead.',
+        cuerpo: `
+          <p>With the head already turned, the examiner moves it in that plane: <b>chin down</b> or
+          <b>chin up</b>, a small, fast and unpredictable turn, like the lateral one.</p>
+          <ul>
+            <li><b>Down</b> tests the <b>anterior</b> canal of the pair: in LARP the left anterior; in
+            RALP the right anterior.</li>
+            <li><b>Up</b> tests the <b>posterior</b>: in LARP the right posterior; in RALP the left
+            posterior.</li>
+          </ul>
+          <p class="ayuda">Vertical impulses are harder: the neck has less range and the turn easily
+          drifts out of the plane. One hand goes on top of the head and the other under the chin.</p>`,
+      },
+      ojo: {
+        titulo: 'What the eye does',
+        alt: 'Face seen from the front with the head moving down (blue arrow at the side) and both eyes moving up (orange arrows pointing up); around one eye, a dotted grey arc suggests torsion.',
+        cuerpo: `
+          <p>The reflex is the same: the eye turns <b>the opposite way</b> to the head. If the head goes
+          down, the eyes go up; if it goes up, they go down. Since the gaze runs along the plane, what
+          shows is mostly a <b>vertical</b> movement, with some <b>torsion</b> (the eye rotating about its
+          own axis).</p>
+          <p>If the canal does not work, the eye goes along with the head and returns to the target with
+          a <b>vertical</b> saccade. Gain and saccades are read as in the lateral test.</p>
+          <p class="ayuda">Normal vertical gain is somewhat lower and more variable than lateral gain, so
+          the cut-offs are lower too (around 0.7 is common). The posterior canal is the hardest to
+          measure well.</p>`,
+      },
+      nervio: {
+        titulo: 'Why they matter',
+        alt: 'Two heads seen from above with the three canals of each ear. On the left, in the left ear the lateral and anterior are red (superior vestibular nerve) and the posterior green. On the right, in the left ear only the posterior is red (inferior nerve). Those of the right ear, green.',
+        cuerpo: `
+          <p>The vestibular nerve has two branches. The <b>superior</b> one carries the lateral and the
+          anterior canals; the <b>inferior</b> one, the posterior. A neuritis can affect only one:</p>
+          <ul>
+            <li><b>Superior neuritis</b>, the most common: lateral and anterior low, posterior normal.</li>
+            <li><b>Inferior neuritis</b>: only the posterior low. The lateral vHIT is <b>normal</b>, and so
+            is the caloric test, because it only looks at the lateral canal.</li>
+          </ul>
+          <p>That is why a normal lateral vHIT does not rule out a vestibular deficit: the vertical
+          canals tell the rest.</p>`,
+      },
+      trainhit: {
+        titulo: 'Why trainHIT does not measure them yet',
+        alt: 'Two large eyes seen from the front. On the left it looks straight ahead and the whole iris shows. On the right it looks up: the eyelid covers the top edge of the iris, drawn dotted, and the centre estimated from what shows (red dot) sits below the true one (orange dot).',
+        cuerpo: `
+          <p>The head movement in those planes can already be computed. What is missing is measuring the
+          eye well, and with a webcam there are three problems:</p>
+          <ul>
+            <li>The <b>eyelid</b> covers the top edge of the iris and follows vertical gaze: the centre
+            estimated from what shows shifts, right in the direction being measured.</li>
+            <li><b>Torsion</b> cannot be seen: the face model gives the centre of the iris, not how much
+            it rotated about its axis.</li>
+            <li>With the head at 45°, the camera sees the face <b>from the side</b> and the model loses
+            precision.</li>
+          </ul>
+          <p class="ayuda">What comes first, if the camera allows it, is a vertical VOR in pitch with the
+          head straight: both anteriors together going down and both posteriors together going up. It
+          would not be RALP or LARP, and it will say so.</p>`,
       },
     },
   },

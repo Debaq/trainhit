@@ -216,6 +216,25 @@ const CONCEPTOS = {
         ['Instantánea a 60 ms', 'el cociente de velocidades en un solo instante'],
         ['Cociente de picos', 'el máximo del ojo sobre el máximo de la cabeza'],
       ]),
+    () =>
+      multiple('Plano LARP', 'Para probar el par LARP (anterior izquierdo y posterior derecho), antes del impulso la cabeza del paciente se gira unos 45° hacia:', [
+        { texto: 'la derecha', ok: true, porque: 'Así el plano del anterior izquierdo y el posterior derecho queda de frente, apuntando al blanco.' },
+        { texto: 'la izquierda', porque: 'Girada a la izquierda queda alineado el par RALP.' },
+        { texto: 'abajo, flexionada 30°', porque: 'Esa es la postura del impulso lateral: pone horizontal al canal lateral.' },
+      ]),
+    () =>
+      multiple('Canal anterior', 'Con la cabeza girada para alinear el par LARP, un impulso con el mentón hacia abajo prueba sobre todo:', [
+        { texto: 'el canal anterior izquierdo', ok: true, porque: 'El giro hacia abajo excita al anterior del par; en LARP es el izquierdo.' },
+        { texto: 'el canal posterior derecho', porque: 'Ese se prueba con el mentón hacia arriba.' },
+        { texto: 'el canal anterior derecho', porque: 'El anterior derecho es del par RALP.' },
+        { texto: 'el canal lateral izquierdo', porque: 'Los laterales se prueban con giros en el plano horizontal.' },
+      ]),
+    () =>
+      multiple('Neuritis inferior', 'Un paciente con vértigo agudo tiene la ganancia lateral normal en los dos lados y el canal posterior derecho con déficit. Esto es compatible con:', [
+        { texto: 'una neuritis vestibular inferior derecha', ok: true, porque: 'La rama inferior del nervio lleva solo el posterior: el lateral queda normal, y la prueba calórica también.' },
+        { texto: 'una neuritis vestibular superior derecha', porque: 'La rama superior lleva el lateral y el anterior: el lateral saldría bajo.' },
+        { texto: 'un vestíbulo normal, porque el vHIT lateral da normal', porque: 'El vHIT lateral no mira el posterior: un lateral normal no descarta el déficit.' },
+      ]),
   ],
   en: [
     () =>
@@ -286,6 +305,25 @@ const CONCEPTOS = {
         ['Area', 'how much the eye turned over how much the head turned during the whole impulse'],
         ['Instantaneous at 60 ms', 'the ratio of velocities at a single instant'],
         ['Ratio of peaks', 'the eye’s maximum over the head’s maximum'],
+      ]),
+    () =>
+      multiple('LARP plane', 'To test the LARP pair (left anterior and right posterior), before the impulse the patient’s head is turned about 45° toward:', [
+        { texto: 'the right', ok: true, porque: 'That way the plane of the left anterior and right posterior faces forward, pointing at the target.' },
+        { texto: 'the left', porque: 'Turned to the left, the RALP pair is the one lined up.' },
+        { texto: 'down, flexed 30°', porque: 'That is the posture for the lateral impulse: it makes the lateral canal horizontal.' },
+      ]),
+    () =>
+      multiple('Anterior canal', 'With the head turned to line up the LARP pair, an impulse with the chin going down mainly tests:', [
+        { texto: 'the left anterior canal', ok: true, porque: 'The downward turn excites the anterior canal of the pair; in LARP it is the left one.' },
+        { texto: 'the right posterior canal', porque: 'That one is tested with the chin going up.' },
+        { texto: 'the right anterior canal', porque: 'The right anterior belongs to the RALP pair.' },
+        { texto: 'the left lateral canal', porque: 'The laterals are tested with turns in the horizontal plane.' },
+      ]),
+    () =>
+      multiple('Inferior neuritis', 'A patient with acute vertigo has normal lateral gain on both sides and a deficit of the right posterior canal. This is consistent with:', [
+        { texto: 'a right inferior vestibular neuritis', ok: true, porque: 'The inferior branch of the nerve carries only the posterior canal: the lateral stays normal, and so does the caloric test.' },
+        { texto: 'a right superior vestibular neuritis', porque: 'The superior branch carries the lateral and the anterior: the lateral would come out low.' },
+        { texto: 'a normal vestibular system, because the lateral vHIT is normal', porque: 'The lateral vHIT does not look at the posterior canal: a normal lateral does not rule out the deficit.' },
       ]),
   ],
 };

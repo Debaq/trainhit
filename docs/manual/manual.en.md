@@ -553,6 +553,7 @@ finished tours.
 | Tour | What it covers | Camera? |
 |---|---|---|
 | **What a vHIT measures** | The reflex, the impulse, the six canals, the gain, the saccades, the patterns to look for and the limits. | No |
+| **The vertical canals** | The LARP and RALP pairs: how they are tested, what the eye does, why they matter and why trainHIT does not measure them yet. | No |
 | **Preparing the session** | Camera, light, posture and the examiner’s hands. | No |
 | **The first measurement** | Calibrating, delivering impulses, reading panels and list, CSV. | Yes |
 | **Reading the plots** | The ruler, rejected impulses, saccades, asymmetry, mean curve, smoothing, orientation and pause. | No (uses examples) |

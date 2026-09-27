@@ -539,6 +539,193 @@ function panelito(x, y, w, h, ganOjo, { sacada = null, marca = null } = {}) {
   imagenes['pulsos.svg'] = svg(s, 'Una cabeza dibujada con puntos, hecha de datos, de la que salen tres pulsos: uno normal, uno con una sacada manifiesta y uno con una encubierta.');
 }
 
+// ── Paseo de los canales verticales ──
+//
+// Vista desde arriba, nariz hacia arriba: la izquierda del paciente es la
+// izquierda de la imagen. El plano LARP va de adelante a la izquierda a atrás
+// a la derecha (`rotate(45)` de una elipse acostada) y el RALP al revés.
+
+/**
+ * Los tres canales de un oído vistos desde arriba, insinuados como anillos:
+ * el lateral acostado y los verticales en diagonal, el anterior adelante y el
+ * posterior atrás. `lado` es -1 el izquierdo y 1 el derecho; `color` da el de
+ * cada uno ({ lateral, anterior, posterior }), y `ancho` el trazo.
+ */
+function canalesOido(ox, oy, lado, color, escala = 1) {
+  const e = escala;
+  // anterior izquierdo y posterior derecho: plano LARP, rotate(45)
+  const ant = lado < 0 ? 45 : -45;
+  const anillo = (x, y, rot, col, rx, ry) =>
+    `<ellipse cx="${f(x)}" cy="${f(y)}" rx="${f(rx * e)}" ry="${f(ry * e)}" transform="rotate(${rot} ${f(x)} ${f(y)})" fill="none" stroke="${col}" stroke-width="${f(7 * e)}"/>`;
+  return (
+    anillo(ox, oy, 0, color.lateral, 34, 13) +
+    anillo(ox + lado * 6 * e, oy - 26 * e, ant, color.anterior, 30, 11) +
+    anillo(ox + lado * 6 * e, oy + 26 * e, -ant, color.posterior, 30, 11)
+  );
+}
+
+/** Diagonal de un plano vertical, de punta a punta sobre la cabeza. */
+function plano(cx, cy, ang, largo, estilo) {
+  const dx = Math.sin(rad(ang)) * largo;
+  const dy = Math.cos(rad(ang)) * largo;
+  return `<line x1="${f(cx - dx)}" y1="${f(cy - dy)}" x2="${f(cx + dx)}" y2="${f(cy + dy)}" stroke-linecap="round" ${estilo}/>`;
+}
+
+// ── 15. verticales: los dos pares en diagonal, uno marcado ──
+{
+  let s = '';
+  const cx = 800;
+  const cy = 470;
+  // RALP apagado; LARP marcado. Con `plano` a 45° la recta va de arriba a la
+  // izquierda a abajo a la derecha, y a -45° al revés.
+  s += plano(cx, cy, -45, 390, `stroke="${C.grisClaro}" stroke-width="8" stroke-dasharray="22 18" stroke-opacity="0.45"`);
+  s += plano(cx, cy, 45, 390, `stroke="#e4e4e7" stroke-width="12" marker-start="url(#pg)" marker-end="url(#pg)"`);
+  s += cabezaArriba(cx, cy, 170, 0, { piel: PIEL[0] });
+  const tenue = C.gris;
+  const marca = '#e4e4e7';
+  s += canalesOido(cx - 215, cy, -1, { lateral: tenue, anterior: marca, posterior: tenue }, 1.4);
+  s += canalesOido(cx + 215, cy, 1, { lateral: tenue, anterior: tenue, posterior: marca }, 1.4);
+  imagenes['verticales.svg'] = svg(
+    s,
+    'Cabeza vista desde arriba con los dos planos verticales en diagonal: marcado el que une el canal anterior izquierdo, adelante a la izquierda, con el posterior derecho, atrás a la derecha (LARP); el otro (RALP) punteado y tenue.',
+  );
+}
+
+// ── 16. verticales-giro: la cabeza girada 45° pone el plano LARP hacia el blanco ──
+{
+  let s = '';
+  const cx = 800;
+  const cy = 560;
+  const blanco = [800, 110];
+  s += punto(...blanco, 18);
+  // el plano LARP, que con la cabeza a 45° queda de frente al blanco
+  s += plano(cx, cy, 0, 300, `stroke="#e4e4e7" stroke-width="12" marker-start="url(#pg)" marker-end="url(#pg)"`);
+  // la cabeza a 45° hacia la derecha del paciente, con los ojos en el blanco
+  s += cabezaArriba(cx, cy, 160, 45, { piel: PIEL[3], mirada: 0, blanco });
+  s += flecha(arco(cx, cy, 250, 2, 43), C.head, 14, 'pa');
+  // de dónde partió la nariz: una marca tenue en 0°
+  s += `<line x1="${cx}" y1="${cy - 225}" x2="${cx}" y2="${cy - 275}" stroke="${C.head}" stroke-width="6" stroke-opacity="0.5" stroke-linecap="round"/>`;
+  imagenes['verticales-giro.svg'] = svg(
+    s,
+    'Cabeza vista desde arriba girada 45° hacia la derecha del paciente (flecha azul). El plano LARP, que antes iba en diagonal, queda apuntando al punto rojo de adelante, y los ojos siguen mirando ese punto.',
+  );
+}
+
+// ── 17. verticales-impulso: de perfil, cabeza abajo y ojo arriba; y al revés ──
+{
+  let s = '';
+  // En `cabezaPerfil` la cara mira a la derecha con d = 1, y una flexión
+  // positiva la levanta: el mentón baja con la flexión negativa.
+  const cuadro = (x, abajo) => {
+    const cx = x + 330;
+    const cy = 470;
+    let c = `<rect x="${cx - 70}" y="${cy + 150}" width="140" height="250" rx="60" fill="${ROPA[2]}"/>`;
+    c += `<rect x="${cx - 25}" y="${cy + 100}" width="50" height="80" fill="${PIEL[2]}"/>`;
+    c += cabezaPerfil(cx, cy, 150, { piel: PIEL[2], d: 1, flexion: abajo ? -18 : 18 });
+    // el blanco, adelante a la altura de los ojos, y la mirada que no se mueve
+    const ojo = [cx + 99, cy - 27];
+    const blanco = [x + 690, cy - 40];
+    c += punto(...blanco, 14);
+    c += `<line x1="${ojo[0]}" y1="${ojo[1]}" x2="${blanco[0]}" y2="${blanco[1]}" stroke="${C.eye}" stroke-width="4" stroke-dasharray="14 12" stroke-opacity="0.8"/>`;
+    // la cabeza gira hacia abajo o hacia arriba (azul, por encima de la
+    // coronilla: con el mentón abajo la coronilla va hacia adelante) y el ojo
+    // al revés (naranja, delante de la cara)
+    c += flecha(abajo ? arco(cx, cy, 230, -30, 30) : arco(cx, cy, 230, 30, -30), C.head, 14, 'pa');
+    const ex = cx + 250;
+    c += abajo
+      ? flecha(`M${ex},${cy - 75}L${ex},${cy - 165}`, C.eye, 12, 'pn')
+      : flecha(`M${ex},${cy - 165}L${ex},${cy - 75}`, C.eye, 12, 'pn');
+    return c;
+  };
+  s += cuadro(60, true);
+  s += `<line x1="800" y1="120" x2="800" y2="800" stroke="${C.linea}" stroke-width="4"/>`;
+  s += cuadro(830, false);
+  imagenes['verticales-impulso.svg'] = svg(
+    s,
+    'De perfil, en dos cuadros. A la izquierda la cabeza gira hacia abajo (flecha azul) y el ojo hacia arriba (flecha naranja); a la derecha la cabeza hacia arriba y el ojo hacia abajo. En los dos la mirada sigue sobre el punto rojo de adelante.',
+  );
+}
+
+// ── 18. verticales-ojo: de frente, el ojo sube cuando la cabeza baja ──
+{
+  let s = '';
+  const cx = 800;
+  const cy = 500;
+  s += `<rect x="${cx - 230}" y="${cy + 190}" width="460" height="200" rx="90" fill="${ROPA[3]}"/>`;
+  s += caraFrente(cx, cy, 170, { piel: PIEL[0] });
+  // los iris, corridos hacia arriba encima de los de `caraFrente`
+  for (const lado of [-1, 1]) {
+    const ex = cx + lado * 68;
+    const ey = cy - 20;
+    s += `<ellipse cx="${ex}" cy="${ey}" rx="34" ry="19" fill="#f4f4f5"/>`;
+    s += `<circle cx="${ex}" cy="${ey - 10}" r="14.5" fill="${C.eye}"/>`;
+    s += flecha(`M${ex},${ey - 45}L${ex},${ey - 120}`, C.eye, 10, 'pn');
+  }
+  // la cabeza, hacia abajo: flecha azul al costado
+  s += flecha(`M${cx + 300},${cy - 150}L${cx + 300},${cy + 60}`, C.head, 14, 'pa');
+  // la torsión, que la cámara no ve: un arco gris punteado alrededor de un ojo
+  s += `<path d="${arco(cx - 68, cy - 20, 58, 120, 240)}" fill="none" stroke="${C.grisClaro}" stroke-width="6" stroke-dasharray="10 10" marker-end="url(#pg)"/>`;
+  imagenes['verticales-ojo.svg'] = svg(
+    s,
+    'Cara de frente con la cabeza bajando (flecha azul al costado) y los dos ojos subiendo (flechas naranjas hacia arriba); alrededor de un ojo, un arco gris punteado sugiere la torsión.',
+  );
+}
+
+// ── 19. verticales-nervio: neuritis superior contra inferior ──
+{
+  let s = '';
+  // Dos cabezas: a la izquierda falla el nervio superior izquierdo (lateral y
+  // anterior), a la derecha el inferior izquierdo (solo el posterior).
+  const cabeza = (cx, rotos) => {
+    let c = `<ellipse cx="${cx}" cy="560" rx="230" ry="80" fill="${ROPA[0]}"/>`;
+    c += cabezaArriba(cx, 480, 150, 0, { piel: PIEL[1] });
+    const col = (k) => (rotos.includes(k) ? C.bad : C.ok);
+    c += canalesOido(cx - 200, 480, -1, { lateral: col('lateral'), anterior: col('anterior'), posterior: col('posterior') }, 1.45);
+    c += canalesOido(cx + 200, 480, 1, { lateral: C.ok, anterior: C.ok, posterior: C.ok }, 1.45);
+    return c;
+  };
+  s += cabeza(420, ['lateral', 'anterior']);
+  s += `<line x1="800" y1="140" x2="800" y2="800" stroke="${C.linea}" stroke-width="4"/>`;
+  s += cabeza(1180, ['posterior']);
+  imagenes['verticales-nervio.svg'] = svg(
+    s,
+    'Dos cabezas vistas desde arriba con los tres canales de cada oído. A la izquierda, en el oído izquierdo están en rojo el lateral y el anterior (nervio vestibular superior) y en verde el posterior. A la derecha, en el oído izquierdo solo el posterior está en rojo (nervio inferior). Los del oído derecho, verdes.',
+  );
+}
+
+// ── 20. verticales-parpado: el párpado tapa el iris al mirar arriba ──
+{
+  let s = '';
+  // Dos ojos grandes de frente: mirando al frente y mirando arriba. Arriba,
+  // el párpado tapa el borde superior del iris y el centro que se estima con
+  // lo que se ve (rojo) queda más abajo que el de verdad (naranja).
+  const ojo = (cx, cy, sube) => {
+    let c = '';
+    const iy = cy - sube;
+    const clip = `clip${cx}`;
+    c += `<clipPath id="${clip}"><path d="M${cx - 260},${cy}Q${cx},${cy - 190} ${cx + 260},${cy}Q${cx},${cy + 170} ${cx - 260},${cy}Z"/></clipPath>`;
+    c += `<path d="M${cx - 260},${cy}Q${cx},${cy - 190} ${cx + 260},${cy}Q${cx},${cy + 170} ${cx - 260},${cy}Z" fill="#f4f4f5"/>`;
+    c += `<g clip-path="url(#${clip})"><circle cx="${cx}" cy="${iy}" r="80" fill="${C.eye}" fill-opacity="0.85"/><circle cx="${cx}" cy="${iy}" r="32" fill="#18181b"/></g>`;
+    // el borde entero del iris, punteado: lo que el modelo no ve
+    c += `<circle cx="${cx}" cy="${iy}" r="80" fill="none" stroke="${C.grisClaro}" stroke-width="4" stroke-dasharray="10 10"/>`;
+    // el párpado, que baja un poco al mirar arriba
+    c += `<path d="M${cx - 290},${cy + 5}Q${cx},${cy - 210} ${cx + 290},${cy + 5}" fill="none" stroke="${PIEL[0]}" stroke-width="34" stroke-linecap="round"/>`;
+    c += `<path d="M${cx - 260},${cy}Q${cx},${cy + 170} ${cx + 260},${cy}" fill="none" stroke="${PIEL[0]}" stroke-width="18" stroke-linecap="round"/>`;
+    // el centro de verdad y el estimado
+    c += `<circle cx="${cx}" cy="${iy}" r="11" fill="${C.eye}" stroke="#f4f4f5" stroke-width="4"/>`;
+    if (sube) c += `<circle cx="${cx}" cy="${iy + 26}" r="11" fill="${C.bad}" stroke="#f4f4f5" stroke-width="4"/>`;
+    return c;
+  };
+  s += ojo(420, 470, 0);
+  s += `<line x1="800" y1="140" x2="800" y2="800" stroke="${C.linea}" stroke-width="4"/>`;
+  s += ojo(1180, 470, 70);
+  s += flecha(`M1180,700L1180,640`, C.eye, 10, 'pn');
+  imagenes['verticales-parpado.svg'] = svg(
+    s,
+    'Dos ojos grandes de frente. A la izquierda mira al frente y el iris se ve entero. A la derecha mira hacia arriba: el párpado tapa el borde de arriba del iris, dibujado punteado, y el centro estimado con lo que se ve (punto rojo) queda por debajo del verdadero (punto naranja).',
+  );
+}
+
 for (const [nombre, contenido] of Object.entries(imagenes)) {
   writeFileSync(new URL(nombre, DEST), contenido);
   console.log(`${nombre}: ${(contenido.length / 1024).toFixed(1)} KB`);

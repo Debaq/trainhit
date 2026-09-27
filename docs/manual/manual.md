@@ -549,6 +549,7 @@ marca los paseos terminados.
 | Paseo | De qué trata | ¿Cámara? |
 |---|---|---|
 | **Qué mide un vHIT** | El reflejo, el impulso, los seis canales, la ganancia, las sacadas, los patrones que se buscan y los límites. | No |
+| **Los canales verticales** | Los pares LARP y RALP: cómo se prueban, qué hace el ojo, por qué importan y por qué trainHIT todavía no los mide. | No |
 | **Preparar la sesión** | Cámara, luz, postura y manos del examinador. | No |
 | **La primera medición** | Calibrar, dar impulsos, leer paneles y lista, CSV. | Sí |
 | **Leer los gráficos** | La regla, los rechazados, las sacadas, la asimetría, el promedio, suavizar, la orientación y la pausa. | No (usa ejemplos) |
