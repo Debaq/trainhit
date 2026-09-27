@@ -5,10 +5,8 @@ manual.md → trainhit-manual.pdf y manual.en.md → trainhit-manual-en.pdf.
     python3 docs/manual/generar-pdf.py
 
 Hace falta `pip install markdown weasyprint`. El Markdown es la fuente. Los PDF
-no van en el repo (.gitignore): son assets del release «manual» de GitHub, que
-es de donde los baja la página. Para publicar una versión nueva:
-
-    gh release upload manual docs/manual/trainhit-manual*.pdf --clobber
+se escriben en `manual/`, en la raíz, junto a la página: se publican con ella y
+la página los enlaza ahí (`MANUAL_URL` en js/app.js). Van en el repo.
 """
 import re
 from pathlib import Path
@@ -107,7 +105,8 @@ def main() -> None:
             f'<!doctype html><html lang="{lang}"><head><meta charset="utf-8">'
             f'<title>{d["titulo"]}</title><style>{css}</style></head><body>{figuras(cuerpo)}</body></html>'
         )
-        salida = AQUI / d['salida']
+        salida = AQUI.parent.parent / 'manual' / d['salida']
+        salida.parent.mkdir(exist_ok=True)
         HTML(string=html, base_url=str(AQUI)).write_pdf(salida)
         print(salida)
 

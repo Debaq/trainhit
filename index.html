@@ -9,7 +9,7 @@
          usa: tecmedhub.org es el servidor del enlace con el teléfono. -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-IffQKHRqEf0kcnvz4vryRZZ+caxE8D3JHTJ+hlHZ0Es='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev https://tecmedhub.org wss://tecmedhub.org; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
+      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-3ItvzNbWakBRZ2t1MTjmbVUyIiJJ91ysuFtgj808OEs='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev https://tecmedhub.org wss://tecmedhub.org; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
     />
     <meta
       name="description"
@@ -62,7 +62,7 @@
     />
     <!-- Mapa de importación: versiona los imports internos. Lo regenera
          bump.mjs junto con su hash en la CSP de arriba. Va antes del arranque. -->
-    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-27.78","./js/app.js":"./js/app.js?v=2026-09-27.78","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-27.78","./js/cara.js":"./js/cara.js?v=2026-09-27.78","./js/curve.js":"./js/curve.js?v=2026-09-27.78","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-27.78","./js/enlace.js":"./js/enlace.js?v=2026-09-27.78","./js/geom.js":"./js/geom.js?v=2026-09-27.78","./js/giroscopio.js":"./js/giroscopio.js?v=2026-09-27.78","./js/head.js":"./js/head.js?v=2026-09-27.78","./js/idioma.js":"./js/idioma.js?v=2026-09-27.78","./js/idioma-en.js":"./js/idioma-en.js?v=2026-09-27.78","./js/pipeline.js":"./js/pipeline.js?v=2026-09-27.78","./js/plots.js":"./js/plots.js?v=2026-09-27.78","./js/practica.js":"./js/practica.js?v=2026-09-27.78","./js/preguntas.js":"./js/preguntas.js?v=2026-09-27.78","./js/sesion.js":"./js/sesion.js?v=2026-09-27.78","./js/signal.js":"./js/signal.js?v=2026-09-27.78","./js/simulacion.js":"./js/simulacion.js?v=2026-09-27.78","./js/telefono.js":"./js/telefono.js?v=2026-09-27.78","./js/tema.js":"./js/tema.js?v=2026-09-27.78","./js/tracker.js":"./js/tracker.js?v=2026-09-27.78","./js/tutorial.js":"./js/tutorial.js?v=2026-09-27.78","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-27.78","./js/tutorial-pasos-en.js":"./js/tutorial-pasos-en.js?v=2026-09-27.78"}}</script>
+    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-27.79","./js/app.js":"./js/app.js?v=2026-09-27.79","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-27.79","./js/cara.js":"./js/cara.js?v=2026-09-27.79","./js/curve.js":"./js/curve.js?v=2026-09-27.79","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-27.79","./js/enlace.js":"./js/enlace.js?v=2026-09-27.79","./js/geom.js":"./js/geom.js?v=2026-09-27.79","./js/giroscopio.js":"./js/giroscopio.js?v=2026-09-27.79","./js/head.js":"./js/head.js?v=2026-09-27.79","./js/idioma.js":"./js/idioma.js?v=2026-09-27.79","./js/idioma-en.js":"./js/idioma-en.js?v=2026-09-27.79","./js/pipeline.js":"./js/pipeline.js?v=2026-09-27.79","./js/plots.js":"./js/plots.js?v=2026-09-27.79","./js/practica.js":"./js/practica.js?v=2026-09-27.79","./js/preguntas.js":"./js/preguntas.js?v=2026-09-27.79","./js/sesion.js":"./js/sesion.js?v=2026-09-27.79","./js/signal.js":"./js/signal.js?v=2026-09-27.79","./js/simulacion.js":"./js/simulacion.js?v=2026-09-27.79","./js/telefono.js":"./js/telefono.js?v=2026-09-27.79","./js/tema.js":"./js/tema.js?v=2026-09-27.79","./js/tracker.js":"./js/tracker.js?v=2026-09-27.79","./js/tutorial.js":"./js/tutorial.js?v=2026-09-27.79","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-27.79","./js/tutorial-pasos-en.js":"./js/tutorial-pasos-en.js?v=2026-09-27.79"}}</script>
     <script src="js/arranque.js"></script>
     <noscript><link rel="stylesheet" href="css/estilo.css" /></noscript>
   </head>
@@ -205,7 +205,7 @@
         <p class="ayuda credito">
           <span data-i18n="bienvenida.credito">Desarrollado en <b>TecMedHub</b>, Universidad Austral de Chile.</span>
           <button id="btn-acerca-bienvenida" class="enlace" data-i18n="bienvenida.acerca">Quiénes lo hacemos</button>
-          · <a class="enlace-manual" href="https://github.com/Debaq/trainhit/releases/download/manual/trainhit-manual.pdf" target="_blank" rel="noopener" data-i18n="bienvenida.manual">Manual y guía docente (PDF)</a>
+          · <a class="enlace-manual" href="manual/trainhit-manual.pdf" target="_blank" rel="noopener" data-i18n="bienvenida.manual">Manual y guía docente (PDF)</a>
         </p>
         <div class="acciones">
           <button id="btn-tutorial" class="primario" data-i18n="bienvenida.tutorial">Aprender a usar</button>
@@ -592,9 +592,9 @@
           <div class="acciones-perillas">
             <button id="btn-gift" data-i18n="h.gift">Preguntas para Moodle (GIFT)</button>
             <!-- El PDF va en el idioma de la interfaz: el href lo pone app.js
-                 al cambiar de idioma. Vive en el release «manual» de GitHub,
-                 no junto a la página. Fuente y generador en docs/manual/. -->
-            <a class="boton enlace-manual" href="https://github.com/Debaq/trainhit/releases/download/manual/trainhit-manual.pdf" target="_blank" rel="noopener" data-i18n="h.manual">Manual de uso y guía docente (PDF)</a>
+                 al cambiar de idioma. Vive en manual/, junto a la página.
+                 Fuente y generador en docs/manual/. -->
+            <a class="boton enlace-manual" href="manual/trainhit-manual.pdf" target="_blank" rel="noopener" data-i18n="h.manual">Manual de uso y guía docente (PDF)</a>
           </div>
         </section>
 

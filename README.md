@@ -181,13 +181,10 @@ de la página en cada idioma (`img/` e `img/en/`). La página lo ofrece para
 bajar en PDF desde la bienvenida y desde Herramientas › Para docentes, en el
 idioma de la interfaz.
 
-Los PDF no van en el repo: son assets del release
-[`manual`](https://github.com/Debaq/trainhit/releases/tag/manual) de GitHub, y
-la página los enlaza ahí (`MANUAL_URL` en `js/app.js`), así que el enlace funciona
-aunque la página se sirva desde otro servidor. El Markdown es la fuente; los
-PDF se regeneran con `python3 docs/manual/generar-pdf.py` (hace falta
-`markdown` y `weasyprint`) y se publican con
-`gh release upload manual docs/manual/trainhit-manual*.pdf --clobber`.
+Los PDF van en `manual/`, en la raíz, junto a la página: se publican con ella y
+la página los enlaza ahí (`MANUAL_URL` en `js/app.js`). El Markdown es la
+fuente; los PDF se regeneran con `python3 docs/manual/generar-pdf.py` (hace
+falta `markdown` y `weasyprint`), que los escribe en `manual/`.
 
 ## Aprender a usar
 
