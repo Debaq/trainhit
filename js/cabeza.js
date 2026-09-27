@@ -90,28 +90,34 @@ export function distancia(x, y, z) {
   if (lejos(ax, y, z, 0.046, -0.052, 0.004, 0.03) < d + 0.016) {
     d = une(d, elipsoide(ax, y, z, 0.046, -0.052, 0.004, 0.016, 0.03, 0.026), 0.016);
   }
-  if (lejos(x, y, z, 0, -0.088, 0.072, 0.023) < d + 0.012) {
-    d = une(d, elipsoide(x, y, z, 0, -0.088, 0.072, 0.023, 0.019, 0.021), 0.012);
+  if (lejos(x, y, z, 0, -0.085, 0.066, 0.021) < d + 0.018) {
+    d = une(d, elipsoide(x, y, z, 0, -0.085, 0.066, 0.021, 0.017, 0.019), 0.018);
   }
   // Pómulos.
   if (lejos(ax, y, z, 0.046, -0.004, 0.062, 0.026) < d + 0.012) {
     d = une(d, elipsoide(ax, y, z, 0.046, -0.004, 0.062, 0.022, 0.016, 0.026), 0.012);
   }
-  // Arco de las cejas.
-  if (lejos(ax, y, z, 0.021, 0.041, 0.088, 0.031) < d + 0.012) {
-    d = une(d, capsula(ax, y, z, 0, 0.041, 0.093, 0.042, 0.041, 0.083, 0.0085), 0.012);
+  // Arco de las cejas: apenas, fundido en la frente.
+  if (lejos(ax, y, z, 0.021, 0.041, 0.088, 0.03) < d + 0.016) {
+    d = une(d, capsula(ax, y, z, 0, 0.041, 0.092, 0.04, 0.041, 0.082, 0.0068), 0.016);
   }
-  // Nariz: dorso, punta y alas.
-  if (lejos(x, y, z, 0, -0.002, 0.106, 0.037) < d + 0.008) {
-    d = une(d, capsula(x, y, z, 0, 0.024, 0.094, 0, -0.016, 0.116, 0.0072), 0.008);
-    d = une(d, elipsoide(x, y, z, 0, -0.019, 0.113, 0.0105, 0.0095, 0.011), 0.006);
-    d = une(d, elipsoide(ax, y, z, 0.0115, -0.025, 0.104, 0.0075, 0.0065, 0.0085), 0.005);
+  // Nariz: dorso, punta y alas, finos y fundidos para que no sea una pieza
+  // pegada.
+  if (lejos(x, y, z, 0, -0.002, 0.104, 0.036) < d + 0.01) {
+    d = une(d, capsula(x, y, z, 0, 0.024, 0.093, 0, -0.015, 0.112, 0.0062), 0.01);
+    d = une(d, elipsoide(x, y, z, 0, -0.018, 0.109, 0.0086, 0.0082, 0.0095), 0.008);
+    d = une(d, elipsoide(ax, y, z, 0.0102, -0.023, 0.1015, 0.0062, 0.0055, 0.0072), 0.007);
   }
-  // Labios, y la línea de la boca tallada entre los dos.
-  if (lejos(x, y, z, 0, -0.051, 0.1, 0.03) < Math.abs(d) + 0.008) {
-    d = une(d, elipsoide(x, y, z, 0, -0.0465, 0.0975, 0.02, 0.0042, 0.0078), 0.006);
-    d = une(d, elipsoide(x, y, z, 0, -0.0565, 0.0955, 0.0175, 0.0048, 0.0078), 0.006);
-    d = resta(d, elipsoide(x, y, z, 0, -0.0515, 0.106, 0.02, 0.001, 0.008), 0.002);
+  // Labios, y la línea de la boca tallada entre los dos. Sobresalen unos
+  // milímetros de la cara y se funden en ella: con poca fusión eran dos
+  // barras.
+  if (lejos(x, y, z, 0, -0.045, 0.092, 0.034) < Math.abs(d) + 0.014) {
+    // El maxilar bajo la nariz, que lleva la boca un poco adelante: sin él,
+    // entre la nariz y el labio quedaba un hueco.
+    d = une(d, elipsoide(x, y, z, 0, -0.036, 0.089, 0.019, 0.014, 0.011), 0.014);
+    d = une(d, elipsoide(x, y, z, 0, -0.047, 0.0955, 0.0165, 0.0045, 0.0062), 0.01);
+    d = une(d, elipsoide(x, y, z, 0, -0.0565, 0.0935, 0.0145, 0.005, 0.0062), 0.01);
+    d = resta(d, elipsoide(x, y, z, 0, -0.0515, 0.1015, 0.016, 0.0009, 0.007), 0.002);
   }
   // Orejas: el pabellón pegado al cráneo, con la concha tallada.
   if (lejos(ax, y, z, 0.077, 0.002, -0.01, 0.031) < d + 0.005) {
