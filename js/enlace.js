@@ -28,7 +28,14 @@
 //   teléfono → PC   Float32Array [1, qx, qy, qz, qw, wx, wy, wz]: orientación
 //                   de la cabeza y su velocidad angular (°/s, marco de la
 //                   cabeza), una por evento del giroscopio.
+//   teléfono → PC   JSON { t: 'control', ref, … }: un control del panel que
+//                   se tocó en el teléfono, que hace de control remoto (ver
+//                   `refControl`). { t: 'presentacion', valor }: qué muestra
+//                   la pantalla del PC.
 //   PC → teléfono   'centrar': el teléfono toma su posición actual como frente.
+//   PC → teléfono   JSON { t: 'estado', … }: cómo quedó el panel del PC, para
+//                   que el del teléfono muestre lo mismo. El PC manda: el
+//                   teléfono no aplica nada por su cuenta.
 
 import { tx } from './idioma.js';
 
@@ -347,6 +354,45 @@ export async function uneSala(codigo, paso = () => {}) {
     if (!e.sinRuta || !oferta.relevo || !servidorRelevo()) throw e;
     return porRelevo();
   }
+}
+
+// ---------------------------------------------------------- control ---
+
+/** Los tipos de mensaje de texto que se aceptan, además de 'centrar'. */
+const TIPOS_CONTROL = new Set(['control', 'presentacion', 'estado']);
+
+/** Empaqueta un mensaje de control: un objeto con su `t`. */
+export function mensajeControl(m) {
+  return JSON.stringify(m);
+}
+
+/** Lee un mensaje de control; null si no es uno (la cabeza, 'centrar', basura). */
+export function leeControl(datos) {
+  if (typeof datos !== 'string' || !datos.startsWith('{')) return null;
+  try {
+    const m = JSON.parse(datos);
+    return m && TIPOS_CONTROL.has(m.t) ? m : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Cómo se nombra un control del panel para mandarlo: por su id o por el
+ * atributo de datos que lo distingue. Del otro lado se valida con
+ * `refValida` antes de buscarlo: no se busca cualquier selector que llegue.
+ */
+const ATRIBUTOS_REF = ['vista', 'modoLab', 'mov', 'canal'];
+const kebab = (s) => s.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
+
+export function refControl(el) {
+  if (el.id) return `#${el.id}`;
+  for (const a of ATRIBUTOS_REF) if (el.dataset?.[a]) return `[data-${kebab(a)}="${el.dataset[a]}"]`;
+  return null;
+}
+
+export function refValida(ref) {
+  return typeof ref === 'string' && /^(#[\w-]+|\[data-(vista|modo-lab|mov|canal)="[\w-]+"\])$/.test(ref);
 }
 
 /** Empaqueta la cabeza para mandarla. */

@@ -454,6 +454,18 @@ carga con «Setup Node.js App» de cPanel: los pasos están en
 `servidor/relevo/LEEME.md`. Su dirección va en `<meta name="trainhit-relevo">`.
 Con `?forzar=relevo` en el PC se salta la conexión directa, para probarlo.
 
+Enlazado, el teléfono es además el **control remoto** del PC: debajo de
+Centrar y Desconectar muestra las pestañas y el panel del Laberinto, y lo que
+se toca ahí se aplica en el PC, no en el teléfono. El PC contesta cómo quedó y
+el teléfono se pinta igual, así que manda uno solo (el paciente al azar lo
+sortea el PC). «Mover la cabeza con el teléfono» se puede apagar para usarlo
+solo de control. **En la pantalla del PC** elige qué se ve allá: el Laberinto
+con su panel, o —sin barra ni panel, para proyectar— solo la cabeza, la cabeza
+y la vía, la cabeza con los ojos de cerca y sus curvas, o todo junto. `Esc` en
+el PC vuelve al Laberinto con su panel. Los mensajes van por el mismo canal
+(`js/enlace.js`): la cabeza en binario y el control en JSON; el PC acepta solo
+controles del panel, nombrados por id o por su atributo de datos.
+
 El botón de la esquina (o `H`) esconde la barra y el panel y deja solo el
 visor, en pantalla completa donde el navegador la permite; `Esc` o el mismo
 botón los traen de vuelta.

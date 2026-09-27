@@ -81,6 +81,13 @@ Publicado en el servidor propio del proyecto (PHP y Node.js).
 - Probado con dos pestañas contra el PHP local, incluido cortar la conexión y
   reengancharse, y **con éxito con un teléfono y un PC reales** en el servidor
   propio el 2026-09-27.
+- **Control remoto**: el teléfono muestra las pestañas y el panel, y lo que se
+  toca se aplica en el PC, que devuelve su estado (el PC manda: el paciente al
+  azar lo sortea él). Se puede apagar que el teléfono mueva la cabeza.
+- **Presentación** en el PC, elegida desde el teléfono: el Laberinto con su
+  panel, solo la cabeza, cabeza y vía, cabeza con ojos de cerca y curvas, o
+  todo. Sin barra ni panel; `Esc` la saca. Probado con dos navegadores contra
+  el PHP local.
 
 ### Patología (`js/patologia.js`)
 
@@ -147,6 +154,7 @@ Publicado en el servidor propio del proyecto (PHP y Node.js).
   WebSocket a la aplicación Node. Si no, plan B: tubería por el PHP.
 - El enlace en la red de la colega a la que no le conectó (teléfono con datos
   móviles o wifi con aislamiento de clientes), ya con el relevo.
+- El control remoto y la presentación con un teléfono y un PC reales.
 - Que los ojos ya no se queden pegados (vuelven al frente con la cabeza quieta
   más de 1 s), con el teléfono como cabeza.
 

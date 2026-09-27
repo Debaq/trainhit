@@ -64,7 +64,7 @@ import {
   faseLentaEspontanea,
   funciones,
 } from './patologia.js';
-import { Sala, leeCabeza, mensajeCabeza, uneSala } from './enlace.js';
+import { Sala, leeCabeza, leeControl, mensajeCabeza, mensajeControl, refControl, refValida, uneSala } from './enlace.js';
 import { DibujoVia, actividad, vectorRotacion, velocidadOrbita } from './via.js';
 import { abajoEnCabeza, nucleosOtolitos, respuestasOtolitos, torsionOtolitica } from './otolitos.js';
 import { alCambiarIdioma, tx } from './idioma.js';
@@ -180,6 +180,9 @@ export function montaLaberinto() {
     // El enlace con otro aparato (enlace.js): como `visor`, la cabeza la
     // mueve un teléfono; como `cabeza`, este teléfono mueve la de un PC.
     remoto: null,
+    // Qué muestra el PC cuando lo maneja un teléfono: '' es el Laberinto con
+    // su panel; las otras, solo el modelo y lo que se pida (PRESENTACIONES).
+    presentacion: '',
     qCabeza: Q1(),
     qPrevia: Q1(),
     // El ojo, con su VOR, su nistagmo y sus sacadas (patologia.js).
@@ -249,12 +252,15 @@ export function montaLaberinto() {
   $('lab-centrar').addEventListener('click', () => centra());
   for (const b of seccion.querySelectorAll('[data-modo-lab]')) {
     b.addEventListener('click', () => {
-      st.modoLab = b.dataset.modoLab;
+      marcaModo(b.dataset.modoLab);
       st.camara = MODOS_LABERINTO[st.modoLab].camara;
-      for (const o of seccion.querySelectorAll('[data-modo-lab]')) {
-        o.setAttribute('aria-checked', String(o === b));
-      }
     });
+  }
+
+  function marcaModo(modo) {
+    if (!MODOS_LABERINTO[modo]) return;
+    st.modoLab = modo;
+    for (const o of seccion.querySelectorAll('[data-modo-lab]')) o.setAttribute('aria-checked', String(o.dataset.modoLab === modo));
   }
   $('lab-rotulos-ver').addEventListener('change', (e) => {
     st.rotulos = e.target.checked;
@@ -339,14 +345,29 @@ export function montaLaberinto() {
     // panel que se ve.
     const destino = seccion.querySelector(`[data-panel="${v}"] [data-impulsos]`);
     if (destino) destino.append($('lab-impulsos'));
-    $('lab-via').hidden = v !== 'via';
     seccion.dataset.vista = v;
     aplicaVista();
-    pintaOjosVisibles();
+    pintaCapas();
   }
 
-  function pintaOjosVisibles() {
+  /**
+   * Lo que va encima del modelo: la vía y los ojos de cerca. Sin
+   * presentación, según la vista; en presentación, según lo que se pidió.
+   */
+  function viaVisible() {
+    return st.presentacion ? st.presentacion === 'via' || st.presentacion === 'todo' : st.vista === 'via';
+  }
+
+  function ojosVisibles() {
+    if (st.presentacion) return st.presentacion === 'ojos' || st.presentacion === 'todo';
+    return $('lab-ojos-ver').checked && (st.vista === 'patologia' || st.vista === 'respuesta');
+  }
+
+  function pintaCapas() {
+    $('lab-via').hidden = !viaVisible();
     $('lab-ojos').hidden = !ojosVisibles();
+    seccion.classList.toggle('presentacion', Boolean(st.presentacion));
+    seccion.dataset.pres = st.presentacion;
   }
 
   // ------------------------------------------------------------- patología ---
@@ -465,7 +486,7 @@ export function montaLaberinto() {
     aplicaPatologia();
   });
   $('lab-sacadas').addEventListener('change', (e) => (st.pat.sacadas = e.target.value));
-  $('lab-ojos-ver').addEventListener('change', pintaOjosVisibles);
+  $('lab-ojos-ver').addEventListener('change', pintaCapas);
 
   // A ciegas: un caso al azar, de un lado al azar, compensado o no y con un
   // tipo de sacada al azar. Revelar muestra qué era.
@@ -540,6 +561,7 @@ export function montaLaberinto() {
       giraMundo(eje, g);
     };
     if (k === 'Escape' && !$('lab-enlace').hidden) cierraDialogoEnlace();
+    else if (k === 'Escape' && st.presentacion) ponPresentacion('');
     else if (k === 'Escape') seccion.classList.contains('solo-visor') ? soloVisor(false) : cierra();
     else if (k === 'h' || k === 'H') soloVisor(!seccion.classList.contains('solo-visor'));
     else if (k === 'ArrowLeft') gira([0, 1, 0], -paso);
@@ -908,21 +930,26 @@ export function montaLaberinto() {
     // durante un impulso: así el reposo también se frena y se compara con
     // lo que pasa al mover. Con el mouse o el teléfono la cabeza sigue en
     // tiempo real; lo lento es la vía.
-    if (st.vista === 'via') pintaVia({ ...r, ...ro }, dt / Number($('lab-lentitud').value));
+    if (viaVisible()) pintaVia({ ...r, ...ro }, dt / Number($('lab-lentitud').value));
   }
 
   /**
    * Dónde va el modelo 3D dentro de la escena, en píxeles CSS desde arriba a
-   * la izquierda: toda la escena, salvo en Vía, donde el esquema ocupa un
-   * costado (o abajo, en pantalla angosta) y el modelo se corre al resto.
+   * la izquierda: toda la escena, salvo con la vía, que ocupa un costado (o
+   * abajo, en pantalla angosta), y el modelo se corre al resto. En
+   * presentación, los ojos de cerca van abajo y el modelo, arriba de ellos.
    */
   function regionModelo() {
-    const w = Math.max(1, caja.clientWidth);
-    const h = Math.max(1, caja.clientHeight);
+    let w = Math.max(1, caja.clientWidth);
+    let h = Math.max(1, caja.clientHeight);
     const via = $('lab-via');
-    if (via.hidden) return { x: 0, y: 0, w, h };
-    if (via.offsetLeft > 10) return { x: 0, y: 0, w: Math.max(1, via.offsetLeft), h };
-    return { x: 0, y: 0, w, h: Math.max(1, via.offsetTop) };
+    if (!via.hidden) {
+      if (via.offsetLeft > 10) w = Math.max(1, via.offsetLeft);
+      else h = Math.max(1, via.offsetTop);
+    }
+    const ojos = $('lab-ojos');
+    if (st.presentacion && !ojos.hidden) h = Math.max(1, Math.min(h, ojos.offsetTop - 8));
+    return { x: 0, y: 0, w, h };
   }
 
   /** La vía: las tasas de cada tramo y el dibujo, en su lienzo. `r`: canales y otolitos. */
@@ -1025,10 +1052,6 @@ export function montaLaberinto() {
     renderer.render(escena, camara);
     if (st.rotulos) ubicaRotulos();
     if (ojosVisibles()) pintaOjosDeCerca();
-  }
-
-  function ojosVisibles() {
-    return $('lab-ojos-ver').checked && (st.vista === 'patologia' || st.vista === 'respuesta');
   }
 
   /**
@@ -1373,7 +1396,7 @@ export function montaLaberinto() {
     st.qSensor = integraGiro(st.qSensor, enCabeza, dt);
     // Este teléfono es la cabeza de un PC: se le manda cada evento.
     const enlace = st.remoto;
-    if (enlace?.rol === 'cabeza' && enlace.canal?.readyState === 'open') {
+    if (enlace?.rol === 'cabeza' && enlace.mueve && enlace.canal?.readyState === 'open') {
       enlace.canal.send(mensajeCabeza(qMul(st.qManual, st.qSensor), enCabeza));
     }
   }
@@ -1456,6 +1479,7 @@ export function montaLaberinto() {
         : tx('TELÉFONO ENLAZADO');
     badge.className = `badge ${r?.conectado ? 'ok' : 'warn'}`;
     $('lab-remota').hidden = r?.rol !== 'cabeza';
+    seccion.classList.toggle('control-remoto', r?.rol === 'cabeza');
     $('lab-remota-estado').textContent = r?.rol === 'cabeza' && !r.conectado ? tx('Reconectando…') : '';
     $('lab-enlace-terminar').hidden = !r;
   }
@@ -1526,7 +1550,7 @@ export function montaLaberinto() {
     }
     terminaEnlace();
     estadoEnlace(tx('Conectando…'));
-    const r = { rol: 'cabeza', codigo, conectado: false, algunaVez: false, despierta: null };
+    const r = { rol: 'cabeza', codigo, conectado: false, algunaVez: false, despierta: null, mueve: $('lab-remota-mueve').checked };
     st.remoto = r;
     buscaPC(r);
   }
@@ -1587,11 +1611,21 @@ export function montaLaberinto() {
     canal.addEventListener('close', caida);
     if (r.rol === 'visor') {
       canal.addEventListener('message', (e) => {
+        if (st.remoto !== r) return;
         const m = leeCabeza(e.data);
-        if (m && st.remoto === r) Object.assign(r, m, { t: performance.now() });
+        if (m) return void Object.assign(r, m, { t: performance.now() });
+        const c = leeControl(e.data);
+        if (c?.t === 'control') aplicaControl(c);
+        else if (c?.t === 'presentacion') ponPresentacion(c.valor);
       });
+      // El teléfono arranca mostrando lo mismo que el PC.
+      avisaEstado();
     } else {
-      canal.addEventListener('message', (e) => e.data === 'centrar' && centra());
+      canal.addEventListener('message', (e) => {
+        if (e.data === 'centrar') return void centra();
+        const c = leeControl(e.data);
+        if (c?.t === 'estado') aplicaEstado(c);
+      });
       // El teléfono no dibuja: su pantalla no la mira nadie.
       cancelAnimationFrame(st.raf);
       st.raf = 0;
@@ -1624,7 +1658,10 @@ export function montaLaberinto() {
     r.canal?.close();
     r.wakeLock?.release().catch(() => {});
     // Lo que se había girado queda donde estaba.
-    if (r.rol === 'visor') st.qManual = st.qCabeza;
+    if (r.rol === 'visor') {
+      st.qManual = st.qCabeza;
+      ponPresentacion('');
+    }
     $('lab-enlace-codigo').hidden = true;
     pintaEnlace();
     if (r.rol === 'cabeza' && st.abierta && st.listo && !st.raf) {
@@ -1653,7 +1690,136 @@ export function montaLaberinto() {
   });
   $('lab-enlace-crear').addEventListener('click', creaCodigo);
   $('lab-enlace-unirse').addEventListener('click', uneComoCabeza);
-  $('lab-remota-centrar').addEventListener('click', () => centra());
+  // En el teléfono, Centrar centra los dos: el frente del teléfono y, en el
+  // PC, la cabeza, los ojos y la cámara.
+  $('lab-remota-centrar').addEventListener('click', () => {
+    centra();
+    mandaControl({ t: 'control', ref: '#lab-centrar', click: true });
+  });
+  $('lab-remota-mueve').addEventListener('change', (e) => {
+    const r = st.remoto;
+    if (r?.rol !== 'cabeza') return;
+    r.mueve = e.target.checked;
+    // Al volver a mover, la posición de ahora es el frente: sin salto.
+    if (r.mueve) centra();
+  });
+  $('lab-remota-pantalla').addEventListener('change', (e) => mandaControl({ t: 'presentacion', valor: e.target.value }));
+
+  // ------------------------------------------------------ control remoto ---
+  //
+  // Enlazado, el teléfono es además el control remoto del PC: muestra las
+  // pestañas y el panel, y lo que se toca ahí no se aplica en el teléfono
+  // sino que viaja al PC, que lo aplica como si lo hubieran tocado en su
+  // pantalla. El PC contesta cómo quedó (`estadoPanel`) y el teléfono se
+  // pinta igual. Así manda uno solo: el paciente al azar lo sortea el PC, y
+  // el teléfono ve el mismo.
+  //
+  // El PC, además, puede quedar en PRESENTACIÓN: sin barra ni panel, con el
+  // modelo solo o con la vía, los ojos de cerca y sus curvas. Se elige desde
+  // el teléfono; Esc en el PC la saca.
+
+  /** Lo que el teléfono maneja: el panel, las pestañas, los modos y Centrar. */
+  const ZONA_CONTROL = '.lab-panel, .lab-vistas, .lab-modos, #lab-centrar';
+  const VISTAS = ['canales', 'ejes', 'respuesta', 'patologia', 'via'];
+  const PRESENTACIONES = ['', 'cabeza', 'via', 'ojos', 'todo'];
+
+  function mandaControl(m) {
+    const canal = st.remoto?.canal;
+    if (canal?.readyState === 'open') canal.send(mensajeControl(m));
+  }
+
+  // En el teléfono: lo que se toca va al PC y acá no se aplica. Se ataja en
+  // la captura, antes de que llegue a los manejadores de cada control.
+  function atajaControl(e) {
+    if (st.remoto?.rol !== 'cabeza') return;
+    const el = e.target.closest?.('button, input, select');
+    if (!el || !el.closest(ZONA_CONTROL)) return;
+    const ref = refControl(el);
+    if (!ref) return;
+    if (e.type === 'click') {
+      // El clic de una casilla llega después como `change`.
+      if (el.tagName !== 'BUTTON') return;
+      e.preventDefault();
+      e.stopPropagation();
+      mandaControl({ t: 'control', ref, click: true });
+      return;
+    }
+    e.stopPropagation();
+    mandaControl({ t: 'control', ref, evento: e.type, valor: el.value, checked: el.checked });
+  }
+  for (const tipo of ['click', 'input', 'change']) seccion.addEventListener(tipo, atajaControl, true);
+
+  // En el PC: lo del teléfono se aplica como un toque de acá.
+  function aplicaControl(m) {
+    if (!refValida(m.ref)) return;
+    const el = seccion.querySelector(m.ref);
+    if (!el || !el.closest(ZONA_CONTROL) || el.disabled) return;
+    if (m.click) el.click();
+    else {
+      if (el.type === 'checkbox') el.checked = Boolean(m.checked);
+      else el.value = String(m.valor);
+      el.dispatchEvent(new Event(m.evento === 'input' ? 'input' : 'change', { bubbles: true }));
+    }
+    avisaEstado();
+  }
+
+  function ponPresentacion(v) {
+    st.presentacion = PRESENTACIONES.includes(v) ? v : '';
+    pintaCapas();
+    avisaEstado();
+  }
+
+  /** Cómo quedó el panel del PC, para el teléfono. */
+  function estadoPanel() {
+    const valores = {};
+    for (const el of seccion.querySelectorAll('.lab-panel input[id], .lab-panel select[id]')) {
+      valores[el.id] = el.type === 'checkbox' ? el.checked : el.value;
+    }
+    const revelado = $('lab-revelado');
+    return {
+      t: 'estado',
+      vista: st.vista,
+      modoLab: st.modoLab,
+      pat: st.pat,
+      revelado: revelado.hidden ? null : revelado.textContent,
+      presentacion: st.presentacion,
+      valores,
+    };
+  }
+
+  // Se manda poco después del último cambio: un deslizador que se arrastra
+  // manda muchos.
+  let esperaEstado = 0;
+  function avisaEstado() {
+    if (st.remoto?.rol !== 'visor') return;
+    clearTimeout(esperaEstado);
+    esperaEstado = setTimeout(() => mandaControl(estadoPanel()), 80);
+  }
+  // Lo que se cambia en el PC mismo también le llega al teléfono.
+  for (const tipo of ['click', 'change']) seccion.addEventListener(tipo, () => avisaEstado());
+
+  // En el teléfono: se pinta como el PC. El control que se está tocando no se
+  // pisa, para que un deslizador no salte mientras se lo arrastra.
+  function aplicaEstado(e) {
+    const tocando = document.activeElement;
+    for (const [id, v] of Object.entries(e.valores ?? {})) {
+      const el = $(id);
+      if (!el || el === tocando || !el.closest('.lab-panel')) continue;
+      if (el.type === 'checkbox') el.checked = Boolean(v);
+      else el.value = String(v);
+    }
+    if (e.pat && typeof e.pat === 'object') {
+      st.pat = { ...st.pat, ...e.pat };
+      aplicaPatologia();
+    }
+    if (VISTAS.includes(e.vista)) ponVista(e.vista);
+    marcaModo(e.modoLab);
+    const revelado = $('lab-revelado');
+    revelado.hidden = !e.revelado;
+    revelado.textContent = e.revelado ?? '';
+    $('lab-remota-pantalla').value = PRESENTACIONES.includes(e.presentacion) ? e.presentacion : '';
+    pintaVpico();
+  }
   $('lab-remota-soltar').addEventListener('click', () => {
     terminaEnlace();
     apagaSensores();

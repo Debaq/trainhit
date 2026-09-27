@@ -1138,6 +1138,56 @@ body.con-laberinto { overflow: hidden; }
 .lab-remota .ayuda { margin: 0; max-width: 320px; font-size: 14px; }
 .lab-remota button { min-width: 200px; padding: 12px 16px; font-size: 16px; }
 
+/* El teléfono enlazado es también el control remoto del PC: arriba el
+   enlace, abajo las pestañas y el panel a lo ancho. No dibuja el modelo. */
+.lab-remota-botones { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.laberinto.control-remoto .lab-escena { display: none; }
+.laberinto.control-remoto .lab-cuerpo { flex-direction: column; }
+.laberinto.control-remoto .lab-panel { width: auto; flex: 1; max-height: none; border: 0; }
+.laberinto.control-remoto .lab-remota {
+  position: static;
+  z-index: auto;
+  flex: none;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.laberinto.control-remoto .lab-remota .grande { font-size: 16px; }
+.laberinto.control-remoto .lab-remota .ayuda { font-size: 12.5px; max-width: none; }
+.laberinto.control-remoto .lab-remota button { min-width: 0; padding: 8px 18px; font-size: 14px; }
+.laberinto.control-remoto .lab-remota .campo { width: 100%; max-width: 420px; }
+.laberinto.control-remoto .lab-remota .campo select { flex: 1; }
+.laberinto.control-remoto .lab-remota-estado:empty { display: none; }
+/* Lo que en el teléfono no sirve: el PC es el que mide y el que enlaza. Las
+   ayudas largas del panel se leen en el PC; el teléfono es para tocar. */
+.laberinto.control-remoto .lab-panel .ayuda,
+.laberinto.control-remoto #lab-enlazar,
+.laberinto.control-remoto #lab-centrar,
+.laberinto.control-remoto #lab-sensores,
+.laberinto.control-remoto #lab-enlace-badge,
+.laberinto.control-remoto .lab-tasas,
+.laberinto.control-remoto #lab-tasas-ciego,
+.laberinto.control-remoto .lab-vcab { display: none; }
+
+/* El PC en presentación: sin barra ni panel, el modelo y lo que se pidió.
+   Los ojos de cerca van abajo, más grandes, y el modelo arriba de ellos
+   (laberinto.js, regionModelo). */
+.laberinto.presentacion .lab-barra,
+.laberinto.presentacion .lab-panel,
+.laberinto.presentacion .lab-gestos,
+.laberinto.presentacion .lab-visor { display: none; }
+.laberinto.presentacion .lab-ojos {
+  top: auto;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(720px, 60%);
+}
+.laberinto.presentacion .lab-traza { height: 100px; }
+.laberinto.presentacion[data-pres='todo'] .lab-via { width: 50%; }
+.laberinto.presentacion[data-pres='todo'] .lab-ojos { left: 12px; transform: none; width: calc(50% - 24px); }
+
 /* Ojos de cerca: arriba a la izquierda de la escena. El hueco de arriba lo
    pinta three.js en el mismo lienzo (por eso es transparente); abajo, la
    traza. No captura el puntero: el arrastre pasa al modelo. */
