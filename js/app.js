@@ -1441,7 +1441,7 @@ function ponPausa(v) {
   if (!v) estado.medicion = null; // al reanudar no queda un cursor viejo colgado
   $('plot-vivo').classList.toggle('medible', v);
   sucio.vivo = true; // redibuja: al pausar aparece el cursor de medición
-  marcaEstado(v ? 'pausado: medí en la traza de abajo (clic fija la referencia)' : 'midiendo');
+  marcaEstado(v ? 'pausado: mide en la traza de abajo (clic fija la referencia)' : 'midiendo');
 }
 
 /**
@@ -1714,9 +1714,9 @@ function pintaSimulacion() {
   $('sim-info').textContent = !perfil
     ? tx('Apagado: se mide lo real.')
     : oculto && practica
-      ? tx('Paciente al azar: puede tener una patología o ninguna. Examiná como siempre.')
+      ? tx('Paciente al azar: puede tener una patología o ninguna. Examina como siempre.')
       : oculto
-        ? tx('Perfil oculto. Examiná, decidí qué tiene el paciente y después apretá Revelar.')
+        ? tx('Perfil oculto. Examina, decide qué tiene el paciente y después presiona Revelar.')
         : `${tx(p.nombre)}. ${tx(p.descripcion)}`;
   // En la práctica se revela contestando, con su propio botón.
   $('sim-revelar').hidden = !oculto || Boolean(practica);
@@ -2087,7 +2087,7 @@ const tutorial = montaTutorial({
       return {
         correcta: p.patron,
         explica: `${tx(p.nombre)}. ${tx(p.descripcion)}`,
-        pista: tx('Mirá las dos medias por separado, la asimetría y los triángulos de sacadas: ¿de qué lado y cuándo corrigen?'),
+        pista: tx('Mira las dos medias por separado, la asimetría y los triángulos de sacadas: ¿de qué lado y cuándo corrigen?'),
       };
     },
   },

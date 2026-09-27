@@ -211,7 +211,7 @@ const CONCEPTOS = {
         'No desacadiza: por eso se marcan las sacadas y se muestra una ganancia hasta la sacada solo para comparar.',
       ),
     () =>
-      emparejar('Métodos de ganancia', 'Emparejá cada método de cálculo de la ganancia con lo que mide.', [
+      emparejar('Métodos de ganancia', 'Empareja cada método de cálculo de la ganancia con lo que mide.', [
         ['Área', 'cuánto giró el ojo sobre cuánto giró la cabeza en todo el impulso'],
         ['Instantánea a 60 ms', 'el cociente de velocidades en un solo instante'],
         ['Cociente de picos', 'el máximo del ojo sobre el máximo de la cabeza'],

@@ -370,9 +370,9 @@ export const PASEOS = [
         espera: 'cara',
         antes: 'cierraHerramientas',
         cuerpo: `
-          <p>Apretá <b>Encender cámara</b>. La primera vez el navegador pide permiso y se baja el
+          <p>Presiona <b>Encender cámara</b>. La primera vez el navegador pide permiso y se baja el
           modelo de seguimiento, unos MB; después queda guardado.</p>
-          <p>Seguí cuando la barra diga <b>cara sí</b>. Todo se procesa acá: el video no sale del
+          <p>Sigue cuando la barra diga <b>cara sí</b>. Todo se procesa aquí: el video no sale del
           equipo.</p>`,
       },
       {
@@ -382,7 +382,7 @@ export const PASEOS = [
         cuerpo: `
           <p>Los puntos sobre la cara son lo que sigue el modelo, cuadro a cuadro. Abajo, los dos ojos
           ampliados con el contorno del iris.</p>
-          <p>Si en los ojos ampliados el iris no se ve nítido, acercate a la cámara o mejorá la luz
+          <p>Si en los ojos ampliados el iris no se ve nítido, acércate a la cámara o mejora la luz
           antes de seguir: todo lo demás se calcula a partir de ahí.</p>`,
       },
       {
@@ -393,7 +393,7 @@ export const PASEOS = [
           <p>Los números en vivo. Los que importan al preparar:</p>
           <ul>
             <li><b>iris</b>: el radio en píxeles. Por debajo del mínimo el pulso se rechaza.</li>
-            <li><b>inclinación</b>: la flexión de la cabeza; buscá unos 30°.</li>
+            <li><b>inclinación</b>: la flexión de la cabeza; busca unos 30°.</li>
             <li><b>parpadeo</b>: un parpadeo dentro del impulso lo invalida.</li>
           </ul>
           <p class="ayuda">El resto se explica al pasar el mouse por cada número, o en <b>Qué es cada
@@ -407,7 +407,7 @@ export const PASEOS = [
         img: 'calibracion.svg',
         alt: 'Paciente mirando fijo un punto rojo mientras gira la cabeza lento de un lado al otro, con un arco de ±20° dibujado.',
         cuerpo: `
-          <p>Apretá <b>Calibrar</b> (o <kbd>C</kbd>). Aparece un punto rojo arriba al centro, junto a la
+          <p>Presiona <b>Calibrar</b> (o <kbd>C</kbd>). Aparece un punto rojo arriba al centro, junto a la
           cámara —el mismo blanco que en los impulsos—: el paciente lo mira <b>sin soltarlo</b> y gira la cabeza <b>lento</b> de un lado al otro, ±20°, durante 10 s.</p>
           <p>Al girar la cabeza el iris se corre en la imagen aunque el ojo no se mueva, y ese
           corrimiento es tan grande como la señal. Sin calibrar, un reflejo perfecto se lee ~1,9. Si
@@ -482,14 +482,14 @@ export const PASEOS = [
         objetivo: '.col-lados',
         antes: 'cierraHerramientas',
         cuerpo: `
-          <p>Pasá el puntero por un panel: la línea vertical marca el instante y el cartel da la
+          <p>Pasa el puntero por un panel: la línea vertical marca el instante y el cartel da la
           velocidad de cabeza y de ojo ahí.</p>
           <p>Un <b>clic</b> fija una referencia. Moviéndose desde ahí aparecen Δt, el salto de cada
           curva, el <b>área</b> de cada una en el tramo —sombreada— y la <b>ganancia del tramo</b>, que
           es el cociente de las dos áreas. Otro clic la suelta.</p>
           <p class="ayuda">Con el dedo: un toque pone el cursor, otro fija la referencia y
           arrastrar de costado mide.</p>
-          <p class="ayuda">Probá medir solo la subida del impulso y después el impulso entero: la
+          <p class="ayuda">Prueba medir solo la subida del impulso y después el impulso entero: la
           ganancia cambia según el tramo, y el motor usa uno solo.</p>`,
       },
       {
@@ -511,8 +511,8 @@ export const PASEOS = [
           <p>Cada sacada lleva un triángulo sobre su pico: <b class="c-covert">violeta</b> si arrancó
           mientras la cabeza todavía giraba (encubierta), <b class="c-overt">rojo</b> si fue después
           (manifiesta). En la lista, la columna de triángulos dice lo mismo por pulso.</p>
-          <p>Con los ejemplos, el lado izquierdo tiene de las dos. Elegí un pulso con una violeta y
-          pasá el mouse por su fila: <b>hasta la sacada ≈</b> es la ganancia cortada antes de la
+          <p>Con los ejemplos, el lado izquierdo tiene de las dos. Elige un pulso con una violeta y
+          pasa el mouse por su fila: <b>hasta la sacada ≈</b> es la ganancia cortada antes de la
           sacada, y suele ser bastante más baja que la reportada.</p>
           <p class="ayuda">La marca confirma lo que se ve en la curva, no lo reemplaza. A 30 fps una
           sacada son uno o dos cuadros; se apaga en Herramientas, «Marcar sacadas».</p>`,
@@ -525,7 +525,7 @@ export const PASEOS = [
           <p>Compara las ganancias medias de los dos lados:
           <b>(derecha − izquierda) / (derecha + izquierda)</b>, en %. Cero es simétrico; con el signo
           se sabe de qué lado está el déficit.</p>
-          <p>Con los ejemplos da positiva: el izquierdo es el débil. Pero mirá los pulsos del lado
+          <p>Con los ejemplos da positiva: el izquierdo es el débil. Pero mira los pulsos del lado
           izquierdo uno por uno: alguno se lee normal porque una sacada encubierta le tapó el
           déficit.</p>`,
       },
@@ -536,7 +536,7 @@ export const PASEOS = [
         antes: 'abreHerramientas',
         lugar: 'izquierda',
         cuerpo: `
-          <p>Encendé <b>Curva promedio del lado</b>: cada panel suma la media de sus pulsos
+          <p>Enciende <b>Curva promedio del lado</b>: cada panel suma la media de sus pulsos
           aceptados, más gruesa. El ruido de seguimiento se va y queda la forma.</p>
           <p class="ayuda">Los pulsos no comparten instantes —cada uno se disparó en un frame
           distinto—, así que se promedian interpolando sobre una grilla común. Los rechazados quedan
@@ -552,7 +552,7 @@ export const PASEOS = [
           <p>Suavizar une las muestras con una curva en vez de rectas. Es una interpolación
           <b>monótona</b>: nunca dibuja un pico más alto que el que se midió.</p>
           <p>Aun así hace <b>parecer</b> más precisa una señal de 30 fps. Por eso, mientras está
-          encendido, los puntos marcan las muestras reales. Apagalo y mirá cuántas muestras tiene
+          encendido, los puntos marcan las muestras reales. Apágalo y mira cuántas muestras tiene
           de verdad un impulso.</p>`,
       },
       {
@@ -585,7 +585,7 @@ export const PASEOS = [
   {
     id: 'casos',
     titulo: 'Casos a ciegas',
-    resumen: 'Cinco pacientes sintéticos sin diagnóstico: mirá los paneles y decí qué patrón ves.',
+    resumen: 'Cinco pacientes sintéticos sin diagnóstico: mira los paneles y di qué patrón ves.',
     pasos: [
       {
         id: 'como-leer',
@@ -594,7 +594,7 @@ export const PASEOS = [
         alt: 'Dos paneles como los de la app: a la izquierda las curvas de cabeza y ojo superpuestas; a la derecha el ojo lejos de la cabeza y una sacada con su triángulo rojo, vista con una lupa.',
         cuerpo: `
           <p>Cada caso carga los pulsos de un paciente sintético, con una letra y sin decir qué
-          tiene. Mirá los dos paneles y respondé <b>antes</b> de que se cuente.</p>
+          tiene. Mira los dos paneles y responde <b>antes</b> de que se cuente.</p>
           <ul>
             <li>La <b>media ± DE</b> de cada lado y cuántos pulsos se aceptaron.</li>
             <li>La <b>asimetría</b>, abajo a la derecha de la traza en vivo.</li>
@@ -618,7 +618,7 @@ export const PASEOS = [
           correcta: 'normal',
           explica: `Las dos medias cerca de 1, asimetría casi nula y las curvas naranjas tapando a las
             azules, sin picos que se despeguen. Es el patrón contra el que se compara todo lo demás.`,
-          pista: 'Mirá las dos medias y si alguna curva naranja se despega de la azul.',
+          pista: 'Mira las dos medias y si alguna curva naranja se despega de la azul.',
         },
       },
       {
@@ -635,7 +635,7 @@ export const PASEOS = [
           explica: `El derecho da ~0,5 y el izquierdo ~1; la asimetría sale negativa, del lado derecho.
             Después de cada impulso a la derecha hay un pico naranja: la sacada manifiesta que trae la
             mirada de vuelta. Es el patrón de una neuritis vestibular derecha.`,
-          pista: 'Compará las dos medias: ¿cuál de los dos lados queda lejos de 1? Mirá también el signo de la asimetría.',
+          pista: 'Compara las dos medias: ¿cuál de los dos lados queda lejos de 1? Mira también el signo de la asimetría.',
         },
       },
       {
@@ -650,9 +650,9 @@ export const PASEOS = [
           caso: 'C',
           correcta: 'bilateral',
           explica: `Los dos lados bajos, con sacadas manifiestas en los dos, y la asimetría casi en cero.
-            <b>Una asimetría normal no es un resultado normal</b>: compara los lados entre sí, y acá
+            <b>Una asimetría normal no es un resultado normal</b>: compara los lados entre sí, y aquí
             los dos fallan igual.`,
-          pista: 'La asimetría sola engaña: mirá cada media por separado.',
+          pista: 'La asimetría sola engaña: mira cada media por separado.',
         },
       },
       {
@@ -662,7 +662,7 @@ export const PASEOS = [
         antes: 'cierraHerramientas',
         cuerpo: `
           <p><button type="button" class="primario" data-accion="cargaCaso" data-arg="D">Cargar el caso D</button></p>
-          <p>¿Qué patrón muestra? No te quedes con el número: elegí un pulso de cada lado y miralo.</p>`,
+          <p>¿Qué patrón muestra? No te quedes con el número: elige un pulso de cada lado y míralo.</p>`,
         pregunta: {
           caso: 'D',
           correcta: 'encubierto-izq',
@@ -672,7 +672,7 @@ export const PASEOS = [
             tiempo. Como la ganancia reportada no desacadiza, la sacada entra y la infla: es el
             <b>falso negativo</b>. En Herramientas, la fila <b>hasta la sacada ≈</b> de la tabla de
             métodos baja la izquierda a ~0,5.`,
-          pista: 'Las medias no alcanzan. Seleccioná un pulso del lado izquierdo y mirá la curva naranja durante el impulso: ¿hay triángulos violetas?',
+          pista: 'Las medias no alcanzan. Selecciona un pulso del lado izquierdo y mira la curva naranja durante el impulso: ¿hay triángulos violetas?',
         },
       },
       {
@@ -689,7 +689,7 @@ export const PASEOS = [
           explica: `Casi todo salió rechazado: impulsos lentos, la cabeza que vuelve sola, la cara
             tapada por las manos, parpadeos. Con uno o ningún pulso aceptado por lado no hay media que
             leer. Lo que corresponde es corregir la técnica y repetir, no interpretar.`,
-          pista: 'Mirá cuántos pulsos se aceptaron de cada lado, y los motivos de los rechazados.',
+          pista: 'Mira cuántos pulsos se aceptaron de cada lado, y los motivos de los rechazados.',
         },
       },
       {
@@ -704,7 +704,7 @@ export const PASEOS = [
             normal una ganancia que no lo es (caso D).</li>
             <li>Sin pulsos aceptados suficientes <b>no se concluye</b> (caso E).</li>
           </ul>
-          <p class="ayuda">Los casos se pueden volver a cargar desde acá cuando se quiera. Para
+          <p class="ayuda">Los casos se pueden volver a cargar desde aquí cuando se quiera. Para
           docentes: <button type="button" data-accion="exportaGift">preguntas para Moodle (GIFT)</button>,
           con estos casos y las ideas de los paseos.</p>`,
       },
@@ -752,7 +752,7 @@ export const PASEOS = [
         antes: 'cierraHerramientas',
         espera: 'pulso',
         cuerpo: `
-          <p>Encendé la cámara, calibrá y dá impulsos como siempre. La traza de abajo ya muestra la
+          <p>Enciende la cámara, calibra y da impulsos como siempre. La traza de abajo ya muestra la
           patología mientras examinás.</p>
           <p>En los ojos ampliados, el <b>anillo violeta</b> es dónde estaría el iris simulado: el video
           es el real y no se mueve.</p>
@@ -766,7 +766,7 @@ export const PASEOS = [
           paciente?</p>`,
         pregunta: {
           dinamica: 'simulacion',
-          sinRespuesta: 'No hay paciente simulado: elegí uno con el botón Simulador de la barra.',
+          sinRespuesta: 'No hay paciente simulado: elige uno con el botón Simulador de la barra.',
         },
       },
       {
@@ -826,7 +826,7 @@ export const PASEOS = [
           <p>El pulso seleccionado —o el último— solo, en grande. El sombreado es la <b>ventana del
           impulso</b>: el tramo entre el inicio y el fin, que es sobre el que se calcula la ganancia.
           Las líneas punteadas son los umbrales que lo delimitan.</p>
-          <p>Elegí otro pulso en la lista y mirá cómo se mueve la ventana.</p>`,
+          <p>Elige otro pulso en la lista y mira cómo se mueve la ventana.</p>`,
       },
       {
         id: 'nube',
@@ -852,7 +852,7 @@ export const PASEOS = [
           la cabeza en todo el impulso; es la que se reporta. <b>60 ms</b>: el cociente de velocidades
           en un solo instante. <b>Picos</b>: el máximo del ojo sobre el máximo de la cabeza, aunque
           no ocurran a la vez.</p>
-          <p>Cambiá el <b>método</b> y mirá la tabla: con los mismos pulsos, las medias y la asimetría
+          <p>Cambia el <b>método</b> y mira la tabla: con los mismos pulsos, las medias y la asimetría
           cambian. Por eso una ganancia sin su método no se compara con otra.</p>
           <p class="ayuda">Zamaro et al., 2020: los métodos de cálculo no son intercambiables entre
           sí. Y a 30 fps la de 60 ms se apoya en dos cuadros.</p>`,
@@ -877,8 +877,8 @@ export const PASEOS = [
         lugar: 'izquierda',
         espera: 'recalculado',
         cuerpo: `
-          <p>El experimento que explica la calibración: poné el deslizador en <b>0</b>, marcá
-          <b>usar este k</b> y apretá <b>Recalcular</b> más abajo.</p>
+          <p>El experimento que explica la calibración: pon el deslizador en <b>0</b>, marca
+          <b>usar este k</b> y presiona <b>Recalcular</b> más abajo.</p>
           <p>Las ganancias del lado sano pasan a ~1,9. Nadie tiene un reflejo de 1,9: es el paralaje
           sin corregir, que tiene el mismo tamaño que la señal.</p>
           <p class="ayuda">Va al final del paseo a propósito: con k = 0 todo lo demás se lee mal.
@@ -905,7 +905,7 @@ export const PASEOS = [
           <p>Una perilla nueva vale para los pulsos <b>siguientes</b>. Cada pulso guarda sus muestras
           crudas, así que <b>Recalcular</b> vuelve a correr el motor entero sobre los pulsos que ya
           están, con la configuración de ahora.</p>
-          <p>El método de este paseo: mové <b>una</b> perilla, recalculá, mirá qué cambió, y volvela a
+          <p>El método de este paseo: mueve <b>una</b> perilla, recalcula, mira qué cambió, y vuélvela a
           su lugar. Después de recalcular, la ganancia de antes queda <s>tachada</s> al lado de la
           nueva, los paneles dicen la media de antes y en la nube de ganancias cada punto viejo
           queda unido al nuevo.</p>
@@ -921,7 +921,7 @@ export const PASEOS = [
         cuerpo: `
           <p>La velocidad sale de ajustar una parábola a las muestras de esta ventana. Más ancha,
           menos ruido pero el pico se <b>aplana</b>.</p>
-          <p>Probá <b>200 ms</b> y recalculá: los picos bajan y varios pulsos pasan a
+          <p>Prueba <b>200 ms</b> y recalcula: los picos bajan y varios pulsos pasan a
           <i>MUY LENTO</i>. La cabeza no cambió; cambió cómo se la mide.</p>`,
       },
       {
@@ -934,7 +934,7 @@ export const PASEOS = [
           <p>Grado 1 ajusta una recta: con la ventana alrededor del pico, promedia la subida con la
           bajada y aplana justo el valor que se quiere medir. Grado 2 sigue la curvatura; grado 3 sigue
           también el ruido.</p>
-          <p>Probalo con la ventana en 50 y en 100 ms. A 30 fps entran pocas muestras en la ventana, y
+          <p>Pruébalo con la ventana en 50 y en 100 ms. A 30 fps entran pocas muestras en la ventana, y
           con 50 ms el grado 1 puede dar picos <b>más altos</b>, no más bajos: la teoría supone
           muestras de sobra. Por eso conviene probar en vez de creer.</p>`,
       },
@@ -947,8 +947,8 @@ export const PASEOS = [
         cuerpo: `
           <p>El impulso empieza cuando la cabeza pasa el <b>umbral de inicio</b> y termina cuando baja
           del <b>umbral de fin</b>, que va más bajo para que el ruido no lo corte antes de tiempo.</p>
-          <p>Esos dos puntos son la ventana del impulso, y la ganancia se calcula entre ellos. Movelos
-          y mirá en <b>Último pulso</b> cómo cambia el sombreado y la ganancia con él.</p>`,
+          <p>Esos dos puntos son la ventana del impulso, y la ganancia se calcula entre ellos. Muévelos
+          y mira en <b>Último pulso</b> cómo cambia el sombreado y la ganancia con él.</p>`,
       },
       {
         id: 'aceptacion',
@@ -959,7 +959,7 @@ export const PASEOS = [
         cuerpo: `
           <p>Pico mínimo y máximo, duración mínima y máxima: los criterios para <b>aceptar</b> un
           pulso. No cambian ninguna ganancia; deciden cuáles entran en la media.</p>
-          <p>Bajá el pico mínimo a 80 y recalculá: el pulso lento de los ejemplos pasa a aceptado y
+          <p>Baja el pico mínimo a 80 y recalcula: el pulso lento de los ejemplos pasa a aceptado y
           entra en la media. Es tan fácil como eso aflojar un criterio.</p>`,
       },
       {
@@ -971,7 +971,7 @@ export const PASEOS = [
         cuerpo: `
           <p>Qué tan cerrado tiene que estar el ojo (0 abierto, 1 cerrado) para marcar la muestra como
           parpadeo. Un parpadeo dentro del impulso rechaza el pulso: con el ojo cerrado no hay iris.</p>
-          <p>Probá subirlo a <b>0,90</b> y recalculá: el pulso con parpadeo de los ejemplos pasa a
+          <p>Prueba subirlo a <b>0,90</b> y recalcula: el pulso con parpadeo de los ejemplos pasa a
           aceptado, con una ganancia que se calculó con el ojo cerrado. Un umbral flojo no rechaza
           menos parpadeos: acepta mediciones sin iris.</p>`,
       },
@@ -994,7 +994,7 @@ export const PASEOS = [
         lugar: 'izquierda',
         espera: 'recalculado',
         cuerpo: `
-          <p>Mové alguna perilla y apretá <b>Recalcular</b>. Los números de la lista pasan a ser los
+          <p>Mueve alguna perilla y presiona <b>Recalcular</b>. Los números de la lista pasan a ser los
           de la configuración de ahora, y el CSV se lleva cuál fue.</p>
           <p>Para dejar todo como vino: <button type="button" data-accion="restauraPerillas">valores por
           defecto y recalcular</button>. El mismo botón está al pie de las perillas.</p>`,

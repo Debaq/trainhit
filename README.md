@@ -6,7 +6,7 @@ vHIT (video Head Impulse Test) **didáctico**, en el navegador, con la webcam de
 equipo. Sin instalar nada: se abre `index.html` desde un servidor local y mide.
 
 Es el repo hermano de [vhit-wout-google](https://github.com/Debaq/vhit-wout-google),
-que es el motor nativo en Rust. Acá el objetivo no es medir mejor: es que cada
+que es el motor nativo en Rust. Aquí el objetivo no es medir mejor: es que cada
 paso del cálculo **se vea**, se pueda tocar y se entienda por qué está hecho así.
 
 > **No reemplaza a un equipo clínico.** Corre a los 30 fps de una webcam común;
@@ -292,7 +292,7 @@ cartel suma, contra ese punto:
   velocidad da desplazamiento, así que esa superficie son los grados que giró
   la cabeza —y los que se movió el ojo— en ese tramo;
 - la **ganancia del tramo**, que es el cociente de las dos áreas: la misma
-  cuenta que hace el motor sobre la ventana del impulso, acá sobre la ventana
+  cuenta que hace el motor sobre la ventana del impulso, aquí sobre la ventana
   que uno elija.
 
 Otro clic suelta la referencia.
@@ -405,7 +405,7 @@ misma limitación que con un paciente de verdad, y queda a la vista.
 
 El **Laberinto 3D** —cabeza, ojos y los dos laberintos para ver qué siente cada
 canal con cada giro y qué hace el ojo, con patologías, la vía del reflejo y el
-teléfono como cabeza— nació acá y se mudó el 2026-09-27 a su propio proyecto,
+teléfono como cabeza— nació aquí y se mudó el 2026-09-27 a su propio proyecto,
 **Labyrinthus 3D**, con su historia de commits, para crecer hacia la
 fisiología completa del oído interno: canales, otolitos, cóclea y vía
 auditiva.
@@ -415,7 +415,7 @@ auditiva.
 
 El botón **Laberinto 3D ↗** de la barra (o `L`) lo abre en otra pestaña. Un QR
 del enlace teléfono–PC hecho antes de la mudanza trae `?enlace=` y apunta a
-trainHIT: se lo reenvía allá con el mismo código.
+trainHIT: se lo reenvía allí con el mismo código.
 
 ## Tres métodos de ganancia
 
@@ -468,7 +468,7 @@ Dos modos, que son **una sola decisión** con dos combinaciones coherentes
   arriba, izquierda abajo— y la traza ocular va cruda, o sea al revés que la
   cabeza, porque el VOR es un reflejo compensatorio.
 
-Dos cosas que es fácil hacer mal y acá están cubiertas por tests:
+Dos cosas que es fácil hacer mal y aquí están cubiertas por tests:
 
 - La banda verde de velocidad aceptada y los umbrales del impulso tienen que
   caer **del lado donde se dibuja el pulso**, que no es el factor del panel a
@@ -655,7 +655,7 @@ El análisis largo de todo esto está en `GANANCIAS.md` del repo principal.
 - [Halmagyi & Curthoys, 1988](https://pubmed.ncbi.nlm.nih.gov/3390028/) — el
   impulso cefálico como signo clínico. *Arch Neurol.*
 - [MacDougall et al., 2009](https://pubmed.ncbi.nlm.nih.gov/19805730/) — el vHIT
-  contra bobina escleral. De acá sale el corte de 0,80, medido con ganancia de
+  contra bobina escleral. De aquí sale el corte de 0,80, medido con ganancia de
   área **desacadizada**, ~250 Hz y blanco a ~1 m. *Neurology.*
 - [Wiener-Vacher & Wiener, 2017](https://pmc.ncbi.nlm.nih.gov/articles/PMC5594068/)
   — normativos con cámara remota a 100 fps y blanco a 1–1,3 m: el precedente del
@@ -695,7 +695,7 @@ VOR perfecto se lee 1,95.
 
 ## Las perillas
 
-Todo lo que en un equipo comercial es una constante escondida, acá es un slider:
+Todo lo que en un equipo comercial es una constante escondida, aquí es un slider:
 ventana y grado del derivador, umbrales de inicio y fin del impulso, rango de
 pico y de duración aceptados, umbral de parpadeo, y un `k` que se puede poner a
 mano para **ver** cómo el paralaje mueve la ganancia entera.

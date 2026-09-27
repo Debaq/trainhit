@@ -158,7 +158,7 @@ pantalla. Un impulso hacia la derecha del paciente cae en el panel derecho.
 
 | Botón | Qué hace |
 |---|---|
-| **Encender cámara** / **Detener** | Prende o apaga la cámara. El selector de abajo elige qué cámara usar si hay más de una. |
+| **Encender cámara** / **Detener** | Enciende o apaga la cámara. El selector de abajo elige qué cámara usar si hay más de una. |
 | **Pausar** (`Espacio`) | Congela el análisis y la traza de abajo para poder medirla. La cámara sigue encendida. |
 | **Calibrar** (`C`) | Calibra el paralaje durante 10 s. Es **obligatorio antes de creerle a la ganancia**. |
 | **Descartar** (`D`) | Descarta el último pulso. `Z` lo devuelve. |
@@ -202,8 +202,8 @@ entera: basta un dedo sobre una ceja para perder el seguimiento (*CARA PERDIDA*)
 
 ### Paso 1: Encender la cámara
 
-Apretá **Encender cámara**. La primera vez el navegador pide permiso para usar
-la cámara. Seguí cuando la barra diga **CARA sí**.
+Presiona **Encender cámara**. La primera vez el navegador pide permiso para usar
+la cámara. Sigue cuando la barra diga **CARA sí**.
 
 ![Cámara encendida: la cara con los puntos de seguimiento y los ojos ampliados](img/28-camara-encendida.png)
 
@@ -212,7 +212,7 @@ ojos ampliados muestran el contorno del iris y su centro:
 
 ![El visor: video, ojos ampliados y botones](img/29-visor.png)
 
-Si en los ojos ampliados el iris no se ve nítido, acercate a la cámara o mejorá
+Si en los ojos ampliados el iris no se ve nítido, acércate a la cámara o mejora
 la luz **antes de seguir**. Todo lo demás se calcula a partir de ahí.
 
 ### Paso 2: Revisar las lecturas
@@ -225,7 +225,7 @@ Los que importan al preparar:
 
 - **iris:** el radio del iris en píxeles. Por debajo del mínimo (5 px por
   defecto) el pulso se rechaza.
-- **inclinación:** la flexión de la cabeza; buscá unos 30°.
+- **inclinación:** la flexión de la cabeza; busca unos 30°.
 - **parpadeo:** un parpadeo dentro del impulso lo invalida.
 
 Cada número explica qué es al pasar el mouse. En pantallas táctiles, **Qué es
@@ -233,7 +233,7 @@ cada número** (debajo de las lecturas) dice lo mismo a la vista.
 
 ### Paso 3: Calibrar el paralaje
 
-Apretá **Calibrar** (o `C`). Arriba al centro, junto a la cámara, aparece un
+Presiona **Calibrar** (o `C`). Arriba al centro, junto a la cámara, aparece un
 **punto rojo**. El paciente lo mira **sin soltarlo** y gira la cabeza **lento**
 de un lado al otro, unos ±20°, durante 10 segundos. Una cuenta regresiva
 indica cuánto falta y el rango de giro alcanzado. El cajón de Herramientas se
@@ -277,7 +277,7 @@ Cada impulso cae en el panel de su lado:
 - **Arriba** de cada panel, todos los impulsos superpuestos. La franja verde
   es el rango de pico de velocidad aceptado.
 - **La ganancia media ± DE**, en verde o rojo contra el corte de 0,80. Ese
-  corte viene de equipos que sí desacadizan, así que acá es una referencia y
+  corte viene de equipos que sí desacadizan, así que aquí es una referencia y
   no un criterio. Sin calibrar queda gris.
 - **La cuenta** de aceptados y rechazados.
 - **La lista**, un pulso por fila: número, pico de velocidad, duración,
@@ -339,7 +339,7 @@ Otro clic suelta la referencia.
 Con el dedo, en pantallas táctiles: un toque pone el cursor, otro fija la
 referencia, arrastrar de costado mide y otro toque la suelta.
 
-> Probá medir solo la subida del impulso y después el impulso entero: la
+> Prueba medir solo la subida del impulso y después el impulso entero: la
 > ganancia cambia según el tramo, y el motor usa uno solo.
 
 ### Mirar un pulso solo
@@ -398,7 +398,7 @@ En **Herramientas › Presentación › Orientación**:
 **Suavizar las trazas** une las muestras con una curva monótona, que nunca
 dibuja un pico más alto que el medido. Aun así hace **parecer** más precisa una
 señal de 30 fps; por eso, mientras está encendido, los puntos marcan las
-muestras reales. Apagalo para ver cuántas muestras tiene de verdad un impulso.
+muestras reales. Apágalo para ver cuántas muestras tiene de verdad un impulso.
 
 ---
 
@@ -525,10 +525,10 @@ Mientras alguna perilla no está en su valor de fábrica, la barra dice
 
 | Perilla | Por defecto | Qué hace | Para probar |
 |---|---|---|---|
-| **Ventana derivador** | 50 ms | La velocidad sale de ajustar una parábola a las muestras de esta ventana. Más ancha da menos ruido, pero aplana el pico. | Poné 200 ms y recalculá: los picos bajan y varios pulsos pasan a *MUY LENTO*. |
-| **Grado del ajuste** | 2 | 1 ajusta una recta y aplana el pico; 3 sigue también el ruido. | Probalo con la ventana en 50 y en 100 ms. |
-| **Umbral inicio / fin** | 60 / 40 °/s | Dónde empieza y termina el impulso, o sea la ventana sobre la que se calcula la ganancia. | Movelos y mirá **Último pulso**. |
-| **Pico mín / máx** | 120 / 300 °/s | Criterio para aceptar un pulso. No cambia ninguna ganancia; decide cuáles entran en la media. | Bajá el mínimo a 80: el pulso lento del ejemplo pasa a aceptado. |
+| **Ventana derivador** | 50 ms | La velocidad sale de ajustar una parábola a las muestras de esta ventana. Más ancha da menos ruido, pero aplana el pico. | Pon 200 ms y recalcula: los picos bajan y varios pulsos pasan a *MUY LENTO*. |
+| **Grado del ajuste** | 2 | 1 ajusta una recta y aplana el pico; 3 sigue también el ruido. | Pruébalo con la ventana en 50 y en 100 ms. |
+| **Umbral inicio / fin** | 60 / 40 °/s | Dónde empieza y termina el impulso, o sea la ventana sobre la que se calcula la ganancia. | Muévelos y mira **Último pulso**. |
+| **Pico mín / máx** | 120 / 300 °/s | Criterio para aceptar un pulso. No cambia ninguna ganancia; decide cuáles entran en la media. | Baja el mínimo a 80: el pulso lento del ejemplo pasa a aceptado. |
 | **Duración mín / máx** | 80 / 300 ms | Igual que el pico, pero con la duración. | — |
 | **Parpadeo** | 0,45 | Qué tan cerrado tiene que estar el ojo (0 abierto, 1 cerrado) para contar como parpadeo. | Subilo a 0,90: el pulso con parpadeo pasa a aceptado, con una ganancia calculada con el ojo cerrado. |
 | **Iris mín** | 5 px | Radio del iris por debajo del cual se rechaza el pulso. | — |
@@ -625,9 +625,9 @@ vez**.
 
 Es la práctica completa en un clic.
 
-**1.** Encendé la cámara y **calibrá** con el compañero, como siempre.
+**1.** Enciende la cámara y **calibra** con el compañero, como siempre.
 
-**2.** Abrí **Simulador** y apretá **Voy a tener suerte**. Se sortea un paciente
+**2.** Abre **Simulador** y presiona **Voy a tener suerte**. Se sortea un paciente
 (el control sano incluido) y queda **a ciegas**.
 
 **3.** El cajón **se cierra** para dejar los dos paneles a la vista. En la barra,
@@ -763,12 +763,12 @@ para el aula, donde el wifi falla.
 | Problema | Causa probable y solución |
 |---|---|
 | La cámara no enciende | El navegador no tiene permiso: hay que darlo en el candado de la barra de direcciones. Si se abrió `index.html` con doble clic, hace falta un servidor (ver la [sección 2](#2-antes-de-empezar)). |
-| **CARA no** | Poca luz, luz de atrás o cara fuera del encuadre. Poné la luz de frente y centrá la cara. |
-| **FPS** muy bajo (menos de 20) | El equipo va justo. Cerrá otras pestañas y programas que usen la cámara o la GPU. |
+| **CARA no** | Poca luz, luz de atrás o cara fuera del encuadre. Pon la luz de frente y centra la cara. |
+| **FPS** muy bajo (menos de 20) | El equipo va justo. Cierra otras pestañas y programas que usen la cámara o la GPU. |
 | La calibración sale rechazada | Girar más lento, sin soltar la mirada del punto rojo, y con un arco de ±20°. |
 | Todos los pulsos *MUY LENTO* | Los impulsos tienen que ser más rápidos: un giro corto y seco. |
-| Muchos *CARA PERDIDA* | Las manos tapan cejas o pómulos: tomá la cabeza más arriba. |
-| *IRIS MUY CHICO* | El paciente está lejos o la cámara tiene poca resolución. Acercalo. |
+| Muchos *CARA PERDIDA* | Las manos tapan cejas o pómulos: toma la cabeza más arriba. |
+| *IRIS MUY CHICO* | El paciente está lejos o la cámara tiene poca resolución. Acércalo. |
 | Ganancias cerca de 1,9 | Falta calibrar (la barra dice **SIN CALIBRAR**), o quedó **k a mano** en 0. |
 | Ganancias mayores que 1 | Una sacada encubierta dentro del impulso infla la ganancia (ver el caso D). También pasa con impulsos que hace el propio paciente. |
 | La barra dice **PERILLAS CAMBIADAS** | Hay perillas fuera de su valor de fábrica. Herramientas › **Valores por defecto**. |

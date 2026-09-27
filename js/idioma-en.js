@@ -338,7 +338,7 @@ export const TEXTO = {
   'perillas en sus valores por defecto': 'settings at their default values',
   'perillas en sus valores por defecto: «Recalcular» para aplicarlas a los pulsos':
     'settings at their default values: «Recompute» to apply them to the impulses',
-  'pausado: medí en la traza de abajo (clic fija la referencia)':
+  'pausado: mide en la traza de abajo (clic fija la referencia)':
     'paused: measure on the trace below (a click sets the reference)',
   'lo que el compañero dio de verdad: tachado, lo simulado':
     'what the classmate actually produced: struck through, the simulated values',
@@ -428,7 +428,7 @@ export const TEXTO = {
   'ojo (crudo)': 'eye (raw)',
   'ojo (invertido)': 'eye (inverted)',
   'Apagado: se mide lo real.': 'Off: measuring the real thing.',
-  'Perfil oculto. Examiná, decidí qué tiene el paciente y después apretá Revelar.':
+  'Perfil oculto. Examina, decide qué tiene el paciente y después presiona Revelar.':
     'Hidden profile. Examine, decide what the patient has and then press Reveal.',
   'Ver lo real': 'See the real thing',
   'Ver lo simulado': 'See the simulation',
@@ -436,7 +436,7 @@ export const TEXTO = {
     'Simulated patient, blind: the impulses carry a pathology added by the engine.',
   'Paciente simulado: {nombre}. Los pulsos llevan una patología agregada por el motor.':
     'Simulated patient: {nombre}. The impulses carry a pathology added by the engine.',
-  'Mirá las dos medias por separado, la asimetría y los triángulos de sacadas: ¿de qué lado y cuándo corrigen?':
+  'Mira las dos medias por separado, la asimetría y los triángulos de sacadas: ¿de qué lado y cuándo corrigen?':
     'Look at the two means separately, the asymmetry and the saccade triangles: on which side and when do they correct?',
 
   // ── práctica: «Voy a tener suerte» ──
@@ -446,7 +446,7 @@ export const TEXTO = {
     'random patient, blind: examine and, with {min} impulses per side, answer',
   '{n} de {total} correctas · era: {nombre}': '{n} of {total} correct · it was: {nombre}',
   '{n} de {total} correctas': '{n} of {total} correct',
-  'Paciente al azar: puede tener una patología o ninguna. Examiná como siempre.':
+  'Paciente al azar: puede tener una patología o ninguna. Examina como siempre.':
     'Random patient: it may have a pathology or none. Examine as always.',
   'Aceptados: derecha {d}/{min} · izquierda {i}/{min}': 'Accepted: right {d}/{min} · left {i}/{min}',
   'der {d}/{min} · izq {i}/{min}': 'R {d}/{min} · L {i}/{min}',
