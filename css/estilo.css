@@ -54,6 +54,13 @@
   --sobre-color: #ffffff; /* letras sobre un relleno clínico (botón primario, rótulos) */
   --video: #000000; /* detrás del video y de los ojos: es imagen, no interfaz */
   --sobre-video: #a1a1aa; /* letras sobre ese negro, en los dos temas */
+  /* la cara dibujada del teléfono (cara.js): va sobre el negro del video, así
+     que es la misma en los dos temas */
+  --cara-piel: #3f3f46;
+  --cara-linea: #a1a1aa;
+  --cara-esclera: #e4e4e7;
+  --cara-iris: #4b6f8f;
+  --cara-pupila: #09090b;
   --velo: light-dark(rgb(24 24 27 / 0.45), rgb(9 9 11 / 0.75));
   --velo-foco: light-dark(rgb(24 24 27 / 0.4), rgb(9 9 11 / 0.62));
   --sombra: light-dark(rgb(24 24 27 / 0.16), rgb(0 0 0 / 0.5));
@@ -334,6 +341,15 @@ button.badge { border: 0; cursor: pointer; white-space: nowrap; }
 .tarjeta button { margin-top: 6px; }
 
 .tarjeta .acciones { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* El enlace con el teléfono: el QR es para la cámara del teléfono, así que
+   va en blanco y negro (lo pinta telefono.js) y con los módulos nítidos. */
+.enlace-codigo { display: grid; justify-items: center; gap: 4px; margin: 12px 0 4px; }
+.enlace-codigo canvas { width: min(240px, 70vw); aspect-ratio: 1; image-rendering: pixelated; border-radius: var(--r-widget); }
+.enlace-codigo b { font: 600 15px ui-monospace, SFMono-Regular, monospace; letter-spacing: 1px; color: var(--foreground); }
+.tarjeta .enlace-lista { color: var(--c-ok-texto); font-weight: 600; margin-top: 10px; }
+.tarjeta .enlace-estado { min-height: 1.45em; color: var(--muted-fg); font-size: 13px; }
+.tarjeta .enlace-estado:empty { display: none; }
 
 /* ── tutorial ────────────────────────────────────────────────────────────── */
 

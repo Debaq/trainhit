@@ -29,6 +29,11 @@ export const COLOR = {
   sobreColor: '#FFFFFF',
   video: '#000000',
   sobreVideo: '#A1A1AA',
+  caraPiel: '#3F3F46',
+  caraLinea: '#A1A1AA',
+  caraEsclera: '#E4E4E7',
+  caraIris: '#4B6F8F',
+  caraPupila: '#09090B',
 };
 
 /** De qué ficha del CSS sale cada color del canvas. */
@@ -50,6 +55,11 @@ const FICHAS = {
   banda: '--plot-banda',
   rechazo: '--plot-rechazo',
   sobreColor: '--sobre-color',
+  caraPiel: '--cara-piel',
+  caraLinea: '--cara-linea',
+  caraEsclera: '--cara-esclera',
+  caraIris: '--cara-iris',
+  caraPupila: '--cara-pupila',
   video: '--video',
   sobreVideo: '--sobre-video',
 };
@@ -1030,17 +1040,18 @@ export function dibujaPuntos(ctx, landmarks, idx, w, h) {
  *
  * Se dibuja la MISMA imagen con otras coordenadas de origen en vez de recortar
  * píxeles: es un `drawImage` con la caja de origen, y la placa hace el resto.
+ * La imagen puede ser el video o un canvas: la cara dibujada del teléfono.
  */
 export function dibujaOjo(canvas, video, crop, landmarks, ojo, espejo, { simDeltaMm = 0, pxPerMm = null } = {}) {
   const { ctx, w, h } = prepara(canvas);
   ctx.fillStyle = COLOR.video;
   ctx.fillRect(0, 0, w, h);
-  if (!crop || !video?.videoWidth) {
+  const vw = video?.videoWidth ?? video?.width ?? 0;
+  const vh = video?.videoHeight ?? video?.height ?? 0;
+  if (!crop || !vw) {
     vacio(ctx, w, h, '—', COLOR.sobreVideo);
     return;
   }
-  const vw = video.videoWidth;
-  const vh = video.videoHeight;
   const sx = crop.x0 * vw;
   const sy = crop.y0 * vh;
   const sw = (crop.x1 - crop.x0) * vw;

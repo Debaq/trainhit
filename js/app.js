@@ -19,6 +19,9 @@ import { PERFILES, arrastre, offsetConMirada, parametrosPulso, simulaCrudo } fro
 import { IDIOMAS, alCambiarIdioma, idioma, idiomaInicial, ponIdioma, tx } from './idioma.js';
 import { alCambiarTema, ponTema, siguienteTema, tema } from './tema.js';
 import { MIN_POR_LADO, corrige, preguntasPractica } from './practica.js';
+import * as cara from './cara.js';
+import { Remuestreo } from './giroscopio.js';
+import { montaTelefono } from './telefono.js';
 
 /**
  * El Laberinto 3D, que nació acá, vive en su propio sitio: Labyrinthus 3D
@@ -107,6 +110,11 @@ const estado = {
   sim: { eleccion: '', perfil: null, ciego: false, revelado: false, mostrarReal: false, semilla: 1, practica: null },
   /** El pulso simulado en curso, para la traza en vivo: ver `simulaEnVivo`. */
   simVivo: null,
+  /**
+   * Con el teléfono como cabeza (ver `entraTelefono`): la calibración de
+   * antes, para devolverla al salir, y el remuestreo. null con la webcam.
+   */
+  telefono: null,
 };
 
 function vivoVacio() {
@@ -171,6 +179,7 @@ function modalCarga() {
 
 async function arrancar() {
   let carga = null;
+  telefono?.termina();
   saleDeEjemplo();
   try {
     marcaEstado('pidiendo cámara…');
@@ -309,6 +318,160 @@ async function poblarCamaras(abierta) {
   else if (previo && opciones.some((o) => o.value === previo)) sel.value = previo;
 }
 
+// -------------------------------------------------------------- teléfono ---
+//
+// El teléfono como cabeza (telefono.js): sin cámara ni MediaPipe. El giro
+// llega del giroscopio y se lo pasa a cuadros de 60 Hz (`Remuestreo`); el ojo
+// lo pone el modelo, sano —la mirada quieta en el blanco, `offsetSano`— y con
+// el perfil del Simulador encima, igual que un pulso de la webcam. En el
+// recuadro de la cámara se ve la cara dibujada de ese modelo (cara.js).
+//
+// Es todo simulado: no hay a quién medir, así que el tope de fps de la webcam
+// no viene al caso. Los cuadros van a 60 Hz porque así el motor, sus perillas
+// y la marca de NO VALIDADO se comportan igual que con la cámara.
+//
+// Los pulsos quedan marcados `telefono`. Como los ejemplos, no se mezclan con
+// los de la webcam: al encender la cámara se van.
+
+/** El diálogo del enlace (telefono.js); se monta con lo demás, al final. */
+let telefono = null;
+/** La cara dibujada, fuera de pantalla: de ahí salen el recuadro y los ojos ampliados. */
+const lienzoCara = document.createElement('canvas');
+/** Sin eventos del teléfono en este tiempo, se da por quieto: «cara: no». */
+const TELEFONO_MUDO_MS = 500;
+
+function entraTelefono() {
+  if (estado.telefono) return;
+  if (estado.corriendo) detener();
+  saleDeEjemplo();
+  // El k a mano no es la calibración de nadie: se devuelve la de verdad antes
+  // de guardarla para cuando se salga.
+  restauraK();
+  estado.telefono = {
+    k: estado.model.kParallax,
+    calibrado: estado.model.calibrated,
+    fit: estado.ultimoFit,
+    remuestreo: new Remuestreo(),
+    cuenta: { n: 0, t0: performance.now() },
+    ultimo: -Infinity,
+  };
+  // El ojo dibujado tiene el paralaje del paciente de ejemplo y el motor lo
+  // lee con ese mismo k: no hay nada que calibrar.
+  estado.model.kParallax = K_EJEMPLO;
+  estado.model.calibrated = true;
+  estado.ultimoFit = null;
+  sucio.calib = true;
+  reseteaTransitorio();
+  $('video').hidden = true;
+  $('sin-video').hidden = true;
+  $('camara-caja').style.aspectRatio = `${cara.ANCHO} / ${cara.ALTO}`;
+  sucio.vivo = true;
+  marcaEstado('esperando al teléfono: escanear el QR');
+}
+
+/** Vuelve a la cámara: se van los pulsos del teléfono y vuelve la calibración de antes. */
+function saleTelefono() {
+  const tel = estado.telefono;
+  if (!tel) return;
+  estado.telefono = null;
+  estado.trials = estado.trials.filter((t) => !t.telefono);
+  if (estado.seleccion?.telefono) estado.seleccion = null;
+  vaciaPapelera();
+  olvidaAntes();
+  estado.model.kParallax = tel.k;
+  estado.model.calibrated = tel.calibrado;
+  estado.ultimoFit = tel.fit;
+  sucio.calib = true;
+  reseteaTransitorio();
+  $('video').hidden = false;
+  $('sin-video').hidden = estado.corriendo;
+  $('camara-caja').style.aspectRatio = '';
+  sucio.vivo = true;
+  pintaListas();
+  marcaEstado('encender la cámara');
+}
+
+/** Un evento del teléfono: la hora del teléfono en ms y el yaw en grados. */
+function giroTelefono(tMs, yaw) {
+  const tel = estado.telefono;
+  if (!tel) return;
+  const { cuadros, corte } = tel.remuestreo.empuja(tMs, yaw);
+  // Un corte —el teléfono se durmió o recargó la página— rompe la
+  // continuidad: el derivador y el pulso en curso no pueden seguir de largo.
+  if (corte) cortaTelefono();
+  for (const c of cuadros) cuadroTelefono(c.t, c.yaw);
+  const ahora = performance.now();
+  tel.ultimo = ahora;
+  tel.cuenta.n += cuadros.length;
+  if (ahora - tel.cuenta.t0 >= 1000) {
+    estado.fps = (tel.cuenta.n * 1000) / (ahora - tel.cuenta.t0);
+    tel.cuenta = { n: 0, t0: ahora };
+  }
+}
+
+function cortaTelefono() {
+  estado.rolling = [];
+  estado.crudo = [];
+  estado.captura = null;
+  estado.simVivo = null;
+  estado.refractarioHasta = -Infinity;
+  estado.diff.reset();
+}
+
+function cuadroTelefono(t, yaw) {
+  const obs = { offsetMm: cara.offsetSano(yaw, estado.model), pxPerMm: cara.PX_POR_MM, radiusPx: cara.IRIS_PX };
+  if (estado.pausado) {
+    estado.vivo.yaw = yaw;
+    estado.vivo.offsetMm = obs.offsetMm;
+    return;
+  }
+  procesaMuestra(t, yaw, obs, { blinkScore: 0, vergMm: 0, inclinacion: null });
+}
+
+/**
+ * La cara en el recuadro de la cámara, con los puntos que habría marcado
+ * MediaPipe, y los dos ojos ampliados recortados de ella: lo mismo que se ve
+ * con la webcam.
+ */
+function dibujaCaraTelefono() {
+  const yaw = estado.vivo.yaw ?? 0;
+  const geo = cara.dibujaCara(lienzoCara, yaw, estado.vivo.offsetMm ?? cara.offsetSano(yaw, estado.model), estado.model);
+  const lms = cara.landmarks(geo, IDX);
+  const overlay = $('overlay');
+  if (overlay.width !== cara.ANCHO || overlay.height !== cara.ALTO) {
+    overlay.width = cara.ANCHO;
+    overlay.height = cara.ALTO;
+  }
+  const ctx = overlay.getContext('2d');
+  ctx.drawImage(lienzoCara, 0, 0);
+  plots.dibujaPuntos(ctx, lms, IDX, cara.ANCHO, cara.ALTO);
+  const P = (i) => geom.px(lms[i], cara.ANCHO, cara.ALTO);
+  for (const [canvas, ojo] of [
+    ['ojo-der', IDX.derecho],
+    ['ojo-izq', IDX.izquierdo],
+  ]) {
+    const crop = geom.eyeCrop(P(ojo.outer), P(ojo.inner), cara.ANCHO, cara.ALTO);
+    plots.dibujaOjo($(canvas), lienzoCara, crop, lms, ojo, estado.espejo);
+  }
+}
+
+/** El rótulo de la barra: si hay teléfono y por dónde va. */
+function pintaBadgeTelefono() {
+  const e = telefono?.estado();
+  const badge = $('badge-telefono');
+  badge.hidden = !e;
+  if (!e) return;
+  badge.textContent = !e.conectado
+    ? e.algunaVez
+      ? tx('RECONECTANDO AL TELÉFONO…')
+      : tx('ESPERANDO AL TELÉFONO…')
+    : e.relevo
+      ? tx('TELÉFONO · POR EL SERVIDOR')
+      : tx('TELÉFONO ENLAZADO');
+  badge.className = `badge ${e.conectado ? 'ok' : 'warn'}`;
+  if (e.conectado) marcaEstado('teléfono enlazado: los impulsos se dan con el teléfono');
+}
+
 // -------------------------------------------------------------- pipeline ---
 
 function procesaFrame(mediaTime) {
@@ -373,7 +536,6 @@ function procesaFrame(mediaTime) {
     geom.blinkScore(apertura(IDX.derecho) ?? geom.EYE_OPEN_REF),
     geom.blinkScore(apertura(IDX.izquierdo) ?? geom.EYE_OPEN_REF),
   );
-  const blink = blinkScore > cfg.blinkScore;
 
   // --- ojos ---
   const mide = (o) => geom.observeEye(P(o.iris), o.border.map(P), P(o.outer), P(o.inner));
@@ -394,6 +556,20 @@ function procesaFrame(mediaTime) {
   // dentro de un pulso dice si un ojo se siguió mal.
   const vergMm = der && izq ? der.offsetMm - izq.offsetMm : null;
 
+  procesaMuestra(mediaTime, yaw, obs, { blinkScore, vergMm, inclinacion });
+}
+
+/**
+ * Del giro de la cabeza y el ojo de un cuadro, a la traza y los pulsos. Es el
+ * tramo que comparten la webcam (`procesaFrame`) y el teléfono
+ * (`cuadroTelefono`): de acá en adelante el motor no sabe de dónde vino.
+ *
+ * @param {number} t hora del cuadro, en s
+ * @param {number} yaw giro de la cabeza, en grados
+ * @param {{offsetMm:number, pxPerMm:number, radiusPx:number}} obs el ojo
+ */
+function procesaMuestra(t, yaw, obs, { blinkScore, vergMm, inclinacion }) {
+  const blink = blinkScore > cfg.blinkScore;
   estado.vivo.offsetMm = obs.offsetMm;
   estado.vivo.pxPerMm = obs.pxPerMm;
   estado.vivo.irisPx = obs.radiusPx;
@@ -406,16 +582,16 @@ function procesaFrame(mediaTime) {
   // Paciente simulado: lo que el motor ve en vivo lleva el arrastre del
   // perfil. El crudo guarda lo REAL; al cerrar el pulso la simulación se
   // rehace entera sobre él (`simulaPulso`), que es lo que queda en la lista.
-  const offsetVisto = simulaEnVivo(mediaTime, yaw, obs.offsetMm);
+  const offsetVisto = simulaEnVivo(t, yaw, obs.offsetMm);
   estado.vivo.simDeltaMm = offsetVisto - obs.offsetMm;
   estado.vivo.offsetMm = offsetVisto;
   const gaze = estado.model.gazeAzimuthDeg({ offsetMm: offsetVisto }, yaw);
   estado.vivo.azimut = gaze;
 
-  estado.crudo.push({ t: mediaTime, yaw, offsetMm: obs.offsetMm, blinkScore, irisPx: obs.radiusPx, vergMm });
-  while (estado.crudo.length && mediaTime - estado.crudo[0].t > plots.SEGUNDOS_VIVO) estado.crudo.shift();
+  estado.crudo.push({ t, yaw, offsetMm: obs.offsetMm, blinkScore, irisPx: obs.radiusPx, vergMm });
+  while (estado.crudo.length && t - estado.crudo[0].t > plots.SEGUNDOS_VIVO) estado.crudo.shift();
 
-  const d = estado.diff.push({ t: mediaTime, headDeg: yaw, gazeDeg: gaze });
+  const d = estado.diff.push({ t, headDeg: yaw, gazeDeg: gaze });
   if (!d) return;
 
   const muestra = {
@@ -461,6 +637,10 @@ function juntaCalibracion(obs, yaw, blink) {
 }
 
 function empiezaCalibracion() {
+  if (estado.telefono) {
+    marcaEstado('con el teléfono no hace falta calibrar: el paralaje de la cara dibujada es conocido');
+    return;
+  }
   if (!estado.corriendo) {
     marcaEstado('encender la cámara antes de calibrar');
     return;
@@ -596,6 +776,7 @@ function cierraPulso() {
   if (estado.sim.perfil) trial = simulaPulso(trial, crudo, cap.tTrigger) ?? trial;
   trial.id = estado.proximoId++;
   trial.crudo ??= crudo;
+  if (estado.telefono) trial.telefono = true;
   anotaConfig(trial);
   estado.trials.push(trial);
   estado.seleccion = trial;
@@ -631,6 +812,7 @@ function recalculaTodos() {
     }
     // Recalcular no convierte un ejemplo (ni uno importado) en un pulso medido.
     if (t.ejemplo) nuevo.ejemplo = true;
+    if (t.telefono) nuevo.telefono = true;
     if (t.importado) Object.assign(nuevo, { importado: true, ejemploEnArchivo: t.ejemploEnArchivo });
     anotaConfig(nuevo);
     return nuevo;
@@ -700,7 +882,9 @@ function pintaListas() {
             ? `<i class="ej" title="${tx('pulso importado de un CSV')}">${tx('imp')}</i>`
             : t.ejemplo
               ? `<i class="ej" title="${tx('pulso de ejemplo: paciente sintético')}">${tx('ej')}</i>`
-              : ''
+              : t.telefono
+                ? `<i class="ej" title="${tx('pulso del teléfono: cara dibujada, sin cámara')}">${tx('tel')}</i>`
+                : ''
         }${
           t.calibrado ? '' : `<i class="sc" title="${tx('medido sin calibrar: la ganancia incluye el paralaje')}">${tx('s/c')}</i>`
         }</td>
@@ -745,6 +929,7 @@ function pintaListas() {
         t.rejected && tx(RECHAZO_TEXT[t.rejected]),
         !t.calibrado && tx('medido SIN calibrar'),
         t.ejemplo && tx('pulso de EJEMPLO: paciente sintético'),
+        t.telefono && tx('pulso del TELÉFONO: cara dibujada, sin cámara'),
         a && tx('antes de recalcular: {g} {est}', { g: fmt(a.gain), est: a.rejected ? motivoCorto(a.rejected) : 'OK' }),
       ]
         .filter(Boolean)
@@ -845,7 +1030,11 @@ function pintaTodo() {
   const badge = $('badge-calib');
   // Con los ejemplos la calibración es la del paciente sintético, no la de
   // quien está frente a la cámara: el rótulo no puede decir CALIBRADO a secas.
-  if (estado.kAntesManual) {
+  if (estado.telefono) {
+    badge.textContent = tx('TELÉFONO k={k}', { k: fmt(estado.model.kParallax) });
+    badge.className = 'badge warn';
+    badge.title = tx('el ojo es el de la cara dibujada: su paralaje es conocido y no hace falta calibrar');
+  } else if (estado.kAntesManual) {
     badge.textContent = tx('k A MANO={k}', { k: fmt(estado.model.kParallax) });
     badge.className = 'badge mal';
   } else if (estado.ejemplo?.importado) {
@@ -864,7 +1053,14 @@ function pintaTodo() {
   // El fps que se muestra es el de frames PROCESADOS, no el que da la cámara.
   // Si supera el tope, el tope falló en este dispositivo: se marca en rojo y
   // se enciende el aviso, que es el dato que hace falta para diagnosticarlo.
-  const fpsFuera = estado.fps > FPS_MAX * 1.05;
+  // Con el teléfono no hay cámara que topar: los cuadros los arma el
+  // remuestreo a 60 Hz, y si el teléfono se calla, no hay ninguno.
+  if (estado.telefono) {
+    const mudo = performance.now() - estado.telefono.ultimo > TELEFONO_MUDO_MS;
+    estado.caraOk = !mudo;
+    if (mudo) estado.fps = 0;
+  }
+  const fpsFuera = !estado.telefono && estado.fps > FPS_MAX * 1.05;
   const chipFps = $('v-fps');
   chipFps.textContent = fmt(estado.fps, 0);
   chipFps.className = fpsFuera ? 'mal' : '';
@@ -888,7 +1084,7 @@ function pintaTodo() {
   $('v-vojo').textContent = ultima ? fmt(ultima.headVel - ultima.gazeVel, 0) : '—';
   $('v-blink').textContent = estado.vivo.blink ? tx('sí') : tx('no');
 
-  if (estado.corriendo || sucio.vivo) {
+  if (estado.corriendo || estado.telefono || sucio.vivo) {
     dibujaVideo();
     // El cursor solo con la traza quieta: sobre una traza que corre, el número
     // que se lee ya es viejo cuando se termina de leer.
@@ -970,6 +1166,7 @@ function pintaCalibracion() {
  * recortes de ojo sí se espejan acá, porque son canvas sueltos.
  */
 function dibujaVideo() {
+  if (estado.telefono) return dibujaCaraTelefono();
   const video = $('video');
   const overlay = $('overlay');
   if (video.videoWidth && overlay.width !== video.videoWidth) {
@@ -1028,6 +1225,7 @@ function borraTodos() {
 function cargaEjemplos(caso = null) {
   const reales = estado.trials.filter((t) => !t.ejemplo).length;
   if (reales && !confirm(tx('Los ejemplos reemplazan los {n} pulsos medidos. ¿Seguir?', { n: reales }))) return;
+  telefono?.termina();
   if (estado.corriendo) detener();
   // El k a mano no es la calibración de nadie: se devuelve la de verdad antes
   // de guardarla para cuando se salga de los ejemplos.
@@ -1346,7 +1544,7 @@ function atajos() {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
     // Ctrl+C es copiar, Ctrl+D marcador, Ctrl+R recargar: no son atajos de acá.
     if (e.ctrlKey || e.metaKey || e.altKey) return;
-    if (!$('bienvenida').hidden || !$('acerca').hidden || tutorial.bloqueaAtajos()) return;
+    if (!$('bienvenida').hidden || !$('acerca').hidden || !$('enlace').hidden || tutorial.bloqueaAtajos()) return;
     const k = e.key.toLowerCase();
     if (k === 't') tutorial.abierto() ? tutorial.cierra() : tutorial.abre();
     else if (k === 'c') empiezaCalibracion();
@@ -1665,6 +1863,7 @@ function importaSesion(texto, nombre) {
   }
   const reales = estado.trials.filter((t) => !t.ejemplo).length;
   if (reales && !confirm(tx('La sesión importada reemplaza los {n} pulsos medidos. ¿Seguir?', { n: reales }))) return;
+  telefono?.termina();
   if (estado.corriendo) detener();
   restauraK();
   if (!estado.ejemplo) {
@@ -1864,6 +2063,17 @@ atajos();
 medicionViva();
 medicionPulsos();
 const bienvenida = montaBienvenida();
+telefono = montaTelefono({
+  alEntrar: entraTelefono,
+  alGiro: giroTelefono,
+  alSalir: saleTelefono,
+  alCambiar: pintaBadgeTelefono,
+});
+// El teléfono que llegó por el QR es la cabeza: lo que ve es el diálogo, no
+// la bienvenida.
+if (telefono.rol() === 'cabeza') bienvenida.cierra();
+$('btn-telefono').addEventListener('click', () => telefono.abre());
+$('badge-telefono').addEventListener('click', () => telefono.abre());
 // El recorrido del tutorial espera cosas de la medición real: por eso se
 // monta acá, con acceso al estado, y no en su módulo.
 const tutorial = montaTutorial({

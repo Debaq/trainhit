@@ -52,7 +52,7 @@ export function filasPulsos(trials, version = '', { simulacionOculta = false } =
       siNo(t.noValidado),
       // Un pulso importado dice si era de ejemplo en el archivo de origen: la
       // marca «ej» de la lista no es eso sino «no es de esta sesión».
-      siNo(t.importado ? t.ejemploEnArchivo : t.ejemplo),
+      siNo(t.importado ? t.ejemploEnArchivo : t.ejemplo || t.telefono),
       version,
       (t.sacadas ?? []).filter((s) => s.tipo === 'encubierta').length,
       (t.sacadas ?? []).filter((s) => s.tipo === 'manifiesta').length,
