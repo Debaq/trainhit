@@ -749,6 +749,123 @@ function plano(cx, cy, ang, largo, estilo) {
 }
 
 /**
+ * Un teléfono visto de frente, apaisado: cuerpo oscuro y pantalla azulada.
+ * Los dos colores no están en `CLARO`: el teléfono es igual en los dos temas.
+ */
+function movil(cx, cy, w, h, ang = 0) {
+  return (
+    `<g transform="rotate(${ang} ${cx} ${cy})">` +
+    `<rect x="${f(cx - w / 2)}" y="${f(cy - h / 2)}" width="${f(w)}" height="${f(h)}" rx="${f(h * 0.16)}" fill="#1c1c20"/>` +
+    `<rect x="${f(cx - w / 2 + h * 0.1)}" y="${f(cy - h / 2 + h * 0.1)}" width="${f(w - h * 0.2)}" height="${f(h * 0.8)}" rx="${f(h * 0.08)}" fill="#33475b"/>` +
+    `<circle cx="${f(cx - w / 2 + h * 0.05)}" cy="${f(cy)}" r="${f(h * 0.025)}" fill="#71717a"/>` +
+    `</g>`
+  );
+}
+
+/** Colores de lo que sujeta: una cinta, un arnés, una gorra, un casco. */
+const SUJETA = { cinta: '#2f6f63', arnes: '#57534e', gorra: '#8a3b3b', casco: '#3b5b8a', cinta2: '#d4b36a' };
+
+/**
+ * Cara de frente con el teléfono apaisado en la frente, sobre las cejas, y lo
+ * que lo sujeta según `como`: 'cinta' (elástica, por encima del teléfono),
+ * 'arnes' (el de una linterna frontal: cinta y una tira por arriba), 'gorra'
+ * (dos elásticos alrededor del frente de la gorra) o 'casco' (cinta adhesiva
+ * en las esquinas).
+ */
+function frenteConMovil(cx, cy, r, como, piel) {
+  let s = '';
+  const fy = cy - r * 0.62; // la frente
+  const mw = r * 1.05;
+  const mh = r * 0.46;
+  if (como === 'gorra') {
+    // La copa de la gorra tiene la forma del pelo de `caraFrente`, un poco más
+    // alta; las cejas siguen siendo de pelo.
+    s += caraFrente(cx, cy, r, { piel });
+    s += `<path d="M${f(cx - r * 1.03)},${f(cy - r * 0.25)}Q${f(cx - r * 1.02)},${f(cy - r * 1.5)} ${cx},${f(cy - r * 1.36)}Q${f(cx + r * 1.02)},${f(cy - r * 1.5)} ${f(cx + r * 1.03)},${f(cy - r * 0.25)}Q${f(cx + r * 0.7)},${f(cy - r * 0.98)} ${cx},${f(cy - r * 0.93)}Q${f(cx - r * 0.7)},${f(cy - r * 0.98)} ${f(cx - r * 1.03)},${f(cy - r * 0.25)}Z" fill="${SUJETA.gorra}"/>`;
+    // la visera, hacia adelante: de frente es una elipse chata que sobresale
+    // por delante de la frente, con la costura de la copa encima
+    s += `<ellipse cx="${cx}" cy="${f(cy - r * 0.6)}" rx="${f(r * 0.92)}" ry="${f(r * 0.2)}" fill="#6e2f2f"/>`;
+    s += `<path d="M${f(cx - r * 0.98)},${f(cy - r * 0.66)}Q${cx},${f(cy - r * 0.76)} ${f(cx + r * 0.98)},${f(cy - r * 0.66)}" stroke="#5a2626" stroke-width="${f(r * 0.05)}" fill="none"/>`;
+    s += `<circle cx="${cx}" cy="${f(cy - r * 1.3)}" r="${f(r * 0.06)}" fill="#6e2f2f"/>`;
+    const gy = cy - r * 1.0;
+    s += movil(cx, gy, mw * 0.9, mh * 0.85);
+    for (const k of [-1, 1]) {
+      s += `<path d="M${f(cx - r * 1.02)},${f(gy + k * mh * 0.28)}Q${cx},${f(gy + k * mh * 0.28 - r * 0.06)} ${f(cx + r * 1.02)},${f(gy + k * mh * 0.28)}" stroke="${SUJETA.cinta2}" stroke-width="${f(r * 0.035)}" fill="none"/>`;
+    }
+    return s;
+  }
+  if (como === 'casco') {
+    s += caraFrente(cx, cy, r, { piel });
+    // la cáscara del casco, con dos ventilaciones
+    s += `<path d="M${f(cx - r * 1.12)},${f(cy - r * 0.5)}Q${f(cx - r * 1.15)},${f(cy - r * 1.62)} ${cx},${f(cy - r * 1.6)}Q${f(cx + r * 1.15)},${f(cy - r * 1.62)} ${f(cx + r * 1.12)},${f(cy - r * 0.5)}Q${cx},${f(cy - r * 0.78)} ${f(cx - r * 1.12)},${f(cy - r * 0.5)}Z" fill="${SUJETA.casco}"/>`;
+    for (const k of [-1, 1]) s += `<ellipse cx="${f(cx + k * r * 0.55)}" cy="${f(cy - r * 1.28)}" rx="${f(r * 0.2)}" ry="${f(r * 0.08)}" fill="#2a4163"/>`;
+    const gy = cy - r * 0.98;
+    s += movil(cx, gy, mw * 0.95, mh * 0.9);
+    // cinta en las cuatro esquinas
+    for (const [kx, ky] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
+      s += `<rect x="${f(cx + kx * mw * 0.45 - r * 0.12)}" y="${f(gy + ky * mh * 0.42 - r * 0.05)}" width="${f(r * 0.24)}" height="${f(r * 0.1)}" transform="rotate(${kx * ky * 35} ${f(cx + kx * mw * 0.45)} ${f(gy + ky * mh * 0.42)})" fill="${SUJETA.cinta2}" fill-opacity="0.9"/>`;
+    }
+    return s;
+  }
+  s += caraFrente(cx, cy, r, { piel });
+  // la cinta ancha, de oreja a oreja por la frente
+  s += `<path d="M${f(cx - r * 1.06)},${f(fy + r * 0.12)}Q${cx},${f(fy - r * 0.1)} ${f(cx + r * 1.06)},${f(fy + r * 0.12)}" stroke="${como === 'arnes' ? SUJETA.arnes : SUJETA.cinta}" stroke-width="${f(r * 0.22)}" fill="none" stroke-linecap="round"/>`;
+  s += movil(cx, fy, mw, mh);
+  if (como === 'arnes') {
+    // la tira de arriba, de la cinta a la coronilla: no deja que baje
+    s += `<path d="M${cx},${f(fy - mh * 0.5)}L${cx},${f(cy - r * 1.33)}" stroke="${SUJETA.arnes}" stroke-width="${f(r * 0.16)}" stroke-linecap="round"/>`;
+    // el soporte de la linterna, abrazando el teléfono
+    for (const k of [-1, 1]) s += `<rect x="${f(cx + k * mw * 0.5 - r * 0.05)}" y="${f(fy - mh * 0.45)}" width="${f(r * 0.1)}" height="${f(mh * 0.9)}" rx="${f(r * 0.03)}" fill="${SUJETA.arnes}"/>`;
+  } else {
+    // una segunda pasada de la cinta, por encima del teléfono
+    s += `<path d="M${f(cx - mw * 0.62)},${f(fy + r * 0.02)}Q${cx},${f(fy - r * 0.06)} ${f(cx + mw * 0.62)},${f(fy + r * 0.02)}" stroke="${SUJETA.cinta}" stroke-width="${f(r * 0.09)}" fill="none" stroke-linecap="round"/>`;
+  }
+  return s;
+}
+
+// ── 21. sujecion: el teléfono en la frente, de frente y de perfil ──
+{
+  let s = '';
+  s += `<rect x="${420 - 230}" y="${540 + 230}" width="460" height="200" rx="90" fill="${ROPA[0]}"/>`;
+  s += frenteConMovil(420, 500, 200, 'cinta', PIEL[1]);
+  s += `<line x1="800" y1="120" x2="800" y2="800" stroke="${C.linea}" stroke-width="4"/>`;
+  // De perfil, mirando a la derecha: el teléfono pegado a la frente, con la
+  // pantalla hacia adelante (la flecha gris), y la cinta que da la vuelta.
+  const cx = 1130;
+  const cy = 500;
+  const r = 200;
+  s += `<rect x="${cx - 80}" y="${cy + 170}" width="160" height="300" rx="70" fill="${ROPA[0]}"/>`;
+  s += `<rect x="${cx - 30}" y="${cy + 120}" width="60" height="90" fill="${PIEL[1]}"/>`;
+  s += cabezaPerfil(cx, cy, r, { piel: PIEL[1], d: 1 });
+  s += `<path d="M${f(cx + r * 0.9)},${f(cy - r * 0.6)}Q${f(cx + r * 0.1)},${f(cy - r * 0.62)} ${f(cx - r * 0.97)},${f(cy - r * 0.32)}" stroke="${SUJETA.cinta}" stroke-width="${f(r * 0.2)}" fill="none" stroke-linecap="round"/>`;
+  s += `<rect x="${f(cx + r * 0.9)}" y="${f(cy - r * 0.86)}" width="${f(r * 0.1)}" height="${f(r * 0.48)}" rx="${f(r * 0.04)}" fill="#1c1c20"/>`;
+  s += `<rect x="${f(cx + r * 0.88)}" y="${f(cy - r * 0.66)}" width="${f(r * 0.16)}" height="${f(r * 0.1)}" rx="${f(r * 0.03)}" fill="${SUJETA.cinta}"/>`;
+  s += flecha(`M${f(cx + r * 1.08)},${f(cy - r * 0.62)}L${f(cx + r * 1.6)},${f(cy - r * 0.62)}`, C.grisClaro, 10, 'pg');
+  s += punto(1540, f(cy - r * 0.18), 16);
+  s += `<line x1="${f(cx + r * 0.72)}" y1="${f(cy - r * 0.18)}" x2="1520" y2="${f(cy - r * 0.18)}" stroke="${C.eye}" stroke-width="4" stroke-dasharray="14 12" stroke-opacity="0.8"/>`;
+  imagenes['sujecion.svg'] = svg(
+    s,
+    'Dos cuadros. A la izquierda, una cara de frente con el teléfono apaisado sobre la frente, encima de las cejas, sujeto con una cinta elástica ancha que pasa por encima. A la derecha, la misma cabeza de perfil: el teléfono pegado a la frente con la pantalla hacia adelante (flecha gris) y la cinta dando la vuelta a la cabeza; los ojos miran el punto rojo de adelante.',
+  );
+}
+
+// ── 22. sujecion-ideas: cuatro maneras caseras de sujetarlo ──
+{
+  let s = '';
+  const comos = ['cinta', 'arnes', 'gorra', 'casco'];
+  comos.forEach((como, i) => {
+    const cx = 200 + i * 400;
+    if (i) s += `<line x1="${cx - 200}" y1="160" x2="${cx - 200}" y2="780" stroke="${C.linea}" stroke-width="4"/>`;
+    s += `<rect x="${cx - 140}" y="640" width="280" height="160" rx="70" fill="${ROPA[i]}"/>`;
+    s += frenteConMovil(cx, 490, 125, como, PIEL[i]);
+  });
+  imagenes['sujecion-ideas.svg'] = svg(
+    s,
+    'Cuatro caras de frente, cada una con el teléfono apaisado en la frente sujeto de otra manera: con una cinta elástica ancha; con el arnés de una linterna frontal, que además pasa por arriba de la cabeza; sobre el frente de una gorra, con dos elásticos; y sobre un casco de bicicleta, con cinta adhesiva en las esquinas.',
+  );
+}
+
+/**
  * La versión para el tema claro: la misma imagen con los grises del fondo y de
  * las líneas dados vuelta. Los colores con significado —cabeza, ojo, sacadas,
  * bien y mal—, la piel, la ropa y el pelo quedan iguales. Se reemplazan todos

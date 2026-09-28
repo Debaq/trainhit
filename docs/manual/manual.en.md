@@ -18,7 +18,7 @@ with a phone as the head.
 
 **Author:** Nicolás Baier Quezada<br>
 **Date:** September 28, 2026<br>
-**trainHIT version documented:** 2026-09-28.1
+**trainHIT version documented:** 2026-09-28.2
 
 TecMedHub Lab · Universidad Austral de Chile, Puerto Montt campus
 
@@ -109,9 +109,10 @@ leaves the computer**.
 - **It does not desaccade.** A covert saccade stays inside the gain and raises
   it, precisely in the patient with a deficit. The bias is toward **false
   negatives**.
-- **It only measures the lateral canal.** The vertical canals (RALP/LARP) need
-  the vertical movement of the eye, which the eyelid hides and a webcam
-  measures poorly.
+- **With the webcam, it only measures the lateral canal.** The vertical canals
+  (RALP/LARP) need the vertical movement of the eye, which the eyelid hides and
+  a webcam measures poorly. With the phone as the head all six can be
+  practised, with a simulated eye (section 11).
 
 ---
 
@@ -588,7 +589,7 @@ finished tours.
 | Tour | What it covers | Camera? |
 |---|---|---|
 | **What a vHIT measures** | The reflex, the impulse, the six canals, the gain, the saccades, the patterns to look for and the limits. | No |
-| **The vertical canals** | The LARP and RALP pairs: how they are tested, what the eye does, why they matter and why trainHIT does not measure them yet. | No |
+| **The vertical canals** | The LARP and RALP pairs: how they are tested, what the eye does, why they matter and why the webcam cannot measure them and the phone can. | No |
 | **Preparing the session** | Camera, light, posture and the examiner’s hands. | No |
 | **The first measurement** | Calibrating, delivering impulses, reading panels and list, CSV. | Yes |
 | **Reading the plots** | The ruler, rejected impulses, saccades, asymmetry, mean curve, smoothing, orientation and pause. | No (uses examples) |
@@ -749,7 +750,8 @@ turning the phone to the examiner’s right turns the head to the patient’s le
 face is known. **Center** takes the current position as straight ahead.
 
 **4.** Give impulses with the phone as with a head: short, abrupt, 10 to 20°,
-and a slow return. It feels more real with the phone strapped with tape or a
+and a slow return. Most realistic is strapping it to a classmate’s forehead
+(see below); otherwise it feels better with the phone strapped with tape or a
 rubber band to something with weight —a ball, a stuffed toy, a box—, with the
 screen facing the examiner.
 
@@ -768,6 +770,41 @@ saccade brings it back.
   them connect directly, it goes through the server and the bar says so
   (**VIA THE SERVER**).
 - The phone needs a gyroscope and permission to read its sensors.
+
+### The vertical canals, with the phone on the head
+
+The webcam cannot measure the vertical canals (the eyelid covers the iris when
+looking up and down), but with the phone the model places the eye: all **six
+canals** can be practised. The phone is strapped to a classmate’s forehead, in
+landscape with the screen facing forward; the short guide **The phone on the
+head** (the PDF `trainhit-sujecion-en.pdf`, linked in the phone dialog)
+explains how to strap it with household items and how to do each manoeuvre.
+
+With the phone linked, the selector **Lateral · LARP · RALP** appears next to
+the buttons. Below it says how to place the head, and next to it how far the
+head is turned right now, green when it is where the plane asks:
+
+| Plane | Head | Nose down | Nose up |
+|---|---|---|---|
+| **LARP** | turned 45° to the right | left anterior | right posterior |
+| **RALP** | turned 45° to the left | right anterior | left posterior |
+
+The panels change their titles with the plane, and the means, the list and the
+cloud show only the impulses of the chosen plane. An impulse more than 30° off
+the plane is rejected: **OFF THE PLANE**.
+
+![RALP with right vestibular neuritis in the Simulator: the right anterior with low gain and saccades, the left posterior at 1](img/en/50-verticales-neuritis.png)
+
+The drawn face turns with the phone’s whole orientation, and the compensating
+eye turns about the axis of the canal. The iris has fibres and a crypt, and the
+sclera has vessels: you can see whether the eye **rolls** (torsion). With the
+head at 45° the eye moves almost only vertically; with the head facing forward,
+the same turn is half torsion.
+
+In the vertical planes the Simulator profiles follow the anatomy: common
+neuritis (the superior branch of the nerve) also affects the **anterior** canal
+on the same side and spares the **posterior**; bilateral vestibulopathy affects
+all six. The **I’m feeling lucky** practice still asks about the lateral canals.
 
 ---
 
@@ -1208,7 +1245,7 @@ Filled in by the observer in activity 19.4, or by the teacher.
 | **Parallax (k)** | The shift of the iris in the image when the head turns, even if the eye does not move. Calibration measures it. |
 | **Asymmetry** | (right − left) / (right + left), in %. |
 | **Impulse window** | The span between the start and end of the impulse, over which the gain is computed. |
-| **RALP / LARP** | The pairs of vertical canals. trainHIT does not measure them. |
+| **RALP / LARP** | The pairs of vertical canals. The webcam cannot measure them; with the phone they are practised with a simulated eye. |
 
 
 *trainHIT was developed at the TecMedHub Lab of the Universidad Austral de
@@ -1323,5 +1360,5 @@ year in the text; each one carries a line on what it is used for here.
 ### How to cite trainHIT
 
 > Baier-Quezada N, Uribe-Hernández V, López-Moncada F. trainHIT: a teaching
-> vHIT in the browser [software]. Version 2026-09-28.1. Puerto Montt:
+> vHIT in the browser [software]. Version 2026-09-28.2. Puerto Montt:
 > TecMedHub Lab, Universidad Austral de Chile; 2026.

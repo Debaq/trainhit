@@ -10,6 +10,10 @@ sin texto, azul la cabeza, naranja el ojo, verde bien, rojo mal). Cumplen su
 reemplazarlos por ilustraciones: se deja el `.webp` aquí y se cambia la
 extensión en `js/tutorial-pasos.js`.
 
+Las dos de la guía «El teléfono en la cabeza» (`sujecion*.svg`, que usa
+`docs/manual/sujecion.md`) salen del mismo script, sin prompt: son esquemas de
+dónde va el teléfono y con qué se sujeta.
+
 Las seis del paseo «Los canales verticales» (`verticales*.svg`) salen del
 mismo script y no tienen prompt: son esquemas de anatomía y de geometría
 —planos a 45°, qué canal va con qué rama del nervio, el párpado sobre el

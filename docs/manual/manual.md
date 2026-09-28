@@ -18,7 +18,7 @@ teléfono como cabeza.
 
 **Autor:** Nicolás Baier Quezada<br>
 **Fecha:** 28 de septiembre de 2026<br>
-**Versión de trainHIT documentada:** 2026-09-28.1
+**Versión de trainHIT documentada:** 2026-09-28.2
 
 Laboratorio TecMedHub · Universidad Austral de Chile, Sede Puerto Montt
 
@@ -108,8 +108,10 @@ el navegador y **el video no sale del equipo**.
 - **No desacadiza.** Una sacada encubierta queda dentro de la ganancia y la
   sube, justo en el paciente con déficit. El sesgo es hacia el **falso
   negativo**.
-- **Solo mide el canal lateral.** Los canales verticales (RALP/LARP) necesitan
-  el movimiento vertical del ojo, que el párpado tapa y la webcam mide mal.
+- **Con la webcam, solo mide el canal lateral.** Los canales verticales
+  (RALP/LARP) necesitan el movimiento vertical del ojo, que el párpado tapa y
+  la webcam mide mal. Con el teléfono como cabeza se practican los seis, con el
+  ojo simulado (sección 11).
 
 ---
 
@@ -585,7 +587,7 @@ marca los paseos terminados.
 | Paseo | De qué trata | ¿Cámara? |
 |---|---|---|
 | **Qué mide un vHIT** | El reflejo, el impulso, los seis canales, la ganancia, las sacadas, los patrones que se buscan y los límites. | No |
-| **Los canales verticales** | Los pares LARP y RALP: cómo se prueban, qué hace el ojo, por qué importan y por qué trainHIT todavía no los mide. | No |
+| **Los canales verticales** | Los pares LARP y RALP: cómo se prueban, qué hace el ojo, por qué importan y por qué con la webcam no se miden y con el teléfono sí. | No |
 | **Preparar la sesión** | Cámara, luz, postura y manos del examinador. | No |
 | **La primera medición** | Calibrar, dar impulsos, leer paneles y lista, CSV. | Sí |
 | **Leer los gráficos** | La regla, los rechazados, las sacadas, la asimetría, el promedio, suavizar, la orientación y la pausa. | No (usa ejemplos) |
@@ -746,7 +748,8 @@ cabeza a la izquierda del paciente.
 dibujada es conocido. **Centrar** toma la posición de ahora como frente.
 
 **4.** Da impulsos con el teléfono como con una cabeza: cortos, bruscos, de 10
-a 20°, y la vuelta lenta. Se siente más real si el teléfono va sujeto con cinta
+a 20°, y la vuelta lenta. Lo más real es sujetarlo a la frente de un compañero
+(ver más abajo); si no, se siente mejor si el teléfono va sujeto con cinta
 o un elástico a algo con peso —una pelota, un peluche, una caja—, con la
 pantalla hacia quien examina.
 
@@ -764,6 +767,42 @@ cabeza, y una sacada lo trae de vuelta.
   giroscopio va directo al PC. Si la red no deja conectarlos directo, pasa por
   el servidor y la barra lo dice (**POR EL SERVIDOR**).
 - El teléfono tiene que tener giroscopio y dar permiso para leer los sensores.
+
+### Los canales verticales, con el teléfono en la cabeza
+
+La webcam no puede medir los canales verticales (el párpado tapa el iris al
+mirar arriba y abajo), pero con el teléfono el ojo lo pone el modelo: se
+practican los **seis canales**. El teléfono va sujeto a la frente de un
+compañero, apaisado y con la pantalla hacia adelante; la guía corta **El
+teléfono en la cabeza** (el PDF `trainhit-sujecion.pdf`, enlazado en el diálogo
+del teléfono) cuenta cómo sujetarlo con cosas de casa y cómo hacer cada
+maniobra.
+
+Con el teléfono enlazado aparece junto a la botonera el selector **Lateral ·
+LARP · RALP**. Debajo dice cómo poner la cabeza, y al lado cuánto está girada
+ahora, en verde cuando está donde el plano pide:
+
+| Plano | Cabeza | Nariz abajo | Nariz arriba |
+|---|---|---|---|
+| **LARP** | girada 45° a la derecha | anterior izquierdo | posterior derecho |
+| **RALP** | girada 45° a la izquierda | anterior derecho | posterior izquierdo |
+
+Los paneles cambian de título con el plano, y las medias, la lista y la nube
+muestran solo los pulsos del plano elegido. Un impulso que se aparta más de 30°
+del plano sale rechazado: **FUERA DEL PLANO**.
+
+![RALP con neuritis vestibular derecha en el Simulador: el anterior derecho con ganancia baja y sacadas, el posterior izquierdo en 1](img/50-verticales-neuritis.png)
+
+La cara dibujada gira con la orientación entera del teléfono, y el ojo que
+compensa gira alrededor del eje del canal. El iris tiene fibras y una cripta, y
+la esclera vasos: se ve si el ojo **rueda** (torsión). Con la cabeza a 45° el
+ojo se mueve casi solo en vertical; con la cabeza de frente, el mismo giro es
+mitad torsión.
+
+En los verticales, los perfiles del Simulador siguen la anatomía: la neuritis
+común (la rama superior del nervio) toca también el **anterior** del mismo
+lado y deja el **posterior** sano; la vestibulopatía bilateral toca los seis.
+La práctica **Voy a tener suerte** sigue preguntando por los laterales.
 
 ---
 
@@ -1201,7 +1240,7 @@ La llena el observador de la actividad 19.4, o el docente.
 | **Paralaje (k)** | El corrimiento del iris en la imagen al girar la cabeza, aunque el ojo no se mueva. La calibración lo mide. |
 | **Asimetría** | (derecha − izquierda) / (derecha + izquierda), en %. |
 | **Ventana del impulso** | El tramo entre el inicio y el fin del impulso, sobre el que se calcula la ganancia. |
-| **RALP / LARP** | Los pares de canales verticales. trainHIT no los mide. |
+| **RALP / LARP** | Los pares de canales verticales. Con la webcam no se miden; con el teléfono se practican con el ojo simulado. |
 
 
 *trainHIT fue desarrollado en el Laboratorio TecMedHub de la Universidad
@@ -1318,5 +1357,5 @@ citan por autor y año; cada una lleva una línea sobre para qué se usa aquí.
 ### Cómo citar trainHIT
 
 > Baier-Quezada N, Uribe-Hernández V, López-Moncada F. trainHIT: vHIT
-> didáctico en el navegador [software]. Versión 2026-09-28.1. Puerto Montt:
+> didáctico en el navegador [software]. Versión 2026-09-28.2. Puerto Montt:
 > Laboratorio TecMedHub, Universidad Austral de Chile; 2026.

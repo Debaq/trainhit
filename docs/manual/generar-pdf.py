@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Pasa el manual de uso y guía docente de Markdown a PDF, en los dos idiomas:
-manual.md → trainhit-manual.pdf y manual.en.md → trainhit-manual-en.pdf.
+manual.md → trainhit-manual.pdf y manual.en.md → trainhit-manual-en.pdf. Y la
+guía corta del teléfono en la cabeza: sujecion.md → trainhit-sujecion.pdf y
+sujecion.en.md → trainhit-sujecion-en.pdf.
 
     python3 docs/manual/generar-pdf.py
 
@@ -79,28 +81,40 @@ def figuras(html: str) -> str:
     )
 
 
-IDIOMAS = {
-    'es': {
-        'fuente': 'manual.md',
-        'salida': 'trainhit-manual.pdf',
-        'titulo': 'trainHIT · Manual de uso y guía docente',
-        'pie': 'TecMedHub · Universidad Austral de Chile, Sede Puerto Montt',
-    },
-    'en': {
-        'fuente': 'manual.en.md',
-        'salida': 'trainhit-manual-en.pdf',
-        'titulo': 'trainHIT · User manual and teacher’s guide',
-        'pie': 'TecMedHub · Universidad Austral de Chile, Puerto Montt campus',
-    },
+# La guía corta: sin portada ni índice, y las secciones seguidas en vez de
+# una por página. Pisa lo que el manual hace distinto.
+CSS_GUIA = """
+@page :first { @top-right { content: none; } @bottom-right { content: counter(page); } @bottom-left { content: none; } }
+h1 { font-size: 26pt; margin: 0.3cm 0 0.1cm; }
+h1 + p { font-size: 12.5pt; margin: 0 0 0.2cm; }
+h2 { break-before: auto; font-size: 14pt; margin-top: 18pt; break-after: avoid; }
+.cabecera { border-bottom: 2.5pt solid #2b6fd6; padding-bottom: 0.2cm; margin-bottom: 0.4cm; }
+.cabecera .logos { display: flex; justify-content: space-between; align-items: center; }
+.cabecera .logos img { height: 1.3cm; width: auto; }
+figure img { max-height: 7.5cm; }
+.pie-guia { margin-top: 20pt; padding-top: 6pt; border-top: 1px solid #d4d4dc; font-size: 8.5pt; color: #777; }
+"""
+
+PIE = {
+    'es': 'TecMedHub · Universidad Austral de Chile, Sede Puerto Montt',
+    'en': 'TecMedHub · Universidad Austral de Chile, Puerto Montt campus',
 }
+
+DOCUMENTOS = [
+    {'lang': 'es', 'fuente': 'manual.md', 'salida': 'trainhit-manual.pdf', 'titulo': 'trainHIT · Manual de uso y guía docente'},
+    {'lang': 'en', 'fuente': 'manual.en.md', 'salida': 'trainhit-manual-en.pdf', 'titulo': 'trainHIT · User manual and teacher’s guide'},
+    {'lang': 'es', 'fuente': 'sujecion.md', 'salida': 'trainhit-sujecion.pdf', 'titulo': 'trainHIT · El teléfono en la cabeza', 'css': CSS_GUIA},
+    {'lang': 'en', 'fuente': 'sujecion.en.md', 'salida': 'trainhit-sujecion-en.pdf', 'titulo': 'trainHIT · The phone on the head', 'css': CSS_GUIA},
+]
 
 
 def main() -> None:
-    for lang, d in IDIOMAS.items():
+    for d in DOCUMENTOS:
+        lang = d['lang']
         md = (AQUI / d['fuente']).read_text(encoding='utf-8')
         cuerpo = markdown.markdown(md, extensions=['tables', 'fenced_code', 'toc', 'sane_lists', 'md_in_html'])
         # El % de CSS no es un formato: solo se reemplazan las dos claves.
-        css = CSS.replace('%(encabezado)s', d['titulo']).replace('%(pie)s', d['pie'])
+        css = CSS.replace('%(encabezado)s', d['titulo']).replace('%(pie)s', PIE[lang]) + d.get('css', '')
         html = (
             f'<!doctype html><html lang="{lang}"><head><meta charset="utf-8">'
             f'<title>{d["titulo"]}</title><style>{css}</style></head><body>{figuras(cuerpo)}</body></html>'

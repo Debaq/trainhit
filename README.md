@@ -200,7 +200,7 @@ paseos cortos, cada uno sobre un tema y en cualquier orden:
 | Paseo | De qué trata |
 |---|---|
 | Qué mide un vHIT | el reflejo, el impulso, los seis canales, la ganancia, las sacadas, qué patrones se buscan, los límites |
-| Los canales verticales | los pares LARP y RALP: cómo se prueban, qué hace el ojo, neuritis superior e inferior, y por qué trainHIT todavía no los mide |
+| Los canales verticales | los pares LARP y RALP: cómo se prueban, qué hace el ojo, neuritis superior e inferior, y por qué con la webcam no se miden y con el teléfono sí |
 | Preparar la sesión | cámara, luz, postura, manos del examinador |
 | La primera medición | con la cámara: calibrar, impulsos, paneles, lista, CSV |
 | Leer los gráficos | la regla, los rechazados, la asimetría, promedio, suavizar, orientación, pausa |
@@ -429,15 +429,25 @@ lo pone el modelo: sano, con la mirada quieta en el blanco, o con el perfil
 del Simulador encima, igual que un pulso de la webcam. Traza, pulsos,
 perillas y **Voy a tener suerte** funcionan igual.
 
-- `js/giroscopio.js` integra el giroscopio en el yaw de la cabeza, alrededor
-  de su propio eje vertical (el del canal lateral, como en `js/head.js`), y
-  en el PC pasa los eventos —a 50, 100 o 200 Hz según el teléfono— a cuadros
-  parejos de 60 Hz con la hora del teléfono: lo que tarde la red no mueve las
-  muestras.
-- `js/cara.js` dibuja la cara con la **misma geometría que el motor invierte**
+- `js/giroscopio.js` integra el giroscopio en el marco de la cabeza, eje por
+  eje, y la orientación entera; en el PC pasa los eventos —a 50, 100 o 200 Hz
+  según el teléfono— a cuadros parejos de 60 Hz con la hora del teléfono: lo
+  que tarde la red no mueve las muestras.
+- **Los tres planos.** Junto a la botonera se elige **Lateral**, **LARP** o
+  **RALP**. El motor recibe el giro en el plano elegido —el producto por su eje,
+  `CANAL_AXIS` de `js/head.js`— y todo lo demás corre igual; lo que se giró
+  fuera del plano rechaza el pulso si pasa de 30° (**FUERA DEL PLANO**). Los
+  paneles se titulan con el canal (en LARP, posterior derecho y anterior
+  izquierdo) y muestran solo los pulsos del plano. Los perfiles del Simulador
+  dicen qué les pasa a los verticales (`canales` en `js/simulacion.js`).
+- `js/cara.js` dibuja la cara como un sólido que gira con la orientación
+  entera, y el ojo que compensa gira alrededor del eje del canal. En el lateral
+  usa la **misma geometría que el motor invierte**
   (`offset = R·sin(mirada) − k·R·sin(H)`): las comisuras y el iris que se ven
-  son los que el motor habría medido. `test/telefono.test.mjs` lo comprueba,
-  y que un impulso del teléfono con el ojo sano dé ganancia 1.
+  son los que el motor habría medido. El iris tiene fibras y una cripta, y la
+  esclera vasos, para que se vea la torsión. `test/telefono.test.mjs` lo
+  comprueba, y que un impulso del teléfono con el ojo sano dé ganancia 1 en
+  los tres planos.
 - `js/telefono.js` y `js/enlace.js` son el enlace de Labyrinthus 3D, con su
   servidor en tecmedhub.org (metas `enlace-senal` y `enlace-relevo` de
   `index.html`): trainHIT no tiene PHP propio.
@@ -445,8 +455,10 @@ perillas y **Voy a tener suerte** funcionan igual.
 Es todo simulado, así que el tope de fps no viene al caso; los 60 Hz son para
 que el motor se comporte igual que con la cámara. Los pulsos quedan marcados
 **tel** y, como los ejemplos, se borran al encender la cámara. Mover un
-teléfono no se siente como mover una cabeza: el diálogo recomienda sujetarlo a
-algo con peso.
+teléfono no se siente como mover una cabeza: lo mejor es sujetarlo a la frente
+de un compañero. La guía corta **El teléfono en la cabeza**
+(`docs/manual/sujecion.md`, en PDF en `manual/trainhit-sujecion.pdf`) cuenta
+cómo, con cosas de casa, y cómo se hace cada maniobra.
 
 ## Laberinto 3D
 
@@ -692,8 +704,9 @@ Las cinco decisiones que importan, resumidas:
 - **Cabeza y ojo salen de la misma imagen**, así que un error de seguimiento
   entra en las dos señales a la vez. No es el precio de no tener giroscopio: es
   la contrapartida de medir la cabeza donde está el ojo.
-- **Solo canal lateral.** Los verticales necesitan la componente vertical del
-  movimiento ocular, más ruidosa por el párpado.
+- **Con la webcam, solo canal lateral.** Los verticales necesitan la
+  componente vertical del movimiento ocular, más ruidosa por el párpado. Con el
+  teléfono como cabeza se practican los seis: el ojo lo pone el modelo.
 
 El análisis largo de todo esto está en `GANANCIAS.md` del repo principal.
 
