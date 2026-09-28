@@ -4,9 +4,19 @@
 // Cada paso está en su módulo; aquí solo se los conecta y se los muestra.
 
 import * as geom from './geom.js';
-import { CANAL_AXIS, CANALES_DEL_PLANO, GIRO_DEL_PLANO, GUIA_PLANO, HeadTracker, TITULO_CANAL, quatFromMatrix, quatRotate } from './head.js';
+import {
+  CANAL_AXIS,
+  CANALES_DEL_PLANO,
+  GIRO_DEL_PLANO,
+  GUIA_PLANO,
+  HeadTracker,
+  NOMBRE_CANAL,
+  TITULO_CANAL,
+  quatFromMatrix,
+  quatRotate,
+} from './head.js';
 import { Differentiator } from './signal.js';
-import { CONFIG, RECHAZO_TEXT, SIGNO_DERECHA, analyzeTrial, asimetria, resumenLado } from './analysis.js';
+import { CONFIG, RECHAZO_TEXT, SIGNO_DERECHA, analyzeTrial, asimetria, corteGanancia, resumenLado } from './analysis.js';
 import * as plots from './plots.js';
 import { FPS_MAX, IDX, abrirCamara, bucleDeFrames, crearLandmarker, describeCamara, listarCamaras } from './tracker.js';
 import { montaBienvenida } from './bienvenida.js';
@@ -15,10 +25,10 @@ import { K_EJEMPLO, calibracionDeEjemplo, crudoDeEjemplo, pulsosDe } from './eje
 import { MARGEN_CRUDO_MS, procesaCrudo } from './pipeline.js';
 import { leeSesion, textoSesion } from './sesion.js';
 import { textoGift } from './preguntas.js';
-import { PERFILES, arrastre, offsetConMirada, parametrosPulso, simulaCrudo } from './simulacion.js';
+import { PERFILES, arrastre, offsetConMirada, parametrosPulso, perfilesDisponibles, simulaCrudo } from './simulacion.js';
 import { IDIOMAS, alCambiarIdioma, idioma, idiomaInicial, ponIdioma, tx } from './idioma.js';
 import { alCambiarTema, ponTema, siguienteTema, tema } from './tema.js';
-import { MIN_POR_LADO, corrige, preguntasPractica } from './practica.js';
+import { CANALES, MIN_POR_LADO, corrige, preguntasPractica } from './practica.js';
 import * as cara from './cara.js';
 import { Remuestreo } from './giroscopio.js';
 import { montaTelefono } from './telefono.js';
@@ -121,6 +131,8 @@ const estado = {
    * teléfono. Los paneles, las medias y la nube muestran los pulsos de este plano.
    */
   plano: 'lateral',
+  /** Dónde quedó cada canal en el resumen de los seis, para los clics. */
+  cajasCanales: [],
 };
 
 function vivoVacio() {
@@ -397,6 +409,14 @@ function saleTelefono() {
   estado.ultimoFit = tel.fit;
   sucio.calib = true;
   estado.plano = 'lateral';
+  // Sin el teléfono no se ven los verticales: una práctica de seis canales o
+  // un perfil que solo toca los verticales quedarían sin respuesta posible.
+  const perfil = PERFILES[estado.sim.perfil];
+  if (estado.sim.practica?.seis || perfil?.soloTelefono) {
+    Object.assign(estado.sim, { eleccion: '', perfil: null, practica: null, revelado: false });
+    $('sim-perfil').value = '';
+    pintaSimulacion();
+  }
   pintaPlanos();
   reseteaTransitorio();
   $('video').hidden = false;
@@ -491,6 +511,9 @@ function pintaPlanos() {
   $('planos').hidden = !estado.telefono && !hayVerticales && estado.plano === 'lateral';
   for (const b of $('planos').querySelectorAll('[data-plano]')) b.setAttribute('aria-checked', String(b.dataset.plano === estado.plano));
   $('plano-guia').textContent = tx(GUIA_PLANO[estado.plano]);
+  // Los perfiles que solo se ven en los verticales, solo con el teléfono.
+  // `disabled` además de `hidden`: hay navegadores que muestran igual una opción oculta.
+  for (const o of $('sim-perfil').querySelectorAll('[data-telefono]')) o.hidden = o.disabled = !estado.telefono;
 }
 
 /** Cuánto está girada la cabeza ahora, contra lo que pide el plano: se pinta en cada cuadro. */
@@ -516,7 +539,8 @@ function cambiaPlano(plano) {
   olvidaAntes();
   pintaListas();
   ensucia();
-  marcaEstado(GUIA_PLANO[plano]);
+  // La guía larga va junto al selector; la barra, corta.
+  marcaEstado('examinando el plano {plano}', { plano: plano === 'lateral' ? tx('lateral') : plano.toUpperCase() });
 }
 
 /** El rótulo de la barra: si hay teléfono y por dónde va. */
@@ -1025,7 +1049,7 @@ function pintaListas() {
   ]) {
     const g = $(ganId);
     g.textContent = r.n ? (r.n > 1 ? `${fmt(r.media)} ± ${fmt(r.de)}` : fmt(r.media)) : '—';
-    g.className = `gan ${!r.n || !estado.model.calibrated ? 'sin' : r.media >= cfg.gainNormalMin ? 'ok' : 'bajo'}`;
+    g.className = `gan ${!r.n || !estado.model.calibrated ? 'sin' : r.media >= corteGanancia(estado.plano, cfg) ? 'ok' : 'bajo'}`;
     const total = delPlano().filter((t) => t.side === lado).length;
     const a = estado.antes?.[lado];
     $(metaId).textContent =
@@ -1179,6 +1203,7 @@ function pintaTodo() {
   const herramientas = !$('herramientas').hidden;
   if (sucio.pulsos) {
     const conMedicion = (id) => (estado.medPulso?.id === id ? estado.medPulso : null);
+    if (!$('planos').hidden) estado.cajasCanales = plots.dibujaSeisCanales($('seis-canales'), resumenCanales(), estado.plano);
     plots.overlayLado($('plot-der'), delPlano(), 'derecha', cfg, estado.seleccion, {
       promedio: estado.promedio,
       medicion: conMedicion('plot-der'),
@@ -1191,7 +1216,8 @@ function pintaTodo() {
       plots.dibujaPulso($('plot-pulso'), estado.seleccion || estado.trials[estado.trials.length - 1], cfg, {
         medicion: conMedicion('plot-pulso'),
       });
-      plots.dibujaDispersion($('plot-ganancias'), delPlano(), cfg, {
+      // La línea del corte es la del plano: en los verticales, más baja.
+      plots.dibujaDispersion($('plot-ganancias'), delPlano(), { ...cfg, gainNormalMin: corteGanancia(estado.plano, cfg) }, {
         metodo: $('metodo-gan').value,
         // Los puntos de antes solo tienen sentido con la ganancia que se guardó.
         antes: $('metodo-gan').value === 'area' ? estado.antes?.porId : null,
@@ -1655,6 +1681,7 @@ function montaSimulacion() {
   for (const [id, p] of Object.entries(PERFILES)) {
     const o = document.createElement('option');
     o.value = id;
+    if (p.soloTelefono) o.dataset.telefono = '';
     o.textContent = tx(p.nombre);
     sel.insertBefore(o, sel.querySelector('option[value="azar"]'));
   }
@@ -1709,7 +1736,7 @@ function cambiaPerfil(eleccion, { practica = false } = {}) {
     vaciaPapelera();
     olvidaAntes();
   }
-  const ids = Object.keys(PERFILES);
+  const ids = perfilesDisponibles(Boolean(estado.telefono));
   Object.assign(estado.sim, {
     eleccion,
     perfil: eleccion === 'azar' ? ids[Math.floor(Math.random() * ids.length)] : eleccion || null,
@@ -1717,7 +1744,8 @@ function cambiaPerfil(eleccion, { practica = false } = {}) {
     mostrarReal: false,
     semilla: Math.floor(Math.random() * 1e6),
     // Elegir otro paciente a mano deja la práctica: ya no hay nada que adivinar.
-    practica: practica ? { fase: 'examinar', respuestas: {} } : null,
+    // Con el teléfono, la práctica es de los seis canales (ver practica.js).
+    practica: practica ? { fase: 'examinar', respuestas: {}, seis: Boolean(estado.telefono) } : null,
   });
   // «Uno al azar» no tiene sentido a la vista: se pasa solo a ciegas.
   if (eleccion === 'azar') $('sim-ciego').checked = true;
@@ -1727,7 +1755,9 @@ function cambiaPerfil(eleccion, { practica = false } = {}) {
   pintaSimulacion();
   marcaEstado(
     practica
-      ? 'paciente al azar, a ciegas: examinar y, con {min} pulsos por lado, contestar'
+      ? estado.telefono
+        ? 'paciente al azar, a ciegas: examinar los seis canales y, con {min} pulsos por canal, contestar'
+        : 'paciente al azar, a ciegas: examinar y, con {min} pulsos por lado, contestar'
       : !estado.sim.perfil
         ? 'paciente simulado apagado: se mide lo real'
         : estado.sim.ciego
@@ -1757,7 +1787,7 @@ function terminaPractica() {
   const pr = estado.sim.practica;
   pr.fase = 'revelado';
   revelaSimulacion({ desdePractica: true });
-  const { aciertos, total } = corrige(estado.sim.perfil, pr.respuestas);
+  const { aciertos, total } = corrige(estado.sim.perfil, pr.respuestas, { seis: pr.seis });
   marcaEstado('{n} de {total} correctas · era: {nombre}', {
     n: aciertos,
     total,
@@ -1805,12 +1835,18 @@ function pintaSimulacion() {
   const cuenta = $('aviso-practica');
   cuenta.hidden = practica?.fase !== 'examinar';
   if (!cuenta.hidden) {
-    const a = aceptadosPorLado();
-    const vars = { d: a.derecha, i: a.izquierda, min: MIN_POR_LADO };
-    cuenta.textContent = tx('der {d}/{min} · izq {i}/{min}', vars);
-    cuenta.title = tx('pulsos aceptados de cada lado; con {min} y {min} se contesta en el Simulador', vars);
+    if (practica.seis) {
+      const listos = Object.values(aceptadosPorCanal()).filter((n) => n >= MIN_POR_LADO).length;
+      cuenta.textContent = tx('canales listos {n}/6', { n: listos });
+      cuenta.title = tx('canales con {min} pulsos aceptados; con los seis se contesta en el Simulador', { min: MIN_POR_LADO });
+    } else {
+      const a = aceptadosPorLado();
+      const vars = { d: a.derecha, i: a.izquierda, min: MIN_POR_LADO };
+      cuenta.textContent = tx('der {d}/{min} · izq {i}/{min}', vars);
+      cuenta.title = tx('pulsos aceptados de cada lado; con {min} y {min} se contesta en el Simulador', vars);
+    }
     // Una sola vez: si se lo vuelve a cerrar para seguir mirando, no insiste.
-    if (a.derecha >= MIN_POR_LADO && a.izquierda >= MIN_POR_LADO && !practica.abierto) {
+    if (practicaLista(practica) && !practica.abierto) {
       practica.abierto = true;
       abreSimulador(true);
     }
@@ -1827,6 +1863,38 @@ function pintaSimulacion() {
     : p
       ? tx('Paciente simulado: {nombre}. Los pulsos llevan una patología agregada por el motor.', { nombre: tx(p.nombre) })
       : '';
+}
+
+/** El canal de un pulso: 'lateral-der', 'anterior-izq'… */
+const canalDe = (t) => CANALES_DEL_PLANO[t.canal ?? 'lateral'][t.side];
+
+/**
+ * Cada canal con su media, sus pulsos y el corte de su plano: lo que dibuja
+ * el resumen de los seis (`plots.dibujaSeisCanales`).
+ */
+function resumenCanales() {
+  const out = {};
+  for (const [plano, lados] of Object.entries(CANALES_DEL_PLANO)) {
+    const delEse = estado.trials.filter((t) => (t.canal ?? 'lateral') === plano);
+    for (const [lado, canal] of Object.entries(lados)) {
+      out[canal] = { plano, nombre: tx(NOMBRE_CANAL[canal]), corte: corteGanancia(plano, cfg), ...resumenLado(delEse, lado) };
+    }
+  }
+  return out;
+}
+
+/** Pulsos aceptados de cada canal: en la práctica de seis canales hacen falta todos. */
+function aceptadosPorCanal() {
+  const n = Object.fromEntries(CANALES.map((c) => [c, 0]));
+  for (const t of estado.trials) if (!t.rejected) n[canalDe(t)]++;
+  return n;
+}
+
+/** ¿Hay pulsos suficientes para contestar la práctica? */
+function practicaLista(pr) {
+  if (pr.seis) return Object.values(aceptadosPorCanal()).every((n) => n >= MIN_POR_LADO);
+  const a = aceptadosPorLado();
+  return a.derecha >= MIN_POR_LADO && a.izquierda >= MIN_POR_LADO;
 }
 
 /** Pulsos aceptados de cada lado, los que cuentan para poder contestar. */
@@ -1849,20 +1917,28 @@ function pintaPractica() {
   const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 
   if (pr.fase === 'examinar') {
-    const a = aceptadosPorLado();
-    const listo = a.derecha >= MIN_POR_LADO && a.izquierda >= MIN_POR_LADO;
+    const listo = practicaLista(pr);
+    let avance;
+    if (pr.seis) {
+      const a = aceptadosPorCanal();
+      avance = `${esc(tx('Aceptados por canal:'))} ${CANALES.map((c) => `<span class="${a[c] >= MIN_POR_LADO ? 'ok' : ''}">${esc(tx(NOMBRE_CANAL[c]))} ${Math.min(a[c], MIN_POR_LADO)}/${MIN_POR_LADO}</span>`).join(' · ')}`;
+    } else {
+      const a = aceptadosPorLado();
+      avance = esc(tx('Aceptados: derecha {d}/{min} · izquierda {i}/{min}', { d: a.derecha, i: a.izquierda, min: MIN_POR_LADO }));
+    }
+    const falta = pr.seis
+      ? tx('Hacen falta {min} pulsos aceptados de cada canal: se cambia de plano con Lateral, LARP y RALP.', { min: MIN_POR_LADO })
+      : tx('Hacen falta {min} pulsos aceptados de cada lado.', { min: MIN_POR_LADO });
     caja.innerHTML = `
-      <p class="practica-avance">${esc(
-        tx('Aceptados: derecha {d}/{min} · izquierda {i}/{min}', { d: a.derecha, i: a.izquierda, min: MIN_POR_LADO }),
-      )}</p>
+      <p class="practica-avance">${avance}</p>
       <button id="practica-listo" class="primario"${listo ? '' : ' disabled'}>${esc(tx('Ya sé qué tiene'))}</button>
-      ${listo ? '' : `<p class="ayuda">${esc(tx('Hacen falta {min} pulsos aceptados de cada lado.', { min: MIN_POR_LADO }))}</p>`}`;
+      ${listo ? '' : `<p class="ayuda">${esc(falta)}</p>`}`;
     return;
   }
 
-  const qs = preguntasPractica();
+  const qs = preguntasPractica({ seis: pr.seis });
   const revelado = pr.fase === 'revelado';
-  const nota = revelado ? corrige(estado.sim.perfil, pr.respuestas) : null;
+  const nota = revelado ? corrige(estado.sim.perfil, pr.respuestas, { seis: pr.seis }) : null;
   let html = revelado
     ? `<p class="practica-nota ${nota.aciertos === nota.total ? 'ok' : ''}">${esc(
         tx('{n} de {total} correctas', { n: nota.aciertos, total: nota.total }),
@@ -2159,6 +2235,13 @@ telefono = montaTelefono({
 if (telefono.rol() === 'cabeza') bienvenida.cierra();
 $('btn-telefono').addEventListener('click', () => telefono.abre());
 for (const b of $('planos').querySelectorAll('[data-plano]')) b.addEventListener('click', () => cambiaPlano(b.dataset.plano));
+// Un clic en un canal del resumen elige su plano.
+$('seis-canales').addEventListener('click', (e) => {
+  const r = e.currentTarget.getBoundingClientRect();
+  const [x, y] = [e.clientX - r.left, e.clientY - r.top];
+  const caja = (estado.cajasCanales ?? []).find((c) => x >= c.x0 && x <= c.x1 && y >= c.y0 && y <= c.y1);
+  if (caja) cambiaPlano(caja.plano);
+});
 $('badge-telefono').addEventListener('click', () => telefono.abre());
 // El recorrido del tutorial espera cosas de la medición real: por eso se
 // monta aquí, con acceso al estado, y no en su módulo.

@@ -142,6 +142,7 @@ export const HTML = {
   'plano.lateral.t': 'both lateral canals',
   'plano.larp.t': 'left anterior and right posterior',
   'plano.ralp.t': 'right anterior and left posterior',
+  'plano.seis.t': 'the six canals from above, with the mean gain of each; a click chooses its plane',
   'lado.der.t': 'impulses to the right: head and eye velocity overlaid',
   'lado.izq.t': 'impulses to the left: head and eye velocity overlaid',
   vivo: 'Live velocity',
@@ -282,7 +283,7 @@ export const HTML = {
   'sim.ayuda':
     'A healthy classmate in front of the camera, and the engine adds a pathology: the gaze is dragged along with the head and comes back with saccades. The impulses, the noise and the rejections are those of the real test.',
   'sim.suerte.ayuda':
-    'A random patient, blind —it may turn out healthy—. Examine and, with three impulses per side, answer three questions before revealing.',
+    'A random patient, blind —it may turn out healthy—. Examine and, with three impulses per side, answer three questions before revealing. With the phone, it is all six canals: three impulses per canal.',
   'sim.o': 'or choose the patient:',
   'sim.paciente': 'Patient',
   'sim.perfil.t': 'which pathology is added to the impulses',
@@ -572,6 +573,40 @@ export const TEXTO = {
   'Cabeza girada 45° a la izquierda, mirando al blanco. Nariz abajo: anterior derecho; nariz arriba: posterior izquierdo.':
     'Head turned 45° to the left, looking at the target. Nose down: right anterior; nose up: left posterior.',
   'cabeza de frente': 'head facing forward',
+  'examinando el plano {plano}': 'examining the {plano} plane',
+  lateral: 'lateral',
+  'lateral der.': 'right lateral',
+  'lateral izq.': 'left lateral',
+  'anterior der.': 'right anterior',
+  'posterior der.': 'right posterior',
+  'anterior izq.': 'left anterior',
+  'posterior izq.': 'left posterior',
+  I: 'L',
+  D: 'R',
+  'canales listos {n}/6': 'canals ready {n}/6',
+  'canales con {min} pulsos aceptados; con los seis se contesta en el Simulador': 'canals with {min} accepted impulses; with all six, answer in the Simulator',
+  'Aceptados por canal:': 'Accepted per canal:',
+  'Hacen falta {min} pulsos aceptados de cada canal: se cambia de plano con Lateral, LARP y RALP.':
+    '{min} accepted impulses are needed in each canal: switch planes with Lateral, LARP and RALP.',
+  'paciente al azar, a ciegas: examinar los seis canales y, con {min} pulsos por canal, contestar':
+    'random patient, blind: examine the six canals and, with {min} impulses per canal, answer',
+  '¿Qué canal lateral está afectado?': 'Which lateral canal is affected?',
+  '¿Qué canales verticales están afectados?': 'Which vertical canals are affected?',
+  'El anterior derecho': 'The right anterior',
+  'El posterior derecho': 'The right posterior',
+  'El anterior izquierdo': 'The left anterior',
+  'El posterior izquierdo': 'The left posterior',
+  'Los cuatro': 'All four',
+  'Neuritis vestibular inferior derecha': 'Right inferior vestibular neuritis',
+  'Neuritis vestibular inferior izquierda': 'Left inferior vestibular neuritis',
+  'La rama inferior del nervio: los laterales se ven normales y el déficit está solo en el posterior derecho. Con la webcam pasaría por sano.':
+    'The inferior branch of the nerve: the lateral canals look normal and the deficit is only in the right posterior. With the webcam it would pass as healthy.',
+  'La rama inferior del nervio: los laterales se ven normales y el déficit está solo en el posterior izquierdo. Con la webcam pasaría por sano.':
+    'The inferior branch of the nerve: the lateral canals look normal and the deficit is only in the left posterior. With the webcam it would pass as healthy.',
+  'En los verticales, el posterior derecho con ganancia baja y sacadas manifiestas; el anterior derecho, sano.':
+    'In the vertical canals, the right posterior with low gain and overt saccades; the right anterior is healthy.',
+  'En los verticales, el posterior izquierdo con ganancia baja y sacadas manifiestas; el anterior izquierdo, sano.':
+    'In the vertical canals, the left posterior with low gain and overt saccades; the left anterior is healthy.',
   'cabeza {g}° a la izquierda': 'head {g}° to the left',
   'cabeza {g}° a la derecha': 'head {g}° to the right',
   'RECONECTANDO AL TELÉFONO…': 'RECONNECTING TO THE PHONE…',

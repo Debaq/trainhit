@@ -67,6 +67,16 @@ export const GUIA_PLANO = {
   ralp: 'Cabeza girada 45° a la izquierda, mirando al blanco. Nariz abajo: anterior derecho; nariz arriba: posterior izquierdo.',
 };
 
+/** El nombre corto de cada canal, para el resumen de los seis y la práctica. */
+export const NOMBRE_CANAL = {
+  'lateral-der': 'lateral der.',
+  'lateral-izq': 'lateral izq.',
+  'anterior-der': 'anterior der.',
+  'posterior-der': 'posterior der.',
+  'anterior-izq': 'anterior izq.',
+  'posterior-izq': 'posterior izq.',
+};
+
 /**
  * El título del panel de cada canal: el lado en el lateral; en un plano
  * vertical, el canal y hacia dónde va la nariz, que decide cuál se estimula.

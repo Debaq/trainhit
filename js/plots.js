@@ -1107,3 +1107,126 @@ export function dibujaOjo(canvas, video, crop, landmarks, ojo, espejo, { simDelt
   }
   ctx.restore();
 }
+
+/**
+ * Los seis canales de un vistazo, como el resumen de los equipos: la cabeza
+ * vista desde ARRIBA con la nariz arriba —el oído derecho a la derecha—, y en
+ * cada canal la media de la ganancia y cuántos pulsos la dan. Verde si llega
+ * al corte de su plano, rojo si no, gris sin pulsos. Las parejas de cada plano
+ * van unidas: la horizontal del lateral y las dos diagonales, LARP (anterior
+ * izquierdo con posterior derecho) y RALP; la del plano elegido, marcada.
+ *
+ * @param {Object<string,{plano:string, nombre:string, n:number, media:number|null, corte:number}>} canales
+ *   por canal ('lateral-der', 'anterior-izq'…)
+ * @returns {Array<{x0:number,y0:number,x1:number,y1:number,plano:string}>} dónde quedó cada
+ *   canal, en píxeles CSS, para saber a qué plano apunta un clic
+ */
+export function dibujaSeisCanales(canvas, canales, planoElegido) {
+  const { ctx, w, h } = prepara(canvas);
+  const cx = w / 2;
+  const cy = h / 2 + 4;
+  const R = Math.min(h * 0.24, w * 0.11);
+  const bw = Math.min(84, (w - 2 * R - 24) / 2);
+  const bh = Math.min(38, (h - 12) / 3.3);
+  const fila = bh + 6;
+  // Dónde va cada canal: el lateral más afuera, los verticales en diagonal.
+  const lugar = (canal) => {
+    const s = canal.endsWith('-der') ? 1 : -1;
+    const tipo = canal.split('-')[0];
+    const dy = tipo === 'anterior' ? -fila : tipo === 'posterior' ? fila : 0;
+    const dx = tipo === 'lateral' ? R + 10 + bw / 2 : R * 0.55 + bw / 2;
+    return { x: cx + s * dx, y: cy + dy };
+  };
+  const parejas = [
+    ['lateral', 'lateral-izq', 'lateral-der'],
+    ['larp', 'anterior-izq', 'posterior-der'],
+    ['ralp', 'anterior-der', 'posterior-izq'],
+  ];
+  const linea = ([plano, a, b]) => {
+    const [pa, pb] = [lugar(a), lugar(b)];
+    const elegido = plano === planoElegido;
+    ctx.strokeStyle = elegido ? COLOR.cabeza : COLOR.borde;
+    ctx.lineWidth = elegido ? 3 : 1.5;
+    ctx.setLineDash(elegido ? [] : [4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(pa.x, pa.y);
+    ctx.lineTo(pb.x, pb.y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  };
+  // Los otros planos, por detrás de la cabeza; el elegido, por encima.
+  for (const p of parejas) if (p[0] !== planoElegido) linea(p);
+
+  // La cabeza desde arriba: un óvalo con la nariz y las orejas.
+  ctx.fillStyle = COLOR.tramo;
+  ctx.strokeStyle = COLOR.muted;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(cx - R * 0.22, cy - R * 0.96);
+  ctx.lineTo(cx, cy - R * 1.28);
+  ctx.lineTo(cx + R * 0.22, cy - R * 0.96);
+  ctx.stroke();
+  for (const s of [-1, 1]) {
+    ctx.beginPath();
+    ctx.ellipse(cx + s * R * 0.98, cy, R * 0.13, R * 0.26, 0, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  // Las líneas de los planos no cruzan la cabeza ni las cajas: se borran
+  // debajo de ellas (queda el fondo del panel) antes de pintarlas.
+  const borra = (dibujo) => {
+    ctx.save();
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.fillStyle = '#000';
+    dibujo();
+    ctx.restore();
+  };
+  borra(() => {
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, R * 0.9, R, 0, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, R * 0.9, R, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = COLOR.muted;
+  ctx.font = '600 10px ui-monospace, SFMono-Regular, monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(tx('I'), cx - R * 0.45, cy);
+  ctx.fillText(tx('D'), cx + R * 0.45, cy);
+  for (const p of parejas) if (p[0] === planoElegido) linea(p);
+
+  const cajas = [];
+  for (const [canal, c] of Object.entries(canales)) {
+    const { x, y } = lugar(canal);
+    const x0 = x - bw / 2;
+    const y0 = y - bh / 2;
+    const estado = !c.n ? null : c.media >= c.corte ? COLOR.ok : COLOR.bad;
+    borra(() => ctx.fillRect(x0, y0, bw, bh));
+    if (estado) {
+      ctx.globalAlpha = 0.16;
+      ctx.fillStyle = estado;
+      ctx.fillRect(x0, y0, bw, bh);
+      ctx.globalAlpha = 1;
+    }
+    ctx.strokeStyle = estado ?? COLOR.borde;
+    ctx.lineWidth = c.plano === planoElegido ? 2 : 1;
+    ctx.strokeRect(x0 + 0.5, y0 + 0.5, bw - 1, bh - 1);
+    ctx.fillStyle = COLOR.muted;
+    ctx.font = '10px system-ui, sans-serif';
+    ctx.fillText(c.nombre, x, y0 + bh * 0.28);
+    ctx.fillStyle = estado ?? COLOR.muted;
+    ctx.font = `600 ${Math.round(bh * 0.36)}px ui-monospace, SFMono-Regular, monospace`;
+    ctx.fillText(c.n ? `${c.media.toFixed(2)}` : '—', x - (c.n ? 8 : 0), y0 + bh * 0.7);
+    if (c.n) {
+      ctx.fillStyle = COLOR.muted;
+      ctx.font = '9px ui-monospace, SFMono-Regular, monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText(`·${c.n}`, x + bh * 0.62, y0 + bh * 0.72);
+      ctx.textAlign = 'center';
+    }
+    cajas.push({ x0, y0, x1: x0 + bw, y1: y0 + bh, plano: c.plano });
+  }
+  return cajas;
+}

@@ -48,7 +48,15 @@ export const CONFIG = {
   },
   blinkScore: 0.45, // puntuación de parpadeo (0 abierto, 1 cerrado) que marca la muestra
   gainNormalMin: 0.8, // el corte dibujado. NO es nuestro corte: ver README.
+  // En los verticales la ganancia normal es más baja y más variable que en el
+  // lateral; el corte que se suele usar es 0,7. Tampoco es nuestro.
+  gainNormalMinVertical: 0.7,
 };
+
+/** El corte de ganancia normal de un plano de canales (head.js). */
+export function corteGanancia(plano, cfg = CONFIG) {
+  return plano === 'lateral' || !plano ? cfg.gainNormalMin : cfg.gainNormalMinVertical;
+}
 
 /**
  * Cadencia de muestreo por encima de la cual un resultado de trainHIT YA NO ES

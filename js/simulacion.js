@@ -62,6 +62,7 @@ export const FIN_IMPULSO_S = 0.13;
  * el teléfono (ver head.js): la neuritis común es la de la rama superior del
  * nervio, que lleva el lateral y el anterior de ese oído y deja el posterior
  * sano. `vertical` lo cuenta en el Simulador cuando se examina un plano vertical.
+ * `soloTelefono`: el perfil no aparece ni se sortea con la webcam.
  */
 export const PERFILES = {
   'neuritis-der': {
@@ -106,8 +107,36 @@ export const PERFILES = {
       derecha: { ganancia: [0.3, 0.5], sacadas: [{ latencia: [0.2, 0.32], fraccion: 1 }] },
       izquierda: { ganancia: [0.3, 0.5], sacadas: [{ latencia: [0.2, 0.32], fraccion: 1 }] },
     },
-    canales: { 'anterior-der': { ganancia: [0.3, 0.5], sacadas: [{ latencia: [0.2, 0.32], fraccion: 1 }] }, 'posterior-der': { ganancia: [0.3, 0.5], sacadas: [{ latencia: [0.2, 0.32], fraccion: 1 }] }, 'anterior-izq': { ganancia: [0.3, 0.5], sacadas: [{ latencia: [0.2, 0.32], fraccion: 1 }] }, 'posterior-izq': { ganancia: [0.3, 0.5], sacadas: [{ latencia: [0.2, 0.32], fraccion: 1 }] } },
+    canales: {
+      'anterior-der': { ganancia: [0.3, 0.5], sacadas: [{ latencia: [0.2, 0.32], fraccion: 1 }] },
+      'posterior-der': { ganancia: [0.3, 0.5], sacadas: [{ latencia: [0.2, 0.32], fraccion: 1 }] },
+      'anterior-izq': { ganancia: [0.3, 0.5], sacadas: [{ latencia: [0.2, 0.32], fraccion: 1 }] },
+      'posterior-izq': { ganancia: [0.3, 0.5], sacadas: [{ latencia: [0.2, 0.32], fraccion: 1 }] },
+    },
     vertical: 'En los verticales, los cuatro canales también: los seis están afectados.',
+  },
+  // La rama INFERIOR del nervio lleva solo el posterior: los laterales quedan
+  // sanos y con la webcam pasaría por normal. Solo tiene sentido con el
+  // teléfono (`soloTelefono`), donde se examinan los verticales.
+  'neuritis-inf-der': {
+    nombre: 'Neuritis vestibular inferior derecha',
+    patron: 'normal',
+    soloTelefono: true,
+    descripcion:
+      'La rama inferior del nervio: los laterales se ven normales y el déficit está solo en el posterior derecho. Con la webcam pasaría por sano.',
+    lados: {},
+    canales: { 'posterior-der': { ganancia: [0.35, 0.55], sacadas: [{ latencia: [0.2, 0.34], fraccion: 1 }] } },
+    vertical: 'En los verticales, el posterior derecho con ganancia baja y sacadas manifiestas; el anterior derecho, sano.',
+  },
+  'neuritis-inf-izq': {
+    nombre: 'Neuritis vestibular inferior izquierda',
+    patron: 'normal',
+    soloTelefono: true,
+    descripcion:
+      'La rama inferior del nervio: los laterales se ven normales y el déficit está solo en el posterior izquierdo. Con la webcam pasaría por sano.',
+    lados: {},
+    canales: { 'posterior-izq': { ganancia: [0.35, 0.55], sacadas: [{ latencia: [0.2, 0.34], fraccion: 1 }] } },
+    vertical: 'En los verticales, el posterior izquierdo con ganancia baja y sacadas manifiestas; el anterior izquierdo, sano.',
   },
   // El control: pulsos marcados como simulados pero sin nada agregado. Sin él,
   // «uno al azar» siempre tendría algo y la respuesta nunca sería «normal»:
@@ -121,6 +150,11 @@ export const PERFILES = {
     vertical: 'Los seis canales sanos.',
   },
 };
+
+/** Los perfiles que se pueden elegir o sortear: los `soloTelefono`, solo con el teléfono. */
+export function perfilesDisponibles(conTelefono) {
+  return Object.keys(PERFILES).filter((id) => conTelefono || !PERFILES[id].soloTelefono);
+}
 
 /** Generador determinista (mulberry32): el mismo pulso da la misma simulación. */
 function azar(semilla) {
