@@ -60,7 +60,7 @@ li { margin: 2pt 0; }
 .portada .logos img { height: 2.4cm; width: auto; }
 .portada h1 { margin-top: 1.5cm; }
 .portada .ilustracion { margin-top: 0.9cm; }
-.portada .ilustracion img { width: 100%; border-radius: 6pt; }
+.portada .ilustracion img { width: 100%; border-radius: 6pt; border: 1px solid #e4e4e7; }
 .portada .ficha { position: absolute; left: 0; right: 0; bottom: 0; padding-top: 0.45cm;
                   border-top: 1px solid #d4d4dc; font-size: 10pt; color: #444; }
 .portada .ficha p { margin: 0 0 5pt; }
