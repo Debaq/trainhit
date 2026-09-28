@@ -8,6 +8,9 @@
 // Si llegan ilustraciones generadas con los prompts de PROMPTS.md, se cambia
 // el nombre en tutorial-pasos.js y listo.
 //
+// Cada una sale dos veces: `x.svg` para el tema oscuro y `x.claro.svg` para el
+// claro (ver `CLARO`); el tutorial elige según el tema que se ve.
+//
 // Se corre con `node img/tutorial/ilustraciones.mjs`.
 import { writeFileSync } from 'node:fs';
 
@@ -28,7 +31,12 @@ const C = {
   covert: '#9b51d0',
   overt: '#d62d2d',
   luz: '#d4b36a',
-  pelo: '#27272a',
+  // Casi el mismo gris que `tenue`, pero otro código: la versión clara aclara
+  // `tenue` y el pelo tiene que seguir oscuro.
+  pelo: '#29292d',
+  // El pelo visto desde arriba tapa casi toda la cabeza: en el tema claro
+  // se aclara (ver `CLARO`) para que no sea una mancha negra.
+  peloArriba: '#2b2b30',
 };
 /** Tonos de piel apagados: varían entre ilustraciones, como pide la guía. */
 const PIEL = ['#c8a58a', '#8d6a55', '#e0bfa5', '#a47c62'];
@@ -85,7 +93,7 @@ function cabezaArriba(cx, cy, r, ang, { piel = PIEL[0], mirada = ang, blanco = n
   s += `<ellipse cx="${cx}" cy="${cy}" rx="${r}" ry="${r * 1.08}" transform="rotate(${ang} ${cx} ${cy})" fill="${piel}"/>`;
   // pelo: desde arriba se ve casi todo pelo, menos la frente y la cara
   const [hx, hy] = rot(0, r * 0.2);
-  s += `<ellipse cx="${f(hx)}" cy="${f(hy)}" rx="${r * 0.93}" ry="${r * 0.9}" transform="rotate(${ang} ${f(hx)} ${f(hy)})" fill="${C.pelo}"/>`;
+  s += `<ellipse cx="${f(hx)}" cy="${f(hy)}" rx="${r * 0.93}" ry="${r * 0.9}" transform="rotate(${ang} ${f(hx)} ${f(hy)})" fill="${C.peloArriba}"/>`;
   // nariz
   const [nx, ny] = rot(0, -r * 1.2);
   const [n0x, n0y] = rot(-r * 0.14, -r * 1.0);
@@ -519,7 +527,7 @@ function panelito(x, y, w, h, ganOjo, { sacada = null, marca = null } = {}) {
   s += `<ellipse cx="${zx}" cy="${zy}" rx="220" ry="118" fill="#f4f4f5"/>`;
   s += `<path d="M${zx - 230},${zy - 20}Q${zx},${zy - 190} ${zx + 230},${zy - 20}" stroke="#00000044" stroke-width="10" fill="none"/>`;
   // el iris real, en el centro, y el anillo violeta corrido: el simulado
-  s += `<circle cx="${zx}" cy="${zy}" r="78" fill="${C.eye}"/><circle cx="${zx}" cy="${zy}" r="34" fill="#18181b"/>`;
+  s += `<circle cx="${zx}" cy="${zy}" r="78" fill="${C.eye}"/><circle cx="${zx}" cy="${zy}" r="34" fill="#09090b"/>`;
   s += `<circle cx="${zx + 95}" cy="${zy}" r="78" fill="none" stroke="${C.covert}" stroke-width="12" stroke-dasharray="4 0"/>`;
   s += `<path d="M${zx + 10},${zy + 128}L${zx + 90},${zy + 128}" stroke="${C.covert}" stroke-width="8" marker-end="url(#pv)"/>`;
   imagenes['simulado.svg'] = svg(
@@ -719,7 +727,7 @@ function plano(cx, cy, ang, largo, estilo) {
     const clip = `clip${cx}`;
     c += `<clipPath id="${clip}"><path d="M${cx - 260},${cy}Q${cx},${cy - 190} ${cx + 260},${cy}Q${cx},${cy + 170} ${cx - 260},${cy}Z"/></clipPath>`;
     c += `<path d="M${cx - 260},${cy}Q${cx},${cy - 190} ${cx + 260},${cy}Q${cx},${cy + 170} ${cx - 260},${cy}Z" fill="#f4f4f5"/>`;
-    c += `<g clip-path="url(#${clip})"><circle cx="${cx}" cy="${iy}" r="80" fill="${C.eye}" fill-opacity="0.85"/><circle cx="${cx}" cy="${iy}" r="32" fill="#18181b"/></g>`;
+    c += `<g clip-path="url(#${clip})"><circle cx="${cx}" cy="${iy}" r="80" fill="${C.eye}" fill-opacity="0.85"/><circle cx="${cx}" cy="${iy}" r="32" fill="#09090b"/></g>`;
     // el borde entero del iris, punteado: lo que el modelo no ve
     c += `<circle cx="${cx}" cy="${iy}" r="80" fill="none" stroke="${C.grisClaro}" stroke-width="4" stroke-dasharray="10 10"/>`;
     // el párpado, que baja un poco al mirar arriba
@@ -740,7 +748,25 @@ function plano(cx, cy, ang, largo, estilo) {
   );
 }
 
+/**
+ * La versión para el tema claro: la misma imagen con los grises del fondo y de
+ * las líneas dados vuelta. Los colores con significado —cabeza, ojo, sacadas,
+ * bien y mal—, la piel, la ropa y el pelo quedan iguales. Se reemplazan todos
+ * de una pasada, para que un color ya cambiado no se vuelva a cambiar.
+ */
+const CLARO = {
+  '#18181b': '#f4f4f5', // fondo
+  '#3f3f46': '#d4d4d8', // líneas
+  '#52525b': '#a1a1aa',
+  '#27272a': '#e4e4e7', // formas tenues
+  '#e4e4e7': '#52525b', // trazos claros sobre el fondo oscuro
+  '#f4f4f5': '#ffffff', // blancos: los ojos
+  '#2b2b30': '#6b6560', // el pelo visto desde arriba
+};
+const claro = (svgTexto) => svgTexto.replace(/#[0-9a-f]{6}\b/gi, (c) => CLARO[c.toLowerCase()] ?? c);
+
 for (const [nombre, contenido] of Object.entries(imagenes)) {
   writeFileSync(new URL(nombre, DEST), contenido);
-  console.log(`${nombre}: ${(contenido.length / 1024).toFixed(1)} KB`);
+  writeFileSync(new URL(nombre.replace(/\.svg$/, '.claro.svg'), DEST), claro(contenido));
+  console.log(`${nombre}: ${(contenido.length / 1024).toFixed(1)} KB, y su versión clara`);
 }

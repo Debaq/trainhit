@@ -6,11 +6,25 @@
 //
 // Llevan texto adentro, así que salen una vez por idioma: `ganancia.svg` en
 // español y `ganancia.en.svg` en inglés (la capa inglesa del tutorial,
-// js/tutorial-pasos-en.js, apunta a esas).
+// js/tutorial-pasos-en.js, apunta a esas). Y cada una tiene su versión para el
+// tema claro, `x.claro.svg` (ver `CLARO`).
 import { writeFileSync } from 'node:fs';
 const DEST = new URL('./', import.meta.url);
 const C = { bg: '#09090b', grid: '#27272a', fg: '#fafafa', muted: '#a1a1aa', head: '#2e7dd6', eye: '#e8721c', covert: '#9b51d0', ok: '#2e9e54', bad: '#d62d2d' };
 const W = 1600, H = 900;
+
+/**
+ * La versión para el tema claro: fondo, grilla y letras dados vuelta; los
+ * colores con significado quedan. De una pasada, para no cambiar dos veces.
+ */
+const CLARO = { '#09090b': '#ffffff', '#27272a': '#e4e4e7', '#fafafa': '#18181b', '#a1a1aa': '#52525b' };
+const claro = (svgTexto) => svgTexto.replace(/#[0-9a-f]{6}\b/gi, (c) => CLARO[c.toLowerCase()] ?? c);
+
+/** Escribe el SVG y, al lado, su versión clara (`x.claro.svg`). */
+function escribe(url, contenido) {
+  writeFileSync(url, contenido);
+  writeFileSync(new URL(url.href.replace(/\.svg$/, '.claro.svg')), claro(contenido));
+}
 
 // Impulso de cabeza: subida rápida, bajada algo más lenta (forma típica).
 const cabeza = (t) => {
@@ -127,7 +141,7 @@ for (const L of Object.values(IDIOMAS)) {
     const flecha = `<line x1="${xf}" x2="${xf}" y1="${y1}" y2="${y2}" stroke="${C.fg}" stroke-width="3"/>
 <path d="M${xf - 10},${y1 + 16}L${xf},${y1}L${xf + 10},${y1 + 16}M${xf - 10},${y2 - 16}L${xf},${y2}L${xf + 10},${y2 - 16}" fill="none" stroke="${C.fg}" stroke-width="3"/>`;
     const cuerpo = a.s + b.s + flecha + ley();
-    writeFileSync(archivo('ganancia'), svg(cuerpo, L.ganancia));
+    escribe(archivo('ganancia'), svg(cuerpo, L.ganancia));
   }
 
   // ── sacadas.svg: ganancia baja con una encubierta y una manifiesta.
@@ -152,7 +166,7 @@ for (const L of Object.values(IDIOMAS)) {
       marca(132, ojo(132), C.covert, L.encubierta, 60) +
       marca(320, ojo(320), C.eye, L.manifiesta, 60) +
       ley();
-    writeFileSync(archivo('sacadas'), svg(cuerpo, L.sacadasAlt));
+    escribe(archivo('sacadas'), svg(cuerpo, L.sacadasAlt));
   }
 
   // ── patrones.svg: los cuatro patrones que se buscan, cada uno con sus dos
@@ -192,7 +206,7 @@ for (const L of Object.values(IDIOMAS)) {
       cuerpo += `<text x="${x + 362}" y="${y + 130}" fill="${C.muted}" font-size="22">${L.izquierda}</text>`;
     });
     cuerpo += leyenda(880, [[C.head, L.cabeza], [C.eye, L.ojo]]);
-    writeFileSync(archivo('patrones'), svg(cuerpo, L.patronesAlt));
+    escribe(archivo('patrones'), svg(cuerpo, L.patronesAlt));
   }
   console.log(`ganancia${L.sufijo}.svg, sacadas${L.sufijo}.svg y patrones${L.sufijo}.svg generados`);
 }

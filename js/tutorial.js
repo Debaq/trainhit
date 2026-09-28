@@ -16,6 +16,7 @@
 
 import { ACCIONES, CONDICIONES, PASEOS, RESPUESTAS, tutorialEn } from './tutorial-pasos.js';
 import { alCambiarIdioma, idioma, tx } from './idioma.js';
+import { alCambiarTema, temaVisible } from './tema.js';
 
 /**
  * Los paseos con los textos del idioma de ahora: se piden al pintar, no al
@@ -321,6 +322,12 @@ export function montaTutorial({ condiciones, acciones, instantanea = () => ({}),
     if (paseo) muestra(i, { entra: false });
     else menu();
   });
+  // Las ilustraciones tienen una versión por tema: al cambiarlo, solo la
+  // figura se vuelve a pintar.
+  alCambiarTema(() => {
+    if (raiz.hidden) return;
+    if (!fig.hidden) pintaFigura(fig, paseo ? enIdioma().pasos[i] : textos().PORTADA);
+  });
 
   document.addEventListener('keydown', (e) => {
     if (raiz.hidden) return;
@@ -385,8 +392,18 @@ function pintaPregunta(cuerpo, q, respuestas, PATRONES) {
 }
 
 /**
+ * La versión de la imagen para el tema que se ve: los SVG del tutorial salen
+ * de a dos, `x.svg` para el oscuro y `x.claro.svg` para el claro (los
+ * generadores de img/tutorial/). Lo que no es SVG va igual en los dos.
+ */
+export function imagenDelTema(img, t) {
+  return t === 'claro' && img.endsWith('.svg') ? img.replace(/\.svg$/, '.claro.svg') : img;
+}
+
+/**
  * La imagen del paso, o un recuadro con su nombre si todavía no existe: el
- * tutorial funciona antes de que estén las imágenes y se ve cuál falta.
+ * tutorial funciona antes de que estén las imágenes y se ve cuál falta. Si
+ * falta la versión clara, se usa la oscura antes de darla por pendiente.
  */
 function pintaFigura(fig, p) {
   fig.innerHTML = '';
@@ -395,7 +412,12 @@ function pintaFigura(fig, p) {
   const img = document.createElement('img');
   img.alt = p.alt ?? '';
   img.decoding = 'async';
+  const src = imagenDelTema(p.img, temaVisible());
   img.addEventListener('error', () => {
+    if (src !== p.img && img.getAttribute('src') !== `img/tutorial/${p.img}`) {
+      img.src = `img/tutorial/${p.img}`;
+      return;
+    }
     const falta = document.createElement('div');
     falta.className = 'tuto-falta';
     falta.innerHTML = '<b></b><span></span>';
@@ -403,6 +425,6 @@ function pintaFigura(fig, p) {
     falta.querySelector('span').textContent = p.alt ?? '';
     img.replaceWith(falta);
   });
-  img.src = `img/tutorial/${p.img}`;
+  img.src = `img/tutorial/${src}`;
   fig.appendChild(img);
 }

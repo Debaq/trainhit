@@ -172,6 +172,12 @@ a leer las fichas al cambiar de tema y se redibuja todo. Los colores clínicos
 son los mismos en los dos temas; el video y los ojos ampliados van siempre
 sobre negro.
 
+Las ilustraciones y los diagramas del tutorial salen de a dos: `x.svg` para el
+tema oscuro y `x.claro.svg` para el claro. Los generadores de `img/tutorial/`
+escriben los dos, cambiando solo los grises del fondo y de las líneas (`CLARO`
+en cada uno). El tutorial pide la del tema que se ve y la cambia al cambiar el
+tema; `test/tutorial.test.mjs` falla si a un SVG le falta su versión clara.
+
 ### Manual y guía docente
 
 `docs/manual/` tiene el **manual de uso y guía docente** —ideas de uso

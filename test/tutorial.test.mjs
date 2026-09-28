@@ -5,7 +5,7 @@
 // paseos enseñan algo falso.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { ACCIONES, CONDICIONES, LUGARES, PASEOS, PATRONES, PORTADA, RESPUESTAS } from '../js/tutorial-pasos.js';
 import { CASOS, K_EJEMPLO, PULSOS_EJEMPLO, calibracionDeEjemplo, crudoDeEjemplo } from '../js/ejemplo.js';
 import { procesaCrudo } from '../js/pipeline.js';
@@ -41,6 +41,15 @@ test('cada imagen existe o está encargada en PROMPTS.md', () => {
     const hay = existsSync(new URL(`../img/tutorial/${p.img}`, import.meta.url));
     assert.ok(hay || prompts.includes(`\`${p.img}\``), `${p.id}: ${p.img} ni está ni tiene prompt`);
     assert.ok(p.alt, `${p.id}: imagen sin alt`);
+  }
+});
+
+test('cada SVG del tutorial tiene su versión para el tema claro', () => {
+  // Las sacan los generadores de img/tutorial/; tutorial.js pide `x.claro.svg`
+  // con el tema claro. Sin ella se vería la oscura, pero no tiene que faltar.
+  const dir = new URL('../img/tutorial/', import.meta.url);
+  for (const f of readdirSync(dir).filter((x) => x.endsWith('.svg') && !x.endsWith('.claro.svg'))) {
+    assert.ok(existsSync(new URL(f.replace(/\.svg$/, '.claro.svg'), dir)), `${f} sin versión clara`);
   }
 });
 
