@@ -35,7 +35,11 @@ Falta, del lado de trainHIT:
   los `.y4m` de la primera pasada se perdieron. El texto ya está en español
   neutro, con la sección del teléfono, y los PDF se subieron el 2026-09-27.
 - **Probar el teléfono como cabeza con un teléfono de verdad**, Android e iOS:
-  solo se probó en Chromium de escritorio con el giroscopio simulado.
+  solo se probó en Chromium de escritorio con el giroscopio simulado. Ahora
+  también sujeto a la frente de alguien, en los tres planos (LARP y RALP), y
+  con las sujeciones de la guía `docs/manual/sujecion.md`: ver si el
+  teléfono baila, si el umbral de 30° del FUERA DEL PLANO es razonable y si la
+  vuelta de 45° se lee bien.
 - **Nistagmo espontáneo con la cámara**: el paciente fija un blanco o el dedo,
   se registra el ojo 10 a 20 s y se detecta el diente de sierra, con la
   dirección de la fase rápida y la velocidad de la fase lenta; también con el
@@ -47,14 +51,17 @@ Falta, del lado de trainHIT:
   elegir el arreglo (referencia rígida o segunda calibración con supresión);
   mientras tanto, avisarlo en la app y en el README. Todo en
   [docs/investigacion/verticales-y-supresion.md](docs/investigacion/verticales-y-supresion.md).
-- **Canales verticales**: el paseo didáctico está (2026-09-27). Medirlos con
-  los puntos de MediaPipe quedó **descartado** el mismo día: el iris casi no
-  refleja el giro vertical del ojo, lo tapa el párpado. Las opciones a futuro
-  (detector propio de pupila, más resolución, infrarrojo, estimadores de
-  mirada) están en el mismo documento.
-- **`CANAL_AXIS.ralp/larp` en `js/head.js` está mal**: `[±√½, √½, 0]` mezcla el
-  eje lateral con el vertical; el de un plano vertical es horizontal,
-  `[±√½, 0, √½]`. Nadie lo usa todavía.
+- **Canales verticales con la webcam**: medirlos con los puntos de MediaPipe
+  quedó **descartado** (2026-09-27): el iris casi no refleja el giro vertical
+  del ojo, lo tapa el párpado. Las opciones a futuro (detector propio de
+  pupila, más resolución, infrarrojo, estimadores de mirada) están en el mismo
+  documento. Con el **teléfono** ya se practican (2026-09-27): selector LARP /
+  RALP, cara 3D con torsión y la guía de sujeción.
+- **Verticales, lo que sigue**: un resumen de los seis canales (el diagrama de
+  los equipos comerciales, con la ganancia de cada uno); **Voy a tener
+  suerte** con verticales, que hoy pregunta solo por los laterales; un perfil
+  de neuritis **inferior** (solo el posterior), que tiene sentido solo con el
+  teléfono.
 
 ## Ideas
 
