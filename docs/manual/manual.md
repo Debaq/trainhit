@@ -43,25 +43,26 @@ Laboratorio TecMedHub · Universidad Austral de Chile, Sede Puerto Montt
 - [9. Aprender a usar: los paseos](#9-aprender-a-usar-los-paseos)
 - [10. Casos a ciegas](#10-casos-a-ciegas)
 - [11. Paciente simulado](#11-paciente-simulado)
-- [12. Guardar y compartir datos](#12-guardar-y-compartir-datos)
-- [13. Idioma, tema, pantallas pequeñas y uso sin red](#13-idioma-tema-pantallas-pequenas-y-uso-sin-red)
-- [14. Atajos de teclado](#14-atajos-de-teclado)
-- [15. Problemas frecuentes](#15-problemas-frecuentes)
+- [12. El teléfono en la cabeza](#12-el-telefono-en-la-cabeza)
+- [13. Guardar y compartir datos](#13-guardar-y-compartir-datos)
+- [14. Idioma, tema, pantallas pequeñas y uso sin red](#14-idioma-tema-pantallas-pequenas-y-uso-sin-red)
+- [15. Atajos de teclado](#15-atajos-de-teclado)
+- [16. Problemas frecuentes](#16-problemas-frecuentes)
 
 **Parte II · Guía docente: ideas de uso pedagógico**
 
-- [16. Para qué y para quién](#16-para-que-y-para-quien)
-- [17. Resultados de aprendizaje](#17-resultados-de-aprendizaje)
-- [18. Secuencias de clase sugeridas](#18-secuencias-de-clase-sugeridas)
-- [19. Actividades](#19-actividades)
-- [20. Evaluación](#20-evaluacion)
-- [21. Errores frecuentes y preguntas para discutir](#21-errores-frecuentes-y-preguntas-para-discutir)
-- [22. Cuidados en el aula](#22-cuidados-en-el-aula)
+- [17. Para qué y para quién](#17-para-que-y-para-quien)
+- [18. Resultados de aprendizaje](#18-resultados-de-aprendizaje)
+- [19. Secuencias de clase sugeridas](#19-secuencias-de-clase-sugeridas)
+- [20. Actividades](#20-actividades)
+- [21. Evaluación](#21-evaluacion)
+- [22. Errores frecuentes y preguntas para discutir](#22-errores-frecuentes-y-preguntas-para-discutir)
+- [23. Cuidados en el aula](#23-cuidados-en-el-aula)
 
 **Anexo**
 
-- [23. Glosario](#23-glosario)
-- [24. Referencias](#24-referencias)
+- [24. Glosario](#24-glosario)
+- [25. Referencias](#25-referencias)
 
 </div>
 
@@ -111,7 +112,7 @@ el navegador y **el video no sale del equipo**.
 - **Con la webcam, solo mide el canal lateral.** Los canales verticales
   (RALP/LARP) necesitan el movimiento vertical del ojo, que el párpado tapa y
   la webcam mide mal. Con el teléfono como cabeza se practican los seis, con el
-  ojo simulado (sección 11).
+  ojo simulado (secciones 11 y 12).
 
 ---
 
@@ -138,7 +139,7 @@ doble clic no funciona, porque el navegador no da la cámara a un archivo local.
 
 La primera vez se baja el modelo de seguimiento de caras (unos 10 MB). Después
 queda guardado y la página funciona **sin red** (ver la
-[sección 13](#13-idioma-tema-pantallas-pequenas-y-uso-sin-red)).
+[sección 14](#14-idioma-tema-pantallas-pequenas-y-uso-sin-red)).
 
 ### La bienvenida
 
@@ -521,7 +522,7 @@ Las cinco decisiones del motor:
 5. la ganancia calculada con posiciones.
 
 Debajo está lo que el método **no** hace y las referencias bibliográficas de
-cada número, que están completas en la [sección 24](#24-referencias).
+cada número, que están completas en la [sección 25](#25-referencias).
 
 ### Para docentes
 
@@ -749,7 +750,7 @@ dibujada es conocido. **Centrar** toma la posición de ahora como frente.
 
 **4.** Da impulsos con el teléfono como con una cabeza: cortos, bruscos, de 10
 a 20°, y la vuelta lenta. Lo más real es sujetarlo a la frente de un compañero
-(ver más abajo); si no, se siente mejor si el teléfono va sujeto con cinta
+(ver la [sección 12](#12-el-telefono-en-la-cabeza)); si no, se siente mejor si el teléfono va sujeto con cinta
 o un elástico a algo con peso —una pelota, un peluche, una caja—, con la
 pantalla hacia quien examina.
 
@@ -773,10 +774,10 @@ cabeza, y una sacada lo trae de vuelta.
 La webcam no puede medir los canales verticales (el párpado tapa el iris al
 mirar arriba y abajo), pero con el teléfono el ojo lo pone el modelo: se
 practican los **seis canales**. El teléfono va sujeto a la frente de un
-compañero, apaisado y con la pantalla hacia adelante; la guía corta **El
-teléfono en la cabeza** (el PDF `trainhit-sujecion.pdf`, enlazado en el diálogo
-del teléfono) cuenta cómo sujetarlo con cosas de casa y cómo hacer cada
-maniobra.
+compañero, apaisado y con la pantalla hacia adelante: la [sección
+12](#12-el-telefono-en-la-cabeza) cuenta cómo sujetarlo con cosas de casa y
+cómo hacer cada maniobra. Está también suelta, como guía corta para imprimir
+(`trainhit-sujecion.pdf`, enlazada en el diálogo del teléfono).
 
 Con el teléfono enlazado aparece junto a la botonera el selector **Lateral ·
 LARP · RALP**. Debajo dice cómo poner la cabeza, y al lado cuánto está girada
@@ -821,7 +822,123 @@ canal lateral y qué verticales están afectados y qué sacadas aparecen.
 
 ---
 
-## 12. Guardar y compartir datos
+## 12. El teléfono en la cabeza
+
+Con el teléfono sujeto a la cabeza de un compañero, los impulsos son de
+verdad: el peso de la cabeza, el cuello que frena y las manos que se resbalan.
+trainHIT lee el giro con el giroscopio del teléfono, dibuja la cara en el PC y
+pone el ojo con su modelo, sano o con la patología del **Simulador**. Así se
+practican también los **canales verticales**, que la webcam no puede medir.
+
+> **Es entrenamiento, no un examen.** La cara y el ojo son simulados: lo que se
+> mide es la técnica de quien examina. No se usa con pacientes. Impulsos
+> pequeños (10 a 20°), y nunca en alguien con dolor o una lesión de cuello.
+
+### Dónde va el teléfono
+
+**En la frente, apaisado, con la pantalla hacia adelante** y la espalda del
+teléfono apoyada en la piel, sobre las cejas. Así la app entiende sola hacia
+dónde mira la nariz.
+
+![De frente y de perfil: el teléfono apaisado en la frente, con la pantalla hacia adelante, sujeto con una cinta elástica](../../img/tutorial/sujecion.claro.svg)
+
+Lo que importa:
+
+- **Que no baile.** Si el teléfono se mueve sobre la piel, suma giros que la
+  cabeza no dio y el pulso sale con rebote o fuera del plano. Un trozo de
+  antideslizante de cocina (la malla de goma) entre la frente y el teléfono
+  ayuda mucho.
+- **Que no tape los ojos** ni las cejas: por encima de ellas.
+- **Firme pero sin apretar.** Un teléfono pesa unos 200 g: con una cinta bien
+  puesta alcanza.
+- **La pantalla encendida.** trainHIT pide que no se apague mientras dura el
+  enlace; conviene tener la batería cargada.
+
+### Ideas caseras para sujetarlo
+
+![Cuatro maneras: cinta elástica, arnés de linterna frontal, gorra con elásticos y casco con cinta adhesiva](../../img/tutorial/sujecion-ideas.claro.svg)
+
+| Con qué | Cómo | Ojo con |
+|---|---|---|
+| **Cinta elástica ancha** (de deporte o de pelo, 4 a 6 cm) | El teléfono entre la cinta y la frente; si es larga, una segunda vuelta por encima. | Las cintas angostas lo dejan girar: mejor anchas. |
+| **Arnés de linterna frontal** | Se saca la linterna y el soporte abraza el teléfono. La tira de arriba no deja que baje. | Es la opción más firme. |
+| **Elástico de costura** (60 cm × 3 cm, cosido en anillo) | Se ajusta al contorno de la cabeza; se puede coser un bolsillo de tela para el teléfono. | Barato y lavable: sirve para un curso entero. |
+| **Gorra ajustada + dos elásticos** | El teléfono sobre el frente de la gorra, con dos elásticos (de billetes o de pelo) alrededor. | La gorra floja se corre: apretarla atrás. |
+| **Casco de bicicleta + velcro o cinta adhesiva** | El teléfono pegado al frente del casco, bien ajustado con la correa. | La cinta, sobre la funda y no sobre el teléfono. |
+| **Venda elástica** (de botiquín) | Dos o tres vueltas alrededor de la cabeza sobre el teléfono. | Sin apretar: la cabeza no es un tobillo. |
+
+**La prueba antes de empezar:** con la cabeza quieta, empuja el teléfono con
+un dedo hacia los lados. Si se mueve sobre la piel, ajusta o cambia de
+sujeción.
+
+### Enlazar y centrar
+
+1. En el PC, presiona **Teléfono** y **Mostrar el QR**.
+2. Escanea el QR con el teléfono y toca **Usar este teléfono como cabeza**
+   *antes* de sujetarlo: el permiso de los sensores pide un toque.
+3. Sujeta el teléfono en la frente.
+4. Con la cabeza derecha mirando el blanco (la cámara del PC o un punto en la
+   pared), presiona **Centrar** en el PC. Esa es la posición «de frente».
+
+### Examinar cada plano
+
+Con el teléfono enlazado aparece en el PC el selector **Lateral · LARP ·
+RALP**. Debajo dice cómo se pone la cabeza, y al lado, cuánto está girada
+ahora: en **verde** cuando está donde el plano pide.
+
+![El selector de plano con LARP elegido: la cara dibujada girada 45° a la derecha y la guía debajo](img/49-telefono-plano.png)
+
+| Plano | Cabeza | Impulso | Canal |
+|---|---|---|---|
+| **Lateral** | de frente, un poco inclinada hacia abajo | de costado, a la derecha / a la izquierda | lateral derecho / izquierdo |
+| **LARP** | girada 45° a la **derecha**, los ojos en el blanco | nariz abajo | anterior izquierdo |
+| | | nariz arriba | posterior derecho |
+| **RALP** | girada 45° a la **izquierda**, los ojos en el blanco | nariz abajo | anterior derecho |
+| | | nariz arriba | posterior izquierdo |
+
+![Con la cabeza girada 45°, el plano LARP queda apuntando al blanco](../../img/tutorial/verticales-giro.claro.svg)
+
+En los verticales el impulso es un **cabeceo** —la nariz baja o sube— con la
+cabeza ya girada 45°. Como siempre: corto, brusco, de 10 a 20°, y la vuelta
+lenta. Las manos van arriba de la cabeza y bajo el mentón, lejos del teléfono.
+
+![De perfil: cuando la cabeza baja, el ojo sube para seguir mirando el blanco, y al revés](../../img/tutorial/verticales-impulso.claro.svg)
+
+Si el impulso se aparta más de 30° del plano —por ejemplo, un cabeceo con la
+cabeza de frente en LARP— el pulso sale rechazado: **FUERA DEL PLANO**.
+
+Debajo de la guía, el **resumen de los seis canales** junta todo: la cabeza
+desde arriba con la ganancia media de cada canal, en verde o en rojo según el
+corte de su plano. Un clic en un canal lleva a su plano.
+
+
+### Qué mirar en la cara
+
+El iris tiene fibras y una cripta oscura, y la esclera tiene vasos: con
+ellos se ve si el ojo **rueda** (torsión). Con la cabeza a 45° y la mirada en
+el plano del canal, el ojo que compensa se mueve casi solo hacia arriba o
+abajo. Con la cabeza de frente, el mismo giro sería mitad torsión: por eso se
+gira la cabeza.
+
+Con un perfil del **Simulador** puesto, el canal afectado muestra la ganancia
+baja y las sacadas. La neuritis vestibular común toca el lateral y el anterior
+de un oído y deja el posterior sano; la **inferior** toca solo el posterior, y
+los laterales se ven normales. **Voy a tener suerte** sortea un paciente y pide
+los seis canales antes de contestar.
+
+### Si algo no anda
+
+| Se ve | Qué hacer |
+|---|---|
+| Nariz abajo cae en el panel de «nariz arriba» | La pantalla mira hacia la piel: dar vuelta el teléfono y **Centrar**. |
+| La cara dibujada se ladea cuando la cabeza cabecea | El teléfono está en un costado de la cabeza: pasarlo a la frente y **Centrar**. |
+| Muchos **REBOTE** o **FUERA DEL PLANO** | El teléfono baila: ajustar la sujeción o agregar antideslizante. |
+| La guía nunca se pone verde | **Centrar** con la cabeza mirando el blanco, y recién después girarla 45°. |
+| El PC dice **RECONECTANDO** | El teléfono se durmió o perdió el wifi: se reconecta solo al despertarlo. |
+
+---
+
+## 13. Guardar y compartir datos
 
 ### Exportar CSV
 
@@ -847,7 +964,7 @@ video, ni las mediciones, ni nada de la sesión. Hay un voto por navegador.
 
 ---
 
-## 13. Idioma, tema, pantallas pequeñas y uso sin red
+## 14. Idioma, tema, pantallas pequeñas y uso sin red
 
 ### Idioma
 
@@ -896,7 +1013,7 @@ para el aula, donde el wifi falla.
 
 ---
 
-## 14. Atajos de teclado
+## 15. Atajos de teclado
 
 | Tecla | Qué hace |
 |---|---|
@@ -911,7 +1028,7 @@ para el aula, donde el wifi falla.
 
 ---
 
-## 15. Problemas frecuentes
+## 16. Problemas frecuentes
 
 | Problema | Causa probable y solución |
 |---|---|
@@ -929,7 +1046,7 @@ para el aula, donde el wifi falla.
 
 ---
 
-## 16. Para qué y para quién
+## 17. Para qué y para quién
 
 Esta segunda parte junta **ideas para usar trainHIT en clases**. No es un
 programa cerrado: son actividades, secuencias y pautas que cada docente puede
@@ -967,7 +1084,7 @@ equipo cerrado quedan como caja negra:
 
 ---
 
-## 17. Resultados de aprendizaje
+## 18. Resultados de aprendizaje
 
 Al terminar las actividades, se espera que el estudiante pueda:
 
@@ -986,7 +1103,7 @@ Al terminar las actividades, se espera que el estudiante pueda:
 
 ---
 
-## 18. Secuencias de clase sugeridas
+## 19. Secuencias de clase sugeridas
 
 ### Sesión práctica de 90 minutos
 
@@ -1023,7 +1140,7 @@ Con un teléfono a mano, el paso 3 puede ser práctico: el teléfono como cabeza
 
 ---
 
-## 19. Actividades
+## 20. Actividades
 
 Cada actividad dice qué se busca, cómo se hace y qué discutir al final.
 
@@ -1072,7 +1189,7 @@ Grupos de tres, con tres roles que rotan en cada ronda:
 
 - **Paciente:** un compañero sano frente a la cámara.
 - **Examinador:** da los impulsos y responde las preguntas.
-- **Observador:** llena la rúbrica de técnica (sección 20).
+- **Observador:** llena la rúbrica de técnica (sección 21).
 
 Cada ronda es un **Voy a tener suerte**: examinar hasta tener 3 pulsos
 aceptados por lado, contestar, **Revelar** y mirar **Ver lo real**.
@@ -1146,7 +1263,7 @@ propósito?
 
 ---
 
-## 20. Evaluación
+## 21. Evaluación
 
 ### Evaluación formativa, dentro de la misma página
 
@@ -1195,7 +1312,7 @@ La llena el observador de la actividad 19.4, o el docente.
 
 ---
 
-## 21. Errores frecuentes y preguntas para discutir
+## 22. Errores frecuentes y preguntas para discutir
 
 ### Errores frecuentes de los estudiantes
 
@@ -1221,7 +1338,7 @@ La llena el observador de la actividad 19.4, o el docente.
 
 ---
 
-## 22. Cuidados en el aula
+## 23. Cuidados en el aula
 
 > **El cuello del compañero es real.** Antes de dar impulsos, preguntar si
 > tiene alguna lesión, dolor o cirugía cervical, o vértigo en ese momento: en
@@ -1242,7 +1359,7 @@ La llena el observador de la actividad 19.4, o el docente.
 
 ---
 
-## 23. Glosario
+## 24. Glosario
 
 | Término | Significado |
 |---|---|
@@ -1263,7 +1380,7 @@ Austral de Chile, Sede Puerto Montt.*
 
 ---
 
-## 24. Referencias
+## 25. Referencias
 
 Las fuentes de los números y de las decisiones de trainHIT. En el texto se
 citan por autor y año; cada una lleva una línea sobre para qué se usa aquí.

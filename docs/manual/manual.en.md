@@ -43,25 +43,26 @@ TecMedHub Lab · Universidad Austral de Chile, Puerto Montt campus
 - [9. Learn: the guided tours](#9-learn-the-guided-tours)
 - [10. Blind cases](#10-blind-cases)
 - [11. Simulated patient](#11-simulated-patient)
-- [12. Saving and sharing data](#12-saving-and-sharing-data)
-- [13. Language, theme, small screens and offline use](#13-language-theme-small-screens-and-offline-use)
-- [14. Keyboard shortcuts](#14-keyboard-shortcuts)
-- [15. Troubleshooting](#15-troubleshooting)
+- [12. The phone on the head](#12-the-phone-on-the-head)
+- [13. Saving and sharing data](#13-saving-and-sharing-data)
+- [14. Language, theme, small screens and offline use](#14-language-theme-small-screens-and-offline-use)
+- [15. Keyboard shortcuts](#15-keyboard-shortcuts)
+- [16. Troubleshooting](#16-troubleshooting)
 
 **Part II · Teacher’s guide: ideas for teaching**
 
-- [16. What for and for whom](#16-what-for-and-for-whom)
-- [17. Learning outcomes](#17-learning-outcomes)
-- [18. Suggested class sequences](#18-suggested-class-sequences)
-- [19. Activities](#19-activities)
-- [20. Assessment](#20-assessment)
-- [21. Common mistakes and discussion questions](#21-common-mistakes-and-discussion-questions)
-- [22. Care in the classroom](#22-care-in-the-classroom)
+- [17. What for and for whom](#17-what-for-and-for-whom)
+- [18. Learning outcomes](#18-learning-outcomes)
+- [19. Suggested class sequences](#19-suggested-class-sequences)
+- [20. Activities](#20-activities)
+- [21. Assessment](#21-assessment)
+- [22. Common mistakes and discussion questions](#22-common-mistakes-and-discussion-questions)
+- [23. Care in the classroom](#23-care-in-the-classroom)
 
 **Appendix**
 
-- [23. Glossary](#23-glossary)
-- [24. References](#24-references)
+- [24. Glossary](#24-glossary)
+- [25. References](#25-references)
 
 </div>
 
@@ -112,7 +113,7 @@ leaves the computer**.
 - **With the webcam, it only measures the lateral canal.** The vertical canals
   (RALP/LARP) need the vertical movement of the eye, which the eyelid hides and
   a webcam measures poorly. With the phone as the head all six can be
-  practised, with a simulated eye (section 11).
+  practised, with a simulated eye (sections 11 and 12).
 
 ---
 
@@ -141,7 +142,7 @@ to a local file.
 
 The first time, the face tracking model is downloaded (about 10 MB). After
 that it stays stored and the page works **offline** (see
-[section 13](#13-language-theme-small-screens-and-offline-use)).
+[section 14](#14-language-theme-small-screens-and-offline-use)).
 
 ### The welcome screen
 
@@ -523,7 +524,7 @@ The engine’s five decisions:
 5. the gain computed with positions.
 
 Below are what the method does **not** do and the references for each number,
-which are listed in full in [section 24](#24-references).
+which are listed in full in [section 25](#25-references).
 
 ### For teachers
 
@@ -751,7 +752,7 @@ face is known. **Center** takes the current position as straight ahead.
 
 **4.** Give impulses with the phone as with a head: short, abrupt, 10 to 20°,
 and a slow return. Most realistic is strapping it to a classmate’s forehead
-(see below); otherwise it feels better with the phone strapped with tape or a
+(see [section 12](#12-the-phone-on-the-head)); otherwise it feels better with the phone strapped with tape or a
 rubber band to something with weight —a ball, a stuffed toy, a box—, with the
 screen facing the examiner.
 
@@ -776,9 +777,10 @@ saccade brings it back.
 The webcam cannot measure the vertical canals (the eyelid covers the iris when
 looking up and down), but with the phone the model places the eye: all **six
 canals** can be practised. The phone is strapped to a classmate’s forehead, in
-landscape with the screen facing forward; the short guide **The phone on the
-head** (the PDF `trainhit-sujecion-en.pdf`, linked in the phone dialog)
-explains how to strap it with household items and how to do each manoeuvre.
+landscape with the screen facing forward: [section
+12](#12-the-phone-on-the-head) explains how to strap it with household items
+and how to do each manoeuvre. It also comes on its own, as a short guide to
+print (`trainhit-sujecion-en.pdf`, linked in the phone dialog).
 
 With the phone linked, the selector **Lateral · LARP · RALP** appears next to
 the buttons. Below it says how to place the head, and next to it how far the
@@ -824,7 +826,124 @@ appear.
 
 ---
 
-## 12. Saving and sharing data
+## 12. The phone on the head
+
+With the phone strapped to a classmate’s head, the impulses are real: the
+weight of the head, the neck that brakes and the hands that slip. trainHIT
+reads the turn from the phone’s gyroscope, draws the face on the computer and
+places the eye with its model, healthy or with the pathology chosen in the
+**Simulator**. This way the **vertical canals** can be practised too, which
+the webcam cannot measure.
+
+> **This is training, not an exam.** The face and the eye are simulated: what
+> is measured is the examiner’s technique. Not for use with patients. Small
+> impulses (10 to 20°), and never on someone with neck pain or a neck injury.
+
+### Where the phone goes
+
+**On the forehead, in landscape, with the screen facing forward** and the back
+of the phone against the skin, above the eyebrows. That way the app works out
+by itself which way the nose points.
+
+![Front and side views: the phone in landscape on the forehead, screen facing forward, held by an elastic band](../../img/tutorial/sujecion.claro.svg)
+
+What matters:
+
+- **It must not wobble.** If the phone moves on the skin, it adds turns the
+  head never made and the impulse comes out with a rebound or off the plane. A
+  piece of non-slip kitchen mat (the rubber mesh) between forehead and phone
+  helps a lot.
+- **It must not cover the eyes** or the eyebrows: above them.
+- **Firm but not tight.** A phone weighs about 200 g: a well-placed band is
+  enough.
+- **Screen on.** trainHIT asks the phone not to sleep while the link lasts;
+  a charged battery helps.
+
+### Home-made ways to hold it
+
+![Four ways: elastic band, head-torch harness, cap with rubber bands and helmet with tape](../../img/tutorial/sujecion-ideas.claro.svg)
+
+| With | How | Watch out |
+|---|---|---|
+| **Wide elastic band** (sports or hair band, 4 to 6 cm) | The phone between the band and the forehead; if long, a second turn over it. | Narrow bands let it rotate: wide is better. |
+| **Head-torch harness** | Remove the torch; the holder grips the phone. The top strap stops it sliding down. | The steadiest option. |
+| **Sewing elastic** (60 cm × 3 cm, sewn into a ring) | Adjust it to the head; a fabric pocket for the phone can be sewn on. | Cheap and washable: lasts a whole course. |
+| **Tight cap + two rubber bands** | The phone on the front of the cap, with two rubber (or hair) bands around it. | A loose cap slips: tighten it at the back. |
+| **Bike helmet + velcro or tape** | The phone stuck to the front of the helmet, strap well fastened. | Tape on the case, not on the phone. |
+| **Elastic bandage** (first-aid kit) | Two or three turns around the head over the phone. | Not tight: a head is not an ankle. |
+
+**The test before starting:** with the head still, push the phone sideways
+with a finger. If it moves on the skin, adjust or change the mount.
+
+### Link and center
+
+1. On the computer, press **Phone** and **Show the QR**.
+2. Scan the QR with the phone and tap **Use this phone as the head** *before*
+   strapping it on: the sensor permission needs a tap.
+3. Strap the phone to the forehead.
+4. With the head straight and looking at the target (the computer’s camera or
+   a spot on the wall), press **Center** on the computer. That is “facing
+   forward”.
+
+### Examining each plane
+
+With the phone linked, the computer shows the selector **Lateral · LARP ·
+RALP**. Below it says how to place the head, and next to it how far the head
+is turned right now: **green** when it is where the plane asks.
+
+![The plane selector with LARP chosen: the drawn face turned 45° to the right and the guide below](img/en/49-telefono-plano.png)
+
+| Plane | Head | Impulse | Canal |
+|---|---|---|---|
+| **Lateral** | facing forward, tilted slightly down | sideways, right / left | right / left lateral |
+| **LARP** | turned 45° to the **right**, eyes on the target | nose down | left anterior |
+| | | nose up | right posterior |
+| **RALP** | turned 45° to the **left**, eyes on the target | nose down | right anterior |
+| | | nose up | left posterior |
+
+![With the head turned 45°, the LARP plane points at the target](../../img/tutorial/verticales-giro.claro.svg)
+
+In the vertical planes the impulse is a **pitch** —the nose goes down or up—
+with the head already turned 45°. As always: short, abrupt, 10 to 20°, and a
+slow return. Hands on top of the head and under the chin, away from the phone.
+
+![Side view: when the head goes down, the eye goes up to keep looking at the target, and vice versa](../../img/tutorial/verticales-impulso.claro.svg)
+
+If the impulse strays more than 30° from the plane —for example, pitching with
+the head facing forward in LARP— the impulse is rejected: **OFF THE PLANE**.
+
+Below the guide, the **six-canal summary** puts it all together: the head from
+above with the mean gain of each canal, green or red according to the cut-off
+of its plane. A click on a canal goes to its plane.
+
+
+### What to look at in the face
+
+The iris has fibres and a dark crypt, and the sclera has vessels: with them
+you can see whether the eye **rolls** (torsion). With the head at 45° and the
+gaze in the plane of the canal, the compensating eye moves almost only up or
+down. With the head facing forward, the same turn would be half torsion: that
+is why the head is turned.
+
+With a **Simulator** profile on, the affected canal shows the low gain and the
+saccades. Common vestibular neuritis affects the lateral and the anterior
+canal of one ear and spares the posterior; the **inferior** one affects only
+the posterior, and the lateral canals look normal. **I’m feeling lucky** draws
+a patient and asks for all six canals before answering.
+
+### If something goes wrong
+
+| You see | What to do |
+|---|---|
+| Nose down lands in the “nose up” panel | The screen faces the skin: turn the phone round and **Center**. |
+| The drawn face tilts sideways when the head pitches | The phone is on the side of the head: move it to the forehead and **Center**. |
+| Many **REBOUND** or **OFF THE PLANE** | The phone wobbles: adjust the mount or add non-slip mat. |
+| The guide never turns green | **Center** with the head looking at the target, and only then turn it 45°. |
+| The computer says **RECONNECTING** | The phone slept or lost wifi: it reconnects by itself when woken. |
+
+---
+
+## 13. Saving and sharing data
 
 ### Export CSV
 
@@ -852,7 +971,7 @@ per browser.
 
 ---
 
-## 13. Language, theme, small screens and offline use
+## 14. Language, theme, small screens and offline use
 
 ### Language
 
@@ -900,7 +1019,7 @@ for the classroom, where the wifi fails.
 
 ---
 
-## 14. Keyboard shortcuts
+## 15. Keyboard shortcuts
 
 | Key | What it does |
 |---|---|
@@ -915,7 +1034,7 @@ for the classroom, where the wifi fails.
 
 ---
 
-## 15. Troubleshooting
+## 16. Troubleshooting
 
 | Problem | Likely cause and fix |
 |---|---|
@@ -933,7 +1052,7 @@ for the classroom, where the wifi fails.
 
 ---
 
-## 16. What for and for whom
+## 17. What for and for whom
 
 This second part gathers **ideas for using trainHIT in class**. It is not a
 closed program: they are activities, sequences and rubrics that each teacher
@@ -971,7 +1090,7 @@ that stay a black box with a closed device:
 
 ---
 
-## 17. Learning outcomes
+## 18. Learning outcomes
 
 After the activities, the student is expected to be able to:
 
@@ -990,7 +1109,7 @@ After the activities, the student is expected to be able to:
 
 ---
 
-## 18. Suggested class sequences
+## 19. Suggested class sequences
 
 ### A 90-minute practical session
 
@@ -1027,7 +1146,7 @@ With a phone at hand, step 3 can be hands-on: the phone as the head (section
 
 ---
 
-## 19. Activities
+## 20. Activities
 
 Each activity says what it aims for, how it is done and what to discuss at the
 end.
@@ -1077,7 +1196,7 @@ Groups of three, with three roles that rotate each round:
 
 - **Patient:** a healthy classmate in front of the camera.
 - **Examiner:** delivers the impulses and answers the questions.
-- **Observer:** fills in the technique rubric (section 20).
+- **Observer:** fills in the technique rubric (section 21).
 
 Each round is an **I’m feeling lucky**: examine until there are 3 accepted
 impulses per side, answer, **Reveal** and look at **See the real thing**.
@@ -1149,7 +1268,7 @@ patients? Why does it have a 60 frames per second cap on purpose?
 
 ---
 
-## 20. Assessment
+## 21. Assessment
 
 ### Formative assessment, within the page itself
 
@@ -1198,7 +1317,7 @@ Filled in by the observer in activity 19.4, or by the teacher.
 
 ---
 
-## 21. Common mistakes and discussion questions
+## 22. Common mistakes and discussion questions
 
 ### Common student mistakes
 
@@ -1226,7 +1345,7 @@ Filled in by the observer in activity 19.4, or by the teacher.
 
 ---
 
-## 22. Care in the classroom
+## 23. Care in the classroom
 
 > **The classmate’s neck is real.** Before delivering impulses, ask whether
 > they have any neck injury, pain or surgery, or vertigo at the moment: if so,
@@ -1248,7 +1367,7 @@ Filled in by the observer in activity 19.4, or by the teacher.
 
 ---
 
-## 23. Glossary
+## 24. Glossary
 
 | Term | Meaning |
 |---|---|
@@ -1269,7 +1388,7 @@ Chile, Puerto Montt campus.*
 
 ---
 
-## 24. References
+## 25. References
 
 The sources of trainHIT’s numbers and decisions. They are cited by author and
 year in the text; each one carries a line on what it is used for here.

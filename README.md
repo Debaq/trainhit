@@ -464,7 +464,8 @@ que el motor se comporte igual que con la cámara. Los pulsos quedan marcados
 teléfono no se siente como mover una cabeza: lo mejor es sujetarlo a la frente
 de un compañero. La guía corta **El teléfono en la cabeza**
 (`docs/manual/sujecion.md`, en PDF en `manual/trainhit-sujecion.pdf`) cuenta
-cómo, con cosas de casa, y cómo se hace cada maniobra.
+cómo, con cosas de casa, y cómo se hace cada maniobra; es también la sección 12
+del manual.
 
 ## Laberinto 3D
 
