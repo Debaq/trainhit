@@ -57,11 +57,8 @@ Falta, del lado de trainHIT:
   pupila, más resolución, infrarrojo, estimadores de mirada) están en el mismo
   documento. Con el **teléfono** ya se practican (2026-09-27): selector LARP /
   RALP, cara 3D con torsión y la guía de sujeción.
-- **Verticales, lo que sigue**: un resumen de los seis canales (el diagrama de
-  los equipos comerciales, con la ganancia de cada uno); **Voy a tener
-  suerte** con verticales, que hoy pregunta solo por los laterales; un perfil
-  de neuritis **inferior** (solo el posterior), que tiene sentido solo con el
-  teléfono.
+  Desde el 2026-09-28 también el resumen de los seis canales, **Voy a tener
+  suerte** de seis canales y la neuritis inferior.
 
 ## Ideas
 

@@ -439,7 +439,13 @@ perillas y **Voy a tener suerte** funcionan igual.
   fuera del plano rechaza el pulso si pasa de 30° (**FUERA DEL PLANO**). Los
   paneles se titulan con el canal (en LARP, posterior derecho y anterior
   izquierdo) y muestran solo los pulsos del plano. Los perfiles del Simulador
-  dicen qué les pasa a los verticales (`canales` en `js/simulacion.js`).
+  dicen qué les pasa a los verticales (`canales` en `js/simulacion.js`), y la
+  neuritis inferior —solo el posterior— aparece solo con el teléfono.
+- **Los seis canales.** Junto al selector, la cabeza desde arriba con la
+  ganancia media de cada canal, verde o roja según el corte de su plano (0,8
+  el lateral, 0,7 los verticales: `corteGanancia` en `js/analysis.js`). Con el
+  teléfono, **Voy a tener suerte** pide tres pulsos por canal y pregunta por
+  el lateral y los verticales (`seis` en `js/practica.js`).
 - `js/cara.js` dibuja la cara como un sólido que gira con la orientación
   entera, y el ojo que compensa gira alrededor del eje del canal. En el lateral
   usa la **misma geometría que el motor invierte**

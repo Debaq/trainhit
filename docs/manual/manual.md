@@ -18,7 +18,7 @@ teléfono como cabeza.
 
 **Autor:** Nicolás Baier Quezada<br>
 **Fecha:** 28 de septiembre de 2026<br>
-**Versión de trainHIT documentada:** 2026-09-28.2
+**Versión de trainHIT documentada:** 2026-09-28.4
 
 Laboratorio TecMedHub · Universidad Austral de Chile, Sede Puerto Montt
 
@@ -791,6 +791,15 @@ Los paneles cambian de título con el plano, y las medias, la lista y la nube
 muestran solo los pulsos del plano elegido. Un impulso que se aparta más de 30°
 del plano sale rechazado: **FUERA DEL PLANO**.
 
+Debajo de la guía, el **resumen de los seis canales**: la cabeza vista desde
+arriba, con la nariz hacia arriba y el oído derecho a la derecha, y en cada
+canal la ganancia media y cuántos pulsos la dan. Verde si llega al corte de su
+plano —0,8 en el lateral, 0,7 en los verticales, que normalmente dan algo
+menos—, rojo si no, gris sin pulsos. La línea azul es el plano que se examina;
+un clic en un canal elige su plano.
+
+![El resumen de los seis canales con neuritis vestibular derecha: en rojo el lateral y el anterior derechos](img/51-seis-canales.png)
+
 ![RALP con neuritis vestibular derecha en el Simulador: el anterior derecho con ganancia baja y sacadas, el posterior izquierdo en 1](img/50-verticales-neuritis.png)
 
 La cara dibujada gira con la orientación entera del teléfono, y el ojo que
@@ -802,7 +811,13 @@ mitad torsión.
 En los verticales, los perfiles del Simulador siguen la anatomía: la neuritis
 común (la rama superior del nervio) toca también el **anterior** del mismo
 lado y deja el **posterior** sano; la vestibulopatía bilateral toca los seis.
-La práctica **Voy a tener suerte** sigue preguntando por los laterales.
+La **neuritis inferior**, derecha o izquierda, toca solo el posterior: los
+laterales se ven normales y con la webcam pasaría por sana, así que solo
+aparece con el teléfono.
+
+Con el teléfono, **Voy a tener suerte** es de seis canales: pide tres pulsos
+aceptados en cada canal —la barra cuenta los canales listos— y pregunta qué
+canal lateral y qué verticales están afectados y qué sacadas aparecen.
 
 ---
 
@@ -1357,5 +1372,5 @@ citan por autor y año; cada una lleva una línea sobre para qué se usa aquí.
 ### Cómo citar trainHIT
 
 > Baier-Quezada N, Uribe-Hernández V, López-Moncada F. trainHIT: vHIT
-> didáctico en el navegador [software]. Versión 2026-09-28.2. Puerto Montt:
+> didáctico en el navegador [software]. Versión 2026-09-28.4. Puerto Montt:
 > Laboratorio TecMedHub, Universidad Austral de Chile; 2026.

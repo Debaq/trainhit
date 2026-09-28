@@ -94,6 +94,12 @@ lenta. Las manos van arriba de la cabeza y bajo el mentón, lejos del teléfono.
 Si el impulso se aparta más de 30° del plano —por ejemplo, un cabeceo con la
 cabeza de frente en LARP— el pulso sale rechazado: **FUERA DEL PLANO**.
 
+Debajo de la guía, el **resumen de los seis canales** junta todo: la cabeza
+desde arriba con la ganancia media de cada canal, en verde o en rojo según el
+corte de su plano. Un clic en un canal lleva a su plano.
+
+![El resumen de los seis canales: en rojo el lateral y el anterior derechos](img/51-seis-canales.png)
+
 ## 5. Qué mirar en la cara
 
 El iris tiene fibras y una cripta oscura, y la esclera tiene vasos: con
@@ -104,7 +110,9 @@ gira la cabeza.
 
 Con un perfil del **Simulador** puesto, el canal afectado muestra la ganancia
 baja y las sacadas. La neuritis vestibular común toca el lateral y el anterior
-de un oído y deja el posterior sano.
+de un oído y deja el posterior sano; la **inferior** toca solo el posterior, y
+los laterales se ven normales. **Voy a tener suerte** sortea un paciente y pide
+los seis canales antes de contestar.
 
 ## Si algo no anda
 

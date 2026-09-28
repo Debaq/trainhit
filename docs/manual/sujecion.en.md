@@ -95,6 +95,12 @@ slow return. Hands on top of the head and under the chin, away from the phone.
 If the impulse strays more than 30° from the plane —for example, pitching with
 the head facing forward in LARP— the impulse is rejected: **OFF THE PLANE**.
 
+Below the guide, the **six-canal summary** puts it all together: the head from
+above with the mean gain of each canal, green or red according to the cut-off
+of its plane. A click on a canal goes to its plane.
+
+![The six-canal summary: the right lateral and right anterior in red](img/en/51-seis-canales.png)
+
 ## 5. What to look at in the face
 
 The iris has fibres and a dark crypt, and the sclera has vessels: with them
@@ -105,7 +111,9 @@ is why the head is turned.
 
 With a **Simulator** profile on, the affected canal shows the low gain and the
 saccades. Common vestibular neuritis affects the lateral and the anterior
-canal of one ear and spares the posterior.
+canal of one ear and spares the posterior; the **inferior** one affects only
+the posterior, and the lateral canals look normal. **I’m feeling lucky** draws
+a patient and asks for all six canals before answering.
 
 ## If something goes wrong
 

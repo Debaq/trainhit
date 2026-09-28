@@ -18,7 +18,7 @@ with a phone as the head.
 
 **Author:** Nicolás Baier Quezada<br>
 **Date:** September 28, 2026<br>
-**trainHIT version documented:** 2026-09-28.2
+**trainHIT version documented:** 2026-09-28.4
 
 TecMedHub Lab · Universidad Austral de Chile, Puerto Montt campus
 
@@ -793,6 +793,15 @@ The panels change their titles with the plane, and the means, the list and the
 cloud show only the impulses of the chosen plane. An impulse more than 30° off
 the plane is rejected: **OFF THE PLANE**.
 
+Below the guide, the **six-canal summary**: the head seen from above, nose up
+and the right ear on the right, and in each canal the mean gain and how many
+impulses give it. Green if it reaches the cut-off of its plane —0.8 in the
+lateral, 0.7 in the vertical ones, which normally give somewhat less—, red if
+not, grey with no impulses. The blue line is the plane being examined; a click
+on a canal chooses its plane.
+
+![The six-canal summary with right vestibular neuritis: the right lateral and right anterior in red](img/en/51-seis-canales.png)
+
 ![RALP with right vestibular neuritis in the Simulator: the right anterior with low gain and saccades, the left posterior at 1](img/en/50-verticales-neuritis.png)
 
 The drawn face turns with the phone’s whole orientation, and the compensating
@@ -804,7 +813,14 @@ the same turn is half torsion.
 In the vertical planes the Simulator profiles follow the anatomy: common
 neuritis (the superior branch of the nerve) also affects the **anterior** canal
 on the same side and spares the **posterior**; bilateral vestibulopathy affects
-all six. The **I’m feeling lucky** practice still asks about the lateral canals.
+all six. **Inferior neuritis**, right or left, affects only the posterior: the
+lateral canals look normal and with the webcam it would pass as healthy, so it
+only appears with the phone.
+
+With the phone, **I’m feeling lucky** covers the six canals: it asks for three
+accepted impulses in each canal —the bar counts the canals ready— and asks
+which lateral canal and which vertical ones are affected and which saccades
+appear.
 
 ---
 
@@ -1360,5 +1376,5 @@ year in the text; each one carries a line on what it is used for here.
 ### How to cite trainHIT
 
 > Baier-Quezada N, Uribe-Hernández V, López-Moncada F. trainHIT: a teaching
-> vHIT in the browser [software]. Version 2026-09-28.2. Puerto Montt:
+> vHIT in the browser [software]. Version 2026-09-28.4. Puerto Montt:
 > TecMedHub Lab, Universidad Austral de Chile; 2026.
