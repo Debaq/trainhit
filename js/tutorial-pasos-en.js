@@ -80,9 +80,10 @@ export const PASEOS = {
           the right anterior with the left posterior (RALP).</p>
           <p>A turn in one plane excites one canal of the pair and inhibits the other. The impulse to
           the right mainly tests the <b>right lateral</b> canal.</p>
-          <p class="ayuda">trainHIT only measures the <b>lateral</b> plane. The vertical ones are tested
-          by turning the head diagonally and need the vertical movement of the eye, which the eyelid
-          covers and the webcam measures poorly. The <b>vertical canals</b> tour explains how.</p>`,
+          <p class="ayuda">With the webcam, trainHIT only measures the <b>lateral</b> plane. The vertical
+          ones are tested by turning the head diagonally and need the vertical movement of the eye, which
+          the eyelid covers and the webcam measures poorly; with the <b>phone</b> as the head they can be
+          practised, with a simulated eye. The <b>vertical canals</b> tour explains how.</p>`,
       },
       ganancia: {
         titulo: 'The gain',
@@ -143,7 +144,7 @@ export const PASEOS = {
   // ─────────────────────────────────────────────────────── verticales ──
   verticales: {
     titulo: 'The vertical canals',
-    resumen: 'The LARP and RALP pairs: how they are tested, what the eye does, why they matter and why trainHIT does not measure them yet. No camera.',
+    resumen: 'The LARP and RALP pairs: how they are tested, what the eye does, why they matter and why the webcam cannot measure them and the phone can. No camera.',
     pasos: {
       pares: {
         titulo: 'Two diagonal pairs',
@@ -216,7 +217,7 @@ export const PASEOS = {
           canals tell the rest.</p>`,
       },
       trainhit: {
-        titulo: 'Why trainHIT does not measure them yet',
+        titulo: 'Not with the webcam; with the phone, yes',
         alt: 'Two large eyes seen from the front. On the left it looks straight ahead and the whole iris shows. On the right it looks up: the eyelid covers the top edge of the iris, drawn dotted, and the centre estimated from what shows (red dot) sits below the true one (orange dot).',
         cuerpo: `
           <p>The head movement in those planes can already be computed. What is missing is measuring the
@@ -229,9 +230,10 @@ export const PASEOS = {
             <li>With the head at 45°, the camera sees the face <b>from the side</b> and the model loses
             precision.</li>
           </ul>
-          <p class="ayuda">What comes first, if the camera allows it, is a vertical VOR in pitch with the
-          head straight: both anteriors together going down and both posteriors together going up. It
-          would not be RALP or LARP, and it will say so.</p>`,
+          <p>With the <b>phone</b> as the head there is no need to see the eye: the model places it, healthy
+          or with the Simulator’s pathology. Strapped to a classmate’s forehead, choose <b>LARP</b> or
+          <b>RALP</b> next to the buttons and examine with the real manoeuvre. The guide <i>The phone on
+          the head</i>, in the phone dialog, explains how to strap it on.</p>`,
       },
     },
   },

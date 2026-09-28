@@ -32,6 +32,11 @@ export const CONFIG = {
     // Radio del iris en píxeles por debajo del cual el landmark es demasiado
     // grueso para la escala: paciente lejos o cámara pequeña.
     irisMinPx: 5,
+    // Con el teléfono, cuánto se puede apartar el impulso del plano del canal:
+    // el ángulo entre el giro que se dio y el eje del plano. Es tolerante a
+    // propósito —es para aprender la maniobra, no para medir a nadie—: a 30°
+    // el canal todavía recibe el 87 % del giro.
+    fueraMaxDeg: 30,
   },
   saccade: {
     // Velocidad de la mirada EN EL ESPACIO, hacia el blanco, por encima de la
@@ -80,6 +85,7 @@ export function cadenciaFps(samples) {
 export const RECHAZO_TEXT = {
   'cara-perdida': 'CARA PERDIDA — quedarse en el encuadre',
   'iris-chico': 'IRIS MUY PEQUEÑO — acercarse a la cámara',
+  'fuera-del-plano': 'FUERA DEL PLANO — girar en el plano del canal',
   lento: 'MUY LENTO — impulso más fuerte',
   rapido: 'MUY RÁPIDO',
   corto: 'MUY CORTO',
@@ -212,6 +218,28 @@ function minimo(samples, campo) {
 }
 
 /**
+ * Cuánto se apartó el impulso de su plano, en grados: el ángulo entre lo que
+ * giró la cabeza en el plano y lo que giró fuera de él, del inicio al punto de
+ * mayor recorrido. Solo si las muestras traen `fuera` —el giro acumulado fuera
+ * del plano, un vector en grados—, que hoy da el teléfono; con la webcam, null.
+ */
+export function desvioDelPlano(samples, onsetIdx, offsetIdx) {
+  // Lo de dentro del plano también crudo, del mismo cuadro que `fuera`: la
+  // posición derivada va atrasada media ventana y torcería el ángulo.
+  const enPlano = (s) => s.crudo?.yaw ?? s.headPos;
+  const s0 = samples[onsetIdx];
+  if (!s0?.fuera) return null;
+  let s1 = s0;
+  for (let i = onsetIdx; i <= offsetIdx; i++) {
+    if (Math.abs(enPlano(samples[i]) - enPlano(s0)) > Math.abs(enPlano(s1) - enPlano(s0))) s1 = samples[i];
+  }
+  if (!s1.fuera) return null;
+  const dentro = Math.abs(enPlano(s1) - enPlano(s0));
+  const fuera = Math.hypot(...s1.fuera.map((v, i) => v - s0.fuera[i]));
+  return (Math.atan2(fuera, dentro) * 180) / Math.PI;
+}
+
+/**
  * Analiza un pulso completo.
  *
  * Campos opcionales por muestra: `irisPx` (radio del iris) y `vergMm`
@@ -268,6 +296,7 @@ export function analyzeTrial(samples, cfg = CONFIG) {
     disconjMm: vergs.length ? Math.max(...vergs) - Math.min(...vergs) : null,
     fpsMuestreo,
     noValidado,
+    fueraDeg: desvioDelPlano(samples, win.onset, win.offset),
     rejected: null,
   };
 
@@ -276,6 +305,7 @@ export function analyzeTrial(samples, cfg = CONFIG) {
   // dice al operador qué hacer distinto, y al final la calidad fina.
   if (trial.gapMs > cfg.accept.gapMaxMs) trial.rejected = 'cara-perdida';
   else if (trial.irisPx !== null && trial.irisPx < cfg.accept.irisMinPx) trial.rejected = 'iris-chico';
+  else if (trial.fueraDeg !== null && trial.fueraDeg > cfg.accept.fueraMaxDeg) trial.rejected = 'fuera-del-plano';
   else if (peakHeadDegS < cfg.accept.peakMinDegS) trial.rejected = 'lento';
   else if (peakHeadDegS > cfg.accept.peakMaxDegS) trial.rejected = 'rapido';
   else if (durationMs < cfg.accept.durationMinMs) trial.rejected = 'corto';

@@ -61,6 +61,10 @@
   --cara-esclera: #e4e4e7;
   --cara-iris: #4b6f8f;
   --cara-pupila: #09090b;
+  /* lo que deja ver la torsión del ojo: fibras y cripta del iris, vasos de la esclera */
+  --cara-iris-fibra: #7fa2c2;
+  --cara-iris-cripta: #2a4257;
+  --cara-vaso: #c0504d;
   --velo: light-dark(rgb(24 24 27 / 0.45), rgb(9 9 11 / 0.75));
   --velo-foco: light-dark(rgb(24 24 27 / 0.4), rgb(9 9 11 / 0.62));
   --sombra: light-dark(rgb(24 24 27 / 0.16), rgb(0 0 0 / 0.5));
@@ -603,6 +607,18 @@ button.badge { border: 0; cursor: pointer; white-space: nowrap; }
 /* ── controles ───────────────────────────────────────────────────────────── */
 
 .botonera { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* El plano de canales, con el teléfono: ocupa su propia fila de la botonera. */
+.planos { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.segmentos { display: inline-flex; }
+.segmentos button { border-radius: 0; margin-left: -1px; }
+.segmentos button:first-child { border-radius: var(--r-widget) 0 0 var(--r-widget); margin-left: 0; }
+.segmentos button:last-child { border-radius: 0 var(--r-widget) var(--r-widget) 0; }
+.segmentos button[aria-checked='true'] { background: var(--c-head); border-color: transparent; color: var(--sobre-color); font-weight: 600; }
+.plano-giro { font-size: 12px; font-variant-numeric: tabular-nums; }
+.plano-giro.ok { color: var(--c-ok-texto); }
+.plano-giro.mal { color: var(--c-warn-texto); }
+.plano-guia { flex-basis: 100%; margin: 0; color: var(--muted-fg); font-size: 12px; }
 .botonera.fina { align-items: center; }
 
 button, select {

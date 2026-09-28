@@ -96,7 +96,8 @@ export const HTML = {
   'tel.unirse': 'Use this phone as the head',
   'tel.lista': 'Ready: the face on the PC follows this phone. Keep the screen on.',
   'tel.consejo':
-    'It feels more like a head if it has some weight: strap the phone with tape or a rubber band to a ball, a stuffed toy or a box, with the screen facing the examiner. The impulses, as in the exam: short, abrupt, 10 to 20°, and a slow return.',
+    'Most realistic is strapping it to a classmate’s forehead, in landscape with the screen facing forward: that way the vertical canals can be examined too. Otherwise, with tape or a rubber band to a ball, a stuffed toy or a box. The impulses, as in the exam: short, abrupt, 10 to 20°, and a slow return.',
+  'tel.guia': 'How to strap the phone to the head (PDF)',
   'tel.centrar': 'Center',
   'tel.centrar.t': 'the current position is straight ahead',
   'tel.terminar': 'End link',
@@ -136,9 +137,12 @@ export const HTML = {
             `,
 
   // ── paneles ──
-  'lado.der': 'Rightward impulses',
+  'plano.t': 'plane of canals',
+  'plano.lateral': 'Lateral',
+  'plano.lateral.t': 'both lateral canals',
+  'plano.larp.t': 'left anterior and right posterior',
+  'plano.ralp.t': 'right anterior and left posterior',
   'lado.der.t': 'impulses to the right: head and eye velocity overlaid',
-  'lado.izq': 'Leftward impulses',
   'lado.izq.t': 'impulses to the left: head and eye velocity overlaid',
   vivo: 'Live velocity',
   'vivo.cabeza': 'head',
@@ -227,7 +231,7 @@ export const HTML = {
             <li>It does not fix the distance to the target.</li>
             <li>30 fps: the peak falls between samples. 60 fps cap on purpose: it is not a medical device.</li>
             <li>Head and eye come from the same image: a tracking error enters both signals.</li>
-            <li>Lateral canal only; the vertical ones need the vertical component of the eye.</li>
+            <li>With the webcam, lateral canal only: the vertical ones need the vertical component of the eye. With the phone all six can be practised, with a simulated eye.</li>
           `,
   'h.docentes': 'For teachers',
   'h.docentes.ayuda':
@@ -504,6 +508,7 @@ export const TEXTO = {
   // RECHAZO_TEXT, analysis.js
   'CARA PERDIDA — quedarse en el encuadre': 'FACE LOST — stay in the frame',
   'IRIS MUY PEQUEÑO — acercarse a la cámara': 'IRIS TOO SMALL — move closer to the camera',
+  'FUERA DEL PLANO — girar en el plano del canal': 'OFF THE PLANE — turn in the plane of the canal',
   'MUY LENTO — impulso más fuerte': 'TOO SLOW — stronger impulse',
   'MUY RÁPIDO': 'TOO FAST',
   'MUY CORTO': 'TOO SHORT',
@@ -542,9 +547,33 @@ export const TEXTO = {
   'Los dos canales laterales con ganancia baja y sacadas manifiestas en los dos lados. La asimetría queda cerca de cero.':
     'Both lateral canals with low gain and overt saccades on both sides. The asymmetry stays close to zero.',
   'Sin patología (control)': 'No pathology (control)',
+  'En los verticales, el anterior derecho también está afectado —la rama superior del nervio— y el posterior derecho, sano.':
+    'In the vertical canals, the right anterior is affected too —the superior branch of the nerve— and the right posterior is healthy.',
+  'En los verticales, el anterior izquierdo también está afectado —la rama superior del nervio— y el posterior izquierdo, sano.':
+    'In the vertical canals, the left anterior is affected too —the superior branch of the nerve— and the left posterior is healthy.',
+  'En los verticales, el anterior izquierdo también, con sus encubiertas; el posterior izquierdo, sano.':
+    'In the vertical canals, the left anterior too, with its covert saccades; the left posterior is healthy.',
+  'En los verticales, el anterior derecho también, con sus encubiertas; el posterior derecho, sano.':
+    'In the vertical canals, the right anterior too, with its covert saccades; the right posterior is healthy.',
+  'En los verticales, los cuatro canales también: los seis están afectados.': 'In the vertical canals, all four too: the six canals are affected.',
+  'Los seis canales sanos.': 'All six canals healthy.',
   'Los dos canales laterales sanos: el motor no agregó nada. Las ganancias y las sacadas que se vieron son las del compañero.':
     'Both lateral canals healthy: the engine added nothing. The gains and saccades seen are the classmate’s own.',
   // ── teléfono como cabeza (app.js, telefono.js) ──
+  'Impulsos derecha': 'Rightward impulses',
+  'Impulsos izquierda': 'Leftward impulses',
+  'Anterior derecho · nariz abajo': 'Right anterior · nose down',
+  'Posterior derecho · nariz arriba': 'Right posterior · nose up',
+  'Anterior izquierdo · nariz abajo': 'Left anterior · nose down',
+  'Posterior izquierdo · nariz arriba': 'Left posterior · nose up',
+  'Cabeza de frente, un poco inclinada hacia abajo; giros de costado.': 'Head facing forward, tilted slightly down; side-to-side turns.',
+  'Cabeza girada 45° a la derecha, mirando al blanco. Nariz abajo: anterior izquierdo; nariz arriba: posterior derecho.':
+    'Head turned 45° to the right, looking at the target. Nose down: left anterior; nose up: right posterior.',
+  'Cabeza girada 45° a la izquierda, mirando al blanco. Nariz abajo: anterior derecho; nariz arriba: posterior izquierdo.':
+    'Head turned 45° to the left, looking at the target. Nose down: right anterior; nose up: left posterior.',
+  'cabeza de frente': 'head facing forward',
+  'cabeza {g}° a la izquierda': 'head {g}° to the left',
+  'cabeza {g}° a la derecha': 'head {g}° to the right',
   'RECONECTANDO AL TELÉFONO…': 'RECONNECTING TO THE PHONE…',
   'ESPERANDO AL TELÉFONO…': 'WAITING FOR THE PHONE…',
   'TELÉFONO · POR EL SERVIDOR': 'PHONE · VIA THE SERVER',

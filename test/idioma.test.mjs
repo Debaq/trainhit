@@ -11,6 +11,7 @@ import { RECHAZO_TEXT } from '../js/analysis.js';
 import { CALIB_ISSUE_TEXT } from '../js/geom.js';
 import { METODOS_GANANCIA } from '../js/plots.js';
 import { PERFILES } from '../js/simulacion.js';
+import { GUIA_PLANO, TITULO_CANAL } from '../js/head.js';
 import { CONDICIONES, PASEOS, PATRONES, PORTADA } from '../js/tutorial-pasos.js';
 import * as tutoEn from '../js/tutorial-pasos-en.js';
 
@@ -64,7 +65,9 @@ const tablas = new Set([
   ...Object.values(RECHAZO_TEXT),
   ...Object.values(CALIB_ISSUE_TEXT),
   ...Object.values(METODOS_GANANCIA).map((m) => m.nombre),
-  ...Object.values(PERFILES).flatMap((p) => [p.nombre, p.descripcion]),
+  ...Object.values(PERFILES).flatMap((p) => [p.nombre, p.descripcion, p.vertical]),
+  ...Object.values(GUIA_PLANO),
+  ...Object.values(TITULO_CANAL),
 ]);
 
 const html = lee('index.html');

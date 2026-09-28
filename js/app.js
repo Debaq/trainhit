@@ -4,7 +4,7 @@
 // Cada paso está en su módulo; aquí solo se los conecta y se los muestra.
 
 import * as geom from './geom.js';
-import { HeadTracker, quatFromMatrix, quatRotate } from './head.js';
+import { CANAL_AXIS, CANALES_DEL_PLANO, GIRO_DEL_PLANO, GUIA_PLANO, HeadTracker, TITULO_CANAL, quatFromMatrix, quatRotate } from './head.js';
 import { Differentiator } from './signal.js';
 import { CONFIG, RECHAZO_TEXT, SIGNO_DERECHA, analyzeTrial, asimetria, resumenLado } from './analysis.js';
 import * as plots from './plots.js';
@@ -115,10 +115,16 @@ const estado = {
    * antes, para devolverla al salir, y el remuestreo. null con la webcam.
    */
   telefono: null,
+  /**
+   * El plano de canales que se examina (head.js): 'lateral', 'larp' o
+   * 'ralp'. Con la webcam siempre el lateral; los verticales, solo con el
+   * teléfono. Los paneles, las medias y la nube muestran los pulsos de este plano.
+   */
+  plano: 'lateral',
 };
 
 function vivoVacio() {
-  return { offsetMm: null, pxPerMm: null, irisPx: null, yaw: 0, inclinacion: null, azimut: null, blink: false, simDeltaMm: 0 };
+  return { offsetMm: null, pxPerMm: null, irisPx: null, yaw: 0, inclinacion: null, azimut: null, blink: false, simDeltaMm: 0, q: null, giro: null };
 }
 
 // ----------------------------------------------------------- carga modelo ---
@@ -332,6 +338,13 @@ async function poblarCamaras(abierta) {
 //
 // Los pulsos quedan marcados `telefono`. Como los ejemplos, no se mezclan con
 // los de la webcam: al encender la cámara se van.
+//
+// Con el teléfono se examinan también los canales verticales. El teléfono
+// manda el giro por eje en el marco de la cabeza y la orientación entera; el
+// motor recibe el giro en el PLANO elegido (`estado.plano`), el producto por
+// su eje, y todo lo demás —el ojo del modelo, el simulador, las ganancias—
+// corre igual que en el lateral. Lo que se giró fuera del plano va aparte y
+// rechaza el pulso si es mucho (`desvioDelPlano`, analysis.js).
 
 /** El diálogo del enlace (telefono.js); se monta con lo demás, al final. */
 let telefono = null;
@@ -366,6 +379,7 @@ function entraTelefono() {
   $('sin-video').hidden = true;
   $('camara-caja').style.aspectRatio = `${cara.ANCHO} / ${cara.ALTO}`;
   sucio.vivo = true;
+  pintaPlanos();
   marcaEstado('esperando al teléfono: escanear el QR');
 }
 
@@ -382,6 +396,8 @@ function saleTelefono() {
   estado.model.calibrated = tel.calibrado;
   estado.ultimoFit = tel.fit;
   sucio.calib = true;
+  estado.plano = 'lateral';
+  pintaPlanos();
   reseteaTransitorio();
   $('video').hidden = false;
   $('sin-video').hidden = estado.corriendo;
@@ -391,15 +407,15 @@ function saleTelefono() {
   marcaEstado('encender la cámara');
 }
 
-/** Un evento del teléfono: la hora del teléfono en ms y el yaw en grados. */
-function giroTelefono(tMs, yaw) {
+/** Un evento del teléfono: la hora del teléfono en ms, el giro por eje en grados y la orientación. */
+function giroTelefono(tMs, giro, q) {
   const tel = estado.telefono;
   if (!tel) return;
-  const { cuadros, corte } = tel.remuestreo.empuja(tMs, yaw);
+  const { cuadros, corte } = tel.remuestreo.empuja(tMs, giro, q);
   // Un corte —el teléfono se durmió o recargó la página— rompe la
   // continuidad: el derivador y el pulso en curso no pueden seguir de largo.
   if (corte) cortaTelefono();
-  for (const c of cuadros) cuadroTelefono(c.t, c.yaw);
+  for (const c of cuadros) cuadroTelefono(c.t, c.giro, c.q);
   const ahora = performance.now();
   tel.ultimo = ahora;
   tel.cuenta.n += cuadros.length;
@@ -418,14 +434,21 @@ function cortaTelefono() {
   estado.diff.reset();
 }
 
-function cuadroTelefono(t, yaw) {
-  const obs = { offsetMm: cara.offsetSano(yaw, estado.model), pxPerMm: cara.PX_POR_MM, radiusPx: cara.IRIS_PX };
+function cuadroTelefono(t, giro, q) {
+  // El giro en el plano del canal es el producto por su eje; lo que sobra es
+  // lo que se giró fuera del plano.
+  const eje = CANAL_AXIS[estado.plano];
+  const enPlano = eje[0] * giro[0] + eje[1] * giro[1] + eje[2] * giro[2];
+  const fuera = giro.map((g, i) => g - enPlano * eje[i]);
+  const obs = { offsetMm: cara.offsetSano(enPlano, estado.model), pxPerMm: cara.PX_POR_MM, radiusPx: cara.IRIS_PX };
+  estado.vivo.q = q;
+  estado.vivo.giro = giro;
   if (estado.pausado) {
-    estado.vivo.yaw = yaw;
+    estado.vivo.yaw = enPlano;
     estado.vivo.offsetMm = obs.offsetMm;
     return;
   }
-  procesaMuestra(t, yaw, obs, { blinkScore: 0, vergMm: 0, inclinacion: null });
+  procesaMuestra(t, enPlano, obs, { blinkScore: 0, vergMm: 0, inclinacion: null, fuera });
 }
 
 /**
@@ -435,7 +458,11 @@ function cuadroTelefono(t, yaw) {
  */
 function dibujaCaraTelefono() {
   const yaw = estado.vivo.yaw ?? 0;
-  const geo = cara.dibujaCara(lienzoCara, yaw, estado.vivo.offsetMm ?? cara.offsetSano(yaw, estado.model), estado.model);
+  const offset = estado.vivo.offsetMm ?? cara.offsetSano(yaw, estado.model);
+  // La mirada que lee el motor, en el plano: con el ojo sano, cero.
+  const mirada = estado.model.gazeAzimuthDeg({ offsetMm: offset }, yaw) ?? 0;
+  const pose = estado.vivo.q ? cara.pose(estado.vivo.q, CANAL_AXIS[estado.plano], mirada) : cara.poseLateral(yaw, mirada);
+  const geo = cara.dibujaCara(lienzoCara, pose, estado.model);
   const lms = cara.landmarks(geo, IDX);
   const overlay = $('overlay');
   if (overlay.width !== cara.ANCHO || overlay.height !== cara.ALTO) {
@@ -453,6 +480,43 @@ function dibujaCaraTelefono() {
     const crop = geom.eyeCrop(P(ojo.outer), P(ojo.inner), cara.ANCHO, cara.ALTO);
     plots.dibujaOjo($(canvas), lienzoCara, crop, lms, ojo, estado.espejo);
   }
+}
+
+/**
+ * El selector de plano: se ve con el teléfono, o si hay pulsos verticales
+ * (importados) que mirar. Dice cómo se pone la cabeza para el plano elegido.
+ */
+function pintaPlanos() {
+  const hayVerticales = estado.trials.some((t) => (t.canal ?? 'lateral') !== 'lateral');
+  $('planos').hidden = !estado.telefono && !hayVerticales && estado.plano === 'lateral';
+  for (const b of $('planos').querySelectorAll('[data-plano]')) b.setAttribute('aria-checked', String(b.dataset.plano === estado.plano));
+  $('plano-guia').textContent = tx(GUIA_PLANO[estado.plano]);
+}
+
+/** Cuánto está girada la cabeza ahora, contra lo que pide el plano: se pinta en cada cuadro. */
+function pintaGiroPlano() {
+  const giro = estado.telefono && estado.vivo.giro ? estado.vivo.giro[1] : null;
+  const el = $('plano-giro');
+  el.hidden = giro === null;
+  if (giro === null) return;
+  const bien = Math.abs(giro - GIRO_DEL_PLANO[estado.plano]) <= 10;
+  el.textContent = tx(Math.abs(giro) < 3 ? 'cabeza de frente' : giro > 0 ? 'cabeza {g}° a la izquierda' : 'cabeza {g}° a la derecha', {
+    g: fmt(Math.abs(giro), 0),
+  });
+  el.className = `plano-giro ${bien ? 'ok' : 'mal'}`;
+}
+
+function cambiaPlano(plano) {
+  if (!CANAL_AXIS[plano] || plano === estado.plano) return;
+  estado.plano = plano;
+  // Lo que venía del plano anterior no es continuo con el nuevo: el giro en
+  // el plano cambia de golpe y el derivador vería un salto.
+  if (estado.telefono) cortaTelefono();
+  if (estado.seleccion && (estado.seleccion.canal ?? 'lateral') !== plano) estado.seleccion = null;
+  olvidaAntes();
+  pintaListas();
+  ensucia();
+  marcaEstado(GUIA_PLANO[plano]);
 }
 
 /** El rótulo de la barra: si hay teléfono y por dónde va. */
@@ -565,10 +629,10 @@ function procesaFrame(mediaTime) {
  * (`cuadroTelefono`): de aquí en adelante el motor no sabe de dónde vino.
  *
  * @param {number} t hora del cuadro, en s
- * @param {number} yaw giro de la cabeza, en grados
+ * @param {number} yaw giro de la cabeza en el plano del canal, en grados: el yaw en el lateral
  * @param {{offsetMm:number, pxPerMm:number, radiusPx:number}} obs el ojo
  */
-function procesaMuestra(t, yaw, obs, { blinkScore, vergMm, inclinacion }) {
+function procesaMuestra(t, yaw, obs, { blinkScore, vergMm, inclinacion, fuera = null }) {
   const blink = blinkScore > cfg.blinkScore;
   estado.vivo.offsetMm = obs.offsetMm;
   estado.vivo.pxPerMm = obs.pxPerMm;
@@ -588,7 +652,7 @@ function procesaMuestra(t, yaw, obs, { blinkScore, vergMm, inclinacion }) {
   const gaze = estado.model.gazeAzimuthDeg({ offsetMm: offsetVisto }, yaw);
   estado.vivo.azimut = gaze;
 
-  estado.crudo.push({ t, yaw, offsetMm: obs.offsetMm, blinkScore, irisPx: obs.radiusPx, vergMm });
+  estado.crudo.push({ t, yaw, offsetMm: obs.offsetMm, blinkScore, irisPx: obs.radiusPx, vergMm, ...(fuera && { fuera }) });
   while (estado.crudo.length && t - estado.crudo[0].t > plots.SEGUNDOS_VIVO) estado.crudo.shift();
 
   const d = estado.diff.push({ t, headDeg: yaw, gazeDeg: gaze });
@@ -699,7 +763,7 @@ function detectaPulso(m) {
       estado.simVivo = {
         tTrigger: m.t,
         lado,
-        params: parametrosPulso(estado.sim.perfil, lado, semillaPulso(estado.proximoId)),
+        params: parametrosPulso(estado.sim.perfil, lado, semillaPulso(estado.proximoId), estado.plano),
         cuadros: estado.crudo.filter((c) => c.t >= m.t - 0.15).map((c) => ({ t: c.t, yaw: c.yaw })),
       };
     }
@@ -739,7 +803,7 @@ function semillaPulso(id) {
  */
 function simulaPulso(real, crudo, tTrigger) {
   const v = estado.simVivo?.tTrigger === tTrigger ? estado.simVivo : null;
-  const params = v?.lado === real.side ? v.params : parametrosPulso(estado.sim.perfil, real.side, semillaPulso(estado.proximoId));
+  const params = v?.lado === real.side ? v.params : parametrosPulso(estado.sim.perfil, real.side, semillaPulso(estado.proximoId), estado.plano);
   const crudoSim = simulaCrudo(crudo, tTrigger, params, estado.model);
   const t = procesaCrudo(crudoSim, tTrigger, estado.model, derivActual(), cfg);
   if (!t) return null;
@@ -777,6 +841,7 @@ function cierraPulso() {
   trial.id = estado.proximoId++;
   trial.crudo ??= crudo;
   if (estado.telefono) trial.telefono = true;
+  trial.canal = estado.plano;
   anotaConfig(trial);
   estado.trials.push(trial);
   estado.seleccion = trial;
@@ -813,6 +878,7 @@ function recalculaTodos() {
     // Recalcular no convierte un ejemplo (ni uno importado) en un pulso medido.
     if (t.ejemplo) nuevo.ejemplo = true;
     if (t.telefono) nuevo.telefono = true;
+    nuevo.canal = t.canal;
     if (t.importado) Object.assign(nuevo, { importado: true, ejemploEnArchivo: t.ejemploEnArchivo });
     anotaConfig(nuevo);
     return nuevo;
@@ -830,7 +896,7 @@ function recalculaTodos() {
  * de antes y la nube los puntos de antes unidos a los de ahora.
  */
 function fotoAntes() {
-  const lado = (side) => resumenLado(estado.trials, side);
+  const lado = (side) => resumenLado(delPlano(), side);
   const der = lado('derecha');
   const izq = lado('izquierda');
   return {
@@ -839,6 +905,11 @@ function fotoAntes() {
     izquierda: izq,
     asim: asimetria(der.media, izq.media),
   };
+}
+
+/** Los pulsos del plano que se examina: los que van a los paneles, las medias y la nube. */
+function delPlano(trials = estado.trials) {
+  return trials.filter((t) => (t.canal ?? 'lateral') === estado.plano);
 }
 
 /** La comparación vale contra el recálculo; cualquier otro cambio de pulsos la vence. */
@@ -869,7 +940,7 @@ function pintaListas() {
   ]) {
     const tbody = $(tbodyId);
     tbody.innerHTML = '';
-    for (const t of estado.trials.filter((x) => x.side === lado)) {
+    for (const t of delPlano().filter((x) => x.side === lado)) {
       const tr = document.createElement('tr');
       tr.className = t === estado.seleccion ? 'sel' : '';
       tr.tabIndex = 0;
@@ -938,8 +1009,16 @@ function pintaListas() {
     }
   }
 
-  const der = resumenLado(estado.trials, 'derecha');
-  const izq = resumenLado(estado.trials, 'izquierda');
+  for (const [lado, id] of [
+    ['derecha', 'titulo-der'],
+    ['izquierda', 'titulo-izq'],
+  ]) {
+    $(id).textContent = tx(TITULO_CANAL[CANALES_DEL_PLANO[estado.plano][lado]]);
+  }
+  pintaPlanos();
+
+  const der = resumenLado(delPlano(), 'derecha');
+  const izq = resumenLado(delPlano(), 'izquierda');
   for (const [r, lado, ganId, metaId] of [
     [der, 'derecha', 'gan-der', 'meta-der'],
     [izq, 'izquierda', 'gan-izq', 'meta-izq'],
@@ -947,7 +1026,7 @@ function pintaListas() {
     const g = $(ganId);
     g.textContent = r.n ? (r.n > 1 ? `${fmt(r.media)} ± ${fmt(r.de)}` : fmt(r.media)) : '—';
     g.className = `gan ${!r.n || !estado.model.calibrated ? 'sin' : r.media >= cfg.gainNormalMin ? 'ok' : 'bajo'}`;
-    const total = estado.trials.filter((t) => t.side === lado).length;
+    const total = delPlano().filter((t) => t.side === lado).length;
     const a = estado.antes?.[lado];
     $(metaId).textContent =
       tx('{n} aceptados · {m} rechazados', { n: r.n, m: total - r.n }) +
@@ -982,8 +1061,8 @@ function pintaMetodos() {
   const tbody = $('tabla-metodos').querySelector('tbody');
   tbody.innerHTML = '';
   for (const [id, m] of Object.entries(plots.METODOS_GANANCIA)) {
-    const d = resumenLado(estado.trials, 'derecha', m.de);
-    const i = resumenLado(estado.trials, 'izquierda', m.de);
+    const d = resumenLado(delPlano(), 'derecha', m.de);
+    const i = resumenLado(delPlano(), 'izquierda', m.de);
     const tr = document.createElement('tr');
     if (id === 'area') tr.className = 'reportada';
     const celda = (r) => (r.n ? `${fmt(r.media)} (${r.n})` : '—');
@@ -1078,7 +1157,9 @@ function pintaTodo() {
   const iris = $('v-iris');
   iris.textContent = fmt(estado.vivo.irisPx, 1);
   iris.className = estado.vivo.irisPx !== null && estado.vivo.irisPx < cfg.accept.irisMinPx ? 'mal' : '';
-  $('v-yaw').textContent = fmt(estado.vivo.yaw, 1);
+  // Con el teléfono, el yaw de verdad: el del motor es el giro en el plano.
+  $('v-yaw').textContent = fmt(estado.telefono && estado.vivo.giro ? estado.vivo.giro[1] : estado.vivo.yaw, 1);
+  pintaGiroPlano();
   $('v-inclin').textContent = fmt(estado.vivo.inclinacion, 0);
   $('v-azimut').textContent = fmt(estado.vivo.azimut, 1);
   $('v-vojo').textContent = ultima ? fmt(ultima.headVel - ultima.gazeVel, 0) : '—';
@@ -1098,11 +1179,11 @@ function pintaTodo() {
   const herramientas = !$('herramientas').hidden;
   if (sucio.pulsos) {
     const conMedicion = (id) => (estado.medPulso?.id === id ? estado.medPulso : null);
-    plots.overlayLado($('plot-der'), estado.trials, 'derecha', cfg, estado.seleccion, {
+    plots.overlayLado($('plot-der'), delPlano(), 'derecha', cfg, estado.seleccion, {
       promedio: estado.promedio,
       medicion: conMedicion('plot-der'),
     });
-    plots.overlayLado($('plot-izq'), estado.trials, 'izquierda', cfg, estado.seleccion, {
+    plots.overlayLado($('plot-izq'), delPlano(), 'izquierda', cfg, estado.seleccion, {
       promedio: estado.promedio,
       medicion: conMedicion('plot-izq'),
     });
@@ -1110,7 +1191,7 @@ function pintaTodo() {
       plots.dibujaPulso($('plot-pulso'), estado.seleccion || estado.trials[estado.trials.length - 1], cfg, {
         medicion: conMedicion('plot-pulso'),
       });
-      plots.dibujaDispersion($('plot-ganancias'), estado.trials, cfg, {
+      plots.dibujaDispersion($('plot-ganancias'), delPlano(), cfg, {
         metodo: $('metodo-gan').value,
         // Los puntos de antes solo tienen sentido con la ganancia que se guardó.
         antes: $('metodo-gan').value === 'area' ? estado.antes?.porId : null,
@@ -1717,7 +1798,7 @@ function pintaSimulacion() {
       ? tx('Paciente al azar: puede tener una patología o ninguna. Examina como siempre.')
       : oculto
         ? tx('Perfil oculto. Examina, decide qué tiene el paciente y después presiona Revelar.')
-        : `${tx(p.nombre)}. ${tx(p.descripcion)}`;
+        : `${tx(p.nombre)}. ${tx(p.descripcion)}${estado.plano === 'lateral' ? '' : ` ${tx(p.vertical)}`}`;
   // En la práctica se revela contestando, con su propio botón.
   $('sim-revelar').hidden = !oculto || Boolean(practica);
   pintaPractica();
@@ -1750,7 +1831,8 @@ function pintaSimulacion() {
 
 /** Pulsos aceptados de cada lado, los que cuentan para poder contestar. */
 function aceptadosPorLado() {
-  const n = (lado) => estado.trials.filter((t) => t.side === lado && !t.rejected).length;
+  // La práctica pregunta por los laterales: los verticales no cuentan.
+  const n = (lado) => estado.trials.filter((t) => t.side === lado && !t.rejected && (t.canal ?? 'lateral') === 'lateral').length;
   return { derecha: n('derecha'), izquierda: n('izquierda') };
 }
 
@@ -1899,6 +1981,7 @@ function importaSesion(texto, nombre) {
     trial.importado = true;
     trial.ejemploEnArchivo = p.ejemplo;
     if (p.simulado) trial.simulado = p.simulado;
+    trial.canal = p.plano;
     trial.calibrado = p.calibrado;
     trial.k = model.kParallax;
     trial.deriv = deriv;
@@ -1999,6 +2082,9 @@ function montaIdioma() {
     // `manual/`: se publican junto a ella. Ver docs/manual/generar-pdf.py.
     const pdf = idioma() === 'en' ? 'trainhit-manual-en.pdf' : 'trainhit-manual.pdf';
     for (const a of document.querySelectorAll('.enlace-manual')) a.href = MANUAL_URL + pdf;
+    // La guía corta del teléfono en la cabeza (docs/manual/sujecion.md).
+    const guia = idioma() === 'en' ? 'trainhit-sujecion-en.pdf' : 'trainhit-sujecion.pdf';
+    for (const a of document.querySelectorAll('.enlace-sujecion')) a.href = MANUAL_URL + guia;
   };
   boton.addEventListener('click', () => ponIdioma(otro()));
   alCambiarIdioma(() => {
@@ -2072,6 +2158,7 @@ telefono = montaTelefono({
 // la bienvenida.
 if (telefono.rol() === 'cabeza') bienvenida.cierra();
 $('btn-telefono').addEventListener('click', () => telefono.abre());
+for (const b of $('planos').querySelectorAll('[data-plano]')) b.addEventListener('click', () => cambiaPlano(b.dataset.plano));
 $('badge-telefono').addEventListener('click', () => telefono.abre());
 // El recorrido del tutorial espera cosas de la medición real: por eso se
 // monta aquí, con acceso al estado, y no en su módulo.
@@ -2131,4 +2218,14 @@ marcaEstado('encender la cámara');
 
 // Enganche de consola: `trainhit.estado`, `trainhit.cfg`. Es un repo para
 // enseñar — poder revolver el estado desde la consola es parte del punto.
-window.trainhit = { estado, cfg, pintaListas, analyzeTrial, procesaCrudo, recalculaTodos, importaSesion };
+window.trainhit = {
+  estado,
+  cfg,
+  pintaListas,
+  analyzeTrial,
+  procesaCrudo,
+  recalculaTodos,
+  importaSesion,
+  // El teléfono sin teléfono: para probar los planos y hacer las capturas del manual.
+  telefono: { entra: entraTelefono, giro: giroTelefono, plano: cambiaPlano },
+};

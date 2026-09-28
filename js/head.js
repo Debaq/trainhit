@@ -21,15 +21,63 @@
 
 const deg = (r) => (r * 180) / Math.PI;
 
-/** Eje de estimulación de cada canal, EN COORDENADAS DE LA CABEZA. */
+/**
+ * Eje de estimulación de cada PLANO de canales, EN COORDENADAS DE LA CABEZA:
+ * x hacia la izquierda del paciente, y hacia arriba, z hacia la nariz.
+ *
+ * Cada plano junta dos canales que trabajan en pareja, uno de cada oído, y el
+ * signo del eje decide cuál va en cada lado del motor: el giro positivo es el
+ * del lado «izquierda» (`SIGNO_DERECHA`, analysis.js), como el yaw positivo.
+ *
+ *   lateral  giro hacia la izquierda  → lateral izquierdo; al revés, el derecho
+ *   larp     cabeza girada 45° a la derecha, nariz abajo → anterior izquierdo;
+ *            nariz arriba → posterior derecho
+ *   ralp     cabeza girada 45° a la izquierda, nariz arriba → posterior
+ *            izquierdo; nariz abajo → anterior derecho
+ *
+ * Los planos verticales son verticales y están a 45° del plano sagital, así
+ * que su eje es HORIZONTAL: la mezcla de x y z, no de x e y. Con la cabeza
+ * girada 45° hacia la derecha, el eje del LARP queda en la línea de las orejas
+ * del mundo y cabecear es girar justo en ese plano.
+ *
+ * Con la webcam no se usan los verticales: MediaPipe no ve el giro vertical
+ * del ojo (docs/investigacion/verticales-y-supresion.md). Con el teléfono el
+ * ojo lo pone el modelo, y ahí sí.
+ */
 export const CANAL_AXIS = {
-  // Canal lateral: rotación alrededor del eje vertical de la cabeza.
   lateral: [0, 1, 0],
-  // Los verticales van a 45° entre el vertical y el horizontal. El lado de
-  // CABEZA es la misma cuenta; el lado de OJO necesita la componente vertical
-  // del movimiento ocular, que este motor no usa (más ruidosa por el párpado).
-  ralp: [Math.SQRT1_2, Math.SQRT1_2, 0],
-  larp: [-Math.SQRT1_2, Math.SQRT1_2, 0],
+  larp: [Math.SQRT1_2, 0, -Math.SQRT1_2],
+  ralp: [-Math.SQRT1_2, 0, -Math.SQRT1_2],
+};
+
+/** Qué canal va en cada lado del motor, en cada plano. */
+export const CANALES_DEL_PLANO = {
+  lateral: { derecha: 'lateral-der', izquierda: 'lateral-izq' },
+  larp: { derecha: 'posterior-der', izquierda: 'anterior-izq' },
+  ralp: { derecha: 'anterior-der', izquierda: 'posterior-izq' },
+};
+
+/** Hacia dónde se gira la cabeza para cada plano, en grados de yaw (positivo, izquierda). */
+export const GIRO_DEL_PLANO = { lateral: 0, larp: -45, ralp: 45 };
+
+/** Cómo se pone la cabeza para cada plano: la guía que se ve junto al selector. */
+export const GUIA_PLANO = {
+  lateral: 'Cabeza de frente, un poco inclinada hacia abajo; giros de costado.',
+  larp: 'Cabeza girada 45° a la derecha, mirando al blanco. Nariz abajo: anterior izquierdo; nariz arriba: posterior derecho.',
+  ralp: 'Cabeza girada 45° a la izquierda, mirando al blanco. Nariz abajo: anterior derecho; nariz arriba: posterior izquierdo.',
+};
+
+/**
+ * El título del panel de cada canal: el lado en el lateral; en un plano
+ * vertical, el canal y hacia dónde va la nariz, que decide cuál se estimula.
+ */
+export const TITULO_CANAL = {
+  'lateral-der': 'Impulsos derecha',
+  'lateral-izq': 'Impulsos izquierda',
+  'anterior-der': 'Anterior derecho · nariz abajo',
+  'posterior-der': 'Posterior derecho · nariz arriba',
+  'anterior-izq': 'Anterior izquierdo · nariz abajo',
+  'posterior-izq': 'Posterior izquierdo · nariz arriba',
 };
 
 /**

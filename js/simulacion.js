@@ -18,6 +18,7 @@
 // prueban sobre pulsos sintéticos sanos.
 
 import { EYE_ROTATION_RADIUS_MM } from './geom.js';
+import { CANALES_DEL_PLANO } from './head.js';
 
 const rad = (d) => (d * Math.PI) / 180;
 const deg = (r) => (r * 180) / Math.PI;
@@ -56,6 +57,11 @@ export const FIN_IMPULSO_S = 0.13;
  *
  * `patron` es la respuesta en las opciones de «Casos a ciegas» (PATRONES de
  * tutorial-pasos.js), para que el modo a ciegas pregunte lo mismo.
+ *
+ * `canales` es lo que le pasa a cada canal VERTICAL, que solo se examina con
+ * el teléfono (ver head.js): la neuritis común es la de la rama superior del
+ * nervio, que lleva el lateral y el anterior de ese oído y deja el posterior
+ * sano. `vertical` lo cuenta en el Simulador cuando se examina un plano vertical.
  */
 export const PERFILES = {
   'neuritis-der': {
@@ -63,12 +69,16 @@ export const PERFILES = {
     patron: 'unilateral-der',
     descripcion: 'Déficit del canal lateral derecho, agudo: ganancia baja y sacadas manifiestas que llegan tarde y a destiempo.',
     lados: { derecha: { ganancia: [0.35, 0.55], sacadas: [{ latencia: [0.2, 0.34], fraccion: 1 }] } },
+    canales: { 'anterior-der': { ganancia: [0.35, 0.55], sacadas: [{ latencia: [0.2, 0.34], fraccion: 1 }] } },
+    vertical: 'En los verticales, el anterior derecho también está afectado —la rama superior del nervio— y el posterior derecho, sano.',
   },
   'neuritis-izq': {
     nombre: 'Neuritis vestibular izquierda',
     patron: 'unilateral-izq',
     descripcion: 'Déficit del canal lateral izquierdo, agudo: ganancia baja y sacadas manifiestas que llegan tarde y a destiempo.',
     lados: { izquierda: { ganancia: [0.35, 0.55], sacadas: [{ latencia: [0.2, 0.34], fraccion: 1 }] } },
+    canales: { 'anterior-izq': { ganancia: [0.35, 0.55], sacadas: [{ latencia: [0.2, 0.34], fraccion: 1 }] } },
+    vertical: 'En los verticales, el anterior izquierdo también está afectado —la rama superior del nervio— y el posterior izquierdo, sano.',
   },
   'encubierto-izq': {
     nombre: 'Déficit izquierdo compensado con sacadas encubiertas',
@@ -76,6 +86,8 @@ export const PERFILES = {
     descripcion:
       'Déficit izquierdo en el que el cerebro aprendió a corregir durante el giro: sacadas encubiertas, agrupadas y tempranas. La ganancia de área se lee normal: el falso negativo.',
     lados: { izquierda: { ganancia: [0.4, 0.55], sacadas: [{ latencia: [0.095, 0.11], fraccion: 1 }] } },
+    canales: { 'anterior-izq': { ganancia: [0.4, 0.55], sacadas: [{ latencia: [0.095, 0.11], fraccion: 1 }] } },
+    vertical: 'En los verticales, el anterior izquierdo también, con sus encubiertas; el posterior izquierdo, sano.',
   },
   'encubierto-der': {
     nombre: 'Déficit derecho compensado con sacadas encubiertas',
@@ -83,6 +95,8 @@ export const PERFILES = {
     descripcion:
       'Déficit derecho en el que el cerebro aprendió a corregir durante el giro: sacadas encubiertas, agrupadas y tempranas. La ganancia de área se lee normal: el falso negativo.',
     lados: { derecha: { ganancia: [0.4, 0.55], sacadas: [{ latencia: [0.095, 0.11], fraccion: 1 }] } },
+    canales: { 'anterior-der': { ganancia: [0.4, 0.55], sacadas: [{ latencia: [0.095, 0.11], fraccion: 1 }] } },
+    vertical: 'En los verticales, el anterior derecho también, con sus encubiertas; el posterior derecho, sano.',
   },
   bilateral: {
     nombre: 'Vestibulopatía bilateral',
@@ -92,6 +106,8 @@ export const PERFILES = {
       derecha: { ganancia: [0.3, 0.5], sacadas: [{ latencia: [0.2, 0.32], fraccion: 1 }] },
       izquierda: { ganancia: [0.3, 0.5], sacadas: [{ latencia: [0.2, 0.32], fraccion: 1 }] },
     },
+    canales: { 'anterior-der': { ganancia: [0.3, 0.5], sacadas: [{ latencia: [0.2, 0.32], fraccion: 1 }] }, 'posterior-der': { ganancia: [0.3, 0.5], sacadas: [{ latencia: [0.2, 0.32], fraccion: 1 }] }, 'anterior-izq': { ganancia: [0.3, 0.5], sacadas: [{ latencia: [0.2, 0.32], fraccion: 1 }] }, 'posterior-izq': { ganancia: [0.3, 0.5], sacadas: [{ latencia: [0.2, 0.32], fraccion: 1 }] } },
+    vertical: 'En los verticales, los cuatro canales también: los seis están afectados.',
   },
   // El control: pulsos marcados como simulados pero sin nada agregado. Sin él,
   // «uno al azar» siempre tendría algo y la respuesta nunca sería «normal»:
@@ -101,6 +117,8 @@ export const PERFILES = {
     patron: 'normal',
     descripcion: 'Los dos canales laterales sanos: el motor no agregó nada. Las ganancias y las sacadas que se vieron son las del compañero.',
     lados: {},
+    canales: {},
+    vertical: 'Los seis canales sanos.',
   },
 };
 
@@ -120,12 +138,14 @@ const entre = (r, [a, b]) => a + (b - a) * r();
 
 /**
  * Los parámetros de un pulso: la ganancia del reflejo y cuándo corrige cada
- * sacada. null si el perfil deja ese lado sano.
+ * sacada. null si el perfil deja ese canal sano. `plano` es el de head.js:
+ * en uno vertical, el lado dice cuál de sus dos canales (`CANALES_DEL_PLANO`).
  *
  * @returns {{ganancia:number, sacadas:Array<{t:number, fraccion:number}>}|null}
  */
-export function parametrosPulso(perfil, lado, semilla) {
-  const p = PERFILES[perfil]?.lados[lado];
+export function parametrosPulso(perfil, lado, semilla, plano = 'lateral') {
+  const pf = PERFILES[perfil];
+  const p = plano === 'lateral' ? pf?.lados[lado] : pf?.canales[CANALES_DEL_PLANO[plano]?.[lado]];
   if (!p) return null;
   const r = azar(semilla);
   return {

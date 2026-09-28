@@ -9,7 +9,7 @@
          usa: tecmedhub.org es el servidor del enlace con el teléfono. -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-IGtGOE4EUx4jtJ3bZpvWqad+OSk4etByb2bAB+DQzfE='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev https://tecmedhub.org wss://tecmedhub.org; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
+      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-bLDMn5Pd9pVUPB0N0Y/iWgIjV5fgkof/okRgZolVZYk='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev https://tecmedhub.org wss://tecmedhub.org; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
     />
     <meta
       name="description"
@@ -62,7 +62,7 @@
     />
     <!-- Mapa de importación: versiona los imports internos. Lo regenera
          bump.mjs junto con su hash en la CSP de arriba. Va antes del arranque. -->
-    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-28.1","./js/app.js":"./js/app.js?v=2026-09-28.1","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-28.1","./js/cara.js":"./js/cara.js?v=2026-09-28.1","./js/curve.js":"./js/curve.js?v=2026-09-28.1","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-28.1","./js/enlace.js":"./js/enlace.js?v=2026-09-28.1","./js/geom.js":"./js/geom.js?v=2026-09-28.1","./js/giroscopio.js":"./js/giroscopio.js?v=2026-09-28.1","./js/head.js":"./js/head.js?v=2026-09-28.1","./js/idioma.js":"./js/idioma.js?v=2026-09-28.1","./js/idioma-en.js":"./js/idioma-en.js?v=2026-09-28.1","./js/pipeline.js":"./js/pipeline.js?v=2026-09-28.1","./js/plots.js":"./js/plots.js?v=2026-09-28.1","./js/practica.js":"./js/practica.js?v=2026-09-28.1","./js/preguntas.js":"./js/preguntas.js?v=2026-09-28.1","./js/sesion.js":"./js/sesion.js?v=2026-09-28.1","./js/signal.js":"./js/signal.js?v=2026-09-28.1","./js/simulacion.js":"./js/simulacion.js?v=2026-09-28.1","./js/telefono.js":"./js/telefono.js?v=2026-09-28.1","./js/tema.js":"./js/tema.js?v=2026-09-28.1","./js/tracker.js":"./js/tracker.js?v=2026-09-28.1","./js/tutorial.js":"./js/tutorial.js?v=2026-09-28.1","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-28.1","./js/tutorial-pasos-en.js":"./js/tutorial-pasos-en.js?v=2026-09-28.1"}}</script>
+    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-09-28.2","./js/app.js":"./js/app.js?v=2026-09-28.2","./js/bienvenida.js":"./js/bienvenida.js?v=2026-09-28.2","./js/cara.js":"./js/cara.js?v=2026-09-28.2","./js/curve.js":"./js/curve.js?v=2026-09-28.2","./js/ejemplo.js":"./js/ejemplo.js?v=2026-09-28.2","./js/enlace.js":"./js/enlace.js?v=2026-09-28.2","./js/geom.js":"./js/geom.js?v=2026-09-28.2","./js/giroscopio.js":"./js/giroscopio.js?v=2026-09-28.2","./js/head.js":"./js/head.js?v=2026-09-28.2","./js/idioma.js":"./js/idioma.js?v=2026-09-28.2","./js/idioma-en.js":"./js/idioma-en.js?v=2026-09-28.2","./js/pipeline.js":"./js/pipeline.js?v=2026-09-28.2","./js/plots.js":"./js/plots.js?v=2026-09-28.2","./js/practica.js":"./js/practica.js?v=2026-09-28.2","./js/preguntas.js":"./js/preguntas.js?v=2026-09-28.2","./js/sesion.js":"./js/sesion.js?v=2026-09-28.2","./js/signal.js":"./js/signal.js?v=2026-09-28.2","./js/simulacion.js":"./js/simulacion.js?v=2026-09-28.2","./js/telefono.js":"./js/telefono.js?v=2026-09-28.2","./js/tema.js":"./js/tema.js?v=2026-09-28.2","./js/tracker.js":"./js/tracker.js?v=2026-09-28.2","./js/tutorial.js":"./js/tutorial.js?v=2026-09-28.2","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-09-28.2","./js/tutorial-pasos-en.js":"./js/tutorial-pasos-en.js?v=2026-09-28.2"}}</script>
     <script src="js/arranque.js"></script>
     <noscript><link rel="stylesheet" href="css/estilo.css" /></noscript>
   </head>
@@ -167,9 +167,13 @@
           </p>
         </section>
         <p class="ayuda" data-i18n="tel.consejo">
-          Se parece más a una cabeza si tiene algo de peso: conviene sujetar el teléfono con cinta o
-          un elástico a una pelota, un peluche o una caja, con la pantalla hacia quien examina. Los
-          impulsos, como en el examen: cortos, bruscos, de 10 a 20°, y la vuelta lenta.
+          Lo más real es sujetarlo a la frente de un compañero, apaisado y con la pantalla hacia
+          adelante: así también se examinan los canales verticales. Si no, con cinta o un elástico a
+          una pelota, un peluche o una caja. Los impulsos, como en el examen: cortos, bruscos, de 10 a
+          20°, y la vuelta lenta.
+        </p>
+        <p class="ayuda">
+          <a class="enlace-sujecion" href="manual/trainhit-sujecion.pdf" target="_blank" rel="noopener" data-i18n="tel.guia">Cómo sujetar el teléfono a la cabeza (PDF)</a>
         </p>
         <p id="enlace-estado" class="enlace-estado" aria-live="polite"></p>
         <div class="acciones">
@@ -316,6 +320,17 @@
         </div>
 
         <div class="botonera">
+          <!-- Con el teléfono, qué plano de canales se examina (head.js). Lo
+               muestra app.js, que también escribe la guía y el giro de ahora. -->
+          <div id="planos" class="planos" hidden>
+            <div class="segmentos" role="radiogroup" aria-label="plano de canales" data-i18n-aria-label="plano.t">
+              <button type="button" role="radio" aria-checked="true" data-plano="lateral" title="los dos canales laterales" data-i18n-title="plano.lateral.t" data-i18n="plano.lateral">Lateral</button>
+              <button type="button" role="radio" aria-checked="false" data-plano="larp" title="anterior izquierdo y posterior derecho" data-i18n-title="plano.larp.t">LARP</button>
+              <button type="button" role="radio" aria-checked="false" data-plano="ralp" title="anterior derecho y posterior izquierdo" data-i18n-title="plano.ralp.t">RALP</button>
+            </div>
+            <span id="plano-giro" class="plano-giro" hidden></span>
+            <p id="plano-guia" class="plano-guia"></p>
+          </div>
           <!-- «Encender cámara»/«Detener» y «Pausar»/«Reanudar» los escribe
                app.js: cambian con el estado. -->
           <button id="btn-arrancar" class="primario">Encender cámara</button>
@@ -366,7 +381,8 @@
       <!-- ─────────── centro: un panel por lado ─────────── -->
       <main class="col-lados">
         <section class="lado" data-lado="derecha">
-          <h2 class="lado-titulo" data-i18n="lado.der">Impulsos derecha</h2>
+          <!-- El título lo escribe app.js: cambia con el plano de canales. -->
+          <h2 id="titulo-der" class="lado-titulo">Impulsos derecha</h2>
           <canvas id="plot-der" class="plot" role="img" aria-label="impulsos hacia la derecha: velocidad de cabeza y de ojo superpuestas" data-i18n-aria-label="lado.der.t"></canvas>
           <div class="lado-head">
             <span id="gan-der" class="gan">—</span>
@@ -376,7 +392,7 @@
         </section>
 
         <section class="lado" data-lado="izquierda">
-          <h2 class="lado-titulo" data-i18n="lado.izq">Impulsos izquierda</h2>
+          <h2 id="titulo-izq" class="lado-titulo">Impulsos izquierda</h2>
           <canvas id="plot-izq" class="plot" role="img" aria-label="impulsos hacia la izquierda: velocidad de cabeza y de ojo superpuestas" data-i18n-aria-label="lado.izq.t"></canvas>
           <div class="lado-head">
             <span id="gan-izq" class="gan">—</span>
@@ -577,7 +593,7 @@
             <li>No fija la distancia al objetivo.</li>
             <li>30 fps: el pico cae entre muestras. Tope de 60 fps puesto a propósito: no es un equipo médico.</li>
             <li>Cabeza y ojo salen de la misma imagen: un error de seguimiento entra en las dos señales.</li>
-            <li>Solo canal lateral; los verticales necesitan la componente vertical del ojo.</li>
+            <li>Con la webcam, solo canal lateral: los verticales necesitan la componente vertical del ojo. Con el teléfono se practican los seis, con el ojo simulado.</li>
           </ul>
         </section>
 

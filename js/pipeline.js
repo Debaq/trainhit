@@ -20,8 +20,10 @@ export const MARGEN_CRUDO_MS = 250;
 /**
  * Corre el motor sobre muestras crudas y devuelve el pulso analizado.
  *
- * @param {Array<{t:number,yaw:number,offsetMm:number,blinkScore?:number,blink?:boolean,irisPx?:number,vergMm?:number}>} crudo
- *   una por frame, `t` en segundos
+ * @param {Array<{t:number,yaw:number,offsetMm:number,blinkScore?:number,blink?:boolean,irisPx?:number,vergMm?:number,fuera?:number[]}>} crudo
+ *   una por frame, `t` en segundos. `yaw` es el giro de la cabeza en el plano
+ *   del canal: el yaw para el lateral, y con el teléfono también el de un
+ *   plano vertical
  * @param {number} tTrigger instante del disparo, en segundos: el cero del pulso
  * @param {{gazeAzimuthDeg:Function}} model modelo ocular (trae el `k`)
  * @param {{windowMs:number,degree:number}} deriv perillas del derivador
@@ -50,6 +52,8 @@ export function procesaCrudo(crudo, tTrigger, model, deriv, cfg) {
       blink: c.blinkScore !== undefined && c.blinkScore !== null ? c.blinkScore > cfg.blinkScore : Boolean(c.blink),
       irisPx: c.irisPx ?? null,
       vergMm: c.vergMm ?? null,
+      // Con el teléfono, el giro fuera del plano del canal (ver `desvioDelPlano`).
+      fuera: c.fuera ?? null,
       // Lo crudo del frame que cerró la ventana, para el CSV de muestras.
       crudo: { tMs: (c.t - tTrigger) * 1000, yaw: c.yaw, offsetMm: c.offsetMm },
     });

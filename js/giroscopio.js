@@ -2,8 +2,10 @@
 // los cuadros de una cámara que no existe.
 //
 // En el TELÉFONO, `SensorCabeza` integra el giroscopio (`devicemotion`) en el
-// marco de la cabeza y da el yaw: el giro alrededor del eje vertical PROPIO
-// de la cabeza, el del canal lateral (ver head.js). La cuenta del marco y el
+// marco de la cabeza y da el giro acumulado alrededor de cada eje PROPIO de la
+// cabeza —el vertical es el del canal lateral; los planos verticales salen de
+// mezclar los otros dos (ver head.js)— y la orientación entera, para dibujar
+// la cara. La cuenta del marco y el
 // orden de los ejes viene de Labyrinthus 3D (js/canales.js y laberinto.js de
 // allí), donde el teléfono ya hacía de cabeza: la pantalla es la cara del
 // paciente y mira hacia quien lo sostiene, así que girar el teléfono hacia la
@@ -34,6 +36,11 @@ export function qMul(a, b) {
 }
 
 export const qInv = (q) => [-q[0], -q[1], -q[2], q[3]];
+
+export function qNorm(q) {
+  const n = Math.hypot(q[0], q[1], q[2], q[3]) || 1;
+  return q.map((v) => v / n);
+}
 
 export function qEjeAngulo(eje, grados) {
   const n = Math.hypot(...eje);
@@ -148,10 +155,18 @@ export function aMarco(filas, v) {
 const ESPERA_GIROSCOPIO_MS = 1500;
 
 /**
- * El giroscopio del teléfono, integrado en el yaw de la cabeza. Se integra la
- * componente vertical de la velocidad EN EL MARCO DE LA CABEZA: el eje se
- * inclina con ella, como el del canal. `alGiro(tMs, yawDeg)` recibe cada
- * evento, con la hora del evento en ms.
+ * El giroscopio del teléfono, integrado en el marco de la cabeza. Da dos cosas:
+ *
+ *   - `giro`, la velocidad EN EL MARCO DE LA CABEZA integrada eje por eje, en
+ *     grados. Es la misma cuenta que head.js hace con MediaPipe: el eje del
+ *     canal se inclina con la cabeza, y los incrementos pequeños proyectados
+ *     sobre él se suman sin ángulos que desenrollar. El ángulo de un plano es
+ *     el producto de `giro` por su eje (`CANAL_AXIS`); `giro[1]` es el yaw.
+ *   - `q`, la orientación de la cabeza respecto del frente, como cuaternión
+ *     (de la cabeza al mundo). Es para dibujar la cara, que necesita la pose
+ *     entera y no solo el giro de un plano.
+ *
+ * `alGiro(tMs, giro, q)` recibe cada evento, con la hora del evento en ms.
  *
  * No se usan los ángulos de `deviceorientation` para el giro: se traban justo
  * con el teléfono parado frente a la cara (beta = 90°), que es como se lo
@@ -163,7 +178,8 @@ export class SensorCabeza {
     this.alGiro = alGiro;
     this.activo = false;
     this.recibio = false;
-    this.yaw = 0;
+    this.giro = [0, 0, 0];
+    this.q = [0, 0, 0, 1];
     this.tPrevio = null;
     this.arriba = null;
     this.marco = null;
@@ -203,9 +219,10 @@ export class SensorCabeza {
     window.removeEventListener('deviceorientation', this.alOrientar);
   }
 
-  /** La posición de ahora es el frente: yaw cero y el marco rehecho con la vertical de ahora. */
+  /** La posición de ahora es el frente: giro cero y el marco rehecho con la vertical de ahora. */
   centra() {
-    this.yaw = 0;
+    this.giro = [0, 0, 0];
+    this.q = [0, 0, 0, 1];
     this.marco = this.arriba ? marcoDesdeArriba(this.arriba) : null;
   }
 
@@ -239,8 +256,14 @@ export class SensorCabeza {
     const orden = reciente ? this.orden.muestra(r, this.wOri) : this.orden.elegido;
     const enTelefono = orden ? ORDENES_GIRO[orden](r) : reciente ? this.wOri : ORDENES_GIRO[ORDEN_SUPUESTO](r);
     const enCabeza = this.marco ? aMarco(this.marco, enTelefono) : enTelefono;
-    if (dt > 0) this.yaw += enCabeza[1] * dt;
-    this.alGiro(t, this.yaw);
+    if (dt > 0) {
+      this.giro = this.giro.map((g, i) => g + enCabeza[i] * dt);
+      // La velocidad es la del marco de la cabeza: el incremento se compone a
+      // la derecha de la orientación.
+      const w = Math.hypot(...enCabeza);
+      if (w > 1e-6) this.q = qNorm(qMul(this.q, qEjeAngulo(enCabeza, w * dt)));
+    }
+    this.alGiro(t, this.giro, this.q);
   }
 }
 
@@ -248,21 +271,30 @@ export class SensorCabeza {
 
 /**
  * Tipo del mensaje de la cabeza. Distinto del 1 de Labyrinthus 3D, que manda
- * la orientación entera: un teléfono de allí que llegara aquí no se confunde.
+ * la orientación como Float32: un teléfono de allí que llegara aquí no se
+ * confunde. El 2 es el de antes, solo con el yaw: un teléfono que todavía
+ * tenga la página vieja en caché sigue sirviendo para el canal lateral.
  */
-export const MENSAJE_GIRO = 2;
+export const MENSAJE_GIRO = 3;
+const MENSAJE_YAW = 2;
 
-/** Empaqueta un evento: hora del teléfono en ms y yaw en grados. */
-export function mensajeGiro(tMs, yawDeg) {
-  return new Float64Array([MENSAJE_GIRO, tMs, yawDeg]).buffer;
+/** Empaqueta un evento: hora del teléfono en ms, giro por eje en grados y orientación. */
+export function mensajeGiro(tMs, giro, q) {
+  return new Float64Array([MENSAJE_GIRO, tMs, ...giro, ...q]).buffer;
 }
 
 /** Lee un evento; null si no es uno. */
 export function leeGiro(datos) {
-  if (!(datos instanceof ArrayBuffer) || datos.byteLength !== 24) return null;
-  const [tipo, tMs, yaw] = new Float64Array(datos);
-  if (tipo !== MENSAJE_GIRO || !Number.isFinite(tMs) || !Number.isFinite(yaw)) return null;
-  return { tMs, yaw };
+  if (!(datos instanceof ArrayBuffer)) return null;
+  if (datos.byteLength === 24) {
+    const [tipo, tMs, yaw] = new Float64Array(datos);
+    if (tipo !== MENSAJE_YAW || !Number.isFinite(tMs) || !Number.isFinite(yaw)) return null;
+    return { tMs, giro: [0, yaw, 0], q: qEjeAngulo([0, 1, 0], yaw) };
+  }
+  if (datos.byteLength !== 72) return null;
+  const v = new Float64Array(datos);
+  if (v[0] !== MENSAJE_GIRO || !v.every(Number.isFinite)) return null;
+  return { tMs: v[1], giro: [v[2], v[3], v[4]], q: qNorm([v[5], v[6], v[7], v[8]]) };
 }
 
 // ------------------------------------------------------------ remuestreo ---
@@ -277,8 +309,8 @@ export const HZ_CAMARA = 60;
 export const CORTE_S = 0.25;
 
 /**
- * Pasa eventos sueltos a cuadros parejos, interpolando el yaw entre los dos
- * eventos que rodean a cada cuadro. `empuja` devuelve los cuadros que ya se
+ * Pasa eventos sueltos a cuadros parejos, interpolando el giro y la
+ * orientación entre los dos eventos que rodean a cada cuadro. `empuja` devuelve los cuadros que ya se
  * pueden dar y si hubo un corte antes de ellos (quien lo usa tiene que tirar
  * lo que dependía de la continuidad: el derivador, el pulso en curso).
  *
@@ -297,25 +329,29 @@ export class Remuestreo {
     this.proximo = null;
   }
 
-  /** @returns {{ cuadros: Array<{t:number, yaw:number}>, corte: boolean }} con `t` en s */
-  empuja(tMs, yaw) {
+  /** @returns {{ cuadros: Array<{t:number, giro:number[], q:number[]}>, corte: boolean }} con `t` en s */
+  empuja(tMs, giro, q) {
     const t = tMs / 1000;
     const p = this.previo;
     if (p && t <= p.t && t > p.t - 1) return { cuadros: [], corte: false };
     if (!p || t < p.t || t - p.t > CORTE_S) {
       const corte = p !== null;
-      this.previo = { t, yaw };
+      this.previo = { t, giro, q };
       this.proximo = t;
-      return { cuadros: [{ t, yaw }], corte };
+      return { cuadros: [{ t, giro, q }], corte };
     }
+    // q y −q son la misma orientación: se interpola por el camino corto.
+    const punto = p.q[0] * q[0] + p.q[1] * q[1] + p.q[2] * q[2] + p.q[3] * q[3];
+    const q1 = punto < 0 ? q.map((v) => -v) : q;
     const cuadros = [];
     let tc = this.proximo + this.dt;
     for (; tc <= t + 1e-9; tc += this.dt) {
       const u = (tc - p.t) / (t - p.t);
-      cuadros.push({ t: tc, yaw: p.yaw + u * (yaw - p.yaw) });
+      const mezcla = (a, b) => a.map((v, i) => v + u * (b[i] - v));
+      cuadros.push({ t: tc, giro: mezcla(p.giro, giro), q: qNorm(mezcla(p.q, q1)) });
       this.proximo = tc;
     }
-    this.previo = { t, yaw };
+    this.previo = { t, giro, q };
     return { cuadros, corte: false };
   }
 }

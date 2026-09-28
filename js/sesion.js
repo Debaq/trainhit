@@ -16,6 +16,7 @@
 // para seguir otro día una sesión propia. Se importa del CRUDO, no de los
 // resultados: los números los vuelve a sacar el motor.
 
+import { CANALES_DEL_PLANO } from './head.js';
 import { tx } from './idioma.js';
 
 /** Número para CSV: punto decimal, y vacío —no un guion— cuando no hay valor. */
@@ -31,6 +32,7 @@ export function filasPulsos(trials, version = '', { simulacionOculta = false } =
       'rechazo', 'calibrado', 'k', 'iris_min_px', 'disconj_mm', 'hueco_max_ms', 'deriv_ventana_ms', 'deriv_grado',
       'fps_muestreo', 'no_validado', 'ejemplo', 'version',
       'sacadas_encubiertas', 'sacadas_manifiestas', 'ganancia_hasta_sacada', 'importado', 'simulado',
+      'plano', 'canal', 'fuera_del_plano_deg',
     ],
     ...trials.map((t) => [
       t.id,
@@ -60,6 +62,11 @@ export function filasPulsos(trials, version = '', { simulacionOculta = false } =
       siNo(t.importado),
       // El perfil del paciente simulado; a ciegas, sin decir cuál.
       t.simulado ? (simulacionOculta ? 'oculto' : t.simulado) : '',
+      // El plano de canales: con la webcam siempre el lateral; con el
+      // teléfono, también los verticales (head.js).
+      t.canal ?? 'lateral',
+      CANALES_DEL_PLANO[t.canal ?? 'lateral']?.[t.side] ?? '',
+      num(t.fueraDeg, 1),
     ]),
   ];
 }
@@ -97,7 +104,9 @@ export function filasMuestras(trials) {
  * primeras muestras.
  */
 export function filasCrudo(trials) {
-  const filas = [['id', 't_ms', 'yaw_deg', 'offset_mm', 'parpadeo_puntaje', 'parpadeo', 'iris_px', 'verg_mm']];
+  // `yaw_deg` es el giro en el plano del canal: el yaw en el lateral. Las
+  // columnas `fuera_*`, el giro fuera del plano, solo las trae el teléfono.
+  const filas = [['id', 't_ms', 'yaw_deg', 'offset_mm', 'parpadeo_puntaje', 'parpadeo', 'iris_px', 'verg_mm', 'fuera_x_deg', 'fuera_y_deg', 'fuera_z_deg']];
   for (const t of trials) {
     if (!t.crudo) continue;
     for (const c of t.crudo) {
@@ -110,6 +119,7 @@ export function filasCrudo(trials) {
         c.blinkScore === undefined || c.blinkScore === null ? (c.blink ? 1 : 0) : '',
         num(c.irisPx, 2),
         num(c.vergMm, 4),
+        ...(c.fuera ? c.fuera.map((v) => num(v, 4)) : ['', '', '']),
       ]);
     }
   }
@@ -178,7 +188,7 @@ const numero = (v) => (v === '' || v === undefined ? null : Number(v));
  * Lee un archivo exportado y devuelve lo necesario para volver a correr el
  * motor: por pulso, su crudo, su k y su derivador.
  *
- * @returns {{ pulsos: Array<{id:number, lado:string, k:number|null, calibrado:boolean, ejemplo:boolean,
+ * @returns {{ pulsos: Array<{id:number, lado:string, plano:string, k:number|null, calibrado:boolean, ejemplo:boolean,
  *   deriv:{windowMs:number, degree:number}|null, crudo:Array<object>}>, calibracion: Array<[number,number]>|null }}
  * @throws si el archivo no trae la tabla de crudo (los exportados antes de que existiera)
  */
@@ -203,6 +213,7 @@ export function leeSesion(texto) {
       ...(puntaje === null ? { blink: f.parpadeo === '1' } : { blinkScore: puntaje }),
       irisPx: numero(f.iris_px),
       vergMm: numero(f.verg_mm),
+      ...(numero(f.fuera_x_deg) === null ? {} : { fuera: [f.fuera_x_deg, f.fuera_y_deg, f.fuera_z_deg].map(Number) }),
     });
   }
   const meta = new Map((t.pulsos ?? []).map((f) => [Number(f.id), f]));
@@ -217,6 +228,7 @@ export function leeSesion(texto) {
       calibrado: f.calibrado === 'si',
       ejemplo: f.ejemplo === 'si',
       simulado: f.simulado || null,
+      plano: CANALES_DEL_PLANO[f.plano] ? f.plano : 'lateral',
       deriv: ventana && grado ? { windowMs: ventana, degree: grado } : null,
       crudo: crudo.sort((a, b) => a.t - b.t),
     };

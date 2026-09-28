@@ -34,6 +34,9 @@ export const COLOR = {
   caraEsclera: '#E4E4E7',
   caraIris: '#4B6F8F',
   caraPupila: '#09090B',
+  caraIrisFibra: '#7FA2C2',
+  caraIrisCripta: '#2A4257',
+  caraVaso: '#C0504D',
 };
 
 /** De qué ficha del CSS sale cada color del canvas. */
@@ -60,6 +63,9 @@ const FICHAS = {
   caraEsclera: '--cara-esclera',
   caraIris: '--cara-iris',
   caraPupila: '--cara-pupila',
+  caraIrisFibra: '--cara-iris-fibra',
+  caraIrisCripta: '--cara-iris-cripta',
+  caraVaso: '--cara-vaso',
   video: '--video',
   sobreVideo: '--sobre-video',
 };

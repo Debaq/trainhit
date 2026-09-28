@@ -35,7 +35,7 @@ export function codigoDeCabeza() {
 /**
  * Monta el diálogo. Lo que pasa en el PC se avisa a app.js:
  *   - `alEntrar()`: se abrió una sala; desde aquí la pantalla es la cara.
- *   - `alGiro(tMs, yaw)`: un evento del teléfono.
+ *   - `alGiro(tMs, giro, q)`: un evento del teléfono (ver `SensorCabeza`).
  *   - `alSalir()`: se terminó el enlace.
  *   - `alCambiar()`: cambió el estado (para la barra).
  */
@@ -43,9 +43,9 @@ export function montaTelefono({ alEntrar, alGiro, alSalir, alCambiar }) {
   /** El enlace en curso, o null. `rol` es 'visor' (el PC) o 'cabeza' (el teléfono). */
   let remoto = null;
   let codigoQr = codigoDeCabeza();
-  const sensor = new SensorCabeza((t, yaw) => {
+  const sensor = new SensorCabeza((t, giro, q) => {
     const r = remoto;
-    if (r?.rol === 'cabeza' && r.canal?.readyState === 'open') r.canal.send(mensajeGiro(t, yaw));
+    if (r?.rol === 'cabeza' && r.canal?.readyState === 'open') r.canal.send(mensajeGiro(t, giro, q));
   });
 
   function estadoEnlace(texto) {
@@ -234,7 +234,7 @@ export function montaTelefono({ alEntrar, alGiro, alSalir, alCambiar }) {
       canal.addEventListener('message', (e) => {
         if (remoto !== r) return;
         const m = leeGiro(e.data);
-        if (m) alGiro(m.tMs, m.yaw);
+        if (m) alGiro(m.tMs, m.giro, m.q);
       });
       // Cada conexión nueva arranca con el teléfono de frente.
       canal.send('centrar');

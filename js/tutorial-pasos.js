@@ -133,9 +133,10 @@ export const PASEOS = [
           derecho (LARP); el anterior derecho con el posterior izquierdo (RALP).</p>
           <p>Un giro en un plano excita un canal del par e inhibe al otro. El impulso hacia la derecha
           prueba sobre todo el <b>lateral derecho</b>.</p>
-          <p class="ayuda">trainHIT solo mide el plano <b>lateral</b>. Los verticales se prueban
-          girando la cabeza en diagonal y necesitan el movimiento vertical del ojo, que el párpado
-          tapa y la webcam mide mal. El paseo <b>Los canales verticales</b> cuenta cómo.</p>`,
+          <p class="ayuda">Con la webcam, trainHIT solo mide el plano <b>lateral</b>. Los verticales se
+          prueban girando la cabeza en diagonal y necesitan el movimiento vertical del ojo, que el
+          párpado tapa y la webcam mide mal; con el <b>teléfono</b> como cabeza sí se practican, con el
+          ojo simulado. El paseo <b>Los canales verticales</b> cuenta cómo.</p>`,
       },
       {
         id: 'ganancia',
@@ -202,7 +203,7 @@ export const PASEOS = [
   {
     id: 'verticales',
     titulo: 'Los canales verticales',
-    resumen: 'Los pares LARP y RALP: cómo se prueban, qué hace el ojo, por qué importan y por qué trainHIT todavía no los mide. Sin cámara.',
+    resumen: 'Los pares LARP y RALP: cómo se prueban, qué hace el ojo, por qué importan y por qué con la webcam no se miden y con el teléfono sí. Sin cámara.',
     pasos: [
       {
         id: 'pares',
@@ -287,7 +288,7 @@ export const PASEOS = [
       },
       {
         id: 'trainhit',
-        titulo: 'Por qué trainHIT todavía no los mide',
+        titulo: 'Con la webcam no; con el teléfono, sí',
         img: 'verticales-parpado.svg',
         alt: 'Dos ojos grandes de frente. A la izquierda mira al frente y el iris se ve entero. A la derecha mira hacia arriba: el párpado tapa el borde de arriba del iris, dibujado punteado, y el centro estimado con lo que se ve (punto rojo) queda por debajo del verdadero (punto naranja).',
         cuerpo: `
@@ -301,9 +302,10 @@ export const PASEOS = [
             <li>Con la cabeza a 45°, la cámara ve la cara <b>de costado</b> y el modelo pierde
             precisión.</li>
           </ul>
-          <p class="ayuda">Lo que viene primero, si la cámara lo permite, es un VOR vertical en
-          cabeceo con la cabeza derecha: los dos anteriores juntos hacia abajo y los dos posteriores
-          juntos hacia arriba. No sería RALP ni LARP, y va a decirlo.</p>`,
+          <p>Con el <b>teléfono</b> como cabeza no hace falta ver el ojo: lo pone el modelo, sano o con la
+          patología del Simulador. Sujeto a la frente de un compañero, se elige <b>LARP</b> o
+          <b>RALP</b> junto a la botonera y se examina con la maniobra de verdad. La guía
+          <i>El teléfono en la cabeza</i>, en el diálogo del teléfono, cuenta cómo sujetarlo.</p>`,
       },
     ],
   },
