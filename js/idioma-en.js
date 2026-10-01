@@ -165,6 +165,13 @@ export const HTML = {
   'h.orientacion.t': 'which way each impulse points and on which side the eye trace goes',
   'h.orientacion.comparativo': 'compare sides (impulse up)',
   'h.orientacion.real': 'real direction (right up, left down)',
+  'h.seguimiento': 'Eye tracking',
+  'h.detector': 'Iris center',
+  'h.detector.t': 'what finds the iris center in each frame; the head is always tracked by MediaPipe',
+  'h.detector.mediapipe': 'MediaPipe (face mesh)',
+  'h.detector.siev': 'SIEV-VNG (ONNX, experimental)',
+  'h.detector.ayuda':
+    'SIEV-VNG is an eye detector trained on infrared images from VNG goggles: it finds the box of each eye and takes the darkest part inside as the pupil (amber in the zoomed eyes). It is downloaded the first time it is chosen (about 12 MB). Calibrate again after switching detectors.',
   'h.suavizar.ayuda':
     'Smoothing makes a 30 fps signal LOOK more precise: while it is on, the dots mark the real samples.',
   'h.medir': 'Measuring on the plots',
@@ -311,6 +318,7 @@ export const TEXTO = {
   midiendo: 'measuring',
   'midiendo ({notas})': 'measuring ({notas})',
   'modelo en CPU: más lento': 'model on CPU: slower',
+  'no cargó el detector SIEV-VNG: {msg}': 'the SIEV-VNG detector did not load: {msg}',
   'sin rVFC: timestamps peores': 'no rVFC: worse timestamps',
   'error: {msg}': 'error: {msg}',
   // ── tema ──

@@ -28,12 +28,15 @@ export const IDX = {
  * puede contar lo que va llegando y pasárselo ya resuelto en
  * `modelAssetBuffer`.
  *
+ * Se exporta para el detector de pupila alternativo (pupila.js), que baja su
+ * propio modelo de la misma forma.
+ *
  * `Content-Length` puede no venir (proxy que recomprime, respuesta de la
  * caché sin el encabezado): ahí `total` queda en null y la barra se dibuja
  * indeterminada en vez de mentir un porcentaje.
  */
-async function bajaModelo(onProgreso) {
-  const res = await fetch(MODEL_URL);
+export async function bajaModelo(onProgreso, url = MODEL_URL) {
+  const res = await fetch(url);
   if (!res.ok) throw new Error(`modelo: ${res.status}`);
   const largo = Number(res.headers.get('content-length'));
   const total = Number.isFinite(largo) && largo > 0 ? largo : null;

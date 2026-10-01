@@ -1048,7 +1048,7 @@ export function dibujaPuntos(ctx, landmarks, idx, w, h) {
  * píxeles: es un `drawImage` con la caja de origen, y la placa hace el resto.
  * La imagen puede ser el video o un canvas: la cara dibujada del teléfono.
  */
-export function dibujaOjo(canvas, video, crop, landmarks, ojo, espejo, { simDeltaMm = 0, pxPerMm = null } = {}) {
+export function dibujaOjo(canvas, video, crop, landmarks, ojo, espejo, { simDeltaMm = 0, pxPerMm = null, pupila = null } = {}) {
   const { ctx, w, h } = prepara(canvas);
   ctx.fillStyle = COLOR.video;
   ctx.fillRect(0, 0, w, h);
@@ -1104,6 +1104,25 @@ export function dibujaOjo(canvas, video, crop, landmarks, ojo, espejo, { simDelt
       ctx.arc(gx, gy, Math.max(6, (pxPerMm * 5.85 * w) / sw), 0, Math.PI * 2);
       ctx.stroke();
     }
+  }
+  // Detector SIEV-VNG (pupila.js): la caja del ojo y la pupila que sacó de
+  // ella, en ámbar para no confundirla con el iris verde de la malla. Vienen
+  // en píxeles del video.
+  if (pupila) {
+    const px = (x) => ((x - sx) / sw) * w;
+    const py = (y) => ((y - sy) / sh) * h;
+    ctx.strokeStyle = COLOR.warn;
+    ctx.lineWidth = 1.5;
+    const { caja, pupila: p } = pupila;
+    ctx.strokeRect(px(caja.x0), py(caja.y0), px(caja.x1) - px(caja.x0), py(caja.y1) - py(caja.y0));
+    const r = 6;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(px(p.x) - r, py(p.y));
+    ctx.lineTo(px(p.x) + r, py(p.y));
+    ctx.moveTo(px(p.x), py(p.y) - r);
+    ctx.lineTo(px(p.x), py(p.y) + r);
+    ctx.stroke();
   }
   ctx.restore();
 }

@@ -32,6 +32,7 @@ import { CANALES, MIN_POR_LADO, corrige, preguntasPractica } from './practica.js
 import * as cara from './cara.js';
 import { Remuestreo } from './giroscopio.js';
 import { montaTelefono } from './telefono.js';
+import { crearDetectorPupila } from './pupila.js';
 
 /**
  * El Laberinto 3D, que nació aquí, vive en su propio sitio: Labyrinthus 3D
@@ -61,6 +62,15 @@ const ensucia = () => {
 const estado = {
   landmarker: null,
   delegate: null,
+  /**
+   * Quién da el centro del iris: 'mediapipe' (la malla) o 'siev-vng' (el
+   * modelo ONNX experimental de pupila.js). La cabeza siempre es MediaPipe.
+   */
+  detector: 'mediapipe',
+  /** El detector de pupila.js, cargado la primera vez que se elige. */
+  sievVng: null,
+  /** Lo último que vio ese detector, para dibujarlo: `{ derecho, izquierdo }`. */
+  pupila: null,
   bucle: null,
   stream: null,
   corriendo: false,
@@ -239,6 +249,34 @@ async function arrancar() {
   }
 }
 
+/**
+ * Cambia quién da el centro del iris (ver `estado.detector`). El modelo ONNX
+ * se baja recién la primera vez que se elige: son 12 MB más el motor, que
+ * quien no lo usa no tiene por qué cargar. Si no carga, se vuelve a MediaPipe.
+ */
+async function eligeDetector(valor) {
+  const select = $('detector-pupila');
+  if (valor === 'siev-vng' && !estado.sievVng) {
+    const carga = modalCarga();
+    try {
+      estado.sievVng = await crearDetectorPupila({ onProgreso: carga.progreso });
+    } catch (e) {
+      console.error(e);
+      select.value = 'mediapipe';
+      valor = 'mediapipe';
+      marcaEstado('no cargó el detector SIEV-VNG: {msg}', { msg: e.message });
+    } finally {
+      carga.cierra();
+    }
+  }
+  estado.detector = valor;
+  estado.pupila = null;
+  // El otro detector pone el iris en otro lugar: sin cortar el derivador, el
+  // salto entre uno y otro sería una velocidad ocular falsa.
+  estado.diff.reset();
+  sucio.vivo = true;
+}
+
 function detener() {
   $('fijacion').hidden = true;
   estado.bucle?.detener();
@@ -273,6 +311,7 @@ function reseteaTransitorio() {
   estado.diff.reset();
   estado.fps = 0;
   estado.tUltimoFrame = null;
+  estado.pupila = null;
   estado.vivo = vivoVacio();
   if (estado.calib) {
     estado.calib = null;
@@ -626,9 +665,35 @@ function procesaFrame(mediaTime) {
   );
 
   // --- ojos ---
-  const mide = (o) => geom.observeEye(P(o.iris), o.border.map(P), P(o.outer), P(o.inner));
-  const der = mide(IDX.derecho);
-  const izq = mide(IDX.izquierdo);
+  // Con el detector ONNX, el centro de cada ojo según la malla le dice dónde
+  // recortar; lo que vuelve reemplaza solo el centro del iris. Un ojo que el
+  // detector no encontró queda fuera: no se rellena con MediaPipe, para que
+  // se vea lo que el modelo hace solo.
+  const centro = (o) => {
+    const a = P(o.outer);
+    const b = P(o.inner);
+    return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+  };
+  const pupila =
+    estado.detector === 'siev-vng' && estado.sievVng
+      ? estado.sievVng.detecta(video, centro(IDX.derecho), centro(IDX.izquierdo))
+      : null;
+  estado.pupila = pupila;
+  const mide = (o, lado) => {
+    const iris = P(o.iris);
+    const borde = o.border.map(P);
+    if (!pupila) return geom.observeEye(iris, borde, P(o.outer), P(o.inner));
+    const p = pupila[lado]?.pupila;
+    if (!p) return null;
+    // La escala px/mm sigue saliendo del radio del iris de la malla: el borde
+    // se traslada junto con el centro para que su radio no cambie.
+    const dx = p.x - iris.x;
+    const dy = p.y - iris.y;
+    const trasladado = borde.map((q) => ({ x: q.x + dx, y: q.y + dy }));
+    return geom.observeEye(p, trasladado, P(o.outer), P(o.inner));
+  };
+  const der = mide(IDX.derecho, 'derecho');
+  const izq = mide(IDX.izquierdo, 'izquierdo');
   // Promedio binocular: dos medidas independientes del mismo movimiento
   // conjugado, así que promediarlas baja el ruido.
   const obs =
@@ -1286,8 +1351,9 @@ function dibujaVideo() {
     plots.dibujaPuntos(ctx, estado.landmarks, IDX, overlay.width, overlay.height);
   }
   const fantasma = { simDeltaMm: estado.vivo.simDeltaMm, pxPerMm: estado.vivo.pxPerMm };
-  plots.dibujaOjo($('ojo-der'), video, estado.crops.derecho, estado.landmarks, IDX.derecho, estado.espejo, fantasma);
-  plots.dibujaOjo($('ojo-izq'), video, estado.crops.izquierdo, estado.landmarks, IDX.izquierdo, estado.espejo, fantasma);
+  const pupila = (lado) => ({ ...fantasma, pupila: estado.pupila?.[lado] ?? null });
+  plots.dibujaOjo($('ojo-der'), video, estado.crops.derecho, estado.landmarks, IDX.derecho, estado.espejo, pupila('derecho'));
+  plots.dibujaOjo($('ojo-izq'), video, estado.crops.izquierdo, estado.landmarks, IDX.izquierdo, estado.espejo, pupila('izquierdo'));
 }
 
 /**
@@ -2130,6 +2196,7 @@ $('espejo').addEventListener('change', (e) => {
   $('camara-caja').classList.toggle('espejada', estado.espejo);
   $('ojos').classList.toggle('espejada', estado.espejo);
 });
+$('detector-pupila').addEventListener('change', (e) => eligeDetector(e.target.value));
 $('camara').addEventListener('change', () => {
   if (estado.corriendo) {
     detener();
