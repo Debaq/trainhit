@@ -17,8 +17,8 @@ teléfono como cabeza.
 <div class="ficha" markdown="1">
 
 **Autor:** Nicolás Baier Quezada<br>
-**Fecha:** 28 de septiembre de 2026<br>
-**Versión de trainHIT documentada:** 2026-09-28.4
+**Fecha:** 1 de octubre de 2026<br>
+**Versión de trainHIT documentada:** 2026-10-01.1
 
 Laboratorio TecMedHub · Universidad Austral de Chile, Sede Puerto Montt
 
@@ -71,11 +71,9 @@ Laboratorio TecMedHub · Universidad Austral de Chile, Sede Puerto Montt
 ## 1. Qué es trainHIT
 
 > **trainHIT no es un equipo médico.** Sirve para *aprender* cómo se mide el
-> reflejo vestíbulo-ocular, no para diagnosticar. Una webcam común da 30 cuadros
-> por segundo, no se fija la distancia al blanco y la ganancia que reporta no
-> desacadiza. Por eso los valores son didácticos. Además la página procesa como
-> mucho 60 cuadros por segundo aunque la cámara dé más: el tope está puesto a
-> propósito.
+> reflejo vestíbulo-ocular, no para diagnosticar. Trabaja a 30 cuadros por
+> segundo, los de una webcam común, no fija la distancia al blanco y la
+> ganancia que reporta no desacadiza. Por eso los valores son didácticos.
 
 trainHIT mide el **reflejo vestíbulo-ocular (VOR)** con la cámara del computador.
 Cuadro a cuadro sigue la cabeza y el iris con la malla facial de MediaPipe
@@ -113,6 +111,14 @@ el navegador y **el video no sale del equipo**.
   (RALP/LARP) necesitan el movimiento vertical del ojo, que el párpado tapa y
   la webcam mide mal. Con el teléfono como cabeza se practican los seis, con el
   ojo simulado (secciones 11 y 12).
+
+**Por qué 30 cuadros por segundo.** Aunque la cámara pueda dar más, trainHIT
+usa como mucho 30, la cadencia de una webcam común; si la cámara da más,
+aparece **TOPE 30 FPS** en la barra. Es una elección: a 30 cuadros la forma del
+impulso se ve bien y alcanza para aprender a leerla, y la página se queda en
+lo que quiere ser, un lugar para practicar. Medir a un paciente es trabajo de
+los equipos clínicos, hechos y validados para eso, y lo que se aprende aquí es
+justamente lo que hace falta para usarlos bien.
 
 ---
 
@@ -1034,6 +1040,7 @@ para el aula, donde el wifi falla.
 |---|---|
 | La cámara no enciende | El navegador no tiene permiso: hay que darlo en el candado de la barra de direcciones. Si se abrió `index.html` con doble clic, hace falta un servidor (ver la [sección 2](#2-antes-de-empezar)). |
 | **CARA no** | Poca luz, luz de atrás o cara fuera del encuadre. Pon la luz de frente y centra la cara. |
+| Aparece **TOPE 30 FPS** en la barra | La cámara puede dar más de 30 cuadros por segundo y trainHIT usa 30. No hay que hacer nada (ver «Por qué 30 cuadros por segundo», [sección 1](#1-que-es-trainhit)). |
 | **FPS** muy bajo (menos de 20) | El equipo va justo. Cierra otras pestañas y programas que usen la cámara o la GPU. |
 | La calibración sale rechazada | Girar más lento, sin soltar la mirada del punto rojo, y con un arco de ±20°. |
 | Todos los pulsos *MUY LENTO* | Los impulsos tienen que ser más rápidos: un giro corto y seco. |
@@ -1258,7 +1265,7 @@ blanco (Judge et al., 2018; Castro et al., 2018), canales verticales y
 validación.
 
 **Para discutir:** ¿qué haría falta para que una herramienta así se pudiera
-usar con pacientes? ¿Por qué tiene un tope de 60 cuadros por segundo puesto a
+usar con pacientes? ¿Por qué tiene un tope de 30 cuadros por segundo puesto a
 propósito?
 
 ---
@@ -1489,5 +1496,5 @@ citan por autor y año; cada una lleva una línea sobre para qué se usa aquí.
 ### Cómo citar trainHIT
 
 > Baier-Quezada N, Uribe-Hernández V, López-Moncada F. trainHIT: vHIT
-> didáctico en el navegador [software]. Versión 2026-09-28.4. Puerto Montt:
+> didáctico en el navegador [software]. Versión 2026-10-01.1. Puerto Montt:
 > Laboratorio TecMedHub, Universidad Austral de Chile; 2026.

@@ -17,8 +17,8 @@ with a phone as the head.
 <div class="ficha" markdown="1">
 
 **Author:** Nicolás Baier Quezada<br>
-**Date:** September 28, 2026<br>
-**trainHIT version documented:** 2026-09-28.4
+**Date:** October 1, 2026<br>
+**trainHIT version documented:** 2026-10-01.1
 
 TecMedHub Lab · Universidad Austral de Chile, Puerto Montt campus
 
@@ -71,11 +71,10 @@ TecMedHub Lab · Universidad Austral de Chile, Puerto Montt campus
 ## 1. What trainHIT is
 
 > **trainHIT is not a medical device.** It is for *learning* how the
-> vestibulo-ocular reflex is measured, not for diagnosing. An ordinary webcam
-> delivers 30 frames per second, the distance to the target is not fixed and
-> the gain it reports is not desaccaded, so the values are for teaching. On top
-> of that, the page processes at most 60 frames per second even if the camera
-> delivers more: the cap is there on purpose.
+> vestibulo-ocular reflex is measured, not for diagnosing. It works at 30
+> frames per second, those of an ordinary webcam, the distance to the target is
+> not fixed and the gain it reports is not desaccaded, so the values are for
+> teaching.
 
 trainHIT measures the **vestibulo-ocular reflex (VOR)** with the computer’s
 camera. Frame by frame it tracks the head and the iris with the MediaPipe face
@@ -114,6 +113,14 @@ leaves the computer**.
   (RALP/LARP) need the vertical movement of the eye, which the eyelid hides and
   a webcam measures poorly. With the phone as the head all six can be
   practised, with a simulated eye (sections 11 and 12).
+
+**Why 30 frames per second.** Even if the camera can deliver more, trainHIT
+uses 30 at most, the frame rate of an ordinary webcam; if the camera delivers
+more, **30 FPS CAP** shows up in the bar. It is a choice: at 30 frames the
+shape of the impulse is clearly visible and it is enough to learn to read it,
+and the page stays what it means to be, a place to practise. Measuring a
+patient is the job of clinical devices, made and validated for it, and what is
+learnt here is precisely what it takes to use them well.
 
 ---
 
@@ -1040,6 +1047,7 @@ for the classroom, where the wifi fails.
 |---|---|
 | The camera does not turn on | The browser has no permission: grant it from the padlock in the address bar. If `index.html` was opened with a double click, a server is needed (see [section 2](#2-before-you-start)). |
 | **FACE no** | Little light, light from behind or face out of the frame. Put the light in front and center the face. |
+| **30 FPS CAP** shows up in the bar | The camera can deliver more than 30 frames per second and trainHIT uses 30. Nothing needs to be done (see «Why 30 frames per second», [section 1](#1-what-trainhit-is)). |
 | Very low **FPS** (under 20) | The computer is struggling. Close other tabs and programs using the camera or the GPU. |
 | The calibration is rejected | Turn more slowly, without taking the eyes off the red dot, with a ±20° arc. |
 | Every impulse *TOO SLOW* | The impulses have to be faster: a short, sharp turn. |
@@ -1264,7 +1272,7 @@ and a clinical vHIT: frames per second, desaccading, distance to the target
 (Judge et al., 2018; Castro et al., 2018), vertical canals and validation.
 
 **To discuss:** what would it take for a tool like this to be used with
-patients? Why does it have a 60 frames per second cap on purpose?
+patients? Why does it have a 30 frames per second cap on purpose?
 
 ---
 
@@ -1495,5 +1503,5 @@ year in the text; each one carries a line on what it is used for here.
 ### How to cite trainHIT
 
 > Baier-Quezada N, Uribe-Hernández V, López-Moncada F. trainHIT: a teaching
-> vHIT in the browser [software]. Version 2026-09-28.4. Puerto Montt:
+> vHIT in the browser [software]. Version 2026-10-01.1. Puerto Montt:
 > TecMedHub Lab, Universidad Austral de Chile; 2026.
