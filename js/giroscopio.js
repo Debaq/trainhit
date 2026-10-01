@@ -14,7 +14,7 @@
 //
 // En el PC, `Remuestreo` pasa los eventos del teléfono —a 50, 100 o 200 Hz
 // según el aparato, y con los que se pierden en el camino— a cuadros parejos
-// de 60 Hz, como los de una cámara. El motor, los umbrales y la marca de NO
+// de 30 Hz, como los de una cámara. El motor, los umbrales y la marca de NO
 // VALIDADO quedan igual que con la webcam. La hora es la del teléfono: lo que
 // tarde la red no mueve las muestras.
 //
@@ -300,7 +300,7 @@ export function leeGiro(datos) {
 // ------------------------------------------------------------ remuestreo ---
 
 /** La cadencia de la cámara que no existe. Es la del tope de la webcam (`FPS_MAX`). */
-export const HZ_CAMARA = 60;
+export const HZ_CAMARA = 30;
 
 /**
  * Más de esto sin eventos es un corte —el teléfono se durmió, se cayó la

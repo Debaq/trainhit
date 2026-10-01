@@ -51,14 +51,14 @@ test('con el teléfono parado, girarlo de costado es girar la cabeza', () => {
   assert.equal(Math.round(aMarco(apaisado, [100, 0, 0])[1]), 100);
 });
 
-test('el remuestreo da cuadros parejos de 60 Hz interpolando el yaw', () => {
+test('el remuestreo da cuadros parejos de 30 Hz interpolando el yaw', () => {
   const r = new Remuestreo();
   const cuadros = [];
   // Eventos a 100 Hz con una rampa de 50 °/s.
   for (let i = 0; i <= 100; i++) cuadros.push(...r.empuja(i * 10, ...deYaw(i * 0.5)).cuadros);
   const dt = cuadros.slice(1).map((c, i) => c.t - cuadros[i].t);
   assert.ok(dt.every((d) => Math.abs(d - 1 / HZ_CAMARA) < 1e-9), 'cuadros parejos');
-  assert.equal(cuadros.length, 61);
+  assert.equal(cuadros.length, HZ_CAMARA + 1);
   for (const c of cuadros) {
     assert.ok(Math.abs(c.giro[1] - c.t * 50) < 1e-9, `giro interpolado en ${c.t}`);
     // La orientación interpolada es la del yaw interpolado (a 0,5° entre eventos, sobra).
@@ -172,7 +172,7 @@ test('un impulso del teléfono con el ojo sano da ganancia 1, a cualquier cadenc
     assert.equal(t.rejected, null, `aceptado a ${hz} Hz`);
     assert.equal(t.side, 'izquierda', 'yaw positivo es la izquierda del paciente');
     assert.ok(Math.abs(t.gain - 1) < 0.05, `ganancia ${t.gain} a ${hz} Hz`);
-    assert.equal(t.noValidado, false, 'los cuadros van a 60 Hz');
+    assert.equal(t.noValidado, false, 'los cuadros van a 30 Hz');
   }
 });
 

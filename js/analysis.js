@@ -68,9 +68,10 @@ export function corteGanancia(plano, cfg = CONFIG) {
  * como no validado, en los gráficos y en la exportación. Son dos cosas
  * distintas y por eso son dos constantes distintas: aflojar el tope operativo
  * no convierte en válido lo que no lo es, solo hace que el resultado salga
- * rotulado. La cadencia se MIDE de los datos del pulso, no se declara.
+ * rotulado. La cadencia se MIDE de los datos del pulso, no se declara. Igual que
+ * el tope, bajó de 60 a 30 el 2026-10-01.
  */
-export const FPS_VALIDADO = 60;
+export const FPS_VALIDADO = 30;
 
 /**
  * Cadencia real del pulso, en fps, por la mediana de los intervalos.

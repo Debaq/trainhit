@@ -187,27 +187,65 @@ export class Differentiator {
  *   bloqueando cuando está congelado, la página deja de procesar del todo.
  *   Se lo usa cuando es creíble y se lo ignora cuando no.
  *
+ * Cada reloj lleva un HORARIO (`turnos`), no un intervalo mínimo. Con el tope
+ * en la misma cadencia que da una webcam común, un intervalo mínimo de
+ * `1/fpsMax` botaría los cuadros que llegan unos milisegundos antes —el
+ * callback del video va pegado al refresco de la pantalla y llega a 16, 33 o
+ * 50 ms—. El horario deja llegar un cuadro antes de su turno con una holgura y
+ * se pone al día tras uno atrasado, y aun así no pasan más de `fpsMax` por
+ * segundo en el largo plazo.
+ *
  * Vive en el motor y no en `tracker.js` para que se pueda probar sin cámara.
  *
  * @param {number} fpsMax cuadros por segundo como mucho
  * @returns {(tMedios: number, tPared: number) => boolean} true si se procesa
  */
 export function limitadorDeCadencia(fpsMax) {
-  const minDt = 1 / fpsMax - 1e-4;
-  let ultimoMedios = -Infinity;
-  let ultimaPared = -Infinity;
+  const pared = turnos(fpsMax);
+  const medios = turnos(fpsMax);
 
   return (tMedios, tPared) => {
-    // Un stream nuevo manda los relojes atrás. Sin esto la diferencia queda
-    // negativa para siempre y no vuelve a pasar ni un frame.
-    if (tMedios < ultimoMedios) ultimoMedios = -Infinity;
-    if (tPared < ultimaPared) ultimaPared = -Infinity;
+    // Un stream nuevo manda los relojes atrás. Sin esto el horario queda en el
+    // futuro para siempre y no vuelve a pasar ni un frame.
+    if (tMedios < medios.ultimo) medios.reinicia();
+    if (tPared < pared.ultimo) pared.reinicia();
+    const avanza = tMedios > medios.ultimo;
 
-    if (tPared - ultimaPared < minDt) return false;
-    if (tMedios > ultimoMedios && tMedios - ultimoMedios < minDt) return false;
+    if (!pared.cabe(tPared)) return false;
+    if (avanza && !medios.cabe(tMedios)) return false;
 
-    ultimoMedios = tMedios;
-    ultimaPared = tPared;
+    pared.toma(tPared);
+    if (avanza) medios.toma(tMedios);
     return true;
   };
+}
+
+/**
+ * Horario de un reloj para `limitadorDeCadencia`: un turno cada `1/fps`.
+ *
+ * Un cuadro cabe si llega hasta `holgura` antes de su turno. Al tomarlo, el
+ * turno siguiente se corre un período desde el actual, o desde el cuadro si
+ * llegó atrasado (menos la holgura, para que el que viene detrás pueda ponerse
+ * al día). Entre n cuadros aceptados pasan al menos (n-1)/fps - 2·holgura
+ * segundos: el tope se cumple en el largo plazo, con un cuadro de más como
+ * mucho. Con holgura de 0,4 períodos, una cámara al doble del tope queda
+ * exactamente en uno de cada dos.
+ */
+function turnos(fps) {
+  const periodo = 1 / fps;
+  const holgura = 0.4 * periodo;
+  const h = {
+    turno: -Infinity,
+    ultimo: -Infinity,
+    reinicia() {
+      h.turno = -Infinity;
+      h.ultimo = -Infinity;
+    },
+    cabe: (t) => t >= h.turno - holgura,
+    toma(t) {
+      h.turno = Number.isFinite(h.turno) ? Math.max(h.turno, t - holgura) + periodo : t + periodo;
+      h.ultimo = t;
+    },
+  };
+  return h;
 }

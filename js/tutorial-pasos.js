@@ -193,8 +193,9 @@ export const PASEOS = [
         cuerpo: `
           <p>trainHIT es para <b>aprender</b> cómo se mide el reflejo, no para diagnosticar. Una webcam
           a 30 fps, sin fijar la distancia al blanco y sin desacadizar, da valores didácticos.</p>
-          <p>Por eso se procesa como mucho a 60 fps aunque la cámara dé más: <b>no es un equipo
-          médico</b> y no queremos que se use como tal.</p>`,
+          <p>Por eso trabaja a 30 fps aunque la cámara dé más: es la cadencia de una webcam común y
+          alcanza para aprender a leer un impulso. Medir a un paciente queda para los <b>equipos
+          hechos y validados para eso</b>.</p>`,
       },
     ],
   },

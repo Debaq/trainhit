@@ -290,7 +290,7 @@ function avisaTope(cam) {
   aviso.hidden = !rapida;
   if (rapida) {
     aviso.title = tx(
-      'Esta cámara puede entregar {fps} fps. trainHIT procesa como mucho {max}: es una herramienta didáctica, y el tope está puesto a propósito para que no se use como equipo médico.',
+      'Esta cámara puede entregar {fps} fps. trainHIT trabaja como mucho a {max}, la cadencia de una webcam común: es una herramienta para aprender, y medir a un paciente queda para los equipos hechos para eso.',
       { fps: Math.round(cam.fpsMax ?? cam.fps), max: FPS_MAX },
     );
     console.info(aviso.title);
@@ -339,13 +339,13 @@ async function poblarCamaras(abierta) {
 // -------------------------------------------------------------- teléfono ---
 //
 // El teléfono como cabeza (telefono.js): sin cámara ni MediaPipe. El giro
-// llega del giroscopio y se lo pasa a cuadros de 60 Hz (`Remuestreo`); el ojo
+// llega del giroscopio y se lo pasa a cuadros de 30 Hz (`Remuestreo`); el ojo
 // lo pone el modelo, sano —la mirada quieta en el blanco, `offsetSano`— y con
 // el perfil del Simulador encima, igual que un pulso de la webcam. En el
 // recuadro de la cámara se ve la cara dibujada de ese modelo (cara.js).
 //
 // Es todo simulado: no hay a quién medir, así que el tope de fps de la webcam
-// no viene al caso. Los cuadros van a 60 Hz porque así el motor, sus perillas
+// no viene al caso. Los cuadros van a 30 Hz porque así el motor, sus perillas
 // y la marca de NO VALIDADO se comportan igual que con la cámara.
 //
 // Los pulsos quedan marcados `telefono`. Como los ejemplos, no se mezclan con
@@ -1157,7 +1157,7 @@ function pintaTodo() {
   // Si supera el tope, el tope falló en este dispositivo: se marca en rojo y
   // se enciende el aviso, que es el dato que hace falta para diagnosticarlo.
   // Con el teléfono no hay cámara que topar: los cuadros los arma el
-  // remuestreo a 60 Hz, y si el teléfono se calla, no hay ninguno.
+  // remuestreo a 30 Hz, y si el teléfono se calla, no hay ninguno.
   if (estado.telefono) {
     const mudo = performance.now() - estado.telefono.ultimo > TELEFONO_MUDO_MS;
     estado.caraOk = !mudo;

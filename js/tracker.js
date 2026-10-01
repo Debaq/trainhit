@@ -110,19 +110,20 @@ export async function crearLandmarker({ gpu = true, onProgreso } = {}) {
  * comercial más lento a 100 fps: con una cámara rápida los números de aquí
  * empezarían a parecerse a los de un equipo clínico sin tener ni la
  * validación ni el control de la distancia al objetivo que eso exige. El tope
- * quedó DEBAJO del equipo comercial más lento a propósito: a 60 fps ningún
- * resultado de trainHIT puede pasar por un vHIT real. Se procesa como mucho a
- * 60 fps aunque la cámara dé más, y se avisa cuando se está recortando.
+ * está en la cadencia de una webcam común, bien por debajo del equipo
+ * comercial más lento: alcanza para ver la forma del impulso y aprender a
+ * leerla, y ningún resultado de trainHIT puede pasar por un vHIT real. Se
+ * procesa como mucho a 30 fps aunque la cámara dé más, y se avisa cuando se
+ * está recortando. Era 60 hasta el 2026-10-01.
  */
-export const FPS_MAX = 60;
+export const FPS_MAX = 30;
 
 /**
- * Pide la cámara. Se piden 60 fps a propósito: la mayoría de las webcams dan 30
- * y eso ya limita todo lo demás (a 30 fps el pico del impulso cae entre dos
- * muestras), pero algunas entregan 60 con luz suficiente y ahí la medición
- * mejora sola. 60 es además el máximo, `FPS_MAX`.
+ * Pide la cámara. Se pide `FPS_MAX` como ideal y como máximo: la mayoría de las
+ * webcams dan justo eso, y a las que dan más se les pide que no lo hagan (si el
+ * navegador no hace caso, el limitador de `bucleDeFrames` descarta lo que sobra).
  */
-export async function abrirCamara(video, { deviceId, width = 1280, height = 720, fps = 60 } = {}) {
+export async function abrirCamara(video, { deviceId, width = 1280, height = 720, fps = FPS_MAX } = {}) {
   const constraints = {
     audio: false,
     video: {

@@ -11,8 +11,8 @@ paso del cálculo **se vea**, se pueda tocar y se entienda por qué está hecho 
 
 > **No reemplaza a un equipo clínico.** Corre a los 30 fps de una webcam común;
 > un vHIT de gafas usa cámara >250 Hz, y el remoto comercial más lento va a 100 fps.
-> Por eso mismo **se procesa como mucho a 60 fps** aunque la cámara dé más
-> (ver [Tope de 60 fps](#tope-de-60-fps)).
+> Por eso mismo **se procesa como mucho a 30 fps** aunque la cámara dé más
+> (ver [Tope de 30 fps](#tope-de-30-fps)).
 
 Medir con cámara remota y sin gafas **es otro método, no un vHIT incompleto**.
 Hay normativos publicados con cámara remota a 100 fps y blanco a 1–1,3 m
@@ -431,7 +431,7 @@ perillas y **Voy a tener suerte** funcionan igual.
 
 - `js/giroscopio.js` integra el giroscopio en el marco de la cabeza, eje por
   eje, y la orientación entera; en el PC pasa los eventos —a 50, 100 o 200 Hz
-  según el teléfono— a cuadros parejos de 60 Hz con la hora del teléfono: lo
+  según el teléfono— a cuadros parejos de 30 Hz con la hora del teléfono: lo
   que tarde la red no mueve las muestras.
 - **Los tres planos.** Junto a la botonera se elige **Lateral**, **LARP** o
   **RALP**. El motor recibe el giro en el plano elegido —el producto por su eje,
@@ -458,7 +458,7 @@ perillas y **Voy a tener suerte** funcionan igual.
   servidor en tecmedhub.org (metas `enlace-senal` y `enlace-relevo` de
   `index.html`): trainHIT no tiene PHP propio.
 
-Es todo simulado, así que el tope de fps no viene al caso; los 60 Hz son para
+Es todo simulado, así que el tope de fps no viene al caso; los 30 Hz son para
 que el motor se comporte igual que con la cámara. Los pulsos quedan marcados
 **tel** y, como los ejemplos, se borran al encender la cámara. Mover un
 teléfono no se siente como mover una cabeza: lo mejor es sujetarlo a la frente
@@ -565,17 +565,19 @@ quieto mientras gira la cabeza: si no fija, lo que se mide no es el paralaje
 sino la mirada paseando. No captura el puntero, así que el operador sigue
 usando los controles con el punto puesto.
 
-## Tope de 60 fps
+## Tope de 30 fps
 
-Si la cámara puede entregar más de 60 cuadros por segundo, trainHIT la pide
-a 60 como máximo y, si igual llegan más, descarta los que sobran. En la barra
-aparece **TOPE 60 FPS** con la explicación al pasar el mouse.
+Si la cámara puede entregar más de 30 cuadros por segundo, trainHIT la pide
+a 30 como máximo y, si igual llegan más, descarta los que sobran. En la barra
+aparece **TOPE 30 FPS** con la explicación al pasar el mouse.
 
 No es una limitación técnica: es una decisión. Con una cámara rápida los
 números de esta página empezarían a parecerse a los de un equipo clínico sin
 tener ni la validación ni el control de la distancia al objetivo que eso
-exige. El tope está para que nadie use esto como equipo médico. Está en
-`FPS_MAX` de `js/tracker.js`, y el aviso en `avisaTope` de `js/app.js`.
+exige. 30 fps es la cadencia de una webcam común: alcanza para aprender a leer
+un impulso y deja la medición de pacientes a los equipos hechos para eso. Está
+en `FPS_MAX` de `js/tracker.js`, y el aviso en `avisaTope` de `js/app.js`.
+Hasta el 2026-10-01 el tope era 60.
 
 El tope se aplica dos veces: en la restricción que se le pide a
 `getUserMedia` y, si el navegador la ignora, descartando los frames que llegan
@@ -584,7 +586,10 @@ con papeles distintos: el de pared es la cota dura, y el del video
 (`mediaTime`) se suma **solo mientras avanza**. Filtrando solo por el del
 video, un reloj que miente rompe el tope —hubo un caso de 240 fps procesados
 en Android con el tope en 60—; bloqueando cuando está congelado, la página
-deja de procesar del todo.
+deja de procesar del todo. Cada reloj lleva un horario con holgura y no un
+intervalo mínimo: con el tope en la cadencia de la propia webcam, un intervalo
+mínimo botaba los cuadros que el refresco de la pantalla adelanta unos
+milisegundos.
 
 El fps del chip de la barra es el de frames **procesados**, no el que entrega
 la cámara. Si supera el tope se pone en rojo y salta el aviso: eso significa
@@ -601,9 +606,9 @@ El tope operativo viene acompañado de un **umbral de validez** aparte,
   rápido que el umbral, sale marcado `NO VALIDADO` encima de los gráficos y
   con `no_validado=si` y el `fps_muestreo` real en el CSV.
 
-En uso normal —cualquier webcam a 30 o 60 fps— no se ve ninguna marca: el
-estudiante trabaja con los gráficos limpios. Aflojar `FPS_MAX` no apaga el
-rótulo, porque el rótulo no depende de `FPS_MAX` sino de los datos.
+Los dos están en 30. En uso normal —una webcam a 30 fps o menos— no se ve
+ninguna marca: el estudiante trabaja con los gráficos limpios. Aflojar
+`FPS_MAX` no apaga el rótulo, porque el rótulo no depende de `FPS_MAX` sino de los datos.
 
 ## La espera del modelo
 

@@ -17,15 +17,17 @@ const cerca = (a, b, tol, msg) => assert.ok(Math.abs(a - b) <= tol, `${msg ?? ''
 test('la cadencia se mide de las muestras y marca lo que pasa el umbral', () => {
   // El umbral de validez es independiente del tope operativo de la cámara:
   // subir FPS_MAX no vuelve válido un pulso muestreado más rápido.
-  for (const fps of [30, 60]) {
+  for (const fps of [25, 30]) {
     const r = corre({ fps, pk: 200, ganancia: 1 });
     cerca(r.fpsMuestreo, fps, 1, `cadencia medida a ${fps}`);
     assert.equal(r.noValidado, false, `${fps} fps no debería marcarse`);
   }
-  const rapido = corre({ fps: 120, pk: 200, ganancia: 1 });
-  cerca(rapido.fpsMuestreo, 120, 1, 'cadencia medida a 120');
-  assert.equal(rapido.noValidado, true, '120 fps tiene que quedar marcado');
-  assert.ok(120 > FPS_VALIDADO);
+  for (const fps of [60, 120]) {
+    const rapido = corre({ fps, pk: 200, ganancia: 1 });
+    cerca(rapido.fpsMuestreo, fps, 1, `cadencia medida a ${fps}`);
+    assert.equal(rapido.noValidado, true, `${fps} fps tiene que quedar marcado`);
+    assert.ok(fps > FPS_VALIDADO);
+  }
 });
 
 test('la cadencia usa la mediana: un frame perdido no la arrastra', () => {
@@ -359,29 +361,55 @@ function pasan(fpsMax, fpsEntrada, n, { mediaTime = (i) => i / fpsEntrada } = {}
 }
 
 test('el tope recorta una cámara rápida a lo que dice el tope', () => {
-  // 240 frames en 1 s con tope 60: pasa ~1 de cada 4.
-  const ok = pasan(60, 240, 240);
-  assert.ok(ok <= 61, `pasaron ${ok}, el tope son 60`);
-  assert.ok(ok >= 58, `pasaron solo ${ok}: el tope no tiene que ahogar la señal`);
+  // 240 frames en 1 s con tope 30: pasa ~1 de cada 8.
+  const ok = pasan(30, 240, 240);
+  assert.ok(ok <= 31, `pasaron ${ok}, el tope son 30`);
+  assert.ok(ok >= 29, `pasaron solo ${ok}: el tope no tiene que ahogar la señal`);
+});
+
+test('una cámara al doble del tope queda en uno de cada dos, parejo', () => {
+  const pasa = limitadorDeCadencia(30);
+  const tiempos = [];
+  for (let i = 0; i < 120; i++) if (pasa(i / 60, i / 60)) tiempos.push(i / 60);
+  assert.equal(tiempos.length, 60);
+  const dts = tiempos.slice(1).map((t, i) => t - tiempos[i]);
+  assert.ok(dts.every((d) => Math.abs(d - 1 / 30) < 1e-9), 'cuadros cada 33 ms');
 });
 
 test('una cámara lenta pasa entera: el tope no agrega descartes', () => {
-  assert.equal(pasan(60, 30, 30), 30);
+  assert.equal(pasan(30, 25, 25), 25);
+  assert.equal(pasan(30, 30, 30), 30);
+});
+
+test('una cámara justo en el tope pasa entera aunque el reloj de pared salte', () => {
+  // El callback del video va pegado al refresco de la pantalla (60 Hz): con una
+  // webcam de 30 fps el reloj de pared da 33 ms casi siempre, y a veces 50 y
+  // 17. Con un intervalo mínimo de 1/30 se perdía el cuadro de 17 ms.
+  const pasa = limitadorDeCadencia(30);
+  let pared = 0;
+  let ok = 0;
+  const n = 300;
+  for (let i = 0; i < n; i++) {
+    const salto = i % 7 === 3 ? 3 : i % 7 === 4 ? 1 : 2; // en sesentavos
+    if (i > 0) pared += salto / 60;
+    if (pasa(i / 30, pared + ((i * 7919) % 5) / 1000)) ok++;
+  }
+  assert.equal(ok, n, `pasaron ${ok} de ${n}`);
 });
 
 test('el tope aguanta que el reloj del video mienta', () => {
   // Caso Android: `mediaTime` avanza al doble de lo que avanza el reloj real.
-  // Filtrando solo por él pasarían 120 de 240; el reloj de pared lo frena.
-  const ok = pasan(60, 240, 240, { mediaTime: (i) => (i / 240) * 2 });
-  assert.ok(ok <= 61, `con el reloj del video mintiendo pasaron ${ok}`);
+  // Filtrando solo por él pasarían 60 de 240; el reloj de pared lo frena.
+  const ok = pasan(30, 240, 240, { mediaTime: (i) => (i / 240) * 2 });
+  assert.ok(ok <= 31, `con el reloj del video mintiendo pasaron ${ok}`);
 });
 
 test('el tope aguanta que el reloj del video se congele o se reinicie', () => {
   // Congelado: sin el reloj de pared no pasaría NINGÚN frame.
-  assert.ok(pasan(60, 60, 60, { mediaTime: () => 5 }) >= 58, 'reloj congelado');
+  assert.ok(pasan(30, 30, 30, { mediaTime: () => 5 }) >= 29, 'reloj congelado');
   // Reinicio a la mitad (stream nuevo): antes no volvía a pasar ni un frame.
-  const reinicio = pasan(60, 60, 60, { mediaTime: (i) => (i < 30 ? 100 + i / 60 : (i - 30) / 60) });
-  assert.ok(reinicio >= 58, `tras el reinicio pasaron ${reinicio} de 60`);
+  const reinicio = pasan(30, 30, 30, { mediaTime: (i) => (i < 15 ? 100 + i / 30 : (i - 15) / 30) });
+  assert.ok(reinicio >= 29, `tras el reinicio pasaron ${reinicio} de 30`);
 });
 
 // ─────────────────────────────── posprocesado ─────────────────────────────

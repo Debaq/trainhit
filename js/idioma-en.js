@@ -10,7 +10,7 @@
 export const HTML = {
   // ── barra ──
   'barra.acerca': 'who makes trainHIT',
-  'barra.tope': '60 FPS CAP',
+  'barra.tope': '30 FPS CAP',
   'barra.perillas': 'SETTINGS CHANGED',
   'barra.simulado': 'SIMULATED',
   'barra.fps.t': 'frames per second PROCESSED, not the ones the camera delivers',
@@ -40,7 +40,7 @@ export const HTML = {
   'bienvenida.p3':
     'Everything is processed in the browser and every step of the computation is in plain sight under <b>Tools</b>. At 30 fps and without fixing the distance to the target, the values are for teaching.',
   'bienvenida.tope':
-    'Processing is capped at 60 fps even if the camera delivers more. The cap is there on purpose: this is not a medical device and we do not want it used as one.',
+    'It works at 30 fps, the frame rate of an ordinary webcam, even if the camera can deliver more. That is enough to learn to read an impulse; measuring a patient is left to the devices made for it.',
   'bienvenida.calibrar': 'Calibrate the parallax with <kbd>C</kbd> before measuring.',
   'bienvenida.credito': 'Developed at <b>TecMedHub</b>, Universidad Austral de Chile.',
   'bienvenida.acerca': 'Who we are',
@@ -230,7 +230,7 @@ export const HTML = {
   'h.limites.lista': `
             <li>The gain it reports is not desaccaded ⇒ bias toward false negatives. Saccades are marked and there is an approximate desaccaded gain for comparison, at 30 fps.</li>
             <li>It does not fix the distance to the target.</li>
-            <li>30 fps: the peak falls between samples. 60 fps cap on purpose: it is not a medical device.</li>
+            <li>30 fps: the peak falls between samples. It is a cap chosen on purpose, that of an ordinary webcam: the page is for learning, not for measuring patients.</li>
             <li>Head and eye come from the same image: a tracking error enters both signals.</li>
             <li>With the webcam, lateral canal only: the vertical ones need the vertical component of the eye. With the phone all six can be practised, with a simulated eye.</li>
           `,
@@ -380,8 +380,8 @@ export const TEXTO = {
   'IMPORTADO k={k}': 'IMPORTED k={k}',
   'EJEMPLO k={k}': 'EXAMPLE k={k}',
   'sesión de {archivo}: la calibración es la del archivo': 'session from {archivo}: the calibration is the file’s',
-  'Esta cámara puede entregar {fps} fps. trainHIT procesa como mucho {max}: es una herramienta didáctica, y el tope está puesto a propósito para que no se use como equipo médico.':
-    'This camera can deliver {fps} fps. trainHIT processes at most {max}: it is a teaching tool, and the cap is there on purpose so that it is not used as a medical device.',
+  'Esta cámara puede entregar {fps} fps. trainHIT trabaja como mucho a {max}, la cadencia de una webcam común: es una herramienta para aprender, y medir a un paciente queda para los equipos hechos para eso.':
+    'This camera can deliver {fps} fps. trainHIT works at {max} at most, the frame rate of an ordinary webcam: it is a tool for learning, and measuring a patient is left to the devices made for it.',
   'Se están procesando {fps} fps con el tope puesto en {max}: el tope no está funcionando en este dispositivo. Los pulsos salen marcados NO VALIDADO.':
     '{fps} fps are being processed with the cap set at {max}: the cap is not working on this device. Impulses are marked NOT VALIDATED.',
   'No están en su valor de fábrica: {lista}. «Valores por defecto» en Herramientas.':
