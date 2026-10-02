@@ -15,7 +15,10 @@ const PROPIO = (url) => url.origin === self.location.origin;
 
 /** Lo que se sirve de la caché primero: pesado y versionado por URL. */
 const PESADO = (url) =>
-  url.hostname === 'cdn.jsdelivr.net' || url.hostname === 'storage.googleapis.com';
+  url.hostname === 'cdn.jsdelivr.net' ||
+  url.hostname === 'storage.googleapis.com' ||
+  // El detector SIEV-VNG: la versión va en el nombre (`_r01`).
+  (url.hostname === 'tecmedhub.org' && url.pathname.startsWith('/siev-vng/'));
 
 self.addEventListener('install', () => self.skipWaiting());
 

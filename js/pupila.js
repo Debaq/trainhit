@@ -14,7 +14,12 @@
 
 const ORT_VERSION = '1.30.0';
 const ORT_BASE = `https://cdn.jsdelivr.net/npm/onnxruntime-web@${ORT_VERSION}/dist/`;
-export const MODELO_URL = './modelos/siev_vng_r01.onnx';
+// El modelo no viaja con trainHIT: deriva de los pesos de Ultralytics y es
+// AGPL-3.0, así que vive en su propio depósito (siev_vng_models) y se baja
+// de allí solo cuando alguien elige este detector. El código de aquí sigue
+// siendo Apache-2.0. El servidor tiene que mandar CORS (ver el .htaccess del
+// depósito del modelo) y el service worker lo guarda para el modo sin red.
+export const MODELO_URL = 'https://tecmedhub.org/siev-vng/siev_vng_r01.onnx';
 
 /** Lado de la entrada del modelo (imgsz del entrenamiento). */
 export const LADO = 320;
