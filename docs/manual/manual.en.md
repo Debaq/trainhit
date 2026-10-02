@@ -1505,3 +1505,7 @@ year in the text; each one carries a line on what it is used for here.
 > Baier-Quezada N, Uribe-Hernández V, López-Moncada F, Catipillan-Ulloa B.
 > trainHIT: a teaching vHIT in the browser [software]. Version 2026-10-01.1.
 > Puerto Montt: TecMedHub Lab, Universidad Austral de Chile; 2026.
+> doi:10.5281/zenodo.23106742
+
+This DOI covers every version archived on Zenodo; each version also has
+its own, listed at <https://doi.org/10.5281/zenodo.23106742>.

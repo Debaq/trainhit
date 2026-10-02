@@ -5,6 +5,8 @@ type: software
 version: "2026-10-02.3"
 date-released: 2026-10-02
 license: Apache-2.0
+doi: 10.5281/zenodo.23106742
+repository-code: "https://github.com/Debaq/trainhit"
 url: "https://debaq.github.io/trainhit/"
 abstract: >-
   Herramienta docente para enseñar el video Head Impulse Test (vHIT) y la

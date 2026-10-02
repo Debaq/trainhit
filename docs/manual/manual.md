@@ -1498,3 +1498,7 @@ citan por autor y año; cada una lleva una línea sobre para qué se usa aquí.
 > Baier-Quezada N, Uribe-Hernández V, López-Moncada F, Catipillan-Ulloa B.
 > trainHIT: vHIT didáctico en el navegador [software]. Versión 2026-10-01.1.
 > Puerto Montt: Laboratorio TecMedHub, Universidad Austral de Chile; 2026.
+> doi:10.5281/zenodo.23106742
+
+El DOI reúne todas las versiones archivadas en Zenodo; cada versión tiene
+además el suyo propio, en <https://doi.org/10.5281/zenodo.23106742>.

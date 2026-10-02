@@ -2,6 +2,8 @@
 
 Desarrollado en **TecMedHub**, Universidad Austral de Chile.
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23106742.svg)](https://doi.org/10.5281/zenodo.23106742)
+
 vHIT (video Head Impulse Test) **didáctico**, en el navegador, con la webcam del
 equipo. Sin instalar nada: se abre `index.html` desde un servidor local y mide.
 
@@ -841,6 +843,18 @@ configuración regional latina (punto y coma y coma decimal). Los archivos
 exportados antes de la tabla de crudo no se pueden importar, y el mensaje lo
 dice. `test/sesion.test.mjs` hace la ida y la vuelta.
 
+## Cómo citar
+
+> Baier-Quezada N, Uribe-Hernández V, López-Moncada F, Catipillan-Ulloa B.
+> trainHIT: vHIT didáctico en el navegador [software]. Puerto Montt:
+> Laboratorio TecMedHub, Universidad Austral de Chile; 2026.
+> doi:10.5281/zenodo.23106742
+
+Ese DOI reúne todas las versiones; la 2026-10-02.3 tiene el suyo,
+doi:10.5281/zenodo.23106743. El detector SIEV-VNG se cita aparte:
+doi:10.5281/zenodo.23106568.
+
 ## Licencia
 
-Apache-2.0, igual que el repo principal.
+Apache-2.0, igual que el repo principal. Los pesos de SIEV-VNG no están en
+este repo: son AGPL-3.0 y viven en su propio depósito.
