@@ -1495,6 +1495,6 @@ citan por autor y año; cada una lleva una línea sobre para qué se usa aquí.
 
 ### Cómo citar trainHIT
 
-> Baier-Quezada N, Uribe-Hernández V, López-Moncada F. trainHIT: vHIT
-> didáctico en el navegador [software]. Versión 2026-10-01.1. Puerto Montt:
-> Laboratorio TecMedHub, Universidad Austral de Chile; 2026.
+> Baier-Quezada N, Uribe-Hernández V, López-Moncada F, Catipillan-Ulloa B.
+> trainHIT: vHIT didáctico en el navegador [software]. Versión 2026-10-01.1.
+> Puerto Montt: Laboratorio TecMedHub, Universidad Austral de Chile; 2026.

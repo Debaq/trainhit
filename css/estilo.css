@@ -224,6 +224,7 @@ a.boton.ghost:hover { background: var(--accent); }
 .inicial.c1 { background: var(--c-head); }
 .inicial.c2 { background: var(--c-eye); }
 .inicial.c3 { background: var(--c-covert); }
+.inicial.c4 { background: var(--c-ok); }
 /* Con foto: el anillo del color de cada uno queda alrededor. */
 img.inicial { object-fit: cover; box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--c-head); }
 img.inicial.c2 { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--c-eye); }

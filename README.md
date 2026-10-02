@@ -83,12 +83,14 @@ reales —y el interruptor lo apaga—.
 
 La firma **TecMedHub** de la barra (y «Quiénes lo hacemos», en la
 bienvenida) abre la tarjeta de quiénes lo hacen y para quién: Nicolás
-Baier-Quezada, Vanessa Uribe-Hernández y Fernanda López-Moncada, del
-Laboratorio TecMedHub de la Universidad Austral de Chile, Sede Puerto Montt,
-para los estudiantes que visitan el laboratorio con hambre de conocimiento.
+Baier-Quezada, Vanessa Uribe-Hernández, Fernanda López-Moncada y Benjamín
+Catipillan-Ulloa, del Laboratorio TecMedHub de la Universidad Austral de
+Chile, Sede Puerto Montt, para los estudiantes que visitan el laboratorio con
+hambre de conocimiento.
 
 Las fotos son las de sus perfiles de GitHub ([@Debaq](https://github.com/Debaq),
-[@vanne11](https://github.com/vanne11), [@FernandandreaTM](https://github.com/FernandandreaTM)), guardadas en `img/equipo/` a 96 px:
+[@vanne11](https://github.com/vanne11), [@FernandandreaTM](https://github.com/FernandandreaTM)), guardadas en `img/equipo/` a 96 px
+(Benjamín, sin foto, va con su inicial sobre un color):
 así la tarjeta funciona sin red, la CSP no tiene que abrirse a otro dominio y la
 página no le pide nada a GitHub al abrir. Si alguien cambia su foto, hay que
 volver a bajarla.
