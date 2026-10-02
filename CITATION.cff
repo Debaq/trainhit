@@ -1,0 +1,50 @@
+cff-version: 1.2.0
+message: "Si utiliza este software, por favor cítelo usando los siguientes metadatos."
+title: "trainHIT: vHIT didáctico en el navegador"
+type: software
+version: "2026-10-01.6"
+date-released: 2026-10-02
+license: Apache-2.0
+url: "https://debaq.github.io/trainhit/"
+abstract: >-
+  Herramienta docente para enseñar el video Head Impulse Test (vHIT) y la
+  ganancia del reflejo vestíbulo-ocular. Corre en el navegador: sigue la
+  cabeza y el iris cuadro a cuadro con la webcam y calcula la ganancia de cada
+  impulso cefálico, con cada paso del cálculo a la vista. Incluye tres métodos
+  de ganancia, detección de sacadas, curva promedio, paciente simulado, casos
+  a ciegas, preguntas para Moodle, el teléfono como cabeza (también para
+  canales verticales), un Laberinto 3D y el detector de ojos SIEV-VNG en ONNX
+  como alternativa experimental. Trabaja a 30 fps con cámara remota y sin
+  gafas: sus valores son didácticos y no es un equipo médico. Los pesos de
+  SIEV-VNG derivan de Ultralytics YOLOv8 (AGPL-3.0). Desarrollado en el
+  Laboratorio TecMedHub, Universidad Austral de Chile, Sede Puerto Montt.
+authors:
+  - family-names: Baier-Quezada
+    given-names: Nicolás
+    orcid: "https://orcid.org/0000-0003-2818-0990"
+    affiliation: Universidad Austral de Chile
+  - family-names: Uribe-Hernández
+    given-names: Vanessa
+    orcid: "https://orcid.org/0009-0003-0795-7921"
+    affiliation: Universidad Austral de Chile
+  - family-names: López-Moncada
+    given-names: Fernanda
+    orcid: "https://orcid.org/0000-0002-0810-7684"
+    affiliation: Universidad Austral de Chile
+  - family-names: Catipillan-Ulloa
+    given-names: Benjamín
+    orcid: "https://orcid.org/0009-0007-1411-3638"
+    affiliation: Universidad Austral de Chile
+keywords:
+  - vHIT
+  - video Head Impulse Test
+  - reflejo vestíbulo-ocular
+  - vestibulo-ocular reflex
+  - VOR
+  - otoneurología
+  - vestibular
+  - simulación clínica
+  - eye tracking
+  - MediaPipe
+  - ONNX
+  - YOLOv8

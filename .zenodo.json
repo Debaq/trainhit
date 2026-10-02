@@ -1,0 +1,60 @@
+{
+  "title": "trainHIT: vHIT didáctico en el navegador",
+  "upload_type": "software",
+  "version": "2026-10-01.6",
+  "publication_date": "2026-10-02",
+  "language": "spa",
+  "license": "Apache-2.0",
+  "access_right": "open",
+  "description": "<p>trainHIT es una herramienta docente para enseñar el video Head Impulse Test (vHIT) y la ganancia del reflejo vestíbulo-ocular. Corre en el navegador, sin instalar nada: sigue la cabeza y el iris cuadro a cuadro con la webcam del equipo y calcula la ganancia de cada impulso cefálico. El objetivo no es medir mejor que un equipo clínico, sino que cada paso del cálculo se vea, se pueda tocar y se entienda por qué está hecho así.</p><p>Incluye la medición sobre el gráfico con tres métodos de ganancia, la detección de sacadas covert y overt, la curva promedio, los pulsos rechazados con su motivo, la calibración del paralaje y todas las perillas del cálculo a la vista en Herramientas. Para aprender sin paciente trae un paciente simulado, pulsos de ejemplo, casos a ciegas y preguntas exportables a Moodle. Un teléfono puede hacer de cabeza: sus sensores reemplazan al seguimiento de la cabeza, también para los canales verticales (LARP y RALP), y un Laberinto 3D muestra qué canal semicircular estimula cada impulso. Como alternativa experimental al centro del iris de MediaPipe incluye el detector SIEV-VNG (YOLOv8n de una clase, exportado a ONNX y ejecutado con onnxruntime-web). Está en español e inglés, funciona sin conexión mediante service worker y es HTML estático con módulos ES, sin build. Todo el procesamiento, y el video, se queda en la máquina.</p><p><strong>No es un equipo médico.</strong> Trabaja a 30 fps, la cadencia de una webcam común, con cámara remota y sin gafas: es el mismo enfoque que tiene normativos publicados a 100 fps (Wiener-Vacher y Wiener, 2017), pero sin fijar la distancia al objetivo y sin validación propia, por lo que sus valores son didácticos.</p><p>El depósito incluye el código fuente, el manual de uso y guía docente y la guía de sujeción del teléfono (PDF en español e inglés), y los pesos del detector SIEV-VNG (<code>siev_vng_r01.pt</code> y <code>modelos/siev_vng_r01.onnx</code>). Los pesos derivan de Ultralytics YOLOv8 y se rigen por la licencia AGPL-3.0 de Ultralytics; el resto del software se distribuye bajo Apache-2.0.</p><p>Desarrollado en el Laboratorio TecMedHub, Universidad Austral de Chile, Sede Puerto Montt.</p>",
+  "creators": [
+    {
+      "name": "Baier-Quezada, Nicolás",
+      "affiliation": "Universidad Austral de Chile",
+      "orcid": "0000-0003-2818-0990"
+    },
+    {
+      "name": "Uribe-Hernández, Vanessa",
+      "affiliation": "Universidad Austral de Chile",
+      "orcid": "0009-0003-0795-7921"
+    },
+    {
+      "name": "López-Moncada, Fernanda",
+      "affiliation": "Universidad Austral de Chile",
+      "orcid": "0000-0002-0810-7684"
+    },
+    {
+      "name": "Catipillan-Ulloa, Benjamín",
+      "affiliation": "Universidad Austral de Chile",
+      "orcid": "0009-0007-1411-3638"
+    }
+  ],
+  "keywords": [
+    "vHIT",
+    "video Head Impulse Test",
+    "Head Impulse Test",
+    "reflejo vestíbulo-ocular",
+    "vestibulo-ocular reflex",
+    "VOR",
+    "ganancia del VOR",
+    "sacadas",
+    "otoneurología",
+    "vestibular",
+    "educación en ciencias de la salud",
+    "simulación clínica",
+    "eye tracking",
+    "MediaPipe",
+    "ONNX",
+    "YOLOv8",
+    "navegador",
+    "Chile"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://debaq.github.io/trainhit/",
+      "relation": "isDocumentedBy",
+      "resource_type": "other",
+      "scheme": "url"
+    }
+  ]
+}
