@@ -229,6 +229,7 @@ a.boton.ghost:hover { background: var(--accent); }
 img.inicial { object-fit: cover; box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--c-head); }
 img.inicial.c2 { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--c-eye); }
 img.inicial.c3 { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--c-covert); }
+img.inicial.c4 { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--c-ok); }
 .acerca-equipo .gh { display: block; font: 12px ui-monospace, SFMono-Regular, monospace; color: var(--muted-fg); text-decoration: none; }
 .acerca-equipo .gh:hover { color: var(--c-guide-texto); text-decoration: underline; }
 .acerca-lugar {

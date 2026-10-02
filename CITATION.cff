@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: "Si utiliza este software, por favor cítelo usando los siguientes metadatos."
 title: "trainHIT: vHIT didáctico en el navegador"
 type: software
-version: "2026-10-02.2"
+version: "2026-10-02.3"
 date-released: 2026-10-02
 license: Apache-2.0
 url: "https://debaq.github.io/trainhit/"
