@@ -329,7 +329,7 @@ function avisaTope(cam) {
   aviso.hidden = !rapida;
   if (rapida) {
     aviso.title = tx(
-      'Esta cámara puede entregar {fps} fps. trainHIT trabaja como mucho a {max}, la cadencia de una webcam común: es una herramienta para aprender, y medir a un paciente queda para los equipos hechos para eso.',
+      'Esta cámara puede entregar {fps} fps. trainHIT trabaja como mucho a {max}: el tope es deliberado, para que no se use para evaluar pacientes. Medir a un paciente queda para los equipos clínicos validados.',
       { fps: Math.round(cam.fpsMax ?? cam.fps), max: FPS_MAX },
     );
     console.info(aviso.title);

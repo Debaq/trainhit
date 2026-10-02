@@ -11,10 +11,10 @@ Es el repo hermano de [vhit-wout-google](https://github.com/Debaq/vhit-wout-goog
 que es el motor nativo en Rust. Aquí el objetivo no es medir mejor: es que cada
 paso del cálculo **se vea**, se pueda tocar y se entienda por qué está hecho así.
 
-> **No reemplaza a un equipo clínico.** Corre a los 30 fps de una webcam común;
-> un vHIT de gafas usa cámara >250 Hz, y el remoto comercial más lento va a 100 fps.
-> Por eso mismo **se procesa como mucho a 30 fps** aunque la cámara dé más
-> (ver [Tope de 30 fps](#tope-de-30-fps)).
+> **No reemplaza a un equipo clínico.** Un vHIT de gafas usa cámara >250 Hz, y
+> el remoto comercial más lento va a 100 fps. trainHIT **procesa como mucho a
+> 30 fps** aunque la cámara dé más: el tope es deliberado, para impedir que se
+> use para evaluar pacientes (ver [Tope de 30 fps](#tope-de-30-fps)).
 
 Medir con cámara remota y sin gafas **es otro método, no un vHIT incompleto**.
 Hay normativos publicados con cámara remota a 100 fps y blanco a 1–1,3 m
@@ -575,13 +575,13 @@ Si la cámara puede entregar más de 30 cuadros por segundo, trainHIT la pide
 a 30 como máximo y, si igual llegan más, descarta los que sobran. En la barra
 aparece **TOPE 30 FPS** con la explicación al pasar el mouse.
 
-No es una limitación técnica: es una decisión. Con una cámara rápida los
-números de esta página empezarían a parecerse a los de un equipo clínico sin
-tener ni la validación ni el control de la distancia al objetivo que eso
-exige. 30 fps es la cadencia de una webcam común: alcanza para aprender a leer
-un impulso y deja la medición de pacientes a los equipos hechos para eso. Está
-en `FPS_MAX` de `js/tracker.js`, y el aviso en `avisaTope` de `js/app.js`.
-Hasta el 2026-10-01 el tope era 60.
+No es una limitación técnica: el tope es deliberado, para impedir que trainHIT
+se use para evaluar pacientes. Con una cámara rápida los números de esta
+página empezarían a parecerse a los de un equipo clínico sin tener ni la
+validación ni el control de la distancia al objetivo que eso exige. A 30 fps
+la forma del impulso se ve bien y alcanza para aprender a leerla; medir a un
+paciente queda para los equipos clínicos validados. Está en `FPS_MAX` de
+`js/tracker.js`, y el aviso en `avisaTope` de `js/app.js`.
 
 El tope se aplica dos veces: en la restricción que se le pide a
 `getUserMedia` y, si el navegador la ignora, descartando los frames que llegan
@@ -589,7 +589,7 @@ de más (`limitadorDeCadencia` en `js/signal.js`). Ese filtro mira dos relojes
 con papeles distintos: el de pared es la cota dura, y el del video
 (`mediaTime`) se suma **solo mientras avanza**. Filtrando solo por el del
 video, un reloj que miente rompe el tope —hubo un caso de 240 fps procesados
-en Android con el tope en 60—; bloqueando cuando está congelado, la página
+en Android pese al tope—; bloqueando cuando está congelado, la página
 deja de procesar del todo. Cada reloj lleva un horario con holgura y no un
 intervalo mínimo: con el tope en la cadencia de la propia webcam, un intervalo
 mínimo botaba los cuadros que el refresco de la pantalla adelanta unos

@@ -113,11 +113,11 @@ export async function crearLandmarker({ gpu = true, onProgreso } = {}) {
  * comercial más lento a 100 fps: con una cámara rápida los números de aquí
  * empezarían a parecerse a los de un equipo clínico sin tener ni la
  * validación ni el control de la distancia al objetivo que eso exige. El tope
- * está en la cadencia de una webcam común, bien por debajo del equipo
- * comercial más lento: alcanza para ver la forma del impulso y aprender a
- * leerla, y ningún resultado de trainHIT puede pasar por un vHIT real. Se
- * procesa como mucho a 30 fps aunque la cámara dé más, y se avisa cuando se
- * está recortando. Era 60 hasta el 2026-10-01.
+ * es deliberado, para impedir que trainHIT se use para evaluar pacientes:
+ * queda bien por debajo del equipo comercial más lento, alcanza para ver la
+ * forma del impulso y aprender a leerla, y ningún resultado de trainHIT puede
+ * pasar por un vHIT real. Se procesa como mucho a 30 fps aunque la cámara dé
+ * más, y se avisa cuando se está recortando.
  */
 export const FPS_MAX = 30;
 

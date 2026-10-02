@@ -72,9 +72,9 @@ TecMedHub Lab · Universidad Austral de Chile, Puerto Montt campus
 
 > **trainHIT is not a medical device.** It is for *learning* how the
 > vestibulo-ocular reflex is measured, not for diagnosing. It works at 30
-> frames per second, those of an ordinary webcam, the distance to the target is
-> not fixed and the gain it reports is not desaccaded, so the values are for
-> teaching.
+> frames per second at most, a deliberate cap so that it is not used on
+> patients, the distance to the target is not fixed and the gain it reports is
+> not desaccaded, so the values are for teaching.
 
 trainHIT measures the **vestibulo-ocular reflex (VOR)** with the computer’s
 camera. Frame by frame it tracks the head and the iris with the MediaPipe face
@@ -115,12 +115,13 @@ leaves the computer**.
   practised, with a simulated eye (sections 11 and 12).
 
 **Why 30 frames per second.** Even if the camera can deliver more, trainHIT
-uses 30 at most, the frame rate of an ordinary webcam; if the camera delivers
-more, **30 FPS CAP** shows up in the bar. It is a choice: at 30 frames the
-shape of the impulse is clearly visible and it is enough to learn to read it,
-and the page stays what it means to be, a place to practise. Measuring a
-patient is the job of clinical devices, made and validated for it, and what is
-learnt here is precisely what it takes to use them well.
+processes 30 at most; if the camera delivers more, **30 FPS CAP** shows up in
+the bar. The cap is deliberate: it prevents trainHIT from being used to assess
+patients, because with more frames its numbers would start to look like those
+of a clinical device without having its validation. At 30 frames the shape of
+the impulse is clearly visible and it is enough to learn to read it. Measuring
+a patient is left to validated clinical devices, and what is learnt here is
+precisely what it takes to use them well.
 
 ---
 

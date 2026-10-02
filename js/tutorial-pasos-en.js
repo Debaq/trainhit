@@ -136,9 +136,9 @@ export const PASEOS = {
           <p>trainHIT is for <b>learning</b> how the reflex is measured, not for diagnosing. A webcam at
           30 fps, without fixing the distance to the target and without desaccading, gives values for
           teaching.</p>
-          <p>That is why it works at 30 fps even if the camera delivers more: it is the frame rate of an
-          ordinary webcam and it is enough to learn to read an impulse. Measuring a patient is left to
-          the <b>devices made and validated for it</b>.</p>`,
+          <p>That is why it works at 30 fps at most even if the camera delivers more. The cap is
+          deliberate, so that it is not used to assess patients: it is enough to learn to read an
+          impulse. Measuring a patient is left to <b>validated clinical devices</b>.</p>`,
       },
     },
   },

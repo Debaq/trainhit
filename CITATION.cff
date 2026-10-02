@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: "Si utiliza este software, por favor cítelo usando los siguientes metadatos."
 title: "trainHIT: vHIT didáctico en el navegador"
 type: software
-version: "2026-10-02.3"
+version: "2026-10-02.4"
 date-released: 2026-10-02
 license: Apache-2.0
 doi: 10.5281/zenodo.23106742
@@ -16,8 +16,9 @@ abstract: >-
   de ganancia, detección de sacadas, curva promedio, paciente simulado, casos
   a ciegas, preguntas para Moodle, el teléfono como cabeza (también para
   canales verticales), un Laberinto 3D y, como alternativa experimental, el
-  detector de ojos SIEV-VNG. Trabaja a 30 fps con cámara remota y sin
-  gafas: sus valores son didácticos y no es un equipo médico. Los pesos de
+  detector de ojos SIEV-VNG. Procesa como mucho 30 fps, un tope deliberado
+  para impedir que se use para evaluar pacientes; con cámara remota y sin
+  gafas, sus valores son didácticos y no es un equipo médico. Los pesos de
   SIEV-VNG (AGPL-3.0) se publican aparte y no forman parte de este
   software. Desarrollado en el Laboratorio TecMedHub, Universidad Austral de
   Chile, Sede Puerto Montt.

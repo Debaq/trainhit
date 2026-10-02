@@ -71,9 +71,10 @@ Laboratorio TecMedHub · Universidad Austral de Chile, Sede Puerto Montt
 ## 1. Qué es trainHIT
 
 > **trainHIT no es un equipo médico.** Sirve para *aprender* cómo se mide el
-> reflejo vestíbulo-ocular, no para diagnosticar. Trabaja a 30 cuadros por
-> segundo, los de una webcam común, no fija la distancia al blanco y la
-> ganancia que reporta no desacadiza. Por eso los valores son didácticos.
+> reflejo vestíbulo-ocular, no para diagnosticar. Trabaja como mucho a 30
+> cuadros por segundo, un tope deliberado para que no se use con pacientes, no
+> fija la distancia al blanco y la ganancia que reporta no desacadiza. Por eso
+> los valores son didácticos.
 
 trainHIT mide el **reflejo vestíbulo-ocular (VOR)** con la cámara del computador.
 Cuadro a cuadro sigue la cabeza y el iris con la malla facial de MediaPipe
@@ -113,12 +114,13 @@ el navegador y **el video no sale del equipo**.
   ojo simulado (secciones 11 y 12).
 
 **Por qué 30 cuadros por segundo.** Aunque la cámara pueda dar más, trainHIT
-usa como mucho 30, la cadencia de una webcam común; si la cámara da más,
-aparece **TOPE 30 FPS** en la barra. Es una elección: a 30 cuadros la forma del
-impulso se ve bien y alcanza para aprender a leerla, y la página se queda en
-lo que quiere ser, un lugar para practicar. Medir a un paciente es trabajo de
-los equipos clínicos, hechos y validados para eso, y lo que se aprende aquí es
-justamente lo que hace falta para usarlos bien.
+procesa como mucho 30; si la cámara da más, aparece **TOPE 30 FPS** en la
+barra. El tope es deliberado: impide que trainHIT se use para evaluar
+pacientes, porque con más cuadros sus números empezarían a parecerse a los de
+un equipo clínico sin tener su validación. A 30 cuadros la forma del impulso
+se ve bien y alcanza para aprender a leerla. Medir a un paciente queda para
+los equipos clínicos validados, y lo que se aprende aquí es justamente lo que
+hace falta para usarlos bien.
 
 ---
 
