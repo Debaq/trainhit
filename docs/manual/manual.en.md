@@ -16,7 +16,7 @@ with a phone as the head.
 
 <div class="ficha" markdown="1">
 
-**Author:** Nicolás Baier Quezada<br>
+**Authors:** Nicolás&nbsp;Baier-Quezada, Vanessa&nbsp;Uribe-Hernández, Fernanda&nbsp;López-Moncada, Benjamín&nbsp;Catipillan-Ulloa<br>
 **Date:** October 1, 2026<br>
 **trainHIT version documented:** 2026-10-01.1
 

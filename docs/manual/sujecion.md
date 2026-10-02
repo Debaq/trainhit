@@ -124,4 +124,4 @@ los seis canales antes de contestar.
 | La guía nunca se pone verde | **Centrar** con la cabeza mirando el blanco, y recién después girarla 45°. |
 | El PC dice **RECONECTANDO** | El teléfono se durmió o perdió el wifi: se reconecta solo al despertarlo. |
 
-<p class="pie-guia">trainHIT · TecMedHub · Universidad Austral de Chile, Sede Puerto Montt · Autor: Nicolás Baier Quezada</p>
+<p class="pie-guia">trainHIT · TecMedHub · Universidad Austral de Chile, Sede Puerto Montt · Autores: Nicolás&nbsp;Baier-Quezada, Vanessa&nbsp;Uribe-Hernández, Fernanda&nbsp;López-Moncada, Benjamín&nbsp;Catipillan-Ulloa</p>

@@ -125,4 +125,4 @@ a patient and asks for all six canals before answering.
 | The guide never turns green | **Center** with the head looking at the target, and only then turn it 45°. |
 | The computer says **RECONNECTING** | The phone slept or lost wifi: it reconnects by itself when woken. |
 
-<p class="pie-guia">trainHIT · TecMedHub · Universidad Austral de Chile, Puerto Montt campus · Author: Nicolás Baier Quezada</p>
+<p class="pie-guia">trainHIT · TecMedHub · Universidad Austral de Chile, Puerto Montt campus · Authors: Nicolás&nbsp;Baier-Quezada, Vanessa&nbsp;Uribe-Hernández, Fernanda&nbsp;López-Moncada, Benjamín&nbsp;Catipillan-Ulloa</p>

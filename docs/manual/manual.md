@@ -16,7 +16,7 @@ teléfono como cabeza.
 
 <div class="ficha" markdown="1">
 
-**Autor:** Nicolás Baier Quezada<br>
+**Autores:** Nicolás&nbsp;Baier-Quezada, Vanessa&nbsp;Uribe-Hernández, Fernanda&nbsp;López-Moncada, Benjamín&nbsp;Catipillan-Ulloa<br>
 **Fecha:** 1 de octubre de 2026<br>
 **Versión de trainHIT documentada:** 2026-10-01.1
 
