@@ -48,3 +48,18 @@ keywords:
   - eye tracking
   - MediaPipe
   - ONNX
+references:
+  - type: software
+    title: "SIEV-VNG: detector de ojos YOLOv8n para videonistagmografía"
+    version: r01
+    doi: 10.5281/zenodo.23106568
+    license: AGPL-3.0-only
+    authors:
+      - family-names: Baier-Quezada
+        given-names: Nicolás
+      - family-names: Uribe-Hernández
+        given-names: Vanessa
+      - family-names: López-Moncada
+        given-names: Fernanda
+      - family-names: Catipillan-Ulloa
+        given-names: Benjamín
