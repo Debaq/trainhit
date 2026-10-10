@@ -16,7 +16,8 @@ abstract: >-
   de ganancia, detección de sacadas, curva promedio, paciente simulado, casos
   a ciegas, preguntas para Moodle, el teléfono como cabeza (también para
   canales verticales), un Laberinto 3D y, como alternativa experimental, el
-  detector de iris SIEV-iris. Procesa como mucho 30 fps, un tope deliberado
+  detector de iris SIEV-iris (YOLOv8n anotado y entrenado en Annotix con
+  imágenes reales de MPIIGaze). Procesa como mucho 30 fps, un tope deliberado
   para impedir que se use para evaluar pacientes; con cámara remota y sin
   gafas, sus valores son didácticos y no es un equipo médico. Los pesos de
   SIEV-iris (AGPL-3.0) se publican aparte y no forman parte de este

@@ -1,7 +1,6 @@
 // Detector de iris alternativo: el modelo SIEV-iris, un YOLOv8n de una clase
-// entrenado con imágenes de MPIIGaze para encontrar el IRIS, exportado a ONNX
-// y corrido con onnxruntime-web. La clase se llama «OJO» en los pesos, pero
-// lo que detecta es el iris.
+// (`iris`) anotado y entrenado en Annotix con imágenes reales de MPIIGaze,
+// exportado a ONNX y corrido con onnxruntime-web.
 //
 // Es EXPERIMENTAL. Lo que entrega es la CAJA del iris de cada ojo, no su
 // centro exacto. Por eso aquí:
