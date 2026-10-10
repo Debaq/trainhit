@@ -1105,7 +1105,7 @@ export function dibujaOjo(canvas, video, crop, landmarks, ojo, espejo, { simDelt
       ctx.stroke();
     }
   }
-  // Detector SIEV-VNG (pupila.js): la caja del ojo y la pupila que sacó de
+  // Detector SIEV-VNG (pupila.js): la caja del iris y la pupila que sacó de
   // ella, en ámbar para no confundirla con el iris verde de la malla. Vienen
   // en píxeles del video.
   if (pupila) {

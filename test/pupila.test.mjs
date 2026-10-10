@@ -1,11 +1,11 @@
 // Las partes puras del detector SIEV-VNG (pupila.js): encuadre, decodificación
-// de la salida de YOLOv8, elección de la caja de cada ojo y pupila por
+// de la salida de YOLOv8, elección de la caja del iris de cada ojo y pupila por
 // centroide oscuro. La inferencia en sí necesita el navegador.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ENCUADRE, cajaDelOjo, centroOscuro, decodifica, encuadre } from '../js/pupila.js';
 
-test('encuadre: los ojos caen donde caían en las imágenes de entrenamiento', () => {
+test('encuadre: los centros de los ojos caen donde dice ENCUADRE', () => {
   const a = { x: 400, y: 300 };
   const b = { x: 500, y: 300 };
   const e = encuadre(a, b);

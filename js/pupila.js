@@ -1,16 +1,17 @@
-// Detector de pupila alternativo: el modelo SIEV-VNG (YOLOv8n de una clase,
-// «OJO»), exportado a ONNX y corrido con onnxruntime-web.
+// Detector de iris alternativo: el modelo SIEV-VNG, un YOLOv8n de una clase
+// entrenado con imágenes de MPIIGaze para encontrar el IRIS, exportado a ONNX
+// y corrido con onnxruntime-web. La clase se llama «OJO» en los pesos, pero
+// lo que detecta es el iris.
 //
-// Es EXPERIMENTAL. El modelo se entrenó con imágenes infrarrojas de gafas VNG
-// (los dos ojos de cerca, 424×240) y lo que entrega es la CAJA de cada ojo, no
-// la pupila. Por eso aquí:
-//   - MediaPipe sigue a cargo de la cabeza, el parpadeo y las comisuras: este
-//     modelo solo reemplaza el centro del iris.
-//   - El cuadro de la webcam se recorta y se pasa a gris imitando el encuadre
-//     de las gafas, que es lo que el modelo conoce.
-//   - Dentro de cada caja, la pupila es el centroide de los píxeles más
-//     oscuros, como hacía la app VNG con su umbral. La caja se refresca cada
-//     tanto y la pupila se busca en cada cuadro: ver `crearDetectorPupila`.
+// Es EXPERIMENTAL. Lo que entrega es la CAJA del iris de cada ojo, no su
+// centro exacto. Por eso aquí:
+//   - MediaPipe sigue a cargo de la cabeza, el parpadeo, las comisuras y la
+//     escala px/mm: este modelo solo reemplaza el centro del iris.
+//   - El cuadro de la webcam se recorta alrededor de los dos ojos (ver
+//     `ENCUADRE`) y se pasa a gris antes de entrar al modelo.
+//   - Dentro de cada caja, el centro es el centroide de los píxeles más
+//     oscuros, o sea la pupila. La caja se refresca cada tanto y la pupila se
+//     busca en cada cuadro: ver `crearDetectorPupila`.
 
 const ORT_VERSION = '1.30.0';
 const ORT_BASE = `https://cdn.jsdelivr.net/npm/onnxruntime-web@${ORT_VERSION}/dist/`;
@@ -27,9 +28,9 @@ export const LADO = 320;
 const RELLENO = 114 / 255;
 
 /**
- * Encuadre de las imágenes de entrenamiento, medido sobre el dataset: cuadro
- * de 424×240, los centros de los ojos separados el 68 % del ancho y a un 34 %
- * del alto desde arriba.
+ * Encuadre del recorte que recibe el modelo: cuadro de 424×240, con los
+ * centros de los ojos separados el 68 % del ancho y a un 34 % del alto desde
+ * arriba.
  */
 export const ENCUADRE = { ancho: 424, alto: 240, sepOjos: 0.68, altoOjos: 0.34 };
 
@@ -83,9 +84,9 @@ export function decodifica(datos, n, { confMin = CONF_MIN, iouMax = IOU_NMS } = 
 }
 
 /**
- * La caja que le toca a un ojo: la de más confianza cuyo centro cae cerca
- * del centro que da MediaPipe. Sin esto una ceja o una fosa nasal (que el
- * modelo a veces confunde con un ojo) podría pasar por el ojo.
+ * La caja del iris que le toca a un ojo: la de más confianza cuyo centro cae
+ * cerca del centro que da MediaPipe. Sin esto una ceja o una fosa nasal (que
+ * el modelo a veces confunde con un iris) podría pasar por el iris.
  */
 export function cajaDelOjo(cajas, ojo, radio) {
   let mejor = null;
@@ -97,7 +98,7 @@ export function cajaDelOjo(cajas, ojo, radio) {
 }
 
 /**
- * Centro de la pupila dentro de una caja: centroide de la `fraccion` más
+ * Centro de la pupila dentro de la caja del iris: centroide de la `fraccion` más
  * oscura de sus píxeles, pesado por lo oscuro que es cada uno. Se recorta un
  * poco la caja por los costados, donde las comisuras y las pestañas también
  * son oscuras.
@@ -161,7 +162,7 @@ export const VIGENCIA_MS = 1000;
  * Por qué es rápido aunque el modelo no lo sea (~90 ms por inferencia en wasm
  * de un hilo; los hilos piden aislamiento de origen cruzado, COOP/COEP, que
  * el sitio no tiene):
- *   - el modelo solo da la CAJA del ojo, y el recorte se arma desde los
+ *   - el modelo solo da la CAJA del iris, y el recorte se arma desde los
  *     centros de ojo de MediaPipe, así que la caja casi no se mueve dentro
  *     del recorte de un cuadro a otro;
  *   - entonces la pupila se busca en CADA cuadro, sincrónica (cuesta ~1 ms),
@@ -194,7 +195,7 @@ export async function crearDetectorPupila({ onProgreso } = {}) {
   const cFuente = fuente.getContext('2d');
   const grisFuente = new Uint8ClampedArray(FW * FH);
   const radio = 0.25 * ENCUADRE.sepOjos * FW;
-  /** La última caja de cada ojo, en píxeles del recorte, con su hora `t`. */
+  /** La última caja del iris de cada ojo, en píxeles del recorte, con su hora `t`. */
   const cajas = { derecho: null, izquierdo: null };
   let ocupado = false;
   let ultimoLanzado = -Infinity;
@@ -269,7 +270,7 @@ export async function crearDetectorPupila({ onProgreso } = {}) {
       cFuente.fillStyle = '#727272';
       cFuente.fillRect(0, 0, FW, FH);
       cFuente.drawImage(video, enc.x0, enc.y0, enc.ancho, enc.alto, 0, 0, FW, FH);
-      // Gris: las imágenes de entrenamiento son infrarrojas, sin color.
+      // El modelo recibe el recorte en gris (luminancia).
       const px = cFuente.getImageData(0, 0, FW, FH).data;
       for (let i = 0, j = 0; j < grisFuente.length; i += 4, j++) {
         grisFuente[j] = 0.299 * px[i] + 0.587 * px[i + 1] + 0.114 * px[i + 2];

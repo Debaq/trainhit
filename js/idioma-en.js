@@ -171,7 +171,7 @@ export const HTML = {
   'h.detector.mediapipe': 'MediaPipe (face mesh)',
   'h.detector.siev': 'SIEV-VNG (ONNX, experimental)',
   'h.detector.ayuda':
-    'SIEV-VNG is an eye detector trained on infrared images from VNG goggles: it finds the box of each eye and takes the darkest part inside as the pupil (amber in the zoomed eyes). It is downloaded the first time it is chosen (about 12 MB). Calibrate again after switching detectors.',
+    'SIEV-VNG is an iris detector (YOLOv8n) trained on images from MPIIGaze: it finds the box of the iris of each eye and takes the darkest part inside as the pupil (amber in the zoomed eyes). It is downloaded the first time it is chosen (about 12 MB). Calibrate again after switching detectors.',
   'h.suavizar.ayuda':
     'Smoothing makes a 30 fps signal LOOK more precise: while it is on, the dots mark the real samples.',
   'h.medir': 'Measuring on the plots',
