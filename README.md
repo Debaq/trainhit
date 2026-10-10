@@ -109,6 +109,19 @@ Aparte del modelo de MediaPipe, es lo único que sale de la página: una lectura
 del número al cargar y, si alguien aprieta el botón, el voto. Ninguna de las
 dos lleva datos.
 
+### Publicar
+
+```
+./dist.sh
+```
+
+arma en `dist/` lo que se sube a la carpeta de la página (tecmedhub.org/trainhit/):
+`index.html`, `sw.js`, `css/`, `js/`, `img/`, `manual/` y, en `dist/modelos/`,
+el detector SIEV-iris con su licencia. El modelo es AGPL-3.0 y no está en este
+repo: el script lo copia del depósito `siev_vng_models` (la carpeta hermana, o
+la que diga `SIEV_IRIS_DIR`). `dist/` no se versiona. Servida desde la raíz
+del repo la página funciona igual, salvo ese detector.
+
 ### Versión y caché
 
 Cada archivo se pide con `?v=…`, así que al publicar alcanza con recargar: no

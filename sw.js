@@ -17,8 +17,9 @@ const PROPIO = (url) => url.origin === self.location.origin;
 const PESADO = (url) =>
   url.hostname === 'cdn.jsdelivr.net' ||
   url.hostname === 'storage.googleapis.com' ||
-  // El detector SIEV-iris: la versión va en el nombre (`_r01`).
-  (url.hostname === 'tecmedhub.org' && url.pathname.startsWith('/siev-iris/'));
+  // El detector SIEV-iris, junto a la página (ver dist.sh): la versión va en
+  // el nombre (`_r01`).
+  (url.origin === self.location.origin && url.pathname.includes('/modelos/'));
 
 self.addEventListener('install', () => self.skipWaiting());
 

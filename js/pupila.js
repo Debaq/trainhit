@@ -15,12 +15,13 @@
 
 const ORT_VERSION = '1.30.0';
 const ORT_BASE = `https://cdn.jsdelivr.net/npm/onnxruntime-web@${ORT_VERSION}/dist/`;
-// El modelo no viaja con trainHIT: deriva de los pesos de Ultralytics y es
-// AGPL-3.0, así que vive en su propio depósito (siev_vng_models) y se baja
-// de allí solo cuando alguien elige este detector. El código de aquí sigue
-// siendo Apache-2.0. El servidor tiene que mandar CORS (ver el .htaccess del
-// depósito del modelo) y el service worker lo guarda para el modo sin red.
-export const MODELO_URL = 'https://tecmedhub.org/siev-iris/siev_iris_r01.onnx';
+// El modelo no está en este repo: deriva de los pesos de Ultralytics y es
+// AGPL-3.0, así que vive en su propio depósito (siev_vng_models) y el código
+// de aquí sigue siendo Apache-2.0. `./dist.sh` lo copia a `dist/modelos/`
+// junto a la página, que lo baja de ahí —mismo origen, sin CORS— solo cuando
+// alguien elige este detector. El service worker lo guarda para el modo sin
+// red. Servido desde la raíz del repo (sin `dist`), el detector no carga.
+export const MODELO_URL = 'modelos/siev_iris_r01.onnx';
 
 /** Lado de la entrada del modelo (imgsz del entrenamiento). */
 export const LADO = 320;
