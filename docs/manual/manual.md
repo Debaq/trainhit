@@ -18,7 +18,7 @@ teléfono como cabeza.
 
 **Autores:** Nicolás&nbsp;Baier-Quezada, Vanessa&nbsp;Uribe-Hernández, Fernanda&nbsp;López-Moncada, Benjamín&nbsp;Catipillan-Ulloa<br>
 **Fecha:** 10 de octubre de 2026<br>
-**Versión de trainHIT documentada:** 2026-10-10.5
+**Versión de trainHIT documentada:** 2026-10-10.6
 
 Laboratorio TecMedHub · Universidad Austral de Chile, Sede Puerto Montt
 
@@ -1534,7 +1534,7 @@ citan por autor y año; cada una lleva una línea sobre para qué se usa aquí.
 ### Cómo citar trainHIT
 
 > Baier-Quezada N, Uribe-Hernández V, López-Moncada F, Catipillan-Ulloa B.
-> trainHIT: vHIT didáctico en el navegador [software]. Versión 2026-10-10.5.
+> trainHIT: vHIT didáctico en el navegador [software]. Versión 2026-10-10.6.
 > Puerto Montt: Laboratorio TecMedHub, Universidad Austral de Chile; 2026.
 > doi:10.5281/zenodo.23106742
 

@@ -18,7 +18,7 @@ with a phone as the head.
 
 **Authors:** Nicolás&nbsp;Baier-Quezada, Vanessa&nbsp;Uribe-Hernández, Fernanda&nbsp;López-Moncada, Benjamín&nbsp;Catipillan-Ulloa<br>
 **Date:** October 10, 2026<br>
-**trainHIT version documented:** 2026-10-10.5
+**trainHIT version documented:** 2026-10-10.6
 
 TecMedHub Lab · Universidad Austral de Chile, Puerto Montt campus
 
@@ -1539,7 +1539,7 @@ year in the text; each one carries a line on what it is used for here.
 ### How to cite trainHIT
 
 > Baier-Quezada N, Uribe-Hernández V, López-Moncada F, Catipillan-Ulloa B.
-> trainHIT: a teaching vHIT in the browser [software]. Version 2026-10-10.5.
+> trainHIT: a teaching vHIT in the browser [software]. Version 2026-10-10.6.
 > Puerto Montt: TecMedHub Lab, Universidad Austral de Chile; 2026.
 > doi:10.5281/zenodo.23106742
 
