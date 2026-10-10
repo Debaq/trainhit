@@ -321,7 +321,8 @@ export const PASEOS = {
           camera —the same target as in the impulses—: the patient looks at it <b>without letting go</b>
           and turns the head <b>slowly</b> from side to side, ±20°, for 10 s.</p>
           <p>When the head turns, the iris shifts in the image even if the eye does not move, and that
-          shift is as large as the signal. Without calibration, a perfect reflex reads ~1.9. If the
+          shift is comparable to the signal. Without calibration, a perfect reflex reads well above 1:
+          roughly 1 + k, and k depends on the geometry. If the
           calibration is rejected, the status bar says what to do differently.</p>`,
       },
       impulsos: {
@@ -673,8 +674,8 @@ export const PASEOS = {
         cuerpo: `
           <p>The experiment that explains the calibration: set the slider to <b>0</b>, check
           <b>use this k</b> and press <b>Recompute</b> further down.</p>
-          <p>The gains of the healthy side go to ~1.9. Nobody has a reflex of 1.9: it is the uncorrected
-          parallax, which is the same size as the signal.</p>
+          <p>The gains of the healthy side go to ≈ 1 + k: with this example patient (k ≈ 0.95), ~1.9.
+          Nobody has such a reflex: it is the uncorrected parallax, comparable to the signal.</p>
           <p class="ayuda">It comes at the end of the tour on purpose: with k = 0 everything else reads
           wrong. When the tour ends the calibrated k comes back on its own; you can also do it now:
           <button type="button" data-accion="restauraK">back to the calibrated k</button>.</p>`,

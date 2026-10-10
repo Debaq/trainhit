@@ -9,7 +9,7 @@
          usa: tecmedhub.org es el servidor del enlace con el teléfono. -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-WlqwSx8CJWlzsgnwJ1nBY1K5xXNHU50szrMPwkuWbUo='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev https://tecmedhub.org wss://tecmedhub.org; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
+      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'sha256-l8gNsftU9hkOWJ2t7LhDhGY1YrDMYEBChSqhG9KKRig='; style-src 'self'; img-src 'self' data:; connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com https://abacus.jasoncameron.dev https://tecmedhub.org wss://tecmedhub.org; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
     />
     <meta
       name="description"
@@ -62,7 +62,7 @@
     />
     <!-- Mapa de importación: versiona los imports internos. Lo regenera
          bump.mjs junto con su hash en la CSP de arriba. Va antes del arranque. -->
-    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-10-02.4","./js/app.js":"./js/app.js?v=2026-10-02.4","./js/bienvenida.js":"./js/bienvenida.js?v=2026-10-02.4","./js/cara.js":"./js/cara.js?v=2026-10-02.4","./js/curve.js":"./js/curve.js?v=2026-10-02.4","./js/ejemplo.js":"./js/ejemplo.js?v=2026-10-02.4","./js/enlace.js":"./js/enlace.js?v=2026-10-02.4","./js/geom.js":"./js/geom.js?v=2026-10-02.4","./js/giroscopio.js":"./js/giroscopio.js?v=2026-10-02.4","./js/head.js":"./js/head.js?v=2026-10-02.4","./js/idioma.js":"./js/idioma.js?v=2026-10-02.4","./js/idioma-en.js":"./js/idioma-en.js?v=2026-10-02.4","./js/pipeline.js":"./js/pipeline.js?v=2026-10-02.4","./js/plots.js":"./js/plots.js?v=2026-10-02.4","./js/practica.js":"./js/practica.js?v=2026-10-02.4","./js/preguntas.js":"./js/preguntas.js?v=2026-10-02.4","./js/pupila.js":"./js/pupila.js?v=2026-10-02.4","./js/sesion.js":"./js/sesion.js?v=2026-10-02.4","./js/signal.js":"./js/signal.js?v=2026-10-02.4","./js/simulacion.js":"./js/simulacion.js?v=2026-10-02.4","./js/telefono.js":"./js/telefono.js?v=2026-10-02.4","./js/tema.js":"./js/tema.js?v=2026-10-02.4","./js/tracker.js":"./js/tracker.js?v=2026-10-02.4","./js/tutorial.js":"./js/tutorial.js?v=2026-10-02.4","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-10-02.4","./js/tutorial-pasos-en.js":"./js/tutorial-pasos-en.js?v=2026-10-02.4"}}</script>
+    <script type="importmap">{"imports":{"./js/analysis.js":"./js/analysis.js?v=2026-10-10.1","./js/app.js":"./js/app.js?v=2026-10-10.1","./js/bienvenida.js":"./js/bienvenida.js?v=2026-10-10.1","./js/cara.js":"./js/cara.js?v=2026-10-10.1","./js/curve.js":"./js/curve.js?v=2026-10-10.1","./js/ejemplo.js":"./js/ejemplo.js?v=2026-10-10.1","./js/enlace.js":"./js/enlace.js?v=2026-10-10.1","./js/geom.js":"./js/geom.js?v=2026-10-10.1","./js/giroscopio.js":"./js/giroscopio.js?v=2026-10-10.1","./js/head.js":"./js/head.js?v=2026-10-10.1","./js/idioma.js":"./js/idioma.js?v=2026-10-10.1","./js/idioma-en.js":"./js/idioma-en.js?v=2026-10-10.1","./js/pipeline.js":"./js/pipeline.js?v=2026-10-10.1","./js/plots.js":"./js/plots.js?v=2026-10-10.1","./js/practica.js":"./js/practica.js?v=2026-10-10.1","./js/preguntas.js":"./js/preguntas.js?v=2026-10-10.1","./js/pupila.js":"./js/pupila.js?v=2026-10-10.1","./js/sesion.js":"./js/sesion.js?v=2026-10-10.1","./js/signal.js":"./js/signal.js?v=2026-10-10.1","./js/simulacion.js":"./js/simulacion.js?v=2026-10-10.1","./js/telefono.js":"./js/telefono.js?v=2026-10-10.1","./js/tema.js":"./js/tema.js?v=2026-10-10.1","./js/tracker.js":"./js/tracker.js?v=2026-10-10.1","./js/tutorial.js":"./js/tutorial.js?v=2026-10-10.1","./js/tutorial-pasos.js":"./js/tutorial-pasos.js?v=2026-10-10.1","./js/tutorial-pasos-en.js":"./js/tutorial-pasos-en.js?v=2026-10-10.1"}}</script>
     <script src="js/arranque.js"></script>
     <noscript><link rel="stylesheet" href="css/estilo.css" /></noscript>
   </head>
@@ -496,7 +496,7 @@
           <p id="calib-info" class="meta">sin calibrar</p>
           <p class="ayuda" data-i18n="h.calib.p1">
             El centro de rotación del ojo está detrás de las comisuras: al girar la cabeza el iris se
-            corre sin que el ojo se mueva, con la misma magnitud que la señal.
+            corre sin que el ojo se mueva, con una magnitud del mismo orden que la señal.
           </p>
           <pre>sin(φ) = offset/R + k·sin(H)</pre>
           <p class="ayuda" data-i18n="h.calib.p2">Fijar un punto y mover la cabeza lento 10 s, ±20°. Los puntos deben caer en una recta de pendiente −k.</p>
@@ -504,7 +504,7 @@
             <span><span data-i18n="h.kmanual">k a mano</span> <b id="k-manual-val">0.90</b></span>
             <input type="range" id="k-manual" min="0" max="1.6" step="0.05" value="0.9" />
             <label class="check"><input type="checkbox" id="k-manual-on" /> <span data-i18n="h.kmanual.usar">usar este k</span></label>
-            <small data-i18n="h.kmanual.ayuda">Con k = 0 un VOR normal se lee ~1,9. Desmarcar devuelve el k calibrado.</small>
+            <small data-i18n="h.kmanual.ayuda">Con k = 0 un VOR normal se lee bastante más que 1: aproximadamente 1 + k. Desmarcar devuelve el k calibrado.</small>
           </label>
         </section>
 

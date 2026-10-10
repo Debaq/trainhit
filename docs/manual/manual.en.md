@@ -287,8 +287,9 @@ drawer opens by itself, so you can watch the fit points come in.
 
 **Why it is needed:** the eye’s center of rotation lies behind the eye
 corners. When the head turns, the iris shifts in the image even if the eye does
-not move, and that shift is **as large as the signal**. Without calibration, a
-perfect reflex reads ~1.9.
+not move, and that shift is **comparable to the signal**. Without calibration,
+a perfect reflex reads well above 1: roughly **1 + k**, and k depends on the
+geometry.
 
 When it finishes, the bar says **CALIBRATED k=…** in green. If the calibration
 is rejected, the status message says what to do differently (turn more slowly,
@@ -475,10 +476,11 @@ parallax and not the gaze wandering.
 
 **Manual k:** with the slider and **use this k** you can force a value of k.
 The experiment that explains everything is setting **k = 0** and pressing
-**Recompute**: the gains on the healthy side go to ~1.9. Nobody has a reflex of
-1.9; what you see is the uncorrected parallax.
+**Recompute**: the gains on the healthy side go to ≈ 1 + k: with the example
+patient (k ≈ 0.95), ~1.9. Nobody has such a reflex; what you see is the
+uncorrected parallax.
 
-![With k = 0 and Recompute, the healthy side reads ~1.9; the previous values are struck through](img/en/19-recalcular-k0.png)
+![With k = 0 and Recompute, the healthy side of the example patient reads ≈ 1 + k; the previous values are struck through](img/en/19-recalcular-k0.png)
 
 Unchecking **use this k** restores the calibrated k.
 
@@ -1054,7 +1056,7 @@ for the classroom, where the wifi fails.
 | Every impulse *TOO SLOW* | The impulses have to be faster: a short, sharp turn. |
 | Many *FACE LOST* | The hands cover eyebrows or cheekbones: hold the head higher. |
 | *IRIS TOO SMALL* | The patient is far away or the camera has low resolution. Move closer. |
-| Gains around 1.9 | Calibration is missing (the bar says **NOT CALIBRATED**), or **manual k** was left at 0. |
+| Gains well above 1 (≈ 1 + k) | Calibration is missing (the bar says **NOT CALIBRATED**), or **manual k** was left at 0. |
 | Gains above 1 | A covert saccade inside the impulse inflates the gain (see case D). It also happens with impulses the patients make themselves. |
 | The phone does not link | Both devices need internet to introduce themselves. If the bar stays at **WAITING FOR THE PHONE…**, try with both on the same wifi network, or with the PC connected to the phone hotspot. |
 | The bar says **SETTINGS CHANGED** | Some settings are off their factory value. Tools › **Default values**. |
@@ -1179,11 +1181,12 @@ engine use, and why that one?
 
 1. With the example impulses, open **Tools › Parallax calibration**.
 2. Set **manual k to 0**, check **use this k** and press **Recompute**.
-3. Write down the gain of the healthy side (~1.9) and go back to the
-   calibrated k.
+3. Write down the gain of the healthy side (≈ 1 + k; ~1.9 with the example
+   patient) and go back to the calibrated k.
 
-**To discuss:** no reflex has a gain of 1.9. Where does that number come from?
-What would happen in the clinic with a badly calibrated device?
+**To discuss:** no reflex has that gain. Where does that number come from, and
+why would it differ with another person or another camera? What would happen
+in the clinic with a badly calibrated device?
 
 ### 19.3 Blind cases in groups
 

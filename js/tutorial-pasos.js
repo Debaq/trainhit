@@ -413,7 +413,8 @@ export const PASEOS = [
           <p>Presiona <b>Calibrar</b> (o <kbd>C</kbd>). Aparece un punto rojo arriba al centro, junto a la
           cámara —el mismo blanco que en los impulsos—: el paciente lo mira <b>sin soltarlo</b> y gira la cabeza <b>lento</b> de un lado al otro, ±20°, durante 10 s.</p>
           <p>Al girar la cabeza el iris se corre en la imagen aunque el ojo no se mueva, y ese
-          corrimiento es tan grande como la señal. Sin calibrar, un reflejo perfecto se lee ~1,9. Si
+          corrimiento es del mismo orden que la señal. Sin calibrar, un reflejo perfecto se lee
+          bastante más que 1: aproximadamente 1 + k, y k depende de la geometría. Si
           la calibración sale rechazada, la barra de estado dice qué hacer distinto.</p>`,
       },
       {
@@ -882,8 +883,8 @@ export const PASEOS = [
         cuerpo: `
           <p>El experimento que explica la calibración: pon el deslizador en <b>0</b>, marca
           <b>usar este k</b> y presiona <b>Recalcular</b> más abajo.</p>
-          <p>Las ganancias del lado sano pasan a ~1,9. Nadie tiene un reflejo de 1,9: es el paralaje
-          sin corregir, que tiene el mismo tamaño que la señal.</p>
+          <p>Las ganancias del lado sano pasan a ≈ 1 + k: con este paciente de ejemplo (k ≈ 0,95),
+          ~1,9. Nadie tiene un reflejo así: es el paralaje sin corregir, del mismo orden que la señal.</p>
           <p class="ayuda">Va al final del paseo a propósito: con k = 0 todo lo demás se lee mal.
           Al terminar el paseo vuelve solo el k calibrado; también se puede ahora:
           <button type="button" data-accion="restauraK">volver al k calibrado</button>.</p>`,

@@ -150,8 +150,10 @@ export class EyeModel {
    *   offset_medido = R*sin(phi) - t*sin(H)
    *   => sin(phi) = offset_medido/R + k*sin(H),   k = t/R
    *
-   * `k` vale ~0.9-1.0 anatómicamente: el artefacto tiene la MISMA magnitud que
-   * la señal. Con k=0 un VOR perfecto se lee como ganancia ~1.9.
+   * `k` depende de la geometría, y el artefacto es del MISMO ORDEN que la
+   * señal. Con k=0 un VOR perfecto se lee como ganancia ≈ 1 + k (y una
+   * ganancia real g, como ≈ g + k): para ángulos pequeños la mirada leída es
+   * φ − k·H en vez de φ.
    */
   gazeAzimuthDeg(obs, headYawDeg) {
     const h = rad(headYawDeg);

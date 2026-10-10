@@ -181,11 +181,11 @@ export const HTML = {
   'h.calib': 'Parallax calibration',
   'h.calib.t': 'parallax fit: iris offset against sine of yaw',
   'h.calib.p1':
-    'The eye’s center of rotation lies behind the eye corners: when the head turns, the iris shifts without the eye moving, by the same magnitude as the signal.',
+    'The eye’s center of rotation lies behind the eye corners: when the head turns, the iris shifts without the eye moving, by an amount comparable to the signal.',
   'h.calib.p2': 'Fixate a point and move the head slowly for 10 s, ±20°. The dots should fall on a line with slope −k.',
   'h.kmanual': 'manual k',
   'h.kmanual.usar': 'use this k',
-  'h.kmanual.ayuda': 'With k = 0 a normal VOR reads ~1.9. Unchecking restores the calibrated k.',
+  'h.kmanual.ayuda': 'With k = 0 a normal VOR reads well above 1: roughly 1 + k. Unchecking restores the calibrated k.',
   'h.pulso': 'Last impulse',
   'h.pulso.t': 'last impulse with the impulse window',
   'h.pulso.ayuda': 'Shaded: the impulse window. Dotted: the start and end thresholds.',

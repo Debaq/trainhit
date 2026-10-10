@@ -65,9 +65,12 @@ test('con ruido de landmark la media queda en la nominal', () => {
   }
 });
 
-test('sin calibrar (k=0) un VOR perfecto se lee ~1.9', () => {
-  const r = corre({ fps: 30, pk: 200, ganancia: 1, kModelo: 0, calibrado: false });
-  assert.ok(r.gain > 1.7 && r.gain < 2.1, `dio ${r.gain}`);
+test('sin calibrar (k=0) un VOR perfecto se lee ≈ 1 + k', () => {
+  // Para ángulos pequeños la mirada leída es φ − k·H: la ganancia sube en k.
+  for (const g of [1, 0.6]) {
+    const r = corre({ fps: 30, pk: 200, ganancia: g, kModelo: 0, calibrado: false });
+    cerca(r.gain, g + K, 0.1, `g=${g}, k=${K}`);
+  }
 });
 
 test('el k a mano equivocado mueve la ganancia entera', () => {

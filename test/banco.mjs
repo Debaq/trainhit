@@ -39,7 +39,7 @@ console.log('\n--- sin calibrar (k=0) sobre VOR perfecto ---');
     const d = diff.push({ t, headDeg: H, gazeDeg: model.gazeAzimuthDeg({ offsetMm: offset }, H) });
     if (d) out.push({ tMs: d.t * 1000, headPos: d.headDeg, gazePos: d.gazeDeg, headVel: d.headVel, gazeVel: d.gazeVel, blink: false });
   }
-  console.log('ganancia leída:', analyzeTrial(out, CONFIG).gain?.toFixed(3), '(se espera ~1.9)');
+  console.log('ganancia leída:', analyzeTrial(out, CONFIG).gain?.toFixed(3), `(se espera ≈ 1 + k = ${(1 + K).toFixed(2)})`);
 }
 
 console.log('\n--- fitParallax recupera k ---');

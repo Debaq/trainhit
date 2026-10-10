@@ -66,7 +66,7 @@ test('esperas, acciones y lugares son los que el tutorial conoce', () => {
 test('lo que un paseo rompe a propósito se deshace al salir', () => {
   for (const p of PASEOS) if (p.alSalir) assert.ok(ACCIONES.includes(p.alSalir), `${p.id}: alSalir ${p.alSalir}`);
   // El experimento de k = 0 va último: los pasos que vienen después se
-  // leerían con ganancias de ~1,9.
+  // leerían con ganancias de ≈ 1 + k.
   const h = PASEOS.find((p) => p.id === 'herramientas');
   assert.equal(h.pasos.at(-1).id, 'kmanual');
   assert.equal(h.alSalir, 'restauraK');
@@ -102,7 +102,7 @@ test('las perillas hacen con los ejemplos lo que dicen los paseos', () => {
   // Pico mínimo en 80: «el pulso lento pasa a aceptado».
   const flojo = { ...CONFIG, accept: { ...CONFIG.accept, peakMinDegS: 80 } };
   assert.ok(!ejemplos(flojo).some((t) => t.rejected === 'lento'));
-  // k = 0: «las ganancias del lado sano pasan a ~1,9».
+  // k = 0: «las ganancias del lado sano pasan a ≈ 1 + k» (~1,9 con K_EJEMPLO = 0,95).
   const model = new geom.EyeModel();
   const { crudo, tTrigger } = crudoDeEjemplo(PULSOS_EJEMPLO[0], 1);
   const g = procesaCrudo(crudo, tTrigger, model, { windowMs: 50, degree: 2 }, CONFIG).gain;

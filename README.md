@@ -289,7 +289,7 @@ datos puros que `test/tutorial.test.mjs` recorre: cada objetivo tiene que
 existir en `index.html`, cada imagen tiene que estar en `img/tutorial/` o
 encargada en `img/tutorial/PROMPTS.md` (con su prompt y la guía de estilo), y
 el paciente de ejemplo tiene que hacer lo que dicen los textos —el lado sano en
-~1, k = 0 dando ~1,9, la ventana de 200 ms dejando pulsos en MUY LENTO—. Si el
+~1, k = 0 dando ≈ 1 + k (~1,9 con su k), la ventana de 200 ms dejando pulsos en MUY LENTO—. Si el
 motor cambia y eso deja de ser cierto, el test lo dice antes que un alumno.
 
 Mientras una imagen falta se ve un recuadro con su nombre. Los dos gráficos de
@@ -654,11 +654,12 @@ movimiento ocular:
 
 ```
 offset_medido = R·sin(φ) − t·sin(H)
-⇒ sin(φ) = offset/R + k·sin(H),   k = t/R ≈ 0,9–1,0
+⇒ sin(φ) = offset/R + k·sin(H),   k = t/R
 ```
 
-Ese artefacto tiene **la misma magnitud que la señal**. Con `k = 0` un VOR
-perfecto se lee como ganancia ~1,9. Por eso `k` no se asume: se mide.
+`k` depende de la geometría, y el artefacto es **del mismo orden que la
+señal**. Con `k = 0` un VOR perfecto se lee como ganancia ≈ 1 + k (con una
+ganancia real g, ≈ g + k). Por eso `k` no se asume: se mide.
 
 La maniobra: fijar un punto quieto y mover la cabeza **lento** 10 s, cubriendo
 ±20°. A baja velocidad el VOR es esencialmente perfecto, o sea que el azimut de
@@ -805,7 +806,7 @@ iris por frame—, y el botón **Recalcular** de Herramientas vuelve a correr el
 motor entero sobre todos con las perillas, los umbrales y el `k` de ahora. Es
 la forma de ver qué hace cada perilla sobre un pulso ya medido: subir la
 ventana del derivador y ver cómo baja el pico, o poner `k = 0` y ver la
-ganancia irse a 1,9, sin tener que hacer otro impulso. El motor que corre al
+ganancia subir a ≈ 1 + k, sin tener que hacer otro impulso. El motor que corre al
 medir y al recalcular es el mismo (`js/pipeline.js`), así que con la misma
 configuración da lo mismo.
 

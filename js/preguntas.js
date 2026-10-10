@@ -149,9 +149,9 @@ const CONCEPTOS = {
   es: [
     () =>
       multiple('Ganancia sin calibrar', 'Con k = 0 (paralaje sin corregir), un reflejo vestíbulo-ocular normal se lee con una ganancia de aproximadamente:', [
-        { texto: '1,9', ok: true, porque: 'El corrimiento aparente del iris al girar la cabeza tiene la misma magnitud que la señal y se suma a ella.' },
+        { texto: 'aproximadamente 1 + k: bastante más que 1', ok: true, porque: 'El corrimiento aparente del iris se suma al giro del ojo: la ganancia sube en k, que depende de la geometría.' },
         { texto: '1,0', porque: 'Sería lo correcto con el paralaje calibrado.' },
-        { texto: '0,5', porque: 'El paralaje no resta: se suma al movimiento del ojo.' },
+        { texto: 'aproximadamente 1 − k', porque: 'El paralaje no resta: se suma al movimiento del ojo.' },
         { texto: '0,8', porque: '0,8 es el corte dibujado, no el efecto del paralaje.' },
       ]),
     () =>
@@ -239,9 +239,9 @@ const CONCEPTOS = {
   en: [
     () =>
       multiple('Uncalibrated gain', 'With k = 0 (uncorrected parallax), a normal vestibulo-ocular reflex reads with a gain of approximately:', [
-        { texto: '1.9', ok: true, porque: 'The apparent shift of the iris when the head turns has the same magnitude as the signal and adds to it.' },
+        { texto: 'roughly 1 + k: well above 1', ok: true, porque: 'The apparent shift of the iris adds to the eye rotation: the gain rises by k, which depends on the geometry.' },
         { texto: '1.0', porque: 'That would be right with the parallax calibrated.' },
-        { texto: '0.5', porque: 'Parallax does not subtract: it adds to the eye movement.' },
+        { texto: 'roughly 1 − k', porque: 'Parallax does not subtract: it adds to the eye movement.' },
         { texto: '0.8', porque: '0.8 is the cutoff drawn, not the effect of parallax.' },
       ]),
     () =>

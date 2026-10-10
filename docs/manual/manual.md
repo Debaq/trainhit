@@ -283,8 +283,9 @@ abre solo, para ver cómo llegan los puntos del ajuste.
 
 **Por qué hace falta:** el centro de rotación del ojo está detrás de las
 comisuras. Al girar la cabeza, el iris se corre en la imagen aunque el ojo no
-se mueva, y ese corrimiento es **tan grande como la señal**. Sin calibrar, un
-reflejo perfecto se lee ~1,9.
+se mueva, y ese corrimiento es **del mismo orden que la señal**. Sin calibrar,
+un reflejo perfecto se lee bastante más que 1: aproximadamente **1 + k**, y k
+depende de la geometría.
 
 Al terminar, la barra dice **CALIBRADO k=…** en verde. Si la calibración sale
 rechazada, el mensaje de estado dice qué hacer distinto (girar más lento, fijar
@@ -472,10 +473,10 @@ paralaje y no la mirada paseando.
 
 **k a mano:** con el deslizador y **usar este k** se fuerza un valor de k. El
 experimento que explica todo es poner **k = 0** y **Recalcular**: las ganancias
-del lado sano pasan a ~1,9. Nadie tiene un reflejo de 1,9; lo que se ve es el
-paralaje sin corregir.
+del lado sano pasan a ≈ 1 + k: con el paciente de ejemplo (k ≈ 0,95), ~1,9.
+Nadie tiene un reflejo así; lo que se ve es el paralaje sin corregir.
 
-![Con k = 0 y Recalcular, el lado sano se lee ~1,9; lo de antes queda tachado](img/19-recalcular-k0.png)
+![Con k = 0 y Recalcular, el lado sano del paciente de ejemplo se lee ≈ 1 + k; lo de antes queda tachado](img/19-recalcular-k0.png)
 
 Desmarcar **usar este k** devuelve el k calibrado.
 
@@ -1048,7 +1049,7 @@ para el aula, donde el wifi falla.
 | Todos los pulsos *MUY LENTO* | Los impulsos tienen que ser más rápidos: un giro corto y seco. |
 | Muchos *CARA PERDIDA* | Las manos tapan cejas o pómulos: toma la cabeza más arriba. |
 | *IRIS MUY PEQUEÑO* | El paciente está lejos o la cámara tiene poca resolución. Acércalo. |
-| Ganancias cerca de 1,9 | Falta calibrar (la barra dice **SIN CALIBRAR**), o quedó **k a mano** en 0. |
+| Ganancias muy por encima de 1 (≈ 1 + k) | Falta calibrar (la barra dice **SIN CALIBRAR**), o quedó **k a mano** en 0. |
 | Ganancias mayores que 1 | Una sacada encubierta dentro del impulso infla la ganancia (ver el caso D). También pasa con impulsos que hace el propio paciente. |
 | El teléfono no se enlaza | Los dos aparatos necesitan internet para presentarse. Si la barra se queda en **ESPERANDO AL TELÉFONO…**, probar con los dos en la misma red wifi, o con el PC conectado al punto de acceso del teléfono. |
 | La barra dice **PERILLAS CAMBIADAS** | Hay perillas fuera de su valor de fábrica. Herramientas › **Valores por defecto**. |
@@ -1173,10 +1174,12 @@ el motor, y por qué ese?
 1. Con los pulsos de ejemplo, abrir **Herramientas › Calibración del
    paralaje**.
 2. Poner **k a mano en 0**, marcar **usar este k** y apretar **Recalcular**.
-3. Anotar la ganancia del lado sano (~1,9) y volver al k calibrado.
+3. Anotar la ganancia del lado sano (≈ 1 + k; ~1,9 con el paciente de ejemplo)
+   y volver al k calibrado.
 
-**Para discutir:** ningún reflejo tiene ganancia 1,9. ¿De dónde sale ese
-número? ¿Qué pasaría en la clínica con un equipo mal calibrado?
+**Para discutir:** ningún reflejo tiene esa ganancia. ¿De dónde sale ese
+número, y por qué con otra persona u otra cámara sería distinto? ¿Qué pasaría
+en la clínica con un equipo mal calibrado?
 
 ### 19.3 Casos a ciegas en grupos
 
