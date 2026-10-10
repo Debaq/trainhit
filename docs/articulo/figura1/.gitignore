@@ -1,0 +1,4 @@
+# Las pruebas con el paciente sintético no van al repo.
+prueba/
+# La sesión real sí: el *.csv de la raíz la excluiría.
+!sesion_figura1.csv
