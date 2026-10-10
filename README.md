@@ -867,7 +867,8 @@ dice. `test/sesion.test.mjs` hace la ida y la vuelta.
 
 Ese DOI reúne todas las versiones; la 2026-10-02.3 tiene el suyo,
 doi:10.5281/zenodo.23106743. El detector SIEV-iris se cita aparte:
-doi:10.5281/zenodo.23106567.
+doi:10.5281/zenodo.23106567. Se anotó y entrenó en Annotix:
+doi:10.5281/zenodo.19652328.
 
 ## Licencia
 

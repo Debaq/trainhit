@@ -67,3 +67,14 @@ references:
         given-names: Fernanda
       - family-names: Catipillan-Ulloa
         given-names: Benjamín
+  - type: software
+    title: "Annotix: An Open-Source Desktop Platform for Machine Learning Dataset Annotation"
+    doi: 10.5281/zenodo.19652328
+    license: MIT
+    authors:
+      - family-names: Baier Quezada
+        given-names: Nicolás
+      - family-names: López
+        given-names: Fernanda
+      - family-names: Uribe
+        given-names: Vanessa
