@@ -852,10 +852,10 @@ dice. `test/sesion.test.mjs` hace la ida y la vuelta.
 > doi:10.5281/zenodo.23106742
 
 Ese DOI reúne todas las versiones; la 2026-10-02.3 tiene el suyo,
-doi:10.5281/zenodo.23106743. El detector SIEV-VNG se cita aparte:
-doi:10.5281/zenodo.23106568.
+doi:10.5281/zenodo.23106743. El detector SIEV-iris se cita aparte:
+doi:10.5281/zenodo.23106567.
 
 ## Licencia
 
-Apache-2.0, igual que el repo principal. Los pesos de SIEV-VNG no están en
+Apache-2.0, igual que el repo principal. Los pesos de SIEV-iris no están en
 este repo: son AGPL-3.0 y viven en su propio depósito.

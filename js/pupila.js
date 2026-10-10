@@ -1,4 +1,4 @@
-// Detector de iris alternativo: el modelo SIEV-VNG, un YOLOv8n de una clase
+// Detector de iris alternativo: el modelo SIEV-iris, un YOLOv8n de una clase
 // entrenado con imágenes de MPIIGaze para encontrar el IRIS, exportado a ONNX
 // y corrido con onnxruntime-web. La clase se llama «OJO» en los pesos, pero
 // lo que detecta es el iris.
@@ -20,7 +20,7 @@ const ORT_BASE = `https://cdn.jsdelivr.net/npm/onnxruntime-web@${ORT_VERSION}/di
 // de allí solo cuando alguien elige este detector. El código de aquí sigue
 // siendo Apache-2.0. El servidor tiene que mandar CORS (ver el .htaccess del
 // depósito del modelo) y el service worker lo guarda para el modo sin red.
-export const MODELO_URL = 'https://tecmedhub.org/siev-vng/siev_vng_r01.onnx';
+export const MODELO_URL = 'https://tecmedhub.org/siev-iris/siev_iris_r01.onnx';
 
 /** Lado de la entrada del modelo (imgsz del entrenamiento). */
 export const LADO = 320;
@@ -243,7 +243,7 @@ export async function crearDetectorPupila({ onProgreso } = {}) {
           if (c) cajas[lado] = { ...c, t };
         }
       })
-      .catch((e) => console.warn('detector SIEV-VNG', e))
+      .catch((e) => console.warn('detector SIEV-iris', e))
       .finally(() => {
         ocupado = false;
       });

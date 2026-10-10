@@ -63,12 +63,12 @@ const estado = {
   landmarker: null,
   delegate: null,
   /**
-   * Quién da el centro del iris: 'mediapipe' (la malla) o 'siev-vng' (el
+   * Quién da el centro del iris: 'mediapipe' (la malla) o 'siev-iris' (el
    * modelo ONNX experimental de pupila.js). La cabeza siempre es MediaPipe.
    */
   detector: 'mediapipe',
   /** El detector de pupila.js, cargado la primera vez que se elige. */
-  sievVng: null,
+  sievIris: null,
   /** Lo último que vio ese detector, para dibujarlo: `{ derecho, izquierdo }`. */
   pupila: null,
   bucle: null,
@@ -256,15 +256,15 @@ async function arrancar() {
  */
 async function eligeDetector(valor) {
   const select = $('detector-pupila');
-  if (valor === 'siev-vng' && !estado.sievVng) {
+  if (valor === 'siev-iris' && !estado.sievIris) {
     const carga = modalCarga();
     try {
-      estado.sievVng = await crearDetectorPupila({ onProgreso: carga.progreso });
+      estado.sievIris = await crearDetectorPupila({ onProgreso: carga.progreso });
     } catch (e) {
       console.error(e);
       select.value = 'mediapipe';
       valor = 'mediapipe';
-      marcaEstado('no cargó el detector SIEV-VNG: {msg}', { msg: e.message });
+      marcaEstado('no cargó el detector SIEV-iris: {msg}', { msg: e.message });
     } finally {
       carga.cierra();
     }
@@ -675,8 +675,8 @@ function procesaFrame(mediaTime) {
     return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
   };
   const pupila =
-    estado.detector === 'siev-vng' && estado.sievVng
-      ? estado.sievVng.detecta(video, centro(IDX.derecho), centro(IDX.izquierdo))
+    estado.detector === 'siev-iris' && estado.sievIris
+      ? estado.sievIris.detecta(video, centro(IDX.derecho), centro(IDX.izquierdo))
       : null;
   estado.pupila = pupila;
   const mide = (o, lado) => {

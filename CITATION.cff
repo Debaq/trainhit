@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: "Si utiliza este software, por favor cítelo usando los siguientes metadatos."
 title: "trainHIT: vHIT didáctico en el navegador"
 type: software
-version: "2026-10-10.2"
+version: "2026-10-10.3"
 date-released: 2026-10-10
 license: Apache-2.0
 doi: 10.5281/zenodo.23106742
@@ -16,10 +16,10 @@ abstract: >-
   de ganancia, detección de sacadas, curva promedio, paciente simulado, casos
   a ciegas, preguntas para Moodle, el teléfono como cabeza (también para
   canales verticales), un Laberinto 3D y, como alternativa experimental, el
-  detector de iris SIEV-VNG. Procesa como mucho 30 fps, un tope deliberado
+  detector de iris SIEV-iris. Procesa como mucho 30 fps, un tope deliberado
   para impedir que se use para evaluar pacientes; con cámara remota y sin
   gafas, sus valores son didácticos y no es un equipo médico. Los pesos de
-  SIEV-VNG (AGPL-3.0) se publican aparte y no forman parte de este
+  SIEV-iris (AGPL-3.0) se publican aparte y no forman parte de este
   software. Desarrollado en el Laboratorio TecMedHub, Universidad Austral de
   Chile, Sede Puerto Montt.
 authors:
@@ -53,9 +53,9 @@ keywords:
   - ONNX
 references:
   - type: software
-    title: "SIEV-VNG: detector de ojos YOLOv8n para videonistagmografía"
-    version: r01
-    doi: 10.5281/zenodo.23106568
+    title: "SIEV-iris: detector de iris YOLOv8n"
+    version: r01.1
+    doi: 10.5281/zenodo.23106567
     license: AGPL-3.0-only
     authors:
       - family-names: Baier-Quezada

@@ -169,9 +169,9 @@ export const HTML = {
   'h.detector': 'Iris center',
   'h.detector.t': 'what finds the iris center in each frame; the head is always tracked by MediaPipe',
   'h.detector.mediapipe': 'MediaPipe (face mesh)',
-  'h.detector.siev': 'SIEV-VNG (ONNX, experimental)',
+  'h.detector.siev': 'SIEV-iris (ONNX, experimental)',
   'h.detector.ayuda':
-    'SIEV-VNG is an iris detector (YOLOv8n) trained on images from MPIIGaze: it finds the box of the iris of each eye and takes the darkest part inside as the pupil (amber in the zoomed eyes). It is downloaded the first time it is chosen (about 12 MB). Calibrate again after switching detectors.',
+    'SIEV-iris is an iris detector (YOLOv8n) trained on images from MPIIGaze: it finds the box of the iris of each eye and takes the darkest part inside as the pupil (amber in the zoomed eyes). It is downloaded the first time it is chosen (about 12 MB). Calibrate again after switching detectors.',
   'h.suavizar.ayuda':
     'Smoothing makes a 30 fps signal LOOK more precise: while it is on, the dots mark the real samples.',
   'h.medir': 'Measuring on the plots',
@@ -318,7 +318,7 @@ export const TEXTO = {
   midiendo: 'measuring',
   'midiendo ({notas})': 'measuring ({notas})',
   'modelo en CPU: más lento': 'model on CPU: slower',
-  'no cargó el detector SIEV-VNG: {msg}': 'the SIEV-VNG detector did not load: {msg}',
+  'no cargó el detector SIEV-iris: {msg}': 'the SIEV-iris detector did not load: {msg}',
   'sin rVFC: timestamps peores': 'no rVFC: worse timestamps',
   'error: {msg}': 'error: {msg}',
   // ── tema ──

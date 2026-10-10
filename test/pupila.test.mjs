@@ -1,4 +1,4 @@
-// Las partes puras del detector SIEV-VNG (pupila.js): encuadre, decodificación
+// Las partes puras del detector SIEV-iris (pupila.js): encuadre, decodificación
 // de la salida de YOLOv8, elección de la caja del iris de cada ojo y pupila por
 // centroide oscuro. La inferencia en sí necesita el navegador.
 import { test } from 'node:test';
