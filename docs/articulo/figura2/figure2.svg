@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="178.0mm" height="104.0mm" viewBox="0 0 178.0 104.0" font-family="Arial, Helvetica, sans-serif">
+  <title>trainHIT processing pipeline (Figure 2)</title>
+  <rect width="178.0" height="104.0" fill="#ffffff"/>
+  <rect x="0.40" y="22.00" width="23.00" height="18.00" rx="1.2" fill="#ffffff" stroke="#1a1a1a" stroke-width="0.3"/>
+  <text x="11.90" y="28.57" font-size="2.822" text-anchor="middle" fill="#1a1a1a" font-weight="bold">Webcam</text>
+  <text x="11.90" y="32.01" font-size="2.470" text-anchor="middle" fill="#1a1a1a">≤ 30 fps</text>
+  <text x="11.90" y="35.03" font-size="2.470" text-anchor="middle" fill="#1a1a1a">(deliberate cap)</text>
+  <rect x="29.50" y="4.00" width="28.00" height="66.00" rx="1.2" fill="#efefef" stroke="#595959" stroke-width="0.3"/>
+  <text x="43.50" y="8.60" font-size="2.822" text-anchor="middle" fill="#1a1a1a" font-weight="bold">MediaPipe</text>
+  <text x="43.50" y="12.04" font-size="2.822" text-anchor="middle" fill="#1a1a1a" font-weight="bold">face tracking</text>
+  <rect x="32.00" y="16.00" width="23.00" height="10.00" rx="1.2" fill="#ffffff" stroke="#1a1a1a" stroke-width="0.3"/>
+  <text x="43.50" y="21.54" font-size="2.470" text-anchor="middle" fill="#1a1a1a">Eye region</text>
+  <rect x="32.00" y="35.50" width="23.00" height="10.00" rx="1.2" fill="#ffffff" stroke="#1a1a1a" stroke-width="0.3"/>
+  <text x="43.50" y="39.54" font-size="2.470" text-anchor="middle" fill="#1a1a1a">Eyelid state</text>
+  <text x="43.50" y="42.55" font-size="2.470" text-anchor="middle" fill="#1a1a1a">(blinks)</text>
+  <rect x="32.00" y="55.00" width="23.00" height="10.00" rx="1.2" fill="#ffffff" stroke="#1a1a1a" stroke-width="0.3"/>
+  <text x="43.50" y="59.04" font-size="2.470" text-anchor="middle" fill="#1a1a1a">Head rotation</text>
+  <text x="43.50" y="62.05" font-size="2.470" text-anchor="middle" fill="#1a1a1a">(pose matrix)</text>
+  <polyline points="23.40,31.00 27.90,31.00" fill="none" stroke="#1a1a1a" stroke-width="0.35" stroke-linejoin="round"/>
+  <polygon points="29.50,31.00 27.90,31.65 27.90,30.35" fill="#1a1a1a"/>
+  <text x="85.00" y="8.60" font-size="2.822" text-anchor="middle" fill="#1a1a1a" font-weight="bold">Iris centre (user-selectable)</text>
+  <rect x="68.00" y="12.00" width="34.00" height="11.00" rx="1.2" fill="#ffffff" stroke="#1a1a1a" stroke-width="0.3"/>
+  <text x="85.00" y="16.54" font-size="2.470" text-anchor="middle" fill="#1a1a1a" font-weight="bold">MediaPipe iris landmarks</text>
+  <text x="85.00" y="19.55" font-size="2.470" text-anchor="middle" fill="#1a1a1a">(default)</text>
+  <text x="85.00" y="27.50" font-size="2.470" text-anchor="middle" fill="#595959" font-style="italic">or</text>
+  <rect x="68.00" y="30.00" width="34.00" height="21.00" rx="1.2" fill="#ffffff" stroke="#1a1a1a" stroke-width="0.3"/>
+  <text x="85.00" y="35.02" font-size="2.470" text-anchor="middle" fill="#1a1a1a" font-weight="bold">YOLOv8n iris detector</text>
+  <text x="85.00" y="38.03" font-size="2.470" text-anchor="middle" fill="#1a1a1a">(SIEV-iris, experimental)</text>
+  <text x="85.00" y="41.04" font-size="2.470" text-anchor="middle" fill="#1a1a1a">ONNX, run in the browser</text>
+  <text x="85.00" y="44.06" font-size="2.470" text-anchor="middle" fill="#1a1a1a">pupil = darkest region</text>
+  <text x="85.00" y="47.07" font-size="2.470" text-anchor="middle" fill="#1a1a1a">inside the iris box</text>
+  <rect x="68.00" y="53.60" width="34.00" height="12.00" rx="1.2" fill="#fbe9dc" stroke="#d55e00" stroke-width="0.45"/>
+  <text x="85.00" y="57.13" font-size="2.470" text-anchor="middle" fill="#d55e00" font-weight="bold">Annotated and trained</text>
+  <text x="85.00" y="60.14" font-size="2.470" text-anchor="middle" fill="#d55e00" font-weight="bold">in Annotix</text>
+  <text x="85.00" y="63.16" font-size="2.470" text-anchor="middle" fill="#d55e00">on real MPIIGaze images</text>
+  <polyline points="85.00,53.60 85.00,51.00" fill="none" stroke="#d55e00" stroke-width="0.45" stroke-linejoin="round"/>
+  <polyline points="55.00,21.00 65.60,21.00" fill="none" stroke="#1a1a1a" stroke-width="0.35" stroke-linejoin="round"/>
+  <circle cx="65.60" cy="21.00" r="0.55" fill="#1a1a1a"/>
+  <polyline points="65.60,21.00 65.60,17.50 66.40,17.50" fill="none" stroke="#1a1a1a" stroke-width="0.35" stroke-linejoin="round"/>
+  <polygon points="68.00,17.50 66.40,18.15 66.40,16.85" fill="#1a1a1a"/>
+  <polyline points="65.60,21.00 65.60,36.00 66.40,36.00" fill="none" stroke="#1a1a1a" stroke-width="0.35" stroke-linejoin="round"/>
+  <polygon points="68.00,36.00 66.40,36.65 66.40,35.35" fill="#1a1a1a"/>
+  <rect x="112.50" y="12.00" width="30.00" height="13.00" rx="1.2" fill="#ffffff" stroke="#1a1a1a" stroke-width="0.3"/>
+  <text x="127.50" y="16.07" font-size="2.822" text-anchor="middle" fill="#1a1a1a" font-weight="bold">Pixels → mm</text>
+  <text x="127.50" y="19.51" font-size="2.470" text-anchor="middle" fill="#1a1a1a">iris diameter</text>
+  <text x="127.50" y="22.53" font-size="2.470" text-anchor="middle" fill="#1a1a1a">(11.7 mm) as ruler</text>
+  <rect x="112.50" y="31.00" width="30.00" height="16.00" rx="1.2" fill="#ffffff" stroke="#1a1a1a" stroke-width="0.3"/>
+  <text x="127.50" y="35.06" font-size="2.822" text-anchor="middle" fill="#1a1a1a" font-weight="bold">Parallax</text>
+  <text x="127.50" y="38.51" font-size="2.470" text-anchor="middle" fill="#1a1a1a">calibration (−k)</text>
+  <text x="127.50" y="41.52" font-size="2.470" text-anchor="middle" fill="#1a1a1a">iris offset →</text>
+  <text x="127.50" y="44.53" font-size="2.470" text-anchor="middle" fill="#1a1a1a">gaze angle</text>
+  <rect x="112.50" y="53.00" width="30.00" height="15.00" rx="1.2" fill="#efefef" stroke="#595959" stroke-width="0.3"/>
+  <text x="127.50" y="58.07" font-size="2.822" text-anchor="middle" fill="#1a1a1a" font-weight="bold">Head and gaze</text>
+  <text x="127.50" y="61.51" font-size="2.470" text-anchor="middle" fill="#1a1a1a">positions, velocities</text>
+  <text x="127.50" y="64.53" font-size="2.470" text-anchor="middle" fill="#1a1a1a">(with blink flag)</text>
+  <polyline points="127.50,25.00 127.50,29.40" fill="none" stroke="#1a1a1a" stroke-width="0.35" stroke-linejoin="round"/>
+  <polygon points="127.50,31.00 126.85,29.40 128.15,29.40" fill="#1a1a1a"/>
+  <polyline points="127.50,47.00 127.50,51.40" fill="none" stroke="#1a1a1a" stroke-width="0.35" stroke-linejoin="round"/>
+  <polygon points="127.50,53.00 126.85,51.40 128.15,51.40" fill="#1a1a1a"/>
+  <polyline points="102.00,17.50 108.60,17.50" fill="none" stroke="#1a1a1a" stroke-width="0.35" stroke-linejoin="round"/>
+  <polyline points="102.00,36.00 108.60,36.00 108.60,17.50" fill="none" stroke="#1a1a1a" stroke-width="0.35" stroke-linejoin="round"/>
+  <circle cx="108.60" cy="17.50" r="0.55" fill="#1a1a1a"/>
+  <polyline points="108.60,17.50 110.90,17.50" fill="none" stroke="#1a1a1a" stroke-width="0.35" stroke-linejoin="round"/>
+  <polygon points="112.50,17.50 110.90,18.15 110.90,16.85" fill="#1a1a1a"/>
+  <polyline points="55.00,40.50 61.50,40.50 61.50,72.00 118.50,72.00 118.50,69.60" fill="none" stroke="#595959" stroke-width="0.3" stroke-linejoin="round"/>
+  <polygon points="118.50,68.00 119.15,69.60 117.85,69.60" fill="#595959"/>
+  <polyline points="55.00,60.00 59.80,60.00 59.80,75.00 124.50,75.00 124.50,69.60" fill="none" stroke="#1a1a1a" stroke-width="0.35" stroke-linejoin="round"/>
+  <polygon points="124.50,68.00 125.15,69.60 123.85,69.60" fill="#1a1a1a"/>
+  <rect x="149.00" y="12.00" width="28.60" height="17.00" rx="1.2" fill="#ffffff" stroke="#1a1a1a" stroke-width="0.3"/>
+  <text x="163.30" y="16.56" font-size="2.822" text-anchor="middle" fill="#1a1a1a" font-weight="bold">Gain</text>
+  <text x="163.30" y="20.01" font-size="2.470" text-anchor="middle" fill="#1a1a1a">area (positions,</text>
+  <text x="163.30" y="23.02" font-size="2.470" text-anchor="middle" fill="#1a1a1a">reported), 60 ms</text>
+  <text x="163.30" y="26.03" font-size="2.470" text-anchor="middle" fill="#1a1a1a">and peak (velocities)</text>
+  <rect x="149.00" y="33.00" width="28.60" height="12.00" rx="1.2" fill="#ffffff" stroke="#1a1a1a" stroke-width="0.3"/>
+  <text x="163.30" y="38.08" font-size="2.822" text-anchor="middle" fill="#1a1a1a" font-weight="bold">Saccades</text>
+  <text x="163.30" y="41.52" font-size="2.470" text-anchor="middle" fill="#1a1a1a">covert and overt</text>
+  <rect x="149.00" y="49.00" width="28.60" height="19.00" rx="1.2" fill="#ffffff" stroke="#1a1a1a" stroke-width="0.3"/>
+  <text x="163.30" y="54.56" font-size="2.822" text-anchor="middle" fill="#1a1a1a" font-weight="bold">Accept / reject</text>
+  <text x="163.30" y="58.01" font-size="2.470" text-anchor="middle" fill="#1a1a1a">each impulse</text>
+  <text x="163.30" y="61.02" font-size="2.470" text-anchor="middle" fill="#1a1a1a">with its reason</text>
+  <text x="163.30" y="64.03" font-size="2.470" text-anchor="middle" fill="#1a1a1a">(e.g. blink, too slow)</text>
+  <polyline points="142.50,60.50 146.00,60.50" fill="none" stroke="#1a1a1a" stroke-width="0.35" stroke-linejoin="round"/>
+  <polyline points="146.00,20.50 146.00,58.50" fill="none" stroke="#1a1a1a" stroke-width="0.35" stroke-linejoin="round"/>
+  <circle cx="146.00" cy="60.50" r="0.55" fill="#1a1a1a"/>
+  <polyline points="146.00,20.50 147.40,20.50" fill="none" stroke="#1a1a1a" stroke-width="0.35" stroke-linejoin="round"/>
+  <polygon points="149.00,20.50 147.40,21.15 147.40,19.85" fill="#1a1a1a"/>
+  <polyline points="146.00,39.00 147.40,39.00" fill="none" stroke="#1a1a1a" stroke-width="0.35" stroke-linejoin="round"/>
+  <polygon points="149.00,39.00 147.40,39.65 147.40,38.35" fill="#1a1a1a"/>
+  <polyline points="146.00,58.50 147.40,58.50" fill="none" stroke="#1a1a1a" stroke-width="0.35" stroke-linejoin="round"/>
+  <polygon points="149.00,58.50 147.40,59.15 147.40,57.85" fill="#1a1a1a"/>
+  <rect x="0.40" y="79.00" width="105.60" height="23.50" rx="1.2" fill="#ffffff" stroke="#595959" stroke-width="0.4" stroke-dasharray="1.6 1.0"/>
+  <text x="2.40" y="83.00" font-size="2.822" text-anchor="start" fill="#1a1a1a" font-weight="bold">Simulation mode (no camera): replaces webcam, MediaPipe and iris</text>
+  <rect x="3.40" y="86.00" width="46.00" height="13.50" rx="1.2" fill="#ffffff" stroke="#1a1a1a" stroke-width="0.3"/>
+  <text x="26.40" y="90.28" font-size="2.470" text-anchor="middle" fill="#1a1a1a" font-weight="bold">Smartphone gyroscope</text>
+  <text x="26.40" y="93.29" font-size="2.470" text-anchor="middle" fill="#1a1a1a">worn on the head</text>
+  <text x="26.40" y="96.31" font-size="2.470" text-anchor="middle" fill="#1a1a1a">resampled to 30 Hz</text>
+  <rect x="57.40" y="86.00" width="46.00" height="13.50" rx="1.2" fill="#ffffff" stroke="#1a1a1a" stroke-width="0.3"/>
+  <text x="80.40" y="90.28" font-size="2.470" text-anchor="middle" fill="#1a1a1a" font-weight="bold">Simulated-patient eye</text>
+  <text x="80.40" y="93.29" font-size="2.470" text-anchor="middle" fill="#1a1a1a">drawn face, known parallax</text>
+  <text x="80.40" y="96.31" font-size="2.470" text-anchor="middle" fill="#1a1a1a">(no calibration needed)</text>
+  <text x="53.40" y="93.95" font-size="2.822" text-anchor="middle" fill="#595959" font-weight="bold">+</text>
+  <polyline points="106.00,92.75 136.50,92.75 136.50,69.60" fill="none" stroke="#595959" stroke-width="0.35" stroke-linejoin="round" stroke-dasharray="1.6 1.0"/>
+  <polygon points="136.50,68.00 137.15,69.60 135.85,69.60" fill="#595959"/>
+  <text x="163.30" y="86.50" font-size="2.470" text-anchor="middle" fill="#595959" font-style="italic">All processing runs</text>
+  <text x="163.30" y="89.51" font-size="2.470" text-anchor="middle" fill="#595959" font-style="italic">locally in the browser</text>
+</svg>
