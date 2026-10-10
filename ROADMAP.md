@@ -34,6 +34,8 @@ Falta, del lado de trainHIT:
   `47`, del 2026-09-27). Las de cámara necesitan grabar de nuevo al paciente:
   los `.y4m` de la primera pasada se perdieron. El texto ya está en español
   neutro, con la sección del teléfono, y los PDF se subieron el 2026-09-27.
+  Falta una captura del apartado **Seguimiento ocular** (selector del centro
+  del iris), que el texto ya describe desde la 2026-10-10.5.
 - **Probar el teléfono como cabeza con un teléfono de verdad**, Android e iOS:
   solo se probó en Chromium de escritorio con el giroscopio simulado. Ahora
   también sujeto a la frente de alguien, en los tres planos (LARP y RALP), y

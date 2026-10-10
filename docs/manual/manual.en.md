@@ -17,8 +17,8 @@ with a phone as the head.
 <div class="ficha" markdown="1">
 
 **Authors:** Nicolás&nbsp;Baier-Quezada, Vanessa&nbsp;Uribe-Hernández, Fernanda&nbsp;López-Moncada, Benjamín&nbsp;Catipillan-Ulloa<br>
-**Date:** October 1, 2026<br>
-**trainHIT version documented:** 2026-10-01.1
+**Date:** October 10, 2026<br>
+**trainHIT version documented:** 2026-10-10.5
 
 TecMedHub Lab · Universidad Austral de Chile, Puerto Montt campus
 
@@ -464,6 +464,27 @@ to understand.
   the right of the screen.
 - **Smooth the traces**, **Mark saccades**, **Mean curve per side** and
   **Orientation:** see [section 6](#6-reading-the-plots).
+
+### Eye tracking
+
+**Iris centre** chooses what finds the centre of the iris in each frame:
+
+- **MediaPipe (face mesh)**, the default: the iris centre given by the same
+  mesh that tracks the head.
+- **SIEV-iris (ONNX, experimental):** a YOLOv8n iris detector annotated and
+  trained in Annotix on real MPIIGaze images (Zhang et al., 2015 and 2019),
+  run in the browser with onnxruntime-web. It finds the box of the iris of
+  each eye and takes the darkest part inside as the pupil, shown in amber in
+  the zoomed eyes. It is downloaded the first time it is chosen (about
+  12 MB) and is then kept for offline use. If it does not load, MediaPipe
+  comes back.
+
+With either one, the head, blinks, eye corners and the millimetre scale come
+from MediaPipe: SIEV-iris only replaces the iris centre. If it misses an eye
+in a frame, that eye is left out and not filled in with MediaPipe, so what
+the model does on its own stays visible. Each detector puts the centre in a
+slightly different place, so **calibrate again** after switching. With the
+phone as the head it is not used: the eye is the model’s.
 
 ### Parallax calibration
 
@@ -1495,6 +1516,12 @@ year in the text; each one carries a line on what it is used for here.
 - Savitzky A, Golay MJE. Smoothing and differentiation of data by simplified
   least squares procedures. *Anal Chem.* 1964;36(8):1627-39. doi:[10.1021/ac60214a047](https://doi.org/10.1021/ac60214a047)
   — The differentiator’s derivative by local polynomial fit.
+- Zhang X, Sugano Y, Fritz M, Bulling A. Appearance-based gaze estimation in
+  the wild. *Proc IEEE CVPR.* 2015:4511-20. — MPIIGaze, the source of the
+  images SIEV-iris was trained on.
+- Zhang X, Sugano Y, Fritz M, Bulling A. MPIIGaze: real-world dataset and deep
+  appearance-based gaze estimation. *IEEE Trans Pattern Anal Mach Intell.*
+  2019;41(1):162-75. — The full MPIIGaze dataset.
 
 </div>
 
@@ -1502,12 +1529,17 @@ year in the text; each one carries a line on what it is used for here.
 
 - **MediaPipe** (Google, Apache-2.0), the face tracking model:
   <https://github.com/google-ai-edge/mediapipe>
+- **SIEV-iris** (TecMedHub, AGPL-3.0), the experimental iris detector. Its
+  weights are published separately from trainHIT: doi:10.5281/zenodo.23106567
+- **Annotix** (MIT), where SIEV-iris was annotated and trained:
+  doi:10.5281/zenodo.19652328
+- **onnxruntime-web** (Microsoft, MIT), which runs SIEV-iris in the browser.
 - **Labyrinthus 3D**, from the same lab, where the phone link comes from.
 
 ### How to cite trainHIT
 
 > Baier-Quezada N, Uribe-Hernández V, López-Moncada F, Catipillan-Ulloa B.
-> trainHIT: a teaching vHIT in the browser [software]. Version 2026-10-01.1.
+> trainHIT: a teaching vHIT in the browser [software]. Version 2026-10-10.5.
 > Puerto Montt: TecMedHub Lab, Universidad Austral de Chile; 2026.
 > doi:10.5281/zenodo.23106742
 

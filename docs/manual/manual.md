@@ -17,8 +17,8 @@ teléfono como cabeza.
 <div class="ficha" markdown="1">
 
 **Autores:** Nicolás&nbsp;Baier-Quezada, Vanessa&nbsp;Uribe-Hernández, Fernanda&nbsp;López-Moncada, Benjamín&nbsp;Catipillan-Ulloa<br>
-**Fecha:** 1 de octubre de 2026<br>
-**Versión de trainHIT documentada:** 2026-10-01.1
+**Fecha:** 10 de octubre de 2026<br>
+**Versión de trainHIT documentada:** 2026-10-10.5
 
 Laboratorio TecMedHub · Universidad Austral de Chile, Sede Puerto Montt
 
@@ -461,6 +461,28 @@ la vista. Nada de lo que hay adentro hace falta para medir: está para entender.
   derecha de la pantalla.
 - **Suavizar las trazas**, **Marcar sacadas**, **Curva promedio del lado** y
   **Orientación:** ver la [sección 6](#6-leer-los-graficos).
+
+### Seguimiento ocular
+
+**Centro del iris** elige quién encuentra el centro del iris en cada cuadro:
+
+- **MediaPipe (malla de la cara)**, el de fábrica: el centro del iris que da
+  la misma malla que sigue la cabeza.
+- **SIEV-iris (ONNX, experimental):** un detector de iris YOLOv8n anotado y
+  entrenado en Annotix con imágenes reales de MPIIGaze (Zhang et al., 2015 y
+  2019), que corre en el navegador con onnxruntime-web. Busca la caja del iris
+  de cada ojo y toma como pupila lo más oscuro de adentro, que se ve en ámbar
+  en los ojos ampliados. Se baja la primera vez que se elige (unos 12 MB) y
+  después queda guardado para usarlo sin conexión. Si no carga, vuelve a
+  MediaPipe.
+
+Con cualquiera de los dos, la cabeza, el parpadeo, las comisuras y la escala
+en milímetros salen de MediaPipe: SIEV-iris solo reemplaza el centro del iris.
+Si en un cuadro no encuentra un ojo, ese ojo queda fuera y no se rellena con
+MediaPipe, para que se vea lo que el modelo hace solo. Cada detector pone el
+centro en un lugar algo distinto, así que conviene **calibrar de nuevo**
+después de cambiar. Con el teléfono como cabeza no se usa: el ojo es el del
+modelo.
 
 ### Calibración del paralaje
 
@@ -1488,6 +1510,12 @@ citan por autor y año; cada una lleva una línea sobre para qué se usa aquí.
 - Savitzky A, Golay MJE. Smoothing and differentiation of data by simplified
   least squares procedures. *Anal Chem.* 1964;36(8):1627-39. doi:[10.1021/ac60214a047](https://doi.org/10.1021/ac60214a047)
   — La derivada por ajuste polinómico local del derivador.
+- Zhang X, Sugano Y, Fritz M, Bulling A. Appearance-based gaze estimation in
+  the wild. *Proc IEEE CVPR.* 2015:4511-20. — MPIIGaze, de donde salen las
+  imágenes con que se entrenó SIEV-iris.
+- Zhang X, Sugano Y, Fritz M, Bulling A. MPIIGaze: real-world dataset and deep
+  appearance-based gaze estimation. *IEEE Trans Pattern Anal Mach Intell.*
+  2019;41(1):162-75. — El conjunto MPIIGaze completo.
 
 </div>
 
@@ -1495,13 +1523,18 @@ citan por autor y año; cada una lleva una línea sobre para qué se usa aquí.
 
 - **MediaPipe** (Google, Apache-2.0), el modelo de seguimiento de la cara:
   <https://github.com/google-ai-edge/mediapipe>
+- **SIEV-iris** (TecMedHub, AGPL-3.0), el detector de iris experimental. Sus
+  pesos se publican aparte de trainHIT: doi:10.5281/zenodo.23106567
+- **Annotix** (MIT), donde se anotó y entrenó SIEV-iris:
+  doi:10.5281/zenodo.19652328
+- **onnxruntime-web** (Microsoft, MIT), que corre SIEV-iris en el navegador.
 - **Labyrinthus 3D**, del mismo laboratorio, de donde viene el enlace con el
   teléfono.
 
 ### Cómo citar trainHIT
 
 > Baier-Quezada N, Uribe-Hernández V, López-Moncada F, Catipillan-Ulloa B.
-> trainHIT: vHIT didáctico en el navegador [software]. Versión 2026-10-01.1.
+> trainHIT: vHIT didáctico en el navegador [software]. Versión 2026-10-10.5.
 > Puerto Montt: Laboratorio TecMedHub, Universidad Austral de Chile; 2026.
 > doi:10.5281/zenodo.23106742
 
